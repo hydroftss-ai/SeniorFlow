@@ -1,9 +1,8 @@
-name: Deploy to GitHub Pages
+name: Deploy SeniorFlow to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -16,28 +15,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Descargar código
         uses: actions/checkout@v4
-
-      - name: Configurar pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Instalar dependencias
-        run: pnpm install --frozen-lockfile
-
-      - name: Compilar aplicación
-        run: pnpm build
 
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
@@ -45,17 +31,8 @@ jobs:
       - name: Preparar archivos
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: .
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Publicar página
+      - name: Publicar en GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
