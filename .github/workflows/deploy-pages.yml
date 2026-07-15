@@ -23,16 +23,21 @@ jobs:
       - name: Descargar código
         uses: actions/checkout@v4
 
+      - name: Configurar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Instalar dependencias
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Compilar aplicación
-        run: npm run build
+        run: pnpm build
 
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
