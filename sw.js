@@ -1,11 +1,11 @@
-const CACHE_NAME = 'seniorflow-pwa-20260715-01';
+const CACHE_NAME = 'seniorflow-pwa-20260731-restore-data-01';
 const ASSETS = [
   './',
   './index.html',
   './stock-app.html',
-  './stock-app.js?v=seniorflow-react-20260715-pdf-pagination-06',
-  './app.js?v=seniorflow-react-20260715-pdf-pagination-06',
-  './firebase-config.js?v=seniorflow-react-20260715-pdf-pagination-06',
+  './stock-app.js?v=seniorflow-restore-data-20260731-01',
+  './app.js?v=seniorflow-restore-data-20260731-01',
+  './firebase-config.js?v=seniorflow-restore-data-20260731-01',
   './manifest.json',
   './manifest-stock-app.json',
   './sw-stock-app.js?v=seniorflow-react-20260715-pdf-pagination-06',

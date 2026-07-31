@@ -18,11 +18,10 @@ import { signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'ht
 import { collection as firestoreCollection, doc as firestoreDoc, setDoc, onSnapshot, deleteDoc, updateDoc, addDoc, increment, getDocs, arrayUnion } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js';
 import { ref as storageRef, uploadString, getDownloadURL } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js';
 
-// Cada instalación debe trabajar en un espacio de datos propio. Antes de esto
-// todas las copias de SeniorFlow compartían las mismas colecciones del proyecto Firebase.
-const TENANT_ID = 'jorge';
-const collection = (database, ...path) => firestoreCollection(database, 'empresas', TENANT_ID, ...path);
-const doc = (database, ...path) => firestoreDoc(database, 'empresas', TENANT_ID, ...path);
+// Compatibilidad con los datos existentes. La separación por empresa requiere
+// una migración explícita; no se cambia la ruta hasta copiar/verificar los datos.
+const collection = (database, ...path) => firestoreCollection(database, ...path);
+const doc = (database, ...path) => firestoreDoc(database, ...path);
 
 // --- FUNCIONES UTILITARIAS ---
 const formatearDinero = (monto) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2 }).format(monto);
