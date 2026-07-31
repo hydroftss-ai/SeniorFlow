@@ -1,6 +1,10 @@
 import { auth, db } from './firebase-config.js?v=seniorflow-react-20260711-stock-app-05';
 import { signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js';
-import { collection, doc, onSnapshot, updateDoc } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js';
+import { collection as firestoreCollection, doc as firestoreDoc, onSnapshot, updateDoc } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js';
+
+const TENANT_ID = 'jorge';
+const collection = (database, ...path) => firestoreCollection(database, 'empresas', TENANT_ID, ...path);
+const doc = (database, ...path) => firestoreDoc(database, 'empresas', TENANT_ID, ...path);
 
 const $ = (id) => document.getElementById(id);
 const els = {

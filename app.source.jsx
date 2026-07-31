@@ -15,8 +15,14 @@ import autoTable from 'jspdf-autotable';
 // --- INTEGRACIÓN FIREBASE ---
 import { auth, db, storage } from './firebase-config.js?v=seniorflow-react-20260622-flyer-studio-55';
 import { signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js';
-import { collection, doc, setDoc, onSnapshot, deleteDoc, updateDoc, addDoc, increment, getDocs, arrayUnion } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js';
+import { collection as firestoreCollection, doc as firestoreDoc, setDoc, onSnapshot, deleteDoc, updateDoc, addDoc, increment, getDocs, arrayUnion } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js';
 import { ref as storageRef, uploadString, getDownloadURL } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js';
+
+// Cada instalación debe trabajar en un espacio de datos propio. Antes de esto
+// todas las copias de SeniorFlow compartían las mismas colecciones del proyecto Firebase.
+const TENANT_ID = 'jorge';
+const collection = (database, ...path) => firestoreCollection(database, 'empresas', TENANT_ID, ...path);
+const doc = (database, ...path) => firestoreDoc(database, 'empresas', TENANT_ID, ...path);
 
 // --- FUNCIONES UTILITARIAS ---
 const formatearDinero = (monto) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2 }).format(monto);
@@ -2345,7 +2351,10 @@ function AppInterna() {
         if (snapshot.empty) {
             setUsuarios([USUARIO_ADMIN_FALLBACK]);
             const { id: _id, ...usuarioSemillaFirestore } = USUARIO_ADMIN_FALLBACK;
-            addDoc(collection(db, 'usuarios'), usuarioSemillaFirestore).catch((err) => console.error(err));
+            // ID fijo: si dos pestañas inicializan al mismo tiempo, ambas escriben
+            // el mismo documento en lugar de crear administradores duplicados.
+            setDoc(doc(db, 'usuarios', 'admin'), usuarioSemillaFirestore, { merge: true })
+              .catch((err) => console.error(err));
         } else {
             const loaded = []; snapshot.forEach(doc => loaded.push({ id: doc.id, ...doc.data() })); setUsuarios(loaded);
         }
@@ -8913,6 +8922,18 @@ const abrirPuntoVenta = () => {
       // Compatibilidad con versiones previas
       puedeVerCuentasInstitucionales: limpiarPermiso(formUsuario.puedeVerClientesEspeciales)
     };
+    const usernameNormalizado = textoSeguro(formUsuario.username, '').trim().toLowerCase();
+    const usuarioDuplicado = usuarios.find((usuario) => (
+      usuario.id !== usuarioAEditar?.id
+      && textoSeguro(usuario.username || usuario.usuario || '', '').trim().toLowerCase() === usernameNormalizado
+    ));
+    if (usernameNormalizado && usuarioDuplicado) {
+      await notificarSistema('Ya existe otro usuario con ese nombre de acceso.', {
+        tipo: 'warning',
+        titulo: 'Usuario duplicado'
+      });
+      return;
+    }
     if (usuarioAEditar) {
       await updateDoc(doc(db, 'usuarios', usuarioAEditar.id), payloadUsuario);
     } else {

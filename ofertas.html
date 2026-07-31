@@ -485,7 +485,10 @@
 
   <script type="module">
     import { db } from './firebase-config.js?v=seniorflow-react-20260622-flyer-studio-55';
-    import { collection, doc, getDoc, getDocs } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js';
+    import { collection as firestoreCollection, doc as firestoreDoc, getDoc, getDocs } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js';
+    const TENANT_ID = 'jorge';
+    const collection = (database, ...path) => firestoreCollection(database, 'empresas', TENANT_ID, ...path);
+    const doc = (database, ...path) => firestoreDoc(database, 'empresas', TENANT_ID, ...path);
 
     const canvas = new fabric.Canvas('main-canvas', {
       backgroundColor: '#0f172a',
