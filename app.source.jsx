@@ -669,6 +669,7 @@ const CONFIG_DEFAULT = {
   recargoMoraPorcentajeGlobal: 0,
   alertaActualizacionPreciosActiva: true,
   alertaActualizacionPreciosDias: 30,
+  mostrarHistorialCajaAUsuarios: false,
   recorteIaApiKey: '',
   ofertaIaEndpoint: '',
   ofertaIaToken: ''
@@ -1741,6 +1742,7 @@ function AppInterna() {
     cobro: true,
     recargos: false,
     inventario: false,
+    historialCaja: false,
     logo: false,
     diagnostico: false
   });
@@ -2830,6 +2832,11 @@ function AppInterna() {
       default:
         return false;
     }
+  };
+
+  const usuarioPuedeVerHistorialCaja = (usuario = usuarioActual) => {
+    if ((usuario?.rol || '').toLowerCase() === 'admin') return true;
+    return Boolean(configuracion?.mostrarHistorialCajaAUsuarios);
   };
 
   const obtenerVistaInicialUsuario = (usuario = usuarioActual) => {
@@ -10114,7 +10121,17 @@ const abrirPuntoVenta = () => {
   };
 
   const eliminarUsuario = async (id) => {
-    if (id === usuarioActual.id) {
+    const usuarioObjetivo = usuarios.find((usuario) => usuario.id === id);
+    const esAdministradorObjetivo = (usuarioObjetivo?.rol || '').toLowerCase() === 'admin';
+    const cantidadAdministradores = usuarios.filter((usuario) => (usuario?.rol || '').toLowerCase() === 'admin').length;
+    if (esAdministradorObjetivo && cantidadAdministradores <= 1) {
+      await notificarSistema('Debe quedar al menos un administrador activo.', {
+        tipo: 'warning',
+        titulo: 'Acción no permitida'
+      });
+      return;
+    }
+    if (id === usuarioActual.id && !esAdministradorObjetivo) {
       await notificarSistema('No puedes eliminar tu propio usuario mientras estás conectado.', {
         tipo: 'warning',
         titulo: 'Acción no permitida'
@@ -10128,6 +10145,10 @@ const abrirPuntoVenta = () => {
     });
     if (!confirmar) return;
     await deleteDoc(doc(db, 'usuarios', id));
+    if (id === usuarioActual.id) {
+      setUsuarioActual(null);
+      setLoginForm({ username: '', password: '', error: '' });
+    }
   };
 
   const imprimirReporte = () => { window.print(); };
@@ -20283,6 +20304,7 @@ function obtenerCategoriaProducto(producto) {
   };
 
   const esAdminActual = usuarioActualSeguro.rol === 'admin';
+  const cantidadAdministradores = usuarios.filter((usuario) => (usuario?.rol || '').toLowerCase() === 'admin').length;
   const puedeVerSistema = cajaSegura.estado === 'abierta' || esAdminActual;
   const puedeVerClientes = usuarioPuedeVerModulo('clientes', usuarioActual);
   const puedeVerVentas = usuarioPuedeVerModulo('ventas', usuarioActual);
@@ -20481,7 +20503,7 @@ function obtenerCategoriaProducto(producto) {
           </div>
         )}
 
-        {cajaSegura.estado === 'cerrada' && vista === 'caja' && historialCaja.length > 0 && (
+        {cajaSegura.estado === 'cerrada' && vista === 'caja' && usuarioPuedeVerHistorialCaja() && historialCaja.length > 0 && (
           <div className="max-w-3xl mx-auto mt-6 bg-white border border-gray-200 rounded-2xl shadow-sm p-5 print:hidden">
             <div className="flex items-center justify-between gap-3 mb-3">
               <h3 className="font-black text-gray-900 uppercase tracking-wider text-sm">Historial de cierres</h3>
@@ -24949,6 +24971,35 @@ function obtenerCategoriaProducto(producto) {
                     </div>
                   )}
                 </div>
+                <div className="border border-violet-200 rounded-xl overflow-hidden">
+                  <button type="button" onClick={() => alternarSeccionConfiguracion('historialCaja')} className="w-full px-4 py-3 bg-violet-50 flex items-center justify-between">
+                    <span className="text-xs font-black text-violet-800 uppercase tracking-wider">Historial de caja</span>
+                    <span className="text-base font-black text-violet-700">{seccionesConfiguracionAbiertas.historialCaja ? '-' : '+'}</span>
+                  </button>
+                  {seccionesConfiguracionAbiertas.historialCaja && (
+                    <div className="bg-violet-50 border-t border-violet-200 p-3 space-y-2.5">
+                      <label className="flex items-center justify-between gap-3 cursor-pointer">
+                        <div>
+                          <p className="text-xs font-bold text-violet-800 uppercase tracking-wider">Permitir historial a usuarios no administradores</p>
+                          <p className="text-[11px] font-bold text-violet-700 mt-0.5">El administrador siempre puede verlo. Esta opción solo puede modificarla un administrador.</p>
+                        </div>
+                        <span className="relative inline-flex items-center shrink-0">
+                          <input
+                            type="checkbox"
+                            disabled={!editandoConfiguracion}
+                            checked={Boolean(configuracion.mostrarHistorialCajaAUsuarios)}
+                            onChange={(e) => setConfiguracion({
+                              ...configuracion,
+                              mostrarHistorialCajaAUsuarios: e.target.checked
+                            })}
+                            className="sr-only peer"
+                          />
+                          <span className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-violet-600 peer-disabled:opacity-60 peer-disabled:cursor-not-allowed after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></span>
+                        </span>
+                      </label>
+                    </div>
+                  )}
+                </div>
                 <div className="border border-blue-200 rounded-xl overflow-hidden">
                   <button type="button" onClick={() => alternarSeccionConfiguracion('diagnostico')} className="w-full px-4 py-3 bg-blue-50 flex items-center justify-between">
                     <span className="text-xs font-black text-blue-800 uppercase tracking-wider">Diagnóstico Firebase</span>
@@ -25010,7 +25061,7 @@ function obtenerCategoriaProducto(producto) {
                         </td>
                         <td className="px-5 py-3 text-right flex justify-end gap-2">
                           <button type="button" onClick={() => abrirFormularioUsuario(u)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-all" title="Editar"><Edit2 size={16} /></button>
-                          <button onClick={() => eliminarUsuario(u.id)} disabled={u.id === usuarioActual.id} className="p-1.5 text-red-600 hover:bg-red-50 rounded-md transition-all disabled:opacity-30 disabled:bg-transparent" title="Eliminar"><Trash2 size={16} /></button>
+                          <button onClick={() => eliminarUsuario(u.id)} disabled={u.id === usuarioActual.id && ((u.rol || '').toLowerCase() !== 'admin' || cantidadAdministradores <= 1)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-md transition-all disabled:opacity-30 disabled:bg-transparent" title="Eliminar"><Trash2 size={16} /></button>
                         </td>
                       </tr>
                     ))}

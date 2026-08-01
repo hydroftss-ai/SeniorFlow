@@ -23,6 +23,7 @@
       rel="stylesheet"
     />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
   </head>
   <body>
     <div id="root"></div>
@@ -31,7 +32,7 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker
-            .register('./sw.js?v=seniorflow-pwa-20260715-01')
+            .register('./sw.js?v=seniorflow-pwa-20260801-02')
             .catch((error) => console.error('No se pudo registrar la webapp:', error));
         });
       }
