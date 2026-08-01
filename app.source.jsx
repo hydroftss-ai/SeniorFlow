@@ -2126,6 +2126,7 @@ function AppInterna() {
   const [productosStockSeleccionados, setProductosStockSeleccionados] = useState([]);
   const [dialogoSistema, setDialogoSistema] = useState(null);
   const [descargandoPdfVistaImpresion, setDescargandoPdfVistaImpresion] = useState(false);
+  const [descargandoPdfMovimientoId, setDescargandoPdfMovimientoId] = useState('');
   const [descargandoImagenReciboCobro, setDescargandoImagenReciboCobro] = useState(false);
   const [modoCapturaReciboWhatsapp, setModoCapturaReciboWhatsapp] = useState(false);
   const [vistaImagenRecibo, setVistaImagenRecibo] = useState(null);
@@ -10463,45 +10464,119 @@ const abrirPuntoVenta = () => {
     }
   };
 
-  const descargarPdfVentaDocumentoDesdePreview = async (mov = null) => {
-    setDescargandoPdfVistaImpresion(true);
-    try {
-      if (!mov) throw new Error('Comprobante no disponible');
-      let iframe = ventaPreviewIframeRef.current;
-      let temporal = null;
-      try {
-        const coincideVista = iframe
-          && ventaDocumentoSeleccionado?.id
-          && ventaDocumentoSeleccionado.id === mov.id;
-        if (!coincideVista) {
-          temporal = await crearIframeTemporalParaPdf(construirHtmlVentaDocumento(mov, false));
-          iframe = temporal;
-        } else {
-          await esperarContenidoIframeListo(iframe);
-        }
-
-        const docFrame = iframe?.contentDocument;
-        const paginas = Array.from(docFrame?.querySelectorAll?.('.sheet') || []);
-        if (!paginas.length) throw new Error('No se encontraron páginas del comprobante.');
-        await promesaConTimeout(
-          generarPdfDesdeNodosCapturados(paginas, obtenerNombreArchivoComprobanteVenta(mov, true)),
-          25000,
-          'La generación del PDF tardó demasiado.'
-        );
-      } catch (error) {
-        console.error('No se pudo descargar el PDF del comprobante', error);
-        // Liberar el botón antes de mostrar el aviso: el diálogo espera la
-        // interacción del usuario y no debe dejar el ícono girando.
-        setDescargandoPdfVistaImpresion(false);
-        void notificarSistema('No se pudo descargar el PDF rápido. Probá nuevamente.', {
-          tipo: 'error',
-          titulo: 'Error al descargar'
-        });
-      } finally {
-        if (temporal?.parentNode) temporal.parentNode.removeChild(temporal);
+  const generarPdfVentaDocumentoDirecto = (mov = null) => {
+    if (!mov) throw new Error('Comprobante no disponible');
+    const detalles = mov?.detallesPago || {};
+    const items = Array.isArray(detalles?.items) ? detalles.items : [];
+    const tipoComprobante = detalles?.tipoComprobante || (detalles?.origen === 'remito_r' ? 'remito_r' : 'remito_x');
+    const etiqueta = OPCIONES_COMPROBANTE_VENTA.find((op) => op.value === tipoComprobante)?.label
+      || (tipoComprobante === 'remito_r' ? 'Remito R' : 'Comprobante');
+    const numero = textoSeguroTrim(detalles?.numeroComprobante, textoSeguroTrim(mov?.id, '-'));
+    const cliente = textoSeguroTrim(detalles?.cliente || detalles?.clienteNombre, 'Consumidor final');
+    const empresa = textoSeguroTrim(configuracion?.nombre, NOMBRE_EMPRESA_FALLBACK);
+    const filas = items.map((item) => {
+      const cantidad = Math.max(0, parseNumeroBasico(item?.cantidad) || 0);
+      const precio = Math.max(0, parseNumeroBasico(item?.precio) || 0);
+      const descuento = Math.min(100, Math.max(0, parseNumeroBasico(item?.descuento) || 0));
+      const bruto = cantidad * precio;
+      const subtotal = Math.max(0, bruto - (bruto * descuento / 100));
+      return [
+        textoSeguroTrim(item?.codigo, '-'),
+        textoSeguroTrim(item?.descripcion, 'Ítem'),
+        formatearCantidad(cantidad),
+        textoSeguroTrim(item?.unidad, 'unid'),
+        formatearDinero(precio),
+        descuento > 0 ? `${formatearCantidad(descuento)}%` : '-',
+        formatearDinero(subtotal)
+      ];
+    });
+    if (!filas.length) {
+      filas.push(['-', textoSeguroTrim(mov?.descripcion, 'Comprobante de venta'), '-', '-', '-', '-', formatearDinero(Math.abs(Number(mov?.monto || 0)))]);
+    }
+    const totalItems = items.reduce((total, item) => {
+      const cantidad = Math.max(0, parseNumeroBasico(item?.cantidad) || 0);
+      const precio = Math.max(0, parseNumeroBasico(item?.precio) || 0);
+      const descuento = Math.min(100, Math.max(0, parseNumeroBasico(item?.descuento) || 0));
+      const bruto = cantidad * precio;
+      return total + Math.max(0, bruto - (bruto * descuento / 100));
+    }, 0);
+    const total = totalItems > 0 ? totalItems : Math.abs(Number(mov?.monto || 0));
+    const docPdf = crearPdfA4('portrait', { titulo: `${etiqueta} ${numero}` });
+    docPdf.setFillColor(15, 23, 42);
+    docPdf.roundedRect(14, 10, 182, 24, 2, 2, 'F');
+    docPdf.setFont('helvetica', 'bold');
+    docPdf.setFontSize(14);
+    docPdf.setTextColor(255, 255, 255);
+    docPdf.text(empresa.toUpperCase(), 18, 19);
+    docPdf.setFontSize(8);
+    docPdf.setTextColor(203, 213, 225);
+    docPdf.text('COMPROBANTE DE VENTA', 18, 26);
+    docPdf.setFontSize(13);
+    docPdf.setTextColor(52, 211, 153);
+    docPdf.text(`${etiqueta} N° ${numero}`, 192, 22, { align: 'right' });
+    docPdf.setFont('helvetica', 'normal');
+    docPdf.setFontSize(8.5);
+    docPdf.setTextColor(71, 85, 105);
+    docPdf.text(`Fecha: ${formatearFecha(mov?.fecha)} ${formatearHora(mov?.fecha)}`, 14, 42);
+    docPdf.text(`Forma de pago: ${obtenerEtiquetaMetodoPago(mov?.metodoPago)}`, 14, 48);
+    docPdf.setFont('helvetica', 'bold');
+    docPdf.setTextColor(15, 23, 42);
+    docPdf.text('Cliente', 110, 42);
+    docPdf.setFont('helvetica', 'normal');
+    docPdf.text(cliente, 110, 48, { maxWidth: 86 });
+    autoTable(docPdf, {
+      startY: 58,
+      head: [['Código', 'Detalle', 'Cant.', 'Unidad', 'Precio U.', 'Desc.', 'Subtotal']],
+      body: filas,
+      theme: 'grid',
+      margin: { left: 14, right: 14 },
+      styles: { fontSize: 8, cellPadding: 2, textColor: [30, 41, 59], lineColor: [226, 232, 240], valign: 'top' },
+      headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' },
+      columnStyles: {
+        0: { cellWidth: 25 },
+        1: { cellWidth: 68 },
+        2: { cellWidth: 18, halign: 'right' },
+        3: { cellWidth: 19 },
+        4: { cellWidth: 25, halign: 'right' },
+        5: { cellWidth: 18, halign: 'right' },
+        6: { cellWidth: 28, halign: 'right', fontStyle: 'bold' }
       }
+    });
+    const totalY = Math.min((docPdf.lastAutoTable?.finalY || 70) + 12, 270);
+    docPdf.setFillColor(236, 253, 245);
+    docPdf.setDrawColor(134, 239, 172);
+    docPdf.roundedRect(125, totalY, 71, 20, 2, 2, 'FD');
+    docPdf.setFont('helvetica', 'bold');
+    docPdf.setFontSize(8);
+    docPdf.setTextColor(4, 120, 87);
+    docPdf.text('TOTAL', 192, totalY + 7, { align: 'right' });
+    docPdf.setFontSize(16);
+    docPdf.text(formatearDinero(total), 192, totalY + 15, { align: 'right' });
+    const notas = textoSeguroTrim(detalles?.notas, '');
+    if (notas) {
+      docPdf.setFont('helvetica', 'normal');
+      docPdf.setFontSize(8);
+      docPdf.setTextColor(71, 85, 105);
+      docPdf.text(`Notas: ${notas}`, 14, Math.min(totalY + 8, 276), { maxWidth: 105 });
+    }
+    const blob = docPdf.output('blob');
+    return new File([blob], obtenerNombreArchivoComprobanteVenta(mov, true), { type: 'application/pdf' });
+  };
+
+  const descargarPdfVentaDocumentoDesdePreview = async (mov = null) => {
+    const movimientoId = textoSeguroTrim(mov?.id, textoSeguroTrim(ventaDocumentoSeleccionado?.id, 'preview'));
+    setDescargandoPdfMovimientoId(movimientoId);
+    try {
+      const archivo = generarPdfVentaDocumentoDirecto(mov);
+      descargarArchivoTemporal(archivo);
+    } catch (error) {
+      console.error('No se pudo descargar el PDF del comprobante', error);
+      void notificarSistema('No se pudo descargar el PDF rápido. Probá nuevamente.', {
+        tipo: 'error',
+        titulo: 'Error al descargar'
+      });
     } finally {
-      setDescargandoPdfVistaImpresion(false);
+      setDescargandoPdfMovimientoId((actual) => actual === movimientoId ? '' : actual);
     }
   };
 
@@ -30379,7 +30454,7 @@ function obtenerCategoriaProducto(producto) {
                                     <button
                                       type="button"
                                       onClick={() => descargarPdfVentaDocumentoDesdePreview(mov)}
-                                      disabled={descargandoPdfVistaImpresion}
+                                      disabled={descargandoPdfMovimientoId === mov.id}
                                       className="px-2 py-1 rounded-md border border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors text-[10px] font-black uppercase tracking-wider flex items-center gap-1"
                                       title="Descargar Remito R en PDF"
                                     >
@@ -30397,11 +30472,11 @@ function obtenerCategoriaProducto(producto) {
                                   <button
                                     type="button"
                                     onClick={() => descargarPdfVentaDocumentoDesdePreview(mov)}
-                                    disabled={descargandoPdfVistaImpresion}
+                                    disabled={descargandoPdfMovimientoId === mov.id}
                                     className="p-1.5 rounded-md border border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors"
                                     title="Descargar comprobante PDF"
                                   >
-                                    {descargandoPdfVistaImpresion ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
+                                    {descargandoPdfMovimientoId === mov.id ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
                                   </button>
                                 </>
                               )}
@@ -32637,10 +32712,10 @@ function obtenerCategoriaProducto(producto) {
               <button
                 type="button"
                 onClick={() => descargarPdfVentaDocumentoDesdePreview(ventaDocumentoSeleccionado)}
-                disabled={descargandoPdfVistaImpresion}
+                disabled={descargandoPdfMovimientoId === ventaDocumentoSeleccionado?.id}
                 className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
               >
-                {descargandoPdfVistaImpresion ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />} PDF
+                {descargandoPdfMovimientoId === ventaDocumentoSeleccionado?.id ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />} PDF
               </button>
               <button
                 type="button"
