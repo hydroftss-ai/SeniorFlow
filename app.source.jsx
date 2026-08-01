@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { COMPANY_RUNTIME_CONFIG } from './company-runtime-config.js';
 
 // --- INTEGRACIÓN FIREBASE ---
 import { auth, db, storage } from './firebase-config.js?v=seniorflow-react-20260622-flyer-studio-55';
@@ -451,7 +452,8 @@ const textoCondicionFiscalCliente = (cliente = null) => {
   );
   return condicion || 'Sin condición fiscal';
 };
-const OFERTA_TEMPLATE_BASE_URL = '';
+const COMPANY_DEFAULTS = COMPANY_RUNTIME_CONFIG || {};
+const OFERTA_TEMPLATE_BASE_URL = COMPANY_DEFAULTS.ofertaTemplateBaseUrl || '';
 const FORM_USUARIO_VACIO = {
   nombre: '',
   username: '',
@@ -672,24 +674,24 @@ const promesaConTimeout = (promesa, timeoutMs = 15000, mensaje = 'La operación 
 const esDataUrlPesada = (valor = '') => textoSeguroTrim(valor, '').startsWith('data:');
 const MS_POR_DIA = 1000 * 60 * 60 * 24;
 const CONTACTO_NEGOCIO_FALLBACK = {
-  direccion: '',
-  web: '',
-  whatsapp: '',
-  correo: ''
+  direccion: COMPANY_DEFAULTS.direccion || '',
+  web: COMPANY_DEFAULTS.web || '',
+  whatsapp: COMPANY_DEFAULTS.whatsapp || '',
+  correo: COMPANY_DEFAULTS.correo || ''
 };
-const NOMBRE_EMPRESA_FALLBACK = 'MI EMPRESA';
+const NOMBRE_EMPRESA_FALLBACK = COMPANY_DEFAULTS.nombre || 'MI EMPRESA';
 const CONFIG_DEFAULT = {
   nombre: NOMBRE_EMPRESA_FALLBACK,
-  logo: '',
+  logo: COMPANY_DEFAULTS.logo || '',
   direccion: CONTACTO_NEGOCIO_FALLBACK.direccion,
   web: CONTACTO_NEGOCIO_FALLBACK.web,
   whatsapp: CONTACTO_NEGOCIO_FALLBACK.whatsapp,
   correo: CONTACTO_NEGOCIO_FALLBACK.correo,
-  pagoAlias: '',
-  pagoCbu: '',
-  pagoTitular: '',
-  pagoBanco: '',
-  pagoDetalle: '',
+  pagoAlias: COMPANY_DEFAULTS.pagoAlias || '',
+  pagoCbu: COMPANY_DEFAULTS.pagoCbu || '',
+  pagoTitular: COMPANY_DEFAULTS.pagoTitular || '',
+  pagoBanco: COMPANY_DEFAULTS.pagoBanco || '',
+  pagoDetalle: COMPANY_DEFAULTS.pagoDetalle || '',
   recargoMoraPorcentaje: 0,
   recargosAutomaticosActivos: false,
   recargoMoraPorcentajeGlobal: 0,
@@ -716,8 +718,8 @@ const USUARIO_ADMIN_FALLBACK = {
   password: '123',
   rol: 'admin'
 };
-const LOGO_EMPRESA_FALLBACK_URL = '';
-const LOGO_RECIBO_PREMIUM_URL = '';
+const LOGO_EMPRESA_FALLBACK_URL = COMPANY_DEFAULTS.logoEmpresaFallbackUrl || '';
+const LOGO_RECIBO_PREMIUM_URL = COMPANY_DEFAULTS.logoReciboPremiumUrl || '';
 const obtenerUrlAbsolutaAsset = (asset = '') => {
   const origen = textoSeguroTrim(asset, '');
   if (!origen || origen.startsWith('data:') || /^https?:\/\//i.test(origen)) return origen;
@@ -1955,6 +1957,8 @@ function AppInterna() {
   const [compraDirectaActiva, setCompraDirectaActiva] = useState(false);
   const [compraDirectaMetodoPago, setCompraDirectaMetodoPago] = useState('cuenta_corriente');
   const [compraDirectaMontoPagado, setCompraDirectaMontoPagado] = useState('');
+  const [compraDirectaTipoComprobante, setCompraDirectaTipoComprobante] = useState('');
+  const [compraDirectaNumeroComprobante, setCompraDirectaNumeroComprobante] = useState('');
   const [compraDirectaComprobante, setCompraDirectaComprobante] = useState('');
   const [busquedaPedidosCompra, setBusquedaPedidosCompra] = useState('');
   const [filtroEstadoPedidosCompra, setFiltroEstadoPedidosCompra] = useState('todos');
@@ -12486,6 +12490,49 @@ const abrirPuntoVenta = () => {
     return docPdf;
   };
 
+  const sincronizarMovimientoPagoProveedor = async ({ pagoId = '', pago = null, eliminar = false } = {}) => {
+    if (!pagoId) return;
+    const movimientoExistente = (movimientos || []).find((mov) => (
+      textoSeguroTrim(mov?.pagoProveedorId || mov?.detallesPago?.pagoProveedorId, '') === pagoId
+    ));
+    const movimientoRef = movimientoExistente?.id ? doc(db, 'movimientos', movimientoExistente.id) : null;
+    const metodoPago = normalizarMetodoPago(pago?.metodoPago || '');
+    const noEsPagoReal = ['pendiente', 'cuenta_corriente', 'pago_realizado'].includes(metodoPago);
+    if (eliminar || !pago || noEsPagoReal || Math.max(0, parseNumeroBasico(pago?.monto) || 0) <= 0) {
+      if (movimientoRef) await deleteDoc(movimientoRef);
+      return;
+    }
+    const monto = Math.max(0, parseNumeroBasico(pago?.monto) || 0);
+    const payloadMovimiento = limpiarDatoFirestore({
+      tipo: 'gasto',
+      monto,
+      metodoPago,
+      descripcion: `Pago a proveedor: ${textoSeguroTrim(pago?.proveedor, 'Proveedor')}`,
+      categoria: 'Pago a proveedor',
+      proveedorId: textoSeguroTrim(pago?.proveedorId, ''),
+      proveedor: textoSeguroTrim(pago?.proveedor, ''),
+      pagoProveedorId: pagoId,
+      noImpactaCaja: false,
+      fecha: textoSeguroTrim(pago?.fecha, new Date().toISOString()),
+      fechaCreacion: textoSeguroTrim(pago?.fechaCreacion, new Date().toISOString()),
+      usuario: textoSeguroTrim(pago?.usuario, usuarioActual?.nombre || ''),
+      detallesPago: {
+        origen: 'pago_proveedor',
+        pagoProveedorId: pagoId,
+        proveedorId: textoSeguroTrim(pago?.proveedorId, ''),
+        proveedor: textoSeguroTrim(pago?.proveedor, ''),
+        numeroComprobante: textoSeguroTrim(pago?.numeroComprobante, ''),
+        pedidoCompraId: textoSeguroTrim(pago?.pedidoCompraId, ''),
+        pedidoCompraNumero: textoSeguroTrim(pago?.pedidoCompraNumero, '')
+      }
+    });
+    if (movimientoRef) {
+      await updateDoc(movimientoRef, payloadMovimiento);
+    } else {
+      await addDoc(collection(db, 'movimientos'), payloadMovimiento);
+    }
+  };
+
   const guardarPagoProveedor = async (e) => {
     e.preventDefault();
     const proveedor = textoSeguroTrim(formPagoProveedor?.proveedor, '');
@@ -12530,6 +12577,7 @@ const abrirPuntoVenta = () => {
       const pagoRef = await addDoc(collection(db, 'pagos_proveedores'), payloadPagoProveedor);
       pagoId = pagoRef.id;
     }
+    await sincronizarMovimientoPagoProveedor({ pagoId, pago: { id: pagoId, ...payloadPagoProveedor } });
     await construirPdfPagoProveedor({ id: pagoId, ...payloadPagoProveedor });
 
     if (pedidoCompraId) {
@@ -12778,6 +12826,7 @@ const abrirPuntoVenta = () => {
           totalFactura: totalRecibido
         });
         const pagoRef = await addDoc(collection(db, 'pagos_proveedores'), payloadPagoCompra);
+        await sincronizarMovimientoPagoProveedor({ pagoId: pagoRef.id, pago: { id: pagoRef.id, ...payloadPagoCompra } });
         await construirPdfPagoProveedor({ id: pagoRef.id, ...payloadPagoCompra });
         await updateDoc(doc(db, 'pedidos_compra', recepcionCompraPedido.id), {
           pagoRegistradoProveedor: true,
@@ -12809,6 +12858,7 @@ const abrirPuntoVenta = () => {
     });
     if (!confirmar) return;
     await deleteDoc(doc(db, 'pagos_proveedores', pago.id));
+    await sincronizarMovimientoPagoProveedor({ pagoId: pago.id, eliminar: true });
   };
 
   const imprimirCuentaProveedor = async (proveedor = null) => {
@@ -16551,18 +16601,47 @@ function obtenerCategoriaProducto(producto) {
     return '';
   };
 
+  const obtenerCostoBaseProductoParaPedidoCompra = (producto = {}, proveedor = '') => {
+    const costo = producto?.costoOriginal ?? producto?.costo ?? '';
+    const moneda = ['ARS', 'USD_BNA', 'USD_BLUE'].includes(producto?.monedaCosto) ? producto.monedaCosto : 'ARS';
+    return {
+      proveedor: textoSeguroTrim(proveedor, textoSeguroTrim(producto?.proveedor, '')),
+      codigoProveedor: textoSeguroTrim(producto?.proveedor, '') === textoSeguroTrim(proveedor, '') ? textoSeguroTrim(producto?.codigoProveedor, '') : '',
+      costo,
+      moneda,
+      costoPesos: Math.max(0, convertirCostoProveedorAPesos({ costo, moneda }, producto))
+    };
+  };
+
+  const obtenerCostoProveedorParaPedidoCompra = (producto = {}, proveedor = '', costoPreferido = null) => {
+    const costos = obtenerCostosProveedorProducto(producto)
+      .map((costo) => ({ ...costo, costoPesos: convertirCostoProveedorAPesos(costo, producto) }));
+    if (costoPreferido) {
+      const costoExacto = costos.find((costo) => (
+        normalizarTextoBusqueda(costo?.proveedor || '') === normalizarTextoBusqueda(costoPreferido?.proveedor || '')
+        && (!costoPreferido?.codigoProveedor || normalizarTextoBusqueda(costo?.codigoProveedor || '') === normalizarTextoBusqueda(costoPreferido?.codigoProveedor || ''))
+      ));
+      if (costoExacto) return costoExacto;
+    }
+    if (proveedor) {
+      const costoDelProveedor = costos.find((costo) => normalizarTextoBusqueda(costo?.proveedor || '') === normalizarTextoBusqueda(proveedor));
+      if (costoDelProveedor) return costoDelProveedor;
+      // El proveedor puede comprar cualquier producto aunque todavía no tenga un costo individual cargado.
+      return obtenerCostoBaseProductoParaPedidoCompra(producto, proveedor);
+    }
+    const costoConImporte = costos
+      .filter((costo) => costo.costoPesos > 0)
+      .sort((a, b) => a.costoPesos - b.costoPesos)[0];
+    return costoConImporte || obtenerCostoBaseProductoParaPedidoCompra(producto, '');
+  };
+
   const recalcularProveedorItemPedidoCompra = (item = {}, proveedorElegido = '') => {
     const producto = obtenerProductoParaPedidoCompra(item);
-    const costos = obtenerCostosProveedorProducto(producto)
-      .map((costo) => ({ ...costo, costoPesos: convertirCostoProveedorAPesos(costo) }))
-      .filter((costo) => costo.costoPesos > 0);
-    const costoProveedor = proveedorElegido
-      ? costos.find((costo) => normalizarTextoBusqueda(costo?.proveedor) === normalizarTextoBusqueda(proveedorElegido))
-      : (costos[0] || null);
-    if (!costoProveedor) return item;
+    const costoProveedor = obtenerCostoProveedorParaPedidoCompra(producto, proveedorElegido);
+    if (!costoProveedor || (!producto && !textoSeguroTrim(item?.descripcion, ''))) return { ...item, proveedor: proveedorElegido };
     return {
       ...item,
-      proveedor: costoProveedor.proveedor || '',
+      proveedor: proveedorElegido || costoProveedor.proveedor || '',
       codigoProveedor: costoProveedor.codigoProveedor || '',
       costo: costoProveedor.costo ?? '',
       moneda: costoProveedor.moneda || 'ARS',
@@ -16575,6 +16654,8 @@ function obtenerCategoriaProducto(producto) {
     setCompraDirectaActiva(false);
     setCompraDirectaMetodoPago('cuenta_corriente');
     setCompraDirectaMontoPagado('');
+    setCompraDirectaTipoComprobante('');
+    setCompraDirectaNumeroComprobante('');
     setCompraDirectaComprobante('');
     setItemsPedidoCompra([]);
     setBusquedaProductosPedidoCompra('');
@@ -16601,6 +16682,8 @@ function obtenerCategoriaProducto(producto) {
     setCompraDirectaActiva(true);
     setCompraDirectaMetodoPago('cuenta_corriente');
     setCompraDirectaMontoPagado('');
+    setCompraDirectaTipoComprobante('');
+    setCompraDirectaNumeroComprobante('');
     setCompraDirectaComprobante('');
     setItemsPedidoCompra([]);
     setBusquedaProductosPedidoCompra('');
@@ -16628,6 +16711,8 @@ function obtenerCategoriaProducto(producto) {
     setCompraDirectaActiva(false);
     setCompraDirectaMetodoPago('cuenta_corriente');
     setCompraDirectaMontoPagado('');
+    setCompraDirectaTipoComprobante(textoSeguroTrim(pedido?.tipoComprobanteProveedor, ''));
+    setCompraDirectaNumeroComprobante(textoSeguroTrim(pedido?.numeroComprobanteProveedor, ''));
     setCompraDirectaComprobante('');
     const items = (pedido?.items || []).map((item, index) => normalizarItemPedidoCompra(item, index));
     setItemsPedidoCompra(items);
@@ -16727,30 +16812,14 @@ function obtenerCategoriaProducto(producto) {
   };
 
   const agregarProductoAPedidoCompra = (producto = {}, costoProveedorPreferido = null) => {
-    const costos = obtenerCostosProveedorProducto(producto)
-      .map((costo) => ({ ...costo, costoPesos: convertirCostoProveedorAPesos(costo) }))
-      .filter((costo) => costo.costoPesos > 0)
-      .sort((a, b) => a.costoPesos - b.costoPesos);
-    const costoProveedor = costoProveedorPreferido
-      ? costos.find((costo) => (
-          normalizarTextoBusqueda(costo?.proveedor || '') === normalizarTextoBusqueda(costoProveedorPreferido?.proveedor || '')
-          && normalizarTextoBusqueda(costo?.codigoProveedor || '') === normalizarTextoBusqueda(costoProveedorPreferido?.codigoProveedor || '')
-        ))
-      : (proveedorCompraSeleccionado
-      ? costos.find((costo) => normalizarTextoBusqueda(costo.proveedor) === normalizarTextoBusqueda(proveedorCompraSeleccionado))
-      : costos[0]);
-    if (!costoProveedor) {
-      notificarSistema('Este producto no tiene costo cargado para el proveedor elegido.', {
-        tipo: 'warning',
-        titulo: 'Sin costo proveedor'
-      });
-      return;
-    }
+    const costoProveedor = obtenerCostoProveedorParaPedidoCompra(producto, proveedorCompraSeleccionado, costoProveedorPreferido);
+    if (!costoProveedor) return;
     setItemsPedidoCompra((prev) => {
-      const existente = prev.find((item) => item.productoId === producto.id && item.proveedor === costoProveedor.proveedor);
+      const proveedorItem = proveedorCompraSeleccionado || costoProveedor.proveedor || '';
+      const existente = prev.find((item) => item.productoId === producto.id && item.proveedor === proveedorItem);
       if (existente) {
         return prev.map((item) => (
-          item.productoId === producto.id && item.proveedor === costoProveedor.proveedor
+          item.productoId === producto.id && item.proveedor === proveedorItem
             ? { ...item, cantidad: (parseNumeroPresupuesto(item.cantidad) || 1) + 1 }
             : item
         ));
@@ -16763,7 +16832,7 @@ function obtenerCategoriaProducto(producto) {
           descripcion: producto.descripcion || '',
           unidad: producto.unidad || 'unid',
           cantidad: 1,
-          proveedor: costoProveedor.proveedor || '',
+          proveedor: proveedorItem,
           codigoProveedor: costoProveedor.codigoProveedor || '',
           costo: costoProveedor.costo ?? '',
           moneda: costoProveedor.moneda || 'ARS',
@@ -17019,6 +17088,10 @@ function obtenerCategoriaProducto(producto) {
     const costoActualizadoAhora = compraImpactaInventario && estadoPedido === 'recibido'
       ? await actualizarCostosProveedorDesdeRecepcion(itemsAjustados)
       : false;
+    const comprobanteProveedor = [
+      textoSeguroTrim(compraDirectaTipoComprobante, ''),
+      textoSeguroTrim(compraDirectaNumeroComprobante, '')
+    ].filter(Boolean).join(' ') || textoSeguroTrim(compraDirectaComprobante, '');
     const payload = {
       numero: pedidoCompraEditandoId
         ? textoSeguroTrim((pedidosCompra || []).find((p) => p.id === pedidoCompraEditandoId)?.numero, generarNumeroPedidoCompra())
@@ -17055,7 +17128,9 @@ function obtenerCategoriaProducto(producto) {
       ajusteMonto,
       totalEstimado,
       tipoRegistro: compraDirectaActiva ? 'compra_directa' : 'pedido_compra',
-      remitoProveedor: compraDirectaActiva ? textoSeguroTrim(compraDirectaComprobante, '') : (pedidoAnterior?.remitoProveedor || ''),
+      tipoComprobanteProveedor: compraDirectaActiva ? textoSeguroTrim(compraDirectaTipoComprobante, '') : (pedidoAnterior?.tipoComprobanteProveedor || ''),
+      numeroComprobanteProveedor: compraDirectaActiva ? textoSeguroTrim(compraDirectaNumeroComprobante, '') : (pedidoAnterior?.numeroComprobanteProveedor || ''),
+      remitoProveedor: compraDirectaActiva ? comprobanteProveedor : (pedidoAnterior?.remitoProveedor || ''),
       fechaRecepcion: compraDirectaActiva ? combinarFechaInputConHoraReferenciaISO(pedidoCompraFechaPedido || obtenerFechaInputLocal(), new Date()) : (pedidoAnterior?.fechaRecepcion || ''),
       actualizarStock: Boolean(compraImpactaInventario),
       actualizarCostos: Boolean(compraImpactaInventario),
@@ -17072,7 +17147,7 @@ function obtenerCategoriaProducto(producto) {
       pagoRegistradoProveedorEn: compraDirectaActiva && requierePagoDirecto ? new Date().toISOString() : (pedidoAnterior?.pagoRegistradoProveedorEn || ''),
       pagoRegistradoProveedorMonto: compraDirectaActiva && requierePagoDirecto ? montoPagadoDirecto : (pedidoAnterior?.pagoRegistradoProveedorMonto || 0),
       pagoRegistradoProveedorMetodo: compraDirectaActiva && requierePagoDirecto ? metodoPagoDirecto : (pedidoAnterior?.pagoRegistradoProveedorMetodo || ''),
-      pagoRegistradoProveedorComprobante: compraDirectaActiva && requierePagoDirecto ? textoSeguroTrim(compraDirectaComprobante, '') : (pedidoAnterior?.pagoRegistradoProveedorComprobante || ''),
+      pagoRegistradoProveedorComprobante: compraDirectaActiva && requierePagoDirecto ? comprobanteProveedor : (pedidoAnterior?.pagoRegistradoProveedorComprobante || ''),
       pagoRegistradoProveedorPedidoEstado: compraDirectaActiva && requierePagoDirecto ? 'recibido' : (pedidoAnterior?.pagoRegistradoProveedorPedidoEstado || ''),
       usuario: usuarioActual?.nombre || '',
       fechaActualizacion: new Date().toISOString()
@@ -17098,7 +17173,7 @@ function obtenerCategoriaProducto(producto) {
           proveedor: proveedorPrincipal,
           monto: montoPagadoDirecto,
           metodoPago: metodoPagoDirecto,
-          numeroComprobante: textoSeguroTrim(compraDirectaComprobante, ''),
+          numeroComprobante: comprobanteProveedor,
           notas: textoSeguroTrim(pedidoCompraNotas, ''),
           fecha: combinarFechaInputConHoraReferenciaISO(pedidoCompraFechaPedido || obtenerFechaInputLocal(), new Date()),
           fechaCreacion: new Date().toISOString(),
@@ -17108,7 +17183,8 @@ function obtenerCategoriaProducto(producto) {
           pedidoCompraEstado: 'recibido',
           totalFactura: totalEstimado
         });
-        await addDoc(collection(db, 'pagos_proveedores'), payloadPago);
+        const pagoRef = await addDoc(collection(db, 'pagos_proveedores'), payloadPago);
+        await sincronizarMovimientoPagoProveedor({ pagoId: pagoRef.id, pago: { id: pagoRef.id, ...payloadPago } });
       }
     }
 
@@ -27705,17 +27781,27 @@ function obtenerCategoriaProducto(producto) {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[9px] font-black text-emerald-800 uppercase tracking-wider mb-0.5">Comprobante / referencia</label>
+                      <label className="block text-[9px] font-black text-emerald-800 uppercase tracking-wider mb-0.5">Tipo de comprobante</label>
                       <select
-                        value={compraDirectaComprobante}
-                        onChange={(e) => setCompraDirectaComprobante(e.target.value)}
+                        value={compraDirectaTipoComprobante}
+                        onChange={(e) => setCompraDirectaTipoComprobante(e.target.value)}
                         className="w-full px-2 py-1.5 rounded-lg border border-emerald-200 bg-white text-[11px] font-bold outline-none focus:ring-2 focus:ring-emerald-500"
                       >
-                        <option value="">Seleccionar comprobante</option>
+                        <option value="">Sin comprobante</option>
                         <option value="Factura A">Factura A</option>
                         <option value="Factura B">Factura B</option>
+                        <option value="Factura C">Factura C</option>
                         <option value="Remito X">Remito X</option>
                       </select>
+                    </div>
+                    <div>
+                      <label className="block text-[9px] font-black text-emerald-800 uppercase tracking-wider mb-0.5">Número de comprobante</label>
+                      <input
+                        value={compraDirectaNumeroComprobante}
+                        onChange={(e) => setCompraDirectaNumeroComprobante(e.target.value)}
+                        className="w-full px-2 py-1.5 rounded-lg border border-emerald-200 bg-white text-[11px] font-bold outline-none focus:ring-2 focus:ring-emerald-500"
+                        placeholder="Ej.: 0001-00001234"
+                      />
                     </div>
                   </div>
                 )}
