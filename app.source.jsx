@@ -10563,19 +10563,70 @@ const abrirPuntoVenta = () => {
     return new File([blob], obtenerNombreArchivoComprobanteVenta(mov, true), { type: 'application/pdf' });
   };
 
+  const prepararVentaDocumentoParaPdf = async (mov = null) => {
+    if (!mov || typeof document === 'undefined') throw new Error('Comprobante no disponible');
+    const html = construirHtmlVentaDocumento(mov, false);
+    const documento = new DOMParser().parseFromString(html, 'text/html');
+    const contenedor = document.createElement('div');
+    contenedor.setAttribute('aria-hidden', 'true');
+    contenedor.style.position = 'fixed';
+    contenedor.style.left = '-20000px';
+    contenedor.style.top = '0';
+    contenedor.style.width = '210mm';
+    contenedor.style.background = '#ffffff';
+    contenedor.style.fontFamily = 'Arial, sans-serif';
+    const estilos = Array.from(documento.querySelectorAll('style'))
+      .map((estilo) => estilo.textContent || '')
+      .join('\n');
+    const hojaEstilos = document.createElement('style');
+    hojaEstilos.textContent = estilos;
+    contenedor.appendChild(hojaEstilos);
+    const cuerpo = document.createElement('div');
+    cuerpo.innerHTML = documento.body?.innerHTML || '';
+    contenedor.appendChild(cuerpo);
+    document.body.appendChild(contenedor);
+    try {
+      await esperarImagenesNodo(contenedor);
+      await esperarFrame();
+      const paginas = Array.from(contenedor.querySelectorAll('.sheet'));
+      if (!paginas.length) throw new Error('No se encontraron páginas del comprobante.');
+      return { contenedor, paginas };
+    } catch (error) {
+      if (contenedor.parentNode) contenedor.parentNode.removeChild(contenedor);
+      throw error;
+    }
+  };
+
   const descargarPdfVentaDocumentoDesdePreview = async (mov = null) => {
     const movimientoId = textoSeguroTrim(mov?.id, textoSeguroTrim(ventaDocumentoSeleccionado?.id, 'preview'));
     setDescargandoPdfMovimientoId(movimientoId);
+    let vistaPdf = null;
     try {
-      const archivo = generarPdfVentaDocumentoDirecto(mov);
-      descargarArchivoTemporal(archivo);
+      vistaPdf = await promesaConTimeout(
+        prepararVentaDocumentoParaPdf(mov),
+        12000,
+        'La vista del comprobante tardó demasiado en prepararse.'
+      );
+      await promesaConTimeout(
+        generarPdfDesdeNodosCapturados(vistaPdf.paginas, obtenerNombreArchivoComprobanteVenta(mov, true)),
+        30000,
+        'La generación del PDF tardó demasiado.'
+      );
     } catch (error) {
       console.error('No se pudo descargar el PDF del comprobante', error);
-      void notificarSistema('No se pudo descargar el PDF rápido. Probá nuevamente.', {
-        tipo: 'error',
-        titulo: 'Error al descargar'
-      });
+      try {
+        // Respaldo: mantiene la descarga disponible si el navegador bloquea
+        // la captura visual del HTML original.
+        descargarArchivoTemporal(generarPdfVentaDocumentoDirecto(mov));
+      } catch (fallbackError) {
+        console.error('Tampoco se pudo generar el PDF directo', fallbackError);
+        void notificarSistema('No se pudo descargar el PDF rápido. Probá nuevamente.', {
+          tipo: 'error',
+          titulo: 'Error al descargar'
+        });
+      }
     } finally {
+      if (vistaPdf?.contenedor?.parentNode) vistaPdf.contenedor.parentNode.removeChild(vistaPdf.contenedor);
       setDescargandoPdfMovimientoId((actual) => actual === movimientoId ? '' : actual);
     }
   };
