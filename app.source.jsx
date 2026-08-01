@@ -59,6 +59,27 @@ const parseNumeroBasico = (valor) => {
   }
   return parseFloat(texto) || 0;
 };
+const obtenerStockActualProducto = (producto = {}) => parseNumeroBasico(producto?.cantidad ?? producto?.stock ?? 0);
+const obtenerStockMinimoProducto = (producto = {}) => {
+  const valor = producto?.stockMinimo ?? producto?.minimoStock ?? '';
+  if (valor === null || valor === undefined || String(valor).trim() === '') return null;
+  return Math.max(0, parseNumeroBasico(valor));
+};
+const asegurarHtmlToImage = async () => {
+  if (typeof window === 'undefined') throw new Error('La captura HTML no está disponible.');
+  if (window.htmlToImage?.toCanvas) return window.htmlToImage;
+  if (!window.__seniorflowHtmlToImagePromise) {
+    window.__seniorflowHtmlToImagePromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js';
+      script.async = true;
+      script.onload = () => window.htmlToImage?.toCanvas ? resolve(window.htmlToImage) : reject(new Error('La librería de captura no expuso htmlToImage.'));
+      script.onerror = () => reject(new Error('No se pudo cargar la librería de captura HTML.'));
+      document.head.appendChild(script);
+    });
+  }
+  return window.__seniorflowHtmlToImagePromise;
+};
 const parseNumeroConSigno = (valor) => {
   let texto = (valor ?? '').toString().trim().replace(/[^\d,.-]/g, '');
   texto = texto.includes(',') ? texto.replace(/\./g, '').replace(',', '.') : texto.replace(/,/g, '');
@@ -554,6 +575,7 @@ const crearFormularioProducto = (producto = {}) => {
   precio: producto?.precio ?? '',
   unidad: producto?.unidad ?? 'unid',
   cantidad: producto?.cantidad ?? '',
+  stockMinimo: producto?.stockMinimo ?? producto?.minimoStock ?? '',
   imagen: producto?.imagen ?? '',
   imagenes: obtenerImagenesProducto(producto),
   logoMarca: producto?.logoMarca ?? '',
@@ -2811,6 +2833,8 @@ function AppInterna() {
         return Boolean(usuario?.puedeUsarCombos);
       case 'inventario':
         return Boolean(usuario?.puedeVerInventario);
+      case 'stock_bajo':
+        return Boolean(usuario?.puedeVerInventario);
       case 'mod_masiva':
         return Boolean(usuario?.puedeUsarModificacionMasiva);
       case 'sugerencias':
@@ -3726,6 +3750,21 @@ function AppInterna() {
     () => productosVisualizados.slice(0, limiteRenderInventario),
     [productosVisualizados, limiteRenderInventario]
   );
+
+  const productosStockBajo = useMemo(() => (
+    (productos || [])
+      .map((producto) => ({
+        producto,
+        stockActual: obtenerStockActualProducto(producto),
+        stockMinimo: obtenerStockMinimoProducto(producto)
+      }))
+      .filter(({ stockMinimo, stockActual }) => stockMinimo !== null && stockActual <= stockMinimo)
+      .sort((a, b) => {
+        const diferenciaMargen = (a.stockActual - a.stockMinimo) - (b.stockActual - b.stockMinimo);
+        if (diferenciaMargen !== 0) return diferenciaMargen;
+        return textoSeguroTrim(a.producto?.descripcion, '').localeCompare(textoSeguroTrim(b.producto?.descripcion, ''), 'es', { sensitivity: 'base', numeric: true });
+      })
+  ), [productos]);
 
   const obtenerEstadoActualizacionPrecioProducto = (producto) => {
     if (!Boolean(configuracion?.alertaActualizacionPreciosActiva)) return null;
@@ -10210,8 +10249,10 @@ const abrirPuntoVenta = () => {
 
   const descargarPdfVistaImpresion = async () => {
     if (typeof window === 'undefined') return;
-    const htmlToImageApi = window.htmlToImage;
-    if (!htmlToImageApi?.toCanvas) {
+    let htmlToImageApi;
+    try {
+      htmlToImageApi = await asegurarHtmlToImage();
+    } catch (error) {
       await notificarSistema('No se pudo iniciar la descarga PDF porque falta la librería de captura.', {
         tipo: 'warning',
         titulo: 'Descarga no disponible'
@@ -10308,8 +10349,7 @@ const abrirPuntoVenta = () => {
 
   const generarPdfDesdeNodosCapturados = async (nodos = [], nombreArchivo = 'documento.pdf') => {
     if (typeof window === 'undefined') throw new Error('La exportación PDF no está disponible.');
-    const htmlToImageApi = window.htmlToImage;
-    if (!htmlToImageApi?.toCanvas) throw new Error('Falta la librería de captura HTML.');
+    const htmlToImageApi = await asegurarHtmlToImage();
     if (!Array.isArray(nodos) || !nodos.length) throw new Error('No hay páginas para exportar.');
 
     let pdf = null;
@@ -10386,6 +10426,12 @@ const abrirPuntoVenta = () => {
         paginasRecibo.length ? paginasRecibo : [contenedorRecibo],
         obtenerNombreArchivoReciboCobro(resumen, true)
       );
+    } catch (error) {
+      console.error('No se pudo descargar el PDF del recibo', error);
+      await notificarSistema('No se pudo descargar el PDF del recibo. Probá nuevamente.', {
+        tipo: 'error',
+        titulo: 'Error al descargar'
+      });
     } finally {
       setDescargandoPdfVistaImpresion(false);
     }
@@ -10412,6 +10458,12 @@ const abrirPuntoVenta = () => {
         const paginas = Array.from(docFrame?.querySelectorAll?.('.sheet') || []);
         if (!paginas.length) throw new Error('No se encontraron páginas del comprobante.');
         await generarPdfDesdeNodosCapturados(paginas, obtenerNombreArchivoComprobanteVenta(mov, true));
+      } catch (error) {
+        console.error('No se pudo descargar el PDF del comprobante', error);
+        await notificarSistema('No se pudo descargar el PDF rápido. Probá nuevamente.', {
+          tipo: 'error',
+          titulo: 'Error al descargar'
+        });
       } finally {
         if (temporal?.parentNode) temporal.parentNode.removeChild(temporal);
       }
@@ -13791,6 +13843,10 @@ const abrirPuntoVenta = () => {
       ].filter(Boolean)));
       const fechaActualizacionProducto = new Date().toISOString();
       const cantidadProductoFormulario = parseNumeroBasico(formProducto.cantidad);
+      const stockMinimoTexto = textoSeguroTrim(formProducto.stockMinimo, '');
+      const stockMinimoFormulario = stockMinimoTexto === ''
+        ? null
+        : Math.max(0, parseNumeroBasico(stockMinimoTexto));
       const cantidadProductoAnterior = productoAEditar ? parseNumeroBasico(productoAEditar.cantidad) : null;
       const esProductoCompuesto = Boolean(formProducto.esProductoCompuesto);
       const stockFueControlado = !esProductoCompuesto && (!productoAEditar || cantidadProductoFormulario !== cantidadProductoAnterior);
@@ -13836,6 +13892,7 @@ const abrirPuntoVenta = () => {
         precio: precioFinal,
         unidad: formProducto.unidad || 'unid',
         cantidad: esProductoCompuesto ? 0 : cantidadProductoFormulario,
+        stockMinimo: esProductoCompuesto ? null : stockMinimoFormulario,
         imagen: imagenProductoFinal || '',
         imagenes: imagenesProductoFinal,
         logoMarca: logoMarcaFinal,
@@ -18085,8 +18142,7 @@ function obtenerCategoriaProducto(producto) {
     const resumen = construirResumenReciboCobro(mov);
     if (!resumen) throw new Error('Recibo no disponible');
     if (typeof window === 'undefined') throw new Error('Captura no disponible');
-    const htmlToImageApi = window.htmlToImage;
-    if (!htmlToImageApi?.toCanvas) throw new Error('Falta librería de captura');
+    const htmlToImageApi = await asegurarHtmlToImage();
 
     let nodo = opciones?.nodo || reciboCobroPreviewRef.current;
     if (!nodo) {
@@ -20314,6 +20370,7 @@ function obtenerCategoriaProducto(producto) {
   const puedeUsarFlyer = usuarioPuedeVerModulo('flyer', usuarioActual);
   const puedeUsarCombos = usuarioPuedeVerModulo('combos', usuarioActual);
   const puedeVerInventario = usuarioPuedeVerModulo('inventario', usuarioActual);
+  const puedeVerStockBajo = usuarioPuedeVerModulo('stock_bajo', usuarioActual);
   const puedeVerModMasiva = usuarioPuedeVerModulo('mod_masiva', usuarioActual);
   const puedeVerSugerencias = usuarioPuedeVerModulo('sugerencias', usuarioActual);
   const puedeVerCompras = usuarioPuedeVerModulo('compras', usuarioActual);
@@ -20332,6 +20389,7 @@ function obtenerCategoriaProducto(producto) {
     puedeUsarCombos,
     puedeUsarFlyer,
     puedeVerInventario,
+    puedeVerStockBajo,
     puedeVerModMasiva,
     puedeVerSugerencias,
     puedeVerCompras,
@@ -20351,6 +20409,7 @@ function obtenerCategoriaProducto(producto) {
     { visible: puedeUsarCombos, vista: 'combos', etiqueta: 'Presupuesto combo', Icono: FileText, color: 'indigo' },
     { visible: puedeUsarFlyer, vista: 'flyer', etiqueta: 'Flyer', Icono: ImageIcon, color: 'fuchsia' },
     { visible: puedeVerInventario, vista: 'inventario', etiqueta: 'Inventario', Icono: Package, color: 'violet' },
+    { visible: puedeVerStockBajo, vista: 'stock_bajo', etiqueta: 'Stock bajo', Icono: AlertCircle, color: 'rose' },
     { visible: puedeVerCompras, vista: 'compras', etiqueta: 'Compras', Icono: FileSpreadsheet, color: 'orange' },
     { visible: puedeVerProveedores, vista: 'proveedores', etiqueta: 'Proveedores', Icono: Users, color: 'sky' },
     { visible: puedeVerModMasiva, vista: 'mod_masiva', etiqueta: 'Modificación masiva', Icono: Edit2, color: 'fuchsia' },
@@ -20424,9 +20483,77 @@ function obtenerCategoriaProducto(producto) {
         .sf-app-shell table th {
           vertical-align: middle;
         }
+        .sf-modal-fullscreen {
+          height: min(96vh, calc(100vh - 1.5rem));
+        }
+        .sf-modal-fullscreen .sf-modal-body {
+          min-height: 0;
+        }
         .sf-app-shell label {
           line-height: 1.2;
         }
+        .sf-app-shell .card {
+          position: relative;
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          border-radius: 1rem;
+          box-shadow: 0 1px 3px rgba(15, 23, 42, .06);
+        }
+        .sf-app-shell .btn {
+          min-height: 42px;
+          border: 1px solid transparent;
+          border-radius: .75rem;
+          padding: .65rem 1rem;
+          font-size: .875rem;
+          line-height: 1.25rem;
+          cursor: pointer;
+          user-select: none;
+        }
+        .sf-app-shell .btn-sm {
+          min-height: 36px;
+          padding: .5rem .75rem;
+          font-size: .75rem;
+        }
+        .sf-app-shell .btn-primary {
+          background: #4f46e5;
+          color: #fff;
+          border-color: #4f46e5;
+          box-shadow: 0 4px 10px rgba(79, 70, 229, .18);
+        }
+        .sf-app-shell .btn-primary:hover { background: #4338ca; border-color: #4338ca; }
+        .sf-app-shell .btn-secondary {
+          background: #fff;
+          color: #475569;
+          border-color: #dbe3ef;
+        }
+        .sf-app-shell .btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+        .sf-app-shell .btn-ghost { background: transparent; color: #475569; }
+        .sf-app-shell .btn-danger { background: #dc2626; color: #fff; border-color: #dc2626; }
+        .sf-app-shell .btn-soft { background: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
+        .sf-app-shell .btn:disabled { opacity: .55; cursor: not-allowed; box-shadow: none; }
+        .sf-app-shell .label {
+          display: block;
+          color: #475569;
+          font-size: .7rem;
+          font-weight: 900;
+          line-height: 1.1;
+          text-transform: uppercase;
+          letter-spacing: .08em;
+        }
+        .sf-app-shell .input {
+          width: 100%;
+          border: 1px solid #dbe3ef;
+          border-radius: .75rem;
+          background: #fff;
+          color: #0f172a;
+          padding: .65rem .75rem;
+          font-size: .875rem;
+          font-weight: 700;
+          outline: none;
+        }
+        .sf-app-shell .input:focus { border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99, 102, 241, .18); }
+        .sf-punto-venta-items { height: clamp(220px, 38vh, 430px); }
+        @media (max-width: 640px) { .sf-punto-venta-items { height: min(40vh, 340px); } }
       `}</style>
       
       {/* HEADER PRINCIPAL */}
@@ -23208,6 +23335,70 @@ function obtenerCategoriaProducto(producto) {
           </div>
         )}
 
+        {/* --- VISTA: STOCK BAJO --- */}
+        {puedeVerStockBajo && vista === 'stock_bajo' && (
+          <div className="space-y-6 animate-in fade-in duration-300 print:hidden">
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-rose-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-rose-600 p-2.5 rounded-xl shadow-sm"><AlertCircle size={20} className="text-white" /></div>
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900 tracking-tight">Stock Bajo</h2>
+                  <p className="text-xs font-bold text-rose-700 uppercase tracking-wider">{productosStockBajo.length} producto{productosStockBajo.length === 1 ? '' : 's'} para reponer</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => setVista('inventario')} className="bg-white border border-indigo-200 text-indigo-700 hover:bg-indigo-50 font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all text-sm uppercase tracking-wider">
+                Ver inventario
+              </button>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              {productosStockBajo.length === 0 ? (
+                <div className="p-14 text-center text-gray-500">
+                  <CheckCircle size={42} className="mx-auto mb-3 text-emerald-500" />
+                  <p className="font-black text-lg text-gray-700">No hay productos con stock bajo.</p>
+                  <p className="text-sm mt-1">Cuando el stock llegue al mínimo configurado aparecerá aquí.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[720px] text-left text-sm">
+                    <thead className="bg-rose-50 text-rose-800 uppercase text-xs font-black tracking-wider border-b border-rose-100">
+                      <tr>
+                        <th className="px-5 py-3">Producto</th>
+                        <th className="px-5 py-3">Código</th>
+                        <th className="px-5 py-3 text-right">Stock actual</th>
+                        <th className="px-5 py-3 text-right">Stock mínimo</th>
+                        <th className="px-5 py-3 text-right">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {productosStockBajo.map(({ producto, stockActual, stockMinimo }) => (
+                        <tr key={producto.id} className="hover:bg-rose-50/40">
+                          <td className="px-5 py-3">
+                            <p className="font-black text-gray-900">{producto.descripcion || 'Producto sin descripción'}</p>
+                            {producto.marca && <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500">{producto.marca}</p>}
+                          </td>
+                          <td className="px-5 py-3 font-mono text-gray-600">{producto.codigo || producto.codigoInterno || '-'}</td>
+                          <td className="px-5 py-3 text-right font-black text-rose-700">{formatearCantidad(stockActual)} {producto.unidad || 'unid.'}</td>
+                          <td className="px-5 py-3 text-right font-black text-amber-700">{formatearCantidad(stockMinimo)} {producto.unidad || 'unid.'}</td>
+                          <td className="px-5 py-3 text-right">
+                            <button
+                              type="button"
+                              onClick={() => { setCampoPrecioProductoPreferido('precio'); setBusquedaComponenteCompuesto(''); setProductoAEditar(producto); setFormProducto(crearFormularioProducto({ ...producto, generarCodigoAutomatico: false })); limpiarEdicionTaxonomias(); setModalActivo('nuevo_producto'); }}
+                              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-black uppercase tracking-wider"
+                            >
+                              <Edit2 size={14} /> Editar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* --- VISTA: INVENTARIO (NUEVO DISEÑO CORPORATIVO Y LIMPIO) --- */}
         {puedeVerInventario && vista === 'inventario' && (
           <div className="h-[calc(100vh-13rem)] min-h-[520px] flex flex-col gap-4 overflow-hidden animate-in fade-in duration-300 print:hidden">
@@ -25103,7 +25294,7 @@ function obtenerCategoriaProducto(producto) {
           customWidth="max-w-6xl"
           onClose={() => { setModalActivo(null); setProductoCompuestoDetalle(null); }}
         >
-          <div className="space-y-4">
+          <div className="sf-cuenta-detalle-body space-y-3">
             <div className="grid grid-cols-1 lg:grid-cols-[180px_1fr] gap-4 rounded-2xl border border-fuchsia-200 bg-fuchsia-50/60 p-4">
               <div className="flex justify-center">
                 <div className="w-40 h-40 rounded-2xl overflow-hidden border-2 border-white bg-white shadow-sm flex items-center justify-center">
@@ -27945,6 +28136,11 @@ function obtenerCategoriaProducto(producto) {
                 <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Stock Inicial</label>
                 <input type="text" inputMode="decimal" value={formProducto.cantidad} onChange={(e) => setFormProducto({...formProducto, cantidad: e.target.value.replace(',', '.')})} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-600 outline-none text-sm font-bold text-center" placeholder="Opcional"/>
               </div>
+              <div className="sm:col-span-1">
+                <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Stock mínimo</label>
+                <input type="text" inputMode="decimal" value={formProducto.stockMinimo ?? ''} onChange={(e) => setFormProducto({...formProducto, stockMinimo: e.target.value.replace(',', '.')})} className="w-full px-3 py-2 bg-white border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-sm font-bold text-center" placeholder="Sin alerta"/>
+                <p className="mt-1 text-[10px] font-semibold text-amber-700">Avisa cuando el stock sea igual o menor.</p>
+              </div>
               <div className="sm:col-span-3">
                 <label className="inline-flex items-start gap-2 text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-2">
                   <input
@@ -29820,7 +30016,7 @@ function obtenerCategoriaProducto(producto) {
                   <p className="font-bold text-sm text-gray-500">Este cliente todavía no tiene movimientos en cuenta corriente.</p>
                 </div>
               ) : (
-                <div className="max-h-[50vh] overflow-y-auto divide-y divide-gray-100">
+                <div className="max-h-[46vh] overflow-y-auto divide-y divide-gray-100">
                   {movimientosClienteSeleccionadoVisibles.map((mov) => {
                     const esCobro = mov.tipo === 'cobro';
                     const esCargo = esMovimientoCargoCuentaCorriente(mov);
@@ -31622,7 +31818,7 @@ function obtenerCategoriaProducto(producto) {
               </div>
             </div>
 
-            <div className="card p-3 overflow-hidden flex-1 min-h-0 flex flex-col">
+            <div className="card sf-punto-venta-items p-3 overflow-hidden flex-none min-h-0 flex flex-col">
               <div className="flex items-center justify-between gap-3 mb-1.5 shrink-0">
                 <h3 className="font-bold text-lg text-gray-900">Ítems de la venta</h3>
               </div>
