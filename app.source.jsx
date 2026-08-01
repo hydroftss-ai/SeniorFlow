@@ -78,7 +78,11 @@ const asegurarHtmlToImage = async () => {
       document.head.appendChild(script);
     });
   }
-  return window.__seniorflowHtmlToImagePromise;
+  return promesaConTimeout(
+    window.__seniorflowHtmlToImagePromise,
+    15000,
+    'La librería de captura tardó demasiado en cargar.'
+  );
 };
 const parseNumeroConSigno = (valor) => {
   let texto = (valor ?? '').toString().trim().replace(/[^\d,.-]/g, '');
@@ -5259,7 +5263,7 @@ function AppInterna() {
   <style>
     * { box-sizing: border-box; }
     html, body { width: 100%; height: 100%; overflow: hidden; }
-    body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #eef4f8; color: #0f172a; }
+    body { margin: 0; font-family: Manrope, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #eef4f8; color: #0f172a; }
     .screen { position: relative; width: 100vw; height: 100vh; overflow: hidden; display: flex; flex-direction: column; padding: clamp(12px, 2.2vw, 24px); gap: clamp(10px, 1.5vw, 16px); }
     .topbar { height: clamp(70px, 10vh, 96px); display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: clamp(10px, 1.4vw, 16px) clamp(14px, 2vw, 22px); border-radius: 20px; background: #ffffff; border: 1px solid #dbe5ee; box-shadow: 0 14px 34px rgba(15, 23, 42, .08); flex: 0 0 auto; }
     .brand { display: flex; align-items: center; min-width: 0; height: 100%; }
@@ -5656,7 +5660,7 @@ function AppInterna() {
   <title>Cuenta corriente · ${escaparHtmlPantallaCliente(clienteNombre)}</title>
   <style>
     * { box-sizing: border-box; }
-    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; font-family: Inter, Manrope, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #eef4f8; color: #0f172a; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; font-family: Manrope, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #eef4f8; color: #0f172a; }
     body { display: grid; place-items: center; padding: clamp(20px, 4vw, 54px); }
     .stage { position: absolute; inset: 0; background:
       radial-gradient(circle at 16% 18%, rgba(20,184,166,.20), transparent 28%),
@@ -5890,7 +5894,7 @@ function AppInterna() {
   <style>
     * { box-sizing: border-box; }
     html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
-    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #eef4f8; color: #0f172a; }
+    body { font-family: Manrope, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #eef4f8; color: #0f172a; }
     .stage { position: relative; width: 100vw; height: 100vh; display: grid; place-items: center; overflow: hidden; padding: clamp(18px, 3vw, 42px); }
     .welcome-bg { position: absolute; inset: 0; display: grid; place-items: center; background:
       radial-gradient(circle at 20% 10%, rgba(14,165,233,.16), transparent 34%),
@@ -9030,6 +9034,28 @@ const abrirPuntoVenta = () => {
       plazoCuentaCorrienteDias: Math.max(0, Math.floor(parseNumeroBasico(formCliente.plazoCuentaCorrienteDias) || 0))
     };
 
+    const normalizarDatoCliente = (valor = '') => normalizarTextoBusqueda(textoSeguroTrim(valor, ''));
+    const obtenerDatosIdentidadCliente = (cliente = {}) => ({
+      nombre: normalizarDatoCliente(cliente.nombre),
+      whatsapp: normalizarDatoCliente(cliente.whatsapp || cliente.telefono),
+      documento: normalizarDatoCliente(cliente.documento || cliente.dni || cliente.cuit),
+      email: normalizarDatoCliente(cliente.email || cliente.correo),
+      direccion: normalizarDatoCliente(cliente.direccion)
+    });
+    const identidadNueva = obtenerDatosIdentidadCliente(data);
+    const clienteDuplicado = (clientes || []).find((cliente) => {
+      if (clienteAEditar?.id && cliente.id === clienteAEditar.id) return false;
+      const identidadExistente = obtenerDatosIdentidadCliente(cliente);
+      return Object.keys(identidadNueva).every((campo) => identidadExistente[campo] === identidadNueva[campo]);
+    });
+    if (clienteDuplicado) {
+      await notificarSistema(`Ya existe un cliente con el nombre y los mismos datos de contacto: ${clienteDuplicado.nombre || nombre}.`, {
+        tipo: 'warning',
+        titulo: 'Cliente duplicado'
+      });
+      return;
+    }
+
     if (clienteAEditar) {
       await updateDoc(doc(db, 'clientes', clienteAEditar.id), data);
     } else {
@@ -10457,10 +10483,17 @@ const abrirPuntoVenta = () => {
         const docFrame = iframe?.contentDocument;
         const paginas = Array.from(docFrame?.querySelectorAll?.('.sheet') || []);
         if (!paginas.length) throw new Error('No se encontraron páginas del comprobante.');
-        await generarPdfDesdeNodosCapturados(paginas, obtenerNombreArchivoComprobanteVenta(mov, true));
+        await promesaConTimeout(
+          generarPdfDesdeNodosCapturados(paginas, obtenerNombreArchivoComprobanteVenta(mov, true)),
+          25000,
+          'La generación del PDF tardó demasiado.'
+        );
       } catch (error) {
         console.error('No se pudo descargar el PDF del comprobante', error);
-        await notificarSistema('No se pudo descargar el PDF rápido. Probá nuevamente.', {
+        // Liberar el botón antes de mostrar el aviso: el diálogo espera la
+        // interacción del usuario y no debe dejar el ícono girando.
+        setDescargandoPdfVistaImpresion(false);
+        void notificarSistema('No se pudo descargar el PDF rápido. Probá nuevamente.', {
           tipo: 'error',
           titulo: 'Error al descargar'
         });
