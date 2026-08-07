@@ -1,4 +1,4 @@
-import { auth, db, storage } from './firebase-config.js?v=seniorflow-stock-mobile-20260807-03';
+import { auth, db, storage } from './firebase-config.js?v=seniorflow-stock-mobile-20260807-04';
 import { signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js';
 import { collection as firestoreCollection, doc as firestoreDoc, onSnapshot, updateDoc } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js';
 import { ref as storageRef, uploadString, getDownloadURL } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js';
@@ -82,18 +82,6 @@ const obtenerCodigoProveedorLectura = (producto) => {
     : (Array.isArray(producto?.costosProveedores) ? producto.costosProveedores : []);
   const encontrado = costos.find((item) => item?.codigoProveedor);
   return encontrado?.codigoProveedor ? String(encontrado.codigoProveedor) : '';
-};
-
-const actualizarCodigoProveedor = (producto, codigoProveedor) => {
-  const clave = Array.isArray(producto?.proveedoresCostos)
-    ? 'proveedoresCostos'
-    : (Array.isArray(producto?.costosProveedores) ? 'costosProveedores' : '');
-  if (!clave) return {};
-  const costos = producto[clave].map((item) => ({ ...item }));
-  const indice = costos.findIndex((item) => item?.codigoProveedor);
-  const destino = indice >= 0 ? indice : 0;
-  if (costos[destino]) costos[destino].codigoProveedor = codigoProveedor;
-  return { [clave]: costos };
 };
 
 const camposProducto = (producto) => {
@@ -266,7 +254,6 @@ const actualizarProductoSeleccionado = async (event) => {
   if (codigoBarrasNuevo && !codigoNuevoYaEsDelProducto) payload.codigoBarras = codigoBarrasNuevo;
   if (codigoProveedorNuevo !== obtenerCodigoProveedorLectura(productoSeleccionado)) {
     payload.codigoProveedor = codigoProveedorNuevo;
-    Object.assign(payload, actualizarCodigoProveedor(productoSeleccionado, codigoProveedorNuevo));
   }
 
   els.saveBtn.disabled = true;
@@ -506,7 +493,7 @@ const iniciarDatos = async () => {
 };
 
 if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
-  navigator.serviceWorker.register('./sw-stock-app.js?v=seniorflow-stock-mobile-20260807-03').catch(console.warn);
+  navigator.serviceWorker.register('./sw-stock-app.js?v=seniorflow-stock-mobile-20260807-04').catch(console.warn);
 }
 
 window.addEventListener('beforeinstallprompt', (event) => {

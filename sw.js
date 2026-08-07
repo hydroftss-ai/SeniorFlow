@@ -1,14 +1,14 @@
-const CACHE_NAME = 'seniorflow-shared-20260807193000';
+const CACHE_NAME = 'seniorflow-shared-20260807201000';
 const ASSETS = [
   './',
   './index.html',
   './stock-app.html',
-  './stock-app.js?v=seniorflow-shared-20260807193000',
-  './app.js?v=seniorflow-shared-20260807193000',
+  './stock-app.js?v=seniorflow-stock-mobile-20260807-04',
+  './app.js?v=seniorflow-shared-20260807201000',
   './firebase-config.js?v=seniorflow-restore-data-20260731-01',
   './manifest.json',
   './manifest-stock-app.json',
-  './sw-stock-app.js?v=seniorflow-shared-20260807193000',
+  './sw-stock-app.js?v=seniorflow-stock-mobile-20260807-04',
   './ofertas.html?v=seniorflow-react-20260715-pdf-pagination-06',
   './icons/stock-app.svg',
   './icons/stock-app-192.png',
