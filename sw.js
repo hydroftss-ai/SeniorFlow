@@ -1,14 +1,14 @@
-const CACHE_NAME = 'seniorflow-shared-20260807181500';
+const CACHE_NAME = 'seniorflow-shared-20260807183000';
 const ASSETS = [
   './',
   './index.html',
   './stock-app.html',
-  './stock-app.js?v=seniorflow-shared-20260807181500',
-  './app.js?v=seniorflow-shared-20260807181500',
+  './stock-app.js?v=seniorflow-shared-20260807183000',
+  './app.js?v=seniorflow-shared-20260807183000',
   './firebase-config.js?v=seniorflow-restore-data-20260731-01',
   './manifest.json',
   './manifest-stock-app.json',
-  './sw-stock-app.js?v=seniorflow-shared-20260807181500',
+  './sw-stock-app.js?v=seniorflow-shared-20260807183000',
   './ofertas.html?v=seniorflow-react-20260715-pdf-pagination-06',
   './icons/stock-app.svg',
   './icons/stock-app-192.png',
@@ -81,10 +81,10 @@ self.addEventListener('fetch', (event) => {
         || (await caches.match(url.pathname.endsWith('/firebase-config.js')
           ? './firebase-config.js?v=seniorflow-react-20260715-pdf-pagination-06'
           : url.pathname.endsWith('/stock-app.js')
-            ? './stock-app.js?v=seniorflow-shared-20260807181500'
+            ? './stock-app.js?v=seniorflow-shared-20260807183000'
             : url.pathname.endsWith('/ofertas.html')
               ? './ofertas.html?v=seniorflow-react-20260715-pdf-pagination-06'
-              : './app.js?v=seniorflow-shared-20260807181500'));
+              : './app.js?v=seniorflow-shared-20260807183000'));
       }
     })());
     return;
