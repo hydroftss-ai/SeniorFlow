@@ -1,10 +1,10 @@
-const CACHE_NAME = 'seniorflow-shared-20260807203000';
+const CACHE_NAME = 'seniorflow-shared-20260807212000';
 const ASSETS = [
   './',
   './index.html',
   './stock-app.html',
   './stock-app.js?v=seniorflow-stock-mobile-20260807-05',
-  './app.js?v=seniorflow-shared-20260807203000',
+  './app.js?v=seniorflow-shared-20260807212000',
   './firebase-config.js?v=seniorflow-restore-data-20260731-01',
   './manifest.json',
   './manifest-stock-app.json',
