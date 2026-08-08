@@ -1,20 +1,21 @@
-const CACHE_NAME = 'seniorflow-shared-20260807223000';
+const CACHE_NAME = 'seniorflow-shared-20260808270000';
 const ASSETS = [
   './',
   './index.html',
   './stock-app.html',
-  './stock-app.js?v=seniorflow-stock-mobile-20260807-07',
-  './app.js?v=seniorflow-shared-20260807223000',
+  './stock-app.js?v=seniorflow-stock-mobile-20260807-08',
+  './app.js?v=seniorflow-shared-20260808230000',
   './firebase-config.js?v=seniorflow-restore-data-20260731-01',
   './manifest.json',
-  './manifest-stock-app.json',
-  './sw-stock-app.js?v=seniorflow-stock-mobile-20260807-07',
+  './manifest-stock-app.json?v=seniorflow-stock-mobile-20260807-08',
+  './sw-stock-app.js?v=seniorflow-stock-mobile-20260807-08',
   './ofertas.html?v=seniorflow-react-20260715-pdf-pagination-06',
   './icons/stock-app.svg',
   './icons/stock-app-192.png',
   './icons/stock-app-512.png',
   './icons/icon-192.png',
-  './icons/icon-512.png'
+  './icons/icon-512.png',
+  './assets/sf-mark.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -39,6 +40,7 @@ self.addEventListener('fetch', (event) => {
     || url.pathname.endsWith('/firebase-config.js')
     || url.pathname.endsWith('/index.html')
     || url.pathname.endsWith('/stock-app.html')
+    || url.pathname.endsWith('/manifest-stock-app.json')
     || url.pathname.endsWith('/ofertas.html')
     || url.pathname === '/'
   );
@@ -81,10 +83,10 @@ self.addEventListener('fetch', (event) => {
         || (await caches.match(url.pathname.endsWith('/firebase-config.js')
           ? './firebase-config.js?v=seniorflow-react-20260715-pdf-pagination-06'
           : url.pathname.endsWith('/stock-app.js')
-            ? './stock-app.js?v=seniorflow-stock-mobile-20260807-07'
+            ? './stock-app.js?v=seniorflow-stock-mobile-20260807-08'
             : url.pathname.endsWith('/ofertas.html')
               ? './ofertas.html?v=seniorflow-react-20260715-pdf-pagination-06'
-              : './app.js?v=seniorflow-shared-20260807223000'));
+              : './app.js?v=seniorflow-shared-20260808230000'));
       }
     })());
     return;
