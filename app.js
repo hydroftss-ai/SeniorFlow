@@ -63917,6 +63917,13 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
     setBusquedaStockModal("");
     setModalActivo("seleccionar_stock");
   };
+  const agregarItemManualPuntoVenta = () => {
+    if (formPuntoVenta.devolucionOrigenId) return;
+    setFormPuntoVenta((prev) => ({
+      ...prev,
+      items: [...prev.items || [], crearItemPuntoVentaVacio()]
+    }));
+  };
   const normalizarPrecioPuntoVenta = (precio = 0) => {
     const importe = Math.max(0, parseNumeroBasico(precio) || 0);
     return String(redondeoVentasHaciaArribaActivo ? redondearImporteVentaHaciaArriba(importe) : importe);
@@ -64582,18 +64589,29 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
         items: itemsNormalizados
       },
       fecha: fechaMovimiento,
-      usuario: usuarioActual.nombre
+      usuario: usuarioActual?.nombre || usuarioActual?.username || "Sistema"
     };
-    if (movimientoOriginal?.id) {
-      await updateDoc(doc(db, "movimientos", movimientoOriginal.id), payloadVenta);
-    } else {
-      await addDoc(collection(db, "movimientos"), payloadVenta);
+    const payloadVentaFirestore = limpiarDatoFirestore(payloadVenta);
+    try {
+      if (movimientoOriginal?.id) {
+        await updateDoc(doc(db, "movimientos", movimientoOriginal.id), payloadVentaFirestore);
+      } else {
+        await addDoc(collection(db, "movimientos"), payloadVentaFirestore);
+      }
+      await aplicarImpactoStockPuntoVenta({
+        movimientoOriginal,
+        itemsNuevos: itemsNormalizados,
+        tipoComprobanteNuevo: tipoComp
+      });
+    } catch (error) {
+      console.error("No se pudo guardar la venta", error);
+      liberarBloqueoVenta();
+      await notificarSistema(`No se pudo guardar la venta. ${error?.message || "Revis\xE1 la conexi\xF3n y los datos cargados."}`, {
+        tipo: "danger",
+        titulo: "Error al guardar venta"
+      });
+      return;
     }
-    await aplicarImpactoStockPuntoVenta({
-      movimientoOriginal,
-      itemsNuevos: itemsNormalizados,
-      tipoComprobanteNuevo: tipoComp
-    });
     await notificarSistema(movimientoOriginal?.id ? "Comprobante de venta actualizado correctamente." : "Comprobante de venta registrado correctamente.", {
       tipo: "success",
       titulo: movimientoOriginal?.id ? "Venta actualizada" : "Venta guardada"
@@ -69323,6 +69341,7 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
     })).filter((fila) => fila.vendido > 1e-4).sort((a3, b2) => b2.vendido - a3.vendido || b2.monto - a3.monto || a3.descripcion.localeCompare(b2.descripcion, "es"));
   }, [movimientosPuntoVenta, productos, rangoSugerenciasVentas]);
   const obtenerPrecioVentaProductoActualizado = (producto = {}) => {
+    const aplicarRedondeoInventario = (valor = 0) => redondearPrecioProducto(valor, producto?.redondeoPrecio || "ninguno");
     if (producto?.esProductoCompuesto) {
       const calcularCompuesto = (productoCompuesto, visitados = /* @__PURE__ */ new Set()) => {
         const idProducto = textoSeguroTrim(productoCompuesto?.id, "sin-id");
@@ -69340,14 +69359,14 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
         return totalComponentes + Math.max(0, parseNumeroBasico(productoCompuesto?.manoObraCompuesto));
       };
       const precioCompuesto = calcularCompuesto(producto);
-      return precioCompuesto > 0 ? precioCompuesto : parseNumeroBasico(producto?.precio);
+      return aplicarRedondeoInventario(precioCompuesto > 0 ? precioCompuesto : parseNumeroBasico(producto?.precio));
     }
     const moneda = ["USD_BNA", "USD_BLUE"].includes(producto?.monedaCosto) ? producto.monedaCosto : "ARS";
-    if (moneda === "ARS") return parseNumeroBasico(producto?.precio);
+    if (moneda === "ARS") return aplicarRedondeoInventario(parseNumeroBasico(producto?.precio));
     const cotizacion = obtenerCotizacionParaMoneda(moneda);
-    if (cotizacion <= 0) return parseNumeroBasico(producto?.precio);
+    if (cotizacion <= 0) return aplicarRedondeoInventario(parseNumeroBasico(producto?.precio));
     const costoBase = parseNumeroBasico(producto?.costoOriginal ?? producto?.costo);
-    return parseNumeroBasico(calcularPrecioVenta(costoBase, producto?.ganancia, producto?.iva, moneda, cotizacion, null, Boolean(producto?.costoIvaIncluido))) || parseNumeroBasico(producto?.precio);
+    return aplicarRedondeoInventario(parseNumeroBasico(calcularPrecioVenta(costoBase, producto?.ganancia, producto?.iva, moneda, cotizacion, null, Boolean(producto?.costoIvaIncluido))) || parseNumeroBasico(producto?.precio));
   };
   const consultarCotizacionDolarBna = async ({ silencioso = false } = {}) => {
     if (cotizacionDolarBnaPromiseRef.current) return cotizacionDolarBnaPromiseRef.current;
@@ -90795,6 +90814,10 @@ ${configuracion.nombre}`;
                   /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", disabled: Boolean(formPuntoVenta.devolucionOrigenId), onClick: () => setModalItemServicioPuntoVentaAbierto(true), className: "sf-pv-add-service disabled:opacity-40", "aria-label": "Agregar servicio", style: { display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, width: 120, minWidth: 120, height: 34, padding: "0 14px", flexShrink: 0, border: "1px solid #2563eb", borderRadius: 6, background: "#2563eb", color: "#fff", fontSize: 13, fontWeight: 600, whiteSpace: "nowrap" }, children: [
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { size: 18, strokeWidth: 2 }),
                     " Servicio"
+                  ] }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", disabled: Boolean(formPuntoVenta.devolucionOrigenId), onClick: agregarItemManualPuntoVenta, className: "sf-pv-add-manual disabled:opacity-40", "aria-label": "Agregar \xEDtem manual", style: { display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, width: 138, minWidth: 138, height: 34, padding: "0 14px", flexShrink: 0, border: "1px solid #64748b", borderRadius: 6, background: "#475569", color: "#fff", fontSize: 13, fontWeight: 600, whiteSpace: "nowrap" }, children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { size: 18, strokeWidth: 2 }),
+                    " \xCDtem manual"
                   ] })
                 ] })
               ] }),
@@ -90860,11 +90883,6 @@ ${configuracion.nombre}`;
                             }
                           )
                         ] }) }),
-                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-1 py-[2px]", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { value: item2.iva || "sin_iva", disabled: esItemDevolucionVinculada, onChange: (e2) => actualizarItemPuntoVenta(item2.id, "iva", e2.target.value), className: "w-full h-6 px-1 bg-transparent border border-transparent rounded-md text-[10px] font-black text-center outline-none hover:bg-white focus:bg-white focus:border-emerald-300 focus:ring-1 focus:ring-emerald-500", children: [
-                          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "sin_iva", children: "Exento" }),
-                          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "10.5", children: "10,5%" }),
-                          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "21", children: "21%" })
-                        ] }) }),
                         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-1 py-[2px]", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
                           "input",
                           {
@@ -90919,6 +90937,11 @@ ${configuracion.nombre}`;
                             placeholder: "0.00"
                           }
                         ) }),
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-1 py-[2px]", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { value: item2.iva || "sin_iva", disabled: esItemDevolucionVinculada, onChange: (e2) => actualizarItemPuntoVenta(item2.id, "iva", e2.target.value), className: "w-full h-6 px-1 bg-transparent border border-transparent rounded-md text-[10px] font-black text-center outline-none hover:bg-white focus:bg-white focus:border-emerald-300 focus:ring-1 focus:ring-emerald-500", children: [
+                          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "sin_iva", children: "Exento" }),
+                          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "10.5", children: "10,5%" }),
+                          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "21", children: "21%" })
+                        ] }) }),
                         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-1 py-[2px]", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
                           "input",
                           {
