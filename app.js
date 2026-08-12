@@ -58312,6 +58312,7 @@ var crearFormularioProducto = (producto = {}) => {
     ganancia: producto?.ganancia ?? "",
     iva: producto?.iva ?? "21",
     precio: producto?.precio ?? "",
+    redondeoPrecio: producto?.redondeoPrecio ?? "ninguno",
     unidad: producto?.unidad ?? "unid",
     cantidad: producto?.cantidad ?? "",
     stockMinimo: producto?.stockMinimo ?? producto?.minimoStock ?? "",
@@ -58443,6 +58444,11 @@ var CONFIG_DEFAULT = {
 var redondearImporteVentaHaciaArriba = (importe = 0) => {
   const importeConCentavos = Math.round((Math.max(0, Number(importe) || 0) + Number.EPSILON) * 100) / 100;
   return Math.ceil(importeConCentavos - Number.EPSILON);
+};
+var redondearPrecioProducto = (importe = 0, modo = "ninguno") => {
+  const factor = modo === "cien" ? 100 : modo === "mil" ? 1e3 : 1;
+  const valor = Math.max(0, Number(importe) || 0);
+  return factor > 1 ? Math.ceil(valor / factor) * factor : valor;
 };
 var crearFormularioStockRapidoVacio = () => ({
   proveedor: "",
@@ -60477,8 +60483,12 @@ function AppInterna() {
         const tipo = detalle.tipoComprobante || "";
         if (!["factura_a", "factura_b", "Factura A", "Factura B"].includes(tipo)) return;
         (detalle.items || []).forEach((item2) => {
-          const tasa = String(item2.iva ?? item2.alicuotaIva ?? "").replace(",", ".");
-          const base = Math.max(0, Number(item2.subtotal ?? item2.total ?? 0) || 0);
+          const productoVenta = (productos || []).find((producto) => producto?.id === item2?.productoId);
+          const tasa = String(item2.iva ?? item2.alicuotaIva ?? productoVenta?.iva ?? "").replace("%", "").replace(",", ".").trim();
+          const cantidad = Math.max(0, Number(item2.cantidad) || 0);
+          const precio = Math.max(0, Number(item2.precio) || 0);
+          const descuento = Math.max(0, Number(item2.descuento) || 0);
+          const base = Math.max(0, Number(item2.subtotal ?? item2.total ?? cantidad * precio * (1 - descuento / 100)) || 0);
           const iva = tasa === "10.5" ? base * 10.5 / 110.5 : tasa === "21" ? base * 21 / 121 : 0;
           if (tasa === "10.5") impuestos.ventas105 += iva;
           else if (tasa === "21") impuestos.ventas21 += iva;
@@ -63992,6 +64002,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
         marca: textoSeguroTrim(producto?.marca, item2.marca || ""),
         precio: obtenerPrecioVentaProductoActualizado(producto) > 0 ? normalizarPrecioPuntoVenta(obtenerPrecioVentaProductoActualizado(producto)) : item2.precio,
         unidad: textoSeguroTrim(producto?.unidad, item2.unidad || "unid"),
+        iva: textoSeguroTrim(producto?.iva, item2.iva || "sin_iva"),
         imagen: textoSeguroTrim(producto?.imagen, item2.imagen || ""),
         logoMarca: textoSeguroTrim(producto?.logoMarca, item2.logoMarca || "")
       };
@@ -64036,6 +64047,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
         marca: textoSeguroTrim(producto?.marca, item2.marca || ""),
         precio: obtenerPrecioVentaProductoActualizado(producto) > 0 ? normalizarPrecioPuntoVenta(obtenerPrecioVentaProductoActualizado(producto)) : item2.precio,
         unidad: textoSeguroTrim(producto?.unidad, item2.unidad || "unid"),
+        iva: textoSeguroTrim(producto?.iva, item2.iva || "sin_iva"),
         imagen: textoSeguroTrim(producto?.imagen, item2.imagen || ""),
         logoMarca: textoSeguroTrim(producto?.logoMarca, item2.logoMarca || "")
       })
@@ -64337,6 +64349,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       descuento: Math.min(100, Math.max(0, parseNumeroBasico(item2?.descuento) || 0)),
       imagen: textoSeguroTrim(item2?.imagen, ""),
       logoMarca: textoSeguroTrim(item2?.logoMarca, ""),
+      iva: textoSeguroTrim(item2?.iva, textoSeguroTrim((productos || []).find((producto) => producto?.id === item2?.productoId)?.iva, "sin_iva")),
       esItemServicio: Boolean(item2?.esItemServicio),
       componentesServicio: Array.isArray(item2?.componentesServicio) ? item2.componentesServicio.map((componente) => ({
         productoId: textoSeguroTrim(componente?.productoId, ""),
@@ -65000,6 +65013,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
             ${incluirImagenes ? '<th style="width:54px">Img</th>' : ""}
             <th style="width:100px">C\xF3digo</th>
             <th>Detalle</th>
+            <th class="qty" style="width:58px">IVA</th>
             <th class="qty" style="width:95px">Cantidad</th>
           </tr>
         </thead>
@@ -65010,6 +65024,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
               ${incluirImagenes ? `<td>${imagenItem ? `<img class="img" src="${imagenItem}" />` : "-"}</td>` : ""}
               <td>${item2.codigo || "-"}</td>
               <td>${item2.descripcion || "-"}</td>
+              <td class="qty">${item2.iva === "10.5" ? "10,5%" : item2.iva === "21" ? "21%" : "Exento"}</td>
               <td class="qty">${formatearCantidad(item2.cantidad || 0)} ${item2.unidad || "unid"}</td>
             </tr>`;
     }).join("")}
@@ -65432,7 +65447,8 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       const descuento = Math.min(100, Math.max(0, Number(item2?.descuento || 0)));
       const bruto = cantidad * precio;
       const subtotal = Math.max(0, bruto - bruto * descuento / 100);
-      return { ...item2, cantidad, precio, descuento, subtotal };
+      const productoVenta = (productos || []).find((producto) => producto?.id === item2?.productoId);
+      return { ...item2, cantidad, precio, descuento, subtotal, iva: textoSeguroTrim(item2?.iva, textoSeguroTrim(productoVenta?.iva, "sin_iva")) };
     });
     const totalItems = filas.reduce((acc, item2) => acc + item2.subtotal, 0);
     const total = totalItems > 0 ? totalItems : Math.abs(Number(mov?.monto || 0));
@@ -65548,6 +65564,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
             <th>Detalle</th>
             <th class="num" style="width:70px">Cant.</th>
             <th class="num" style="width:92px">Precio</th>
+            <th class="num" style="width:54px">IVA</th>
             <th class="num" style="width:64px">Desc.</th>
             <th class="num" style="width:98px">Subtotal</th>
           </tr>
@@ -65561,6 +65578,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
               <td>${item2.descripcion || "-"}</td>
               <td class="num">${formatearCantidad(item2.cantidad)}</td>
               <td class="num">${formatearDinero(item2.precio)}</td>
+              <td class="num">${item2.iva === "10.5" ? "10,5%" : item2.iva === "21" ? "21%" : "Exento"}</td>
               <td class="num">${item2.descuento > 0 ? `${formatearCantidad(item2.descuento)}%` : "-"}</td>
               <td class="num subtotal">${formatearDinero(item2.subtotal)}</td>
             </tr>`;
@@ -68187,7 +68205,7 @@ Saldo a descontar: ${formatearDinero(pendienteTotal)}.`,
     docPdf.text(cliente, 110, 48, { maxWidth: 86 });
     autoTable(docPdf, {
       startY: 58,
-      head: [["C\xF3digo", "Detalle", "Cant.", "Unidad", "Precio U.", "Desc.", "Subtotal"]],
+      head: [["C\xF3digo", "Detalle", "Cant.", "Unidad", "Precio U.", "IVA", "Desc.", "Subtotal"]],
       body: filas,
       theme: "grid",
       margin: { left: 14, right: 14 },
@@ -68199,8 +68217,9 @@ Saldo a descontar: ${formatearDinero(pendienteTotal)}.`,
         2: { cellWidth: 18, halign: "right" },
         3: { cellWidth: 19 },
         4: { cellWidth: 25, halign: "right" },
-        5: { cellWidth: 18, halign: "right" },
-        6: { cellWidth: 28, halign: "right", fontStyle: "bold" }
+        5: { cellWidth: 15, halign: "right" },
+        6: { cellWidth: 18, halign: "right" },
+        7: { cellWidth: 28, halign: "right", fontStyle: "bold" }
       }
     });
     const totalY = Math.min((docPdf.lastAutoTable?.finalY || 70) + 12, 270);
@@ -71219,7 +71238,8 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
     try {
       const descripcionFinal = textoSeguroTrim(formProducto.descripcion, "");
       const precioCompuesto = calcularPrecioCompuestoFormulario(formProducto);
-      const precioFinal = formProducto.esProductoCompuesto ? precioCompuesto : parseNumeroBasico(formProducto.precio);
+      const precioFinalBase = formProducto.esProductoCompuesto ? precioCompuesto : parseNumeroBasico(formProducto.precio);
+      const precioFinal = formProducto.esProductoCompuesto ? precioFinalBase : redondearPrecioProducto(precioFinalBase, formProducto.redondeoPrecio);
       if (!descripcionFinal) {
         await notificarSistema("Ingres\xE1 la descripci\xF3n del producto.", {
           tipo: "warning",
@@ -71421,6 +71441,7 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
         ganancia: esProductoCompuesto ? parseNumeroBasico(calcularGananciaDesdePrecioVenta(costoCompuesto, precioFinal, formProducto.iva, "ARS", 1, costoCompuesto, true)) : gananciaParaGuardar || parseNumeroBasico(gananciaCalculada),
         iva: formProducto.iva || "21",
         precio: precioFinal,
+        redondeoPrecio: formProducto.redondeoPrecio || "ninguno",
         unidad: formProducto.unidad || "unid",
         cantidad: esProductoCompuesto ? 0 : cantidadProductoFormulario,
         stockMinimo: esProductoCompuesto ? null : stockMinimoFormulario,
@@ -86301,23 +86322,23 @@ ${configuracion.nombre}`;
           ] }) }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex flex-col gap-3 min-h-0 flex-1", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "bg-white border border-slate-200 rounded-2xl overflow-hidden min-h-0 flex-1 flex flex-col", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-3 py-2 border-b border-slate-100 bg-slate-50 flex items-center justify-between gap-2", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-3 py-2 border-b border-slate-100 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "text-[11px] font-black text-slate-700 uppercase tracking-wider", children: [
                   compraDirectaActiva ? "Items de la compra" : "Items del pedido",
                   " (",
                   itemsPedidoCompra.length,
                   ")"
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex items-center gap-1.5", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex flex-wrap items-center justify-end gap-2 w-full sm:w-auto", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", onClick: () => {
                     setBusquedaSelectorInventarioPedidoCompra("");
                     setSelectorInventarioPedidoCompraAbierto(true);
-                  }, className: "inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] font-black uppercase tracking-wider", title: "Abrir inventario", children: [
+                  }, className: "inline-flex shrink-0 items-center justify-center gap-1 min-h-[34px] px-3 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] font-black uppercase tracking-wider whitespace-nowrap", title: "Abrir inventario", children: [
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { size: 13 }),
                     " Agregar"
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: agregarItemManualPedidoCompra, className: "px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] font-black uppercase tracking-wider", children: "+ Manual" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => setItemsPedidoCompra([]), disabled: !itemsPedidoCompra.length, className: "px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-40 text-[10px] font-black uppercase tracking-wider", children: "Limpiar" })
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: agregarItemManualPedidoCompra, className: "inline-flex shrink-0 items-center justify-center min-h-[34px] px-3 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] font-black uppercase tracking-wider whitespace-nowrap", children: "+ Manual" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => setItemsPedidoCompra([]), disabled: !itemsPedidoCompra.length, className: "inline-flex shrink-0 items-center justify-center min-h-[34px] px-3 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-40 text-[10px] font-black uppercase tracking-wider whitespace-nowrap", children: "Limpiar" })
                 ] })
               ] }),
               itemsPedidoCompra.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "p-6 text-sm font-bold text-slate-400 text-center", children: compraDirectaActiva ? "Agrega productos para registrar la compra." : "Agrega productos para crear el pedido." }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-slate-50/70", children: [
@@ -87244,6 +87265,18 @@ ${configuracion.nombre}`;
                 setCampoPrecioProductoPreferido("precio");
                 setFormProducto((prev) => recalcularFormularioProducto({ ...prev, precio: val }, "precio"));
               }, className: "w-full pl-8 pr-4 py-2.5 bg-indigo-50/50 border-2 border-indigo-200 rounded-xl focus:border-indigo-600 outline-none text-2xl font-black text-indigo-800 disabled:bg-fuchsia-50 disabled:text-fuchsia-900", placeholder: "0.00" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "mt-2 flex flex-col sm:flex-row sm:items-center gap-2 rounded-lg border border-indigo-100 bg-indigo-50/60 px-2.5 py-2", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "text-[10px] font-black uppercase tracking-wider text-indigo-700", children: "Redondear precio" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { value: formProducto.redondeoPrecio || "ninguno", onChange: (e2) => {
+                const modo = e2.target.value;
+                setFormProducto((prev) => ({ ...prev, redondeoPrecio: modo, precio: prev.precio === "" ? "" : String(redondearPrecioProducto(prev.precio, modo)) }));
+              }, className: "w-full sm:w-auto min-w-[150px] px-2 py-1.5 rounded-md border border-indigo-200 bg-white text-xs font-black text-indigo-800", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "ninguno", children: "Sin redondear" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "cien", children: "A la centena" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "mil", children: "Al millar" })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "text-[10px] font-bold text-indigo-600", children: "Se aplica al guardar el producto." })
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "text-[9px] text-indigo-700 font-bold mt-1 uppercase tracking-wider h-3", children: formProducto.precio ? numeroALetras(parseFloat(formProducto.precio) || 0) : "" })
           ] }),
@@ -90780,6 +90813,7 @@ ${configuracion.nombre}`;
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-1.5 py-1.5 text-center w-[62px]", children: "Cant." }),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-1.5 py-1.5 text-center w-[68px]", children: "Unidad" }),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-1.5 py-1.5 text-right w-24", children: "Precio U." }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-1.5 py-1.5 text-center w-[62px]", children: "IVA" }),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-1.5 py-1.5 text-center w-[54px]", children: "Desc." }),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-1.5 py-1.5 text-right w-28", children: "Subtotal" }),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-1.5 py-1.5 w-9" })
@@ -90828,6 +90862,11 @@ ${configuracion.nombre}`;
                               placeholder: "C\xF3digo"
                             }
                           )
+                        ] }) }),
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-1 py-[2px]", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { value: item2.iva || "sin_iva", disabled: esItemDevolucionVinculada, onChange: (e2) => actualizarItemPuntoVenta(item2.id, "iva", e2.target.value), className: "w-full h-6 px-1 bg-transparent border border-transparent rounded-md text-[10px] font-black text-center outline-none hover:bg-white focus:bg-white focus:border-emerald-300 focus:ring-1 focus:ring-emerald-500", children: [
+                          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "sin_iva", children: "Exento" }),
+                          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "10.5", children: "10,5%" }),
+                          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "21", children: "21%" })
                         ] }) }),
                         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-1 py-[2px]", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
                           "input",
