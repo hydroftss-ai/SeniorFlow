@@ -59775,6 +59775,11 @@ function AppInterna() {
   const [pagoPendientePuntoVenta, setPagoPendientePuntoVenta] = (0, import_react4.useState)(null);
   const guardandoPuntoVentaRef = (0, import_react4.useRef)(false);
   const operacionCajaRef = (0, import_react4.useRef)(null);
+  const configuracionSnapshotRef = (0, import_react4.useRef)(false);
+  const cajaSnapshotRef = (0, import_react4.useRef)(false);
+  const usuariosSeedRef = (0, import_react4.useRef)(false);
+  const usuariosSnapshotVersionRef = (0, import_react4.useRef)(0);
+  const ultimaCajaPersistidaRef = (0, import_react4.useRef)(null);
   const proteccionAccionesRef = (0, import_react4.useRef)({ elemento: null, formulario: null, instante: 0 });
   const [cierrePantallaClientePuntoVenta, setCierrePantallaClientePuntoVenta] = (0, import_react4.useState)(null);
   const pantallaClientePuntoVentaRef = (0, import_react4.useRef)(null);
@@ -59998,19 +60003,26 @@ function AppInterna() {
     };
     const unsubConfig = onSnapshot(doc(db, "sistema", "configuracion"), (d2) => {
       if (d2.exists()) {
+        if (d2.metadata?.fromCache && configuracionSnapshotRef.current) return;
         const configDB = { ...CONFIG_DEFAULT, ...d2.data() };
         setConfiguracion(configDB);
         setConfiguracionPersistida(configDB);
+        configuracionSnapshotRef.current = true;
       } else {
-        setDoc(d2.ref, CONFIG_DEFAULT, { merge: true });
-        setConfiguracion(CONFIG_DEFAULT);
-        setConfiguracionPersistida(CONFIG_DEFAULT);
+        console.warn("Configuraci\xF3n de empresa no disponible todav\xEDa; se conserva el estado actual.");
       }
       marcarDBLista();
     }, (err2) => console.error(err2));
     const unsubCaja = onSnapshot(doc(db, "sistema", "caja"), (d2) => {
-      if (d2.exists()) setCaja(d2.data());
-      else setDoc(d2.ref, { estado: "cerrada", efectivoInicial: 0, chequesInicial: 0, fechaApertura: null });
+      if (d2.exists()) {
+        if (d2.metadata?.fromCache && cajaSnapshotRef.current) return;
+        const cajaDB = d2.data();
+        setCaja(cajaDB);
+        ultimaCajaPersistidaRef.current = JSON.stringify(cajaDB);
+        cajaSnapshotRef.current = true;
+      } else {
+        console.warn("Estado de caja no disponible todav\xEDa; se conserva el estado actual.");
+      }
       marcarDBLista();
     }, (err2) => console.error(err2));
     const unsubHistorialCaja = onSnapshot(collection(db, "historial_caja"), (snapshot) => {
@@ -60020,10 +60032,17 @@ function AppInterna() {
       setHistorialCaja(loaded);
     }, (err2) => console.error("No se pudo cargar el historial de caja.", err2));
     const unsubUsuarios = onSnapshot(collection(db, "usuarios"), async (snapshot) => {
+      const snapshotVersion = ++usuariosSnapshotVersionRef.current;
       if (snapshot.empty) {
-        setUsuarios([USUARIO_ADMIN_FALLBACK]);
-        const { id: _id, ...usuarioSemillaFirestore } = USUARIO_ADMIN_FALLBACK;
-        setDoc(doc(db, "usuarios", "admin"), usuarioSemillaFirestore, { merge: true }).catch((err2) => console.error(err2));
+        setUsuarios((actuales) => actuales.length ? actuales : [USUARIO_ADMIN_FALLBACK]);
+        if (!usuariosSeedRef.current) {
+          usuariosSeedRef.current = true;
+          const { id: _id, ...usuarioSemillaFirestore } = USUARIO_ADMIN_FALLBACK;
+          setDoc(doc(db, "usuarios", "admin"), usuarioSemillaFirestore, { merge: true }).catch((err2) => {
+            usuariosSeedRef.current = false;
+            console.error(err2);
+          });
+        }
       } else {
         const loaded = [];
         snapshot.forEach((doc2) => loaded.push({ id: doc2.id, ...doc2.data() }));
@@ -60033,6 +60052,7 @@ function AppInterna() {
           const { id: _id, ...datosCanonicos } = canonico;
           await setDoc(doc(db, "usuarios", "admin"), datosCanonicos, { merge: true });
         }
+        if (snapshotVersion !== usuariosSnapshotVersionRef.current) return;
         const idsDuplicados = new Set(admins.filter((usuario) => usuario !== canonico || usuario.id !== "admin").map((usuario) => usuario.id));
         await Promise.all(Array.from(idsDuplicados).map((id) => deleteDoc(doc(db, "usuarios", id))));
         setUsuarios(loaded.filter((usuario) => !idsDuplicados.has(usuario.id)).map((usuario) => usuario.id === canonico?.id && canonico.id !== "admin" ? { ...usuario, id: "admin" } : usuario));
@@ -66102,6 +66122,10 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
   const guardarConfiguracion = async (e2) => {
     e2.preventDefault();
     if (!editandoConfiguracion || !configuracionEditada) return;
+    if (firebaseUser && !configuracionSnapshotRef.current) {
+      await notificarSistema("La configuraci\xF3n todav\xEDa no termin\xF3 de sincronizarse. Esper\xE1 un momento y volv\xE9 a intentar.", { tipo: "warning", titulo: "Configuraci\xF3n no sincronizada" });
+      return;
+    }
     const porcentajeRecargo = obtenerPorcentajeRecargoConfigurado(configuracion);
     const payloadConfiguracion = {
       ...CONFIG_DEFAULT,
