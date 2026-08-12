@@ -63993,7 +63993,6 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
         items[indice] = { ...item2, codigo: valorCodigo, productoId: "", imagen: "", logoMarca: "" };
         return { ...prev, items };
       }
-      const eraLineaVacia = !textoSeguroTrim(item2?.codigo, "") && !textoSeguroTrim(item2?.descripcion, "") && !parseNumeroBasico(item2?.precio);
       items[indice] = {
         ...item2,
         productoId: producto.id || "",
@@ -64006,8 +64005,6 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
         imagen: textoSeguroTrim(producto?.imagen, item2.imagen || ""),
         logoMarca: textoSeguroTrim(producto?.logoMarca, item2.logoMarca || "")
       };
-      const hayOtraLineaVacia = items.some((fila, indiceFila) => indiceFila !== indice && !textoSeguroTrim(fila?.codigo, "") && !textoSeguroTrim(fila?.descripcion, "") && !parseNumeroBasico(fila?.precio));
-      if (eraLineaVacia || !hayOtraLineaVacia) items.push(crearItemPuntoVentaVacio());
       return { ...prev, items };
     });
   };
@@ -64206,7 +64203,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       const restantes = (prev.items || []).filter((item2) => item2.id !== itemId);
       return {
         ...prev,
-        items: restantes.length ? restantes : [crearItemPuntoVentaVacio()]
+        items: restantes
       };
     });
   };
@@ -73330,6 +73327,7 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
       marca: prod.marca || "",
       precio: obtenerPrecioVentaProductoActualizado(prod) || prod.precio || "",
       unidad: prod.unidad || "unid",
+      iva: textoSeguroTrim(prod?.iva, "sin_iva"),
       costoBase: obtenerCostoProductoRealPesos(prod) || calcularCostoRealConIva(proveedor?.costoPesos || costoProveedorFallback, prod?.iva, Boolean(proveedor?.ivaIncluido)) || calcularCostoRealConIva(parseNumeroBasico(prod.costo || 0), prod?.iva, Boolean(prod?.costoIvaIncluido)),
       costoIvaIncluido: true,
       imagen: prod.imagen || "",
@@ -73367,7 +73365,6 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
           const indice = actuales.findIndex((item2) => item2.id === itemIdPuntoVentaParaStock);
           if (indice < 0) return actuales;
           const anterior = actuales[indice];
-          const eraLineaVacia = !textoSeguroTrim(anterior?.codigo, "") && !textoSeguroTrim(anterior?.descripcion, "") && !parseNumeroBasico(anterior?.precio);
           actuales[indice] = {
             ...anterior,
             productoId: textoSeguroTrim(datosProducto.id || prod?.id, ""),
@@ -73376,11 +73373,10 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
             marca: textoSeguroTrim(datosProducto.marca || prod?.marca, anterior.marca || ""),
             precio: parseNumeroBasico(datosProducto.precio) > 0 ? String(parseNumeroBasico(datosProducto.precio)) : anterior.precio,
             unidad: textoSeguroTrim(datosProducto.unidad, anterior.unidad || "unid"),
+            iva: textoSeguroTrim(datosProducto.iva, anterior.iva || "sin_iva"),
             imagen: textoSeguroTrim(datosProducto.imagen || prod?.imagen, anterior.imagen || ""),
             logoMarca: textoSeguroTrim(datosProducto.logoMarca || prod?.logoMarca, anterior.logoMarca || "")
           };
-          const hayOtraLineaVacia = actuales.some((fila, indiceFila) => indiceFila !== indice && !textoSeguroTrim(fila?.codigo, "") && !textoSeguroTrim(fila?.descripcion, "") && !parseNumeroBasico(fila?.precio));
-          if (eraLineaVacia || !hayOtraLineaVacia) actuales.push(crearItemPuntoVentaVacio());
           return actuales;
         })()
       }));
@@ -73422,6 +73418,7 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
         marca: textoSeguroTrim(datosPrimero.marca || primero?.marca, ""),
         precio: parseNumeroBasico(datosPrimero.precio) > 0 ? String(parseNumeroBasico(datosPrimero.precio)) : itemsActuales[itemObjetivoIndex]?.precio || "",
         unidad: textoSeguroTrim(datosPrimero.unidad, itemsActuales[itemObjetivoIndex]?.unidad || "unid"),
+        iva: textoSeguroTrim(datosPrimero.iva, itemsActuales[itemObjetivoIndex]?.iva || "sin_iva"),
         imagen: textoSeguroTrim(datosPrimero.imagen || primero?.imagen, ""),
         logoMarca: textoSeguroTrim(datosPrimero.logoMarca || primero?.logoMarca, "")
       };
@@ -73435,13 +73432,13 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
           marca: textoSeguroTrim(datos.marca || prod?.marca, ""),
           cantidad: "1",
           unidad: textoSeguroTrim(datos.unidad, "unid"),
+          iva: textoSeguroTrim(datos.iva, "sin_iva"),
           precio: parseNumeroBasico(datos.precio) > 0 ? String(parseNumeroBasico(datos.precio)) : "",
           descuento: "0",
           imagen: textoSeguroTrim(datos.imagen || prod?.imagen, ""),
           logoMarca: textoSeguroTrim(datos.logoMarca || prod?.logoMarca, "")
         });
       });
-      itemsActuales.push(crearItemPuntoVentaVacio());
       return { ...prev, items: itemsActuales };
     });
     setProductosStockSeleccionados([]);
