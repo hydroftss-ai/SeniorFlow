@@ -73756,7 +73756,7 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
     moneda: ["ARS", "USD_BNA", "USD_BLUE"].includes(item2?.moneda) ? item2.moneda : "ARS",
     // Keep the raw value while editing so decimal cents are not lost between keystrokes.
     costoPesos: item2?.costoPesos ?? "",
-    iva: item2?.iva ?? "",
+    iva: item2?.iva ?? ((productos || []).find((producto) => producto?.id === item2?.productoId)?.iva ?? ""),
     descuento: item2?.descuento ?? "",
     imagen: textoSeguroTrim(item2?.imagen, ""),
     manual: Boolean(item2?.manual)
@@ -74258,8 +74258,8 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
     const descuentoPorcentaje = 0;
     const descuentoMonto = Math.max(0, subtotalBruto - subtotalBase);
     const ajusteMonto = compraDirectaActiva ? parseNumeroConSigno(pedidoCompraAjusteMonto) : 0;
-    const iva21 = Math.max(0, parseNumeroConSigno(pedidoCompraIva21));
-    const iva105 = Math.max(0, parseNumeroConSigno(pedidoCompraIva105));
+    const iva21 = compraDirectaActiva ? calcularIvaAutomaticoPedidoCompra(filas, "21") : 0;
+    const iva105 = compraDirectaActiva ? calcularIvaAutomaticoPedidoCompra(filas, "10.5") : 0;
     const ingresosBrutos = Math.max(0, parseNumeroConSigno(pedidoCompraIngresosBrutos));
     const flete = Math.max(0, parseNumeroConSigno(pedidoCompraFlete));
     const totalEstimado = Math.max(0, subtotalBase + iva21 + iva105 + ingresosBrutos + flete + ajusteMonto);
@@ -74437,6 +74437,7 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
       imagenPdf: obtenerImagenItemPedidoCompra(item2)
     };
   }).filter(Boolean);
+  const calcularIvaAutomaticoPedidoCompra = (items = [], tasa = "21") => construirFilasPedidoCompra(items).reduce((total, item2) => textoSeguroTrim(item2?.iva, "") === tasa ? total + Number(item2.subtotalBase || item2.subtotal || 0) * (Number(tasa) / 100) : total, 0);
   const aplicarAjustesAFilasPedidoCompra = (filas = [], descuentoPct = 0, ajusteMonto = 0) => {
     const subtotalBase = (filas || []).reduce((acc, item2) => acc + Number(item2.subtotalBase || item2.subtotal || 0), 0);
     const descuentoMonto = subtotalBase * (Math.max(0, Number(descuentoPct || 0)) / 100);
@@ -86201,10 +86202,10 @@ ${configuracion.nombre}`;
           setSelectorInventarioPedidoCompraAbierto(false);
           setModalActivo(null);
         },
-        customWidth: "max-w-[1280px]",
-        children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "space-y-4 h-[84vh] overflow-hidden flex flex-col", children: [
+        customWidth: "max-w-7xl",
+        children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "space-y-4 h-[84dvh] max-h-[calc(100dvh-6rem)] overflow-hidden flex flex-col min-w-0", children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "space-y-2", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "bg-emerald-50 border border-emerald-200 rounded-xl p-2 space-y-2", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "grid grid-cols-[1fr_minmax(220px,1.2fr)_auto] gap-2 items-center", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(220px,1.2fr)_auto] gap-2 items-center min-w-0", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "bg-white border border-emerald-200 rounded-lg px-2.5 py-1.5", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[9px] font-black text-emerald-700 uppercase tracking-wider", children: "Compra" }),
                 /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "text-sm font-black text-emerald-900", children: [
@@ -86234,10 +86235,13 @@ ${configuracion.nombre}`;
                   }
                 )
               ] }),
-              compraDirectaActiva && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children: [["IVA 21%", pedidoCompraIva21, setPedidoCompraIva21], ["IVA 10,5%", pedidoCompraIva105, setPedidoCompraIva105], ["Ingresos Brutos", pedidoCompraIngresosBrutos, setPedidoCompraIngresosBrutos], ["Flete", pedidoCompraFlete, setPedidoCompraFlete]].map(([label, value, setter]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "block text-[9px] font-black text-emerald-700 uppercase tracking-wider mb-0.5", children: label }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { value, inputMode: "decimal", onChange: (e2) => setter(e2.target.value), placeholder: "0", className: "w-full px-2 py-1.5 rounded-lg border border-emerald-200 bg-white text-[11px] font-bold text-right text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500" })
-              ] }, label)) }),
+              compraDirectaActiva && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children: [["IVA 21%", calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, "21"), null], ["IVA 10,5%", calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, "10.5"), null], ["Ingresos Brutos", pedidoCompraIngresosBrutos, setPedidoCompraIngresosBrutos], ["Flete", pedidoCompraFlete, setPedidoCompraFlete]].map(([label, value, setter]) => {
+                const esIvaAutomatico = label.startsWith("IVA");
+                return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "block text-[9px] font-black text-emerald-700 uppercase tracking-wider mb-0.5", children: label }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { value: esIvaAutomatico ? Number(value || 0).toFixed(2) : value, readOnly: esIvaAutomatico, inputMode: "decimal", onChange: setter ? (e2) => setter(e2.target.value) : void 0, placeholder: "0", className: `w-full px-2 py-1.5 rounded-lg border border-emerald-200 text-[11px] font-bold text-right outline-none focus:ring-2 focus:ring-emerald-500 ${esIvaAutomatico ? "bg-slate-100 text-slate-500 cursor-not-allowed" : "bg-white text-slate-700"}` })
+                ] }, label);
+              }) }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "block text-[9px] font-black text-emerald-700 uppercase tracking-wider mb-0.5", children: "Transporte / envio" }),
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
@@ -86362,7 +86366,7 @@ ${configuracion.nombre}`;
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "flex flex-wrap items-center justify-end gap-2 bg-white border border-emerald-200 rounded-lg px-2 py-1.5", children: (() => {
               const base = construirFilasPedidoCompra(itemsPedidoCompra || []).reduce((acc, item2) => acc + Number(item2.subtotalBase || item2.subtotal || 0), 0);
               const ajuste = compraDirectaActiva ? parseNumeroConSigno(pedidoCompraAjusteMonto) : 0;
-              const impuestos = parseNumeroConSigno(pedidoCompraIva21) + parseNumeroConSigno(pedidoCompraIva105) + parseNumeroConSigno(pedidoCompraIngresosBrutos) + parseNumeroConSigno(pedidoCompraFlete);
+              const impuestos = calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, "21") + calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, "10.5") + parseNumeroConSigno(pedidoCompraIngresosBrutos) + parseNumeroConSigno(pedidoCompraFlete);
               const total = Math.max(0, base + impuestos + ajuste);
               return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-black text-emerald-900 uppercase tracking-wide", children: compraDirectaActiva ? `Base neta ${formatearDinero(base)} \xB7 Impuestos/flete ${formatearDinero(impuestos)} \xB7 Total ${formatearDinero(total)}` : `Total estimado ${formatearDinero(total)}` });
             })() }),
@@ -86377,7 +86381,7 @@ ${configuracion.nombre}`;
                   itemsPedidoCompra.length,
                   ")"
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex flex-wrap items-center justify-end gap-2 w-full sm:w-auto", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex flex-wrap items-center justify-start sm:justify-end gap-2 w-full sm:w-auto min-w-0", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", onClick: () => {
                     setBusquedaSelectorInventarioPedidoCompra("");
                     setSelectorInventarioPedidoCompraAbierto(true);
@@ -86390,7 +86394,7 @@ ${configuracion.nombre}`;
                 ] })
               ] }),
               itemsPedidoCompra.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "p-6 text-sm font-bold text-slate-400 text-center", children: compraDirectaActiva ? "Agrega productos para registrar la compra." : "Agrega productos para crear el pedido." }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-slate-50/70", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "hidden xl:grid sticky top-0 z-10 grid-cols-[74px_minmax(230px,1.4fr)_96px_62px_84px_92px_64px_minmax(124px,0.65fr)_32px_32px] gap-1.5 items-center px-2.5 py-1.5 bg-slate-900 text-white text-[9px] font-black uppercase tracking-wider", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "hidden lg:grid sticky top-0 z-10 grid-cols-[70px_minmax(170px,1.4fr)_86px_58px_68px_88px_60px_86px_108px_32px_32px] gap-1 items-center px-2 py-1.5 bg-slate-900 text-white text-[9px] font-black uppercase tracking-wider", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "C\xF3digo" }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Detalle" }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Cod. prov." }),
@@ -86398,6 +86402,7 @@ ${configuracion.nombre}`;
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Unidad" }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "text-right", children: "Costo" }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "text-right", children: "Desc. %" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "text-center", children: "IVA" }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "text-right", children: "Subtotal" }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {}),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {})
@@ -86408,9 +86413,9 @@ ${configuracion.nombre}`;
                   const costo = parseNumeroPresupuesto(item2.costoPesos) || 0;
                   const descuento = Math.min(100, Math.max(0, parseNumeroPresupuesto(item2.descuento) || 0));
                   const subtotal = cantidad * costo * (1 - descuento / 100);
-                  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-2.5 py-2 hover:bg-emerald-50/40 transition-colors", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "grid grid-cols-1 xl:grid-cols-[74px_minmax(230px,1.4fr)_96px_62px_84px_92px_64px_minmax(124px,0.65fr)_32px_32px] gap-1.5 items-center", children: [
+                  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "px-2.5 py-2 hover:bg-emerald-50/40 transition-colors", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "grid grid-cols-1 lg:grid-cols-[70px_minmax(170px,1.4fr)_86px_58px_68px_88px_60px_86px_108px_32px_32px] gap-1 items-center", children: [
                     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "xl:hidden block text-[8px] font-black text-slate-500 uppercase tracking-wider mb-0.5", children: "C\xF3digo" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "lg:hidden block text-[8px] font-black text-slate-500 uppercase tracking-wider mb-0.5", children: "C\xF3digo" }),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
                         "input",
                         {
@@ -86422,7 +86427,7 @@ ${configuracion.nombre}`;
                       )
                     ] }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "min-w-0", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "xl:hidden block text-[8px] font-black text-slate-500 uppercase tracking-wider mb-0.5", children: "Detalle" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "lg:hidden block text-[8px] font-black text-slate-500 uppercase tracking-wider mb-0.5", children: "Detalle" }),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
                         "input",
                         {
@@ -86435,7 +86440,7 @@ ${configuracion.nombre}`;
                       )
                     ] }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "xl:hidden block text-[8px] font-black text-slate-500 uppercase tracking-wider mb-0.5", children: "Cod. prov." }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "lg:hidden block text-[8px] font-black text-slate-500 uppercase tracking-wider mb-0.5", children: "Cod. prov." }),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
                         "input",
                         {
@@ -86447,7 +86452,7 @@ ${configuracion.nombre}`;
                       )
                     ] }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "xl:hidden block text-[8px] font-black text-slate-500 uppercase tracking-wider mb-0.5", children: "Cant." }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "lg:hidden block text-[8px] font-black text-slate-500 uppercase tracking-wider mb-0.5", children: "Cant." }),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
                         "input",
                         {
@@ -86459,7 +86464,7 @@ ${configuracion.nombre}`;
                       )
                     ] }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "xl:hidden block text-[8px] font-black text-slate-500 uppercase tracking-wider mb-0.5", children: "Unidad" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "lg:hidden block text-[8px] font-black text-slate-500 uppercase tracking-wider mb-0.5", children: "Unidad" }),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
                         "select",
                         {
@@ -86475,7 +86480,7 @@ ${configuracion.nombre}`;
                       )
                     ] }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "xl:hidden block text-[8px] font-black text-slate-500 uppercase tracking-wider mb-0.5", children: "Costo" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "lg:hidden block text-[8px] font-black text-slate-500 uppercase tracking-wider mb-0.5", children: "Costo" }),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
                         "input",
                         {
@@ -86489,7 +86494,7 @@ ${configuracion.nombre}`;
                       )
                     ] }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "xl:hidden block text-[8px] font-black text-slate-500 uppercase tracking-wider mb-0.5", children: "Desc. %" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "lg:hidden block text-[8px] font-black text-slate-500 uppercase tracking-wider mb-0.5", children: "Desc. %" }),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
                         "input",
                         {
@@ -86502,9 +86507,9 @@ ${configuracion.nombre}`;
                         }
                       )
                     ] }),
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "xl:col-span-2 flex items-center gap-1", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex items-center gap-1", children: [
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "text-[8px] font-black text-slate-500 uppercase", children: "IVA" }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { value: item2.iva || "", onChange: (e2) => actualizarCampoItemPedidoCompra(item2.id, "iva", e2.target.value), className: "h-8 min-w-0 flex-1 px-1 border border-slate-200 rounded-lg bg-white text-[10px] font-bold", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { value: item2.iva || "", disabled: Boolean(item2.productoId), onChange: (e2) => actualizarCampoItemPedidoCompra(item2.id, "iva", e2.target.value), title: item2.productoId ? "IVA tomado del producto" : "IVA manual para \xEDtem sin producto", className: "h-8 min-w-0 flex-1 px-1 border border-slate-200 rounded-lg bg-white disabled:bg-slate-100 disabled:text-slate-500 text-[10px] font-bold", children: [
                         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "", children: "Exento" }),
                         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "21", children: "21%" }),
                         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "10.5", children: "10,5%" })
