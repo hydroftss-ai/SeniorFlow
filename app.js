@@ -59644,6 +59644,8 @@ function AppInterna() {
   const [pedidoCompraEstado, setPedidoCompraEstado] = (0, import_react4.useState)("guardado");
   const [pedidoCompraNotas, setPedidoCompraNotas] = (0, import_react4.useState)("");
   const [pedidoCompraFechaPedido, setPedidoCompraFechaPedido] = (0, import_react4.useState)(() => obtenerFechaInputLocal());
+  const [pedidoCompraFechaRecepcion, setPedidoCompraFechaRecepcion] = (0, import_react4.useState)("");
+  const [pedidoCompraRemitoProveedor, setPedidoCompraRemitoProveedor] = (0, import_react4.useState)("");
   const [pedidoCompraTransporte, setPedidoCompraTransporte] = (0, import_react4.useState)("");
   const [compraImpactaInventario, setCompraImpactaInventario] = (0, import_react4.useState)(true);
   const [mostrarTransportePedidoCompraPdf, setMostrarTransportePedidoCompraPdf] = (0, import_react4.useState)(false);
@@ -62223,8 +62225,8 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       const monto = esCompraDirecta ? Math.max(0, parseNumeroBasico(pedido?.totalEstimado) || montoItems) : montoItems;
       const estadoPedido = textoSeguroTrim(pedido?.estado, "guardado");
       const pagoPedido = obtenerPagoProveedorDePedido(pedido?.id, proveedorNombre);
-      const fechaPedido = pedido?.fechaCreacion || pedido?.fechaComprobante || pedido?.fechaActualizacion || (/* @__PURE__ */ new Date()).toISOString();
-      const fechaRecepcion = pedido?.fechaRecepcion || "";
+      const fechaPedido = pedido?.fechaPedido || pedido?.fechaComprobante || pedido?.fechaCreacion || pedido?.fechaActualizacion || (/* @__PURE__ */ new Date()).toISOString();
+      const fechaRecepcion = pedido?.fechaRemitoProveedor || pedido?.fechaRecepcion || "";
       const fechaPago = pagoPedido?.fecha || pedido?.pagoRegistradoProveedorEn || "";
       const recibido = estadoPedido === "recibido";
       return [{
@@ -74065,6 +74067,8 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
     setPedidoCompraEstado("guardado");
     setPedidoCompraNotas("");
     setPedidoCompraFechaPedido(obtenerFechaInputLocal());
+    setPedidoCompraFechaRecepcion("");
+    setPedidoCompraRemitoProveedor("");
     setPedidoCompraTransporte("");
     setCompraImpactaInventario(true);
     setMostrarTransportePedidoCompraPdf(false);
@@ -74096,6 +74100,8 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
     setPedidoCompraEstado("recibido");
     setPedidoCompraNotas("");
     setPedidoCompraFechaPedido(obtenerFechaInputLocal());
+    setPedidoCompraFechaRecepcion(obtenerFechaInputLocal());
+    setPedidoCompraRemitoProveedor("");
     setPedidoCompraTransporte("");
     setCompraImpactaInventario(true);
     setMostrarTransportePedidoCompraPdf(false);
@@ -74109,8 +74115,9 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
   };
   const abrirPedidoCompraGuardado = (pedido = null) => {
     if (!pedido) return;
-    setCompraDirectaActiva(false);
-    setCompraDirectaMetodoPago("cuenta_corriente");
+    const esCompraDirectaGuardada = textoSeguroTrim(pedido?.tipoRegistro, "") === "compra_directa";
+    setCompraDirectaActiva(esCompraDirectaGuardada);
+    setCompraDirectaMetodoPago(textoSeguroTrim(pedido?.detalleRecepcion?.metodoPago, textoSeguroTrim(pedido?.pagoRegistradoProveedorMetodo, "cuenta_corriente")));
     setCompraDirectaMontoPagado("");
     setCompraDirectaTipoComprobante(textoSeguroTrim(pedido?.tipoComprobanteProveedor, ""));
     setCompraDirectaNumeroComprobante(textoSeguroTrim(pedido?.numeroComprobanteProveedor, ""));
@@ -74120,7 +74127,12 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
     setPedidoCompraEditandoId(pedido.id || "");
     setPedidoCompraEstado(textoSeguroTrim(pedido?.estado, "guardado"));
     setPedidoCompraNotas(textoSeguroTrim(pedido?.notas, ""));
-    setPedidoCompraFechaPedido(textoSeguroTrim(pedido?.fechaPedido, textoSeguroTrim(pedido?.fechaComprobante, obtenerFechaInputLocal())));
+    const fechaPedidoGuardada = textoSeguroTrim(pedido?.fechaPedido, textoSeguroTrim(pedido?.fechaComprobante, textoSeguroTrim(pedido?.fechaCreacion, obtenerFechaInputLocal())));
+    const fechaRecepcionGuardada = textoSeguroTrim(pedido?.fechaRemitoProveedor, textoSeguroTrim(pedido?.fechaRecepcion, ""));
+    setPedidoCompraFechaPedido(esFechaInputValida(fechaPedidoGuardada) ? fechaPedidoGuardada : obtenerFechaInputLocal(fechaPedidoGuardada));
+    setPedidoCompraFechaRecepcion(fechaRecepcionGuardada ? esFechaInputValida(fechaRecepcionGuardada) ? fechaRecepcionGuardada : obtenerFechaInputLocal(fechaRecepcionGuardada) : "");
+    setPedidoCompraRemitoProveedor(textoSeguroTrim(pedido?.remitoProveedor, ""));
+    setProveedorCompraSeleccionado(obtenerProveedorPrincipalPedido(pedido));
     setPedidoCompraTransporte(textoSeguroTrim(pedido?.transporte, ""));
     setCompraImpactaInventario(pedido?.actualizarStock !== false && pedido?.actualizarCostos !== false);
     setMostrarTransportePedidoCompraPdf(Boolean(pedido?.mostrarTransporte));
@@ -74281,6 +74293,8 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
     setPedidoCompraEstado("guardado");
     setPedidoCompraNotas(`Pedido sugerido por ranking de ventas (${periodoSugerencias === "dia" ? "d\xEDa" : periodoSugerencias}).`);
     setPedidoCompraFechaPedido(obtenerFechaInputLocal());
+    setPedidoCompraFechaRecepcion("");
+    setPedidoCompraRemitoProveedor("");
     setPedidoCompraTransporte("");
     setCompraImpactaInventario(true);
     setMostrarTransportePedidoCompraPdf(false);
@@ -74371,6 +74385,8 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
     setPedidoCompraEstado("guardado");
     setPedidoCompraNotas(textoSeguroTrim(presupuesto?.notas || presupuesto?.observaciones, ""));
     setPedidoCompraFechaPedido(obtenerFechaInputLocal());
+    setPedidoCompraFechaRecepcion("");
+    setPedidoCompraRemitoProveedor("");
     setPedidoCompraTransporte("");
     setCompraImpactaInventario(true);
     setMostrarTransportePedidoCompraPdf(false);
@@ -74436,9 +74452,9 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
     const subtotalBruto = filas.reduce((acc, item2) => acc + (item2.subtotalBruto || item2.subtotal || 0), 0);
     const descuentoPorcentaje = 0;
     const descuentoMonto = Math.max(0, subtotalBruto - subtotalBase);
-    const ajusteMonto = compraDirectaActiva ? parseNumeroConSigno(pedidoCompraAjusteMonto) : 0;
-    const iva21 = compraDirectaActiva ? calcularIvaAutomaticoPedidoCompra(filas, "21") : 0;
-    const iva105 = compraDirectaActiva ? calcularIvaAutomaticoPedidoCompra(filas, "10.5") : 0;
+    const ajusteMonto = compraDirectaActiva || pedidoCompraEditandoId ? parseNumeroConSigno(pedidoCompraAjusteMonto) : 0;
+    const iva21 = compraDirectaActiva ? calcularIvaAutomaticoPedidoCompra(filas, "21") : pedidoCompraEditandoId ? Math.max(0, parseNumeroBasico(pedidoCompraIva21)) : 0;
+    const iva105 = compraDirectaActiva ? calcularIvaAutomaticoPedidoCompra(filas, "10.5") : pedidoCompraEditandoId ? Math.max(0, parseNumeroBasico(pedidoCompraIva105)) : 0;
     const ingresosBrutos = Math.max(0, parseNumeroConSigno(pedidoCompraIngresosBrutos));
     const flete = Math.max(0, parseNumeroConSigno(pedidoCompraFlete));
     const totalEstimado = Math.max(0, subtotalBase + iva21 + iva105 + ingresosBrutos + flete + ajusteMonto);
@@ -74448,7 +74464,7 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
     const estadoPedido = compraDirectaActiva ? "recibido" : textoSeguroTrim(pedidoCompraEstado, "guardado") || "guardado";
     const metodoPagoDirecto = textoSeguroTrim(compraDirectaMetodoPago, "cuenta_corriente") || "cuenta_corriente";
     const montoPagadoDirecto = compraDirectaActiva ? totalEstimado : Math.max(0, parseNumeroBasico(compraDirectaMontoPagado) || 0);
-    const requierePagoDirecto = compraDirectaActiva && !["pendiente", "cuenta_corriente"].includes(metodoPagoDirecto);
+    const requierePagoDirecto = compraDirectaActiva && !Boolean(pedidoAnterior?.pagoRegistradoProveedor) && !["pendiente", "cuenta_corriente"].includes(metodoPagoDirecto);
     if (requierePagoDirecto && montoPagadoDirecto <= 0) {
       await notificarSistema("Ingres\xE1 el monto pagado o eleg\xED Cuenta corriente / Pendiente de pago.", {
         tipo: "warning",
@@ -74502,11 +74518,12 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
       ingresosBrutos,
       flete,
       totalEstimado,
-      tipoRegistro: compraDirectaActiva ? "compra_directa" : "pedido_compra",
-      tipoComprobanteProveedor: compraDirectaActiva ? textoSeguroTrim(compraDirectaTipoComprobante, "") : pedidoAnterior?.tipoComprobanteProveedor || "",
-      numeroComprobanteProveedor: compraDirectaActiva ? textoSeguroTrim(compraDirectaNumeroComprobante, "") : pedidoAnterior?.numeroComprobanteProveedor || "",
-      remitoProveedor: compraDirectaActiva ? comprobanteProveedor : pedidoAnterior?.remitoProveedor || "",
-      fechaRecepcion: compraDirectaActiva ? combinarFechaInputConHoraReferenciaISO(pedidoCompraFechaPedido || obtenerFechaInputLocal(), /* @__PURE__ */ new Date()) : pedidoAnterior?.fechaRecepcion || "",
+      tipoRegistro: pedidoAnterior?.tipoRegistro || (compraDirectaActiva ? "compra_directa" : "pedido_compra"),
+      tipoComprobanteProveedor: compraDirectaActiva || pedidoCompraEditandoId ? textoSeguroTrim(compraDirectaTipoComprobante, "") : pedidoAnterior?.tipoComprobanteProveedor || "",
+      numeroComprobanteProveedor: compraDirectaActiva || pedidoCompraEditandoId ? textoSeguroTrim(compraDirectaNumeroComprobante, "") : pedidoAnterior?.numeroComprobanteProveedor || "",
+      remitoProveedor: compraDirectaActiva || pedidoCompraEditandoId ? textoSeguroTrim(pedidoCompraRemitoProveedor, textoSeguroTrim(compraDirectaTipoComprobante, "").toLowerCase().includes("remito") ? textoSeguroTrim(compraDirectaNumeroComprobante, "") : "") : pedidoAnterior?.remitoProveedor || "",
+      fechaRemitoProveedor: pedidoCompraFechaRecepcion || pedidoAnterior?.fechaRemitoProveedor || "",
+      fechaRecepcion: pedidoCompraFechaRecepcion ? combinarFechaInputConHoraReferenciaISO(pedidoCompraFechaRecepcion, pedidoAnterior?.fechaRecepcion || /* @__PURE__ */ new Date()) : pedidoAnterior?.fechaRecepcion || (compraDirectaActiva ? combinarFechaInputConHoraReferenciaISO(pedidoCompraFechaPedido || obtenerFechaInputLocal(), /* @__PURE__ */ new Date()) : ""),
       actualizarStock: Boolean(impactaInventario),
       actualizarCostos: Boolean(impactaInventario),
       stockActualizado: Boolean(pedidoAnterior?.stockActualizado || stockActualizadoAhora),
@@ -74518,7 +74535,7 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
       mostrarPrecioUnitario: mostrarPrecioUnitarioPedidoCompraPdf,
       mostrarSubtotal: mostrarSubtotalPedidoCompraPdf,
       mostrarTotal: mostrarTotalPedidoCompraPdf,
-      pagoRegistradoProveedor: compraDirectaActiva ? requierePagoDirecto : Boolean(pedidoAnterior?.pagoRegistradoProveedor),
+      pagoRegistradoProveedor: Boolean(pedidoAnterior?.pagoRegistradoProveedor || requierePagoDirecto),
       pagoRegistradoProveedorEn: compraDirectaActiva && requierePagoDirecto ? (/* @__PURE__ */ new Date()).toISOString() : pedidoAnterior?.pagoRegistradoProveedorEn || "",
       pagoRegistradoProveedorMonto: compraDirectaActiva && requierePagoDirecto ? montoPagadoDirecto : pedidoAnterior?.pagoRegistradoProveedorMonto || 0,
       pagoRegistradoProveedorMetodo: compraDirectaActiva && requierePagoDirecto ? metodoPagoDirecto : pedidoAnterior?.pagoRegistradoProveedorMetodo || "",
@@ -81113,7 +81130,7 @@ ${configuracion.nombre}`;
                     setMenuContextualPedidoCompra({ x: e2.clientX, y: e2.clientY, pedido });
                   },
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-4 py-3 font-bold text-gray-700", children: formatearFecha(pedido?.fechaComprobante || pedido?.fechaActualizacion || pedido?.fechaCreacion || /* @__PURE__ */ new Date()) }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-4 py-3 font-bold text-gray-700", children: formatearFecha(pedido?.fechaPedido || pedido?.fechaComprobante || pedido?.fechaCreacion || pedido?.fechaActualizacion || /* @__PURE__ */ new Date()) }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("td", { className: "px-4 py-3", children: [
                       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "font-black text-gray-900", children: [
                         "PC-",
@@ -86421,7 +86438,8 @@ ${configuracion.nombre}`;
               ] }),
               !compraDirectaActiva && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { value: pedidoCompraEstado, onChange: (e2) => setPedidoCompraEstado(e2.target.value), className: "w-full px-2 py-1.5 rounded-lg border border-emerald-200 bg-white text-[11px] font-black text-emerald-800", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "guardado", children: "Guardado (sin terminar)" }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "enviado", children: "Enviado" })
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "enviado", children: "Enviado" }),
+                pedidoCompraEditandoId && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "recibido", children: "Recibido" })
               ] })
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5", children: [
@@ -86459,8 +86477,8 @@ ${configuracion.nombre}`;
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("datalist", { id: "transportes-pedido-sugeridos", children: transportesPedidoSugeridos.map((transporte) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: transporte }, `pedido-transporte-sug-${transporte}`)) })
               ] })
             ] }),
-            compraDirectaActiva && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-1.5 bg-emerald-100/60 border border-emerald-200 rounded-lg p-1.5", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+            (compraDirectaActiva || Boolean(pedidoCompraEditandoId)) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-1.5 bg-emerald-100/60 border border-emerald-200 rounded-lg p-1.5", children: [
+              compraDirectaActiva && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "block text-[9px] font-black text-emerald-800 uppercase tracking-wider mb-0.5", children: "Forma de pago" }),
                 /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
                   "select",
@@ -86492,6 +86510,8 @@ ${configuracion.nombre}`;
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "Factura A", children: "Factura A" }),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "Factura B", children: "Factura B" }),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "Factura C", children: "Factura C" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "Nota de cr\xE9dito A", children: "Nota de cr\xE9dito A" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "Nota de cr\xE9dito B", children: "Nota de cr\xE9dito B" }),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "Remito X", children: "Remito X" })
                     ]
                   }
@@ -86506,6 +86526,30 @@ ${configuracion.nombre}`;
                     onChange: (e2) => setCompraDirectaNumeroComprobante(e2.target.value),
                     className: "w-full px-2 py-1.5 rounded-lg border border-emerald-200 bg-white text-[11px] font-bold outline-none focus:ring-2 focus:ring-emerald-500",
                     placeholder: "Ej.: 0001-00001234"
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "block text-[9px] font-black text-emerald-800 uppercase tracking-wider mb-0.5", children: "N\xFAmero de remito" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                  "input",
+                  {
+                    value: pedidoCompraRemitoProveedor,
+                    onChange: (e2) => setPedidoCompraRemitoProveedor(e2.target.value),
+                    className: "w-full px-2 py-1.5 rounded-lg border border-emerald-200 bg-white text-[11px] font-bold outline-none focus:ring-2 focus:ring-emerald-500",
+                    placeholder: "Ej.: 00005672"
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "block text-[9px] font-black text-emerald-800 uppercase tracking-wider mb-0.5", children: "Fecha recepci\xF3n / remito" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                  "input",
+                  {
+                    type: "date",
+                    value: pedidoCompraFechaRecepcion,
+                    onChange: (e2) => setPedidoCompraFechaRecepcion(e2.target.value),
+                    className: "w-full px-2 py-1.5 rounded-lg border border-emerald-200 bg-white text-[11px] font-bold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500"
                   }
                 )
               ] })
