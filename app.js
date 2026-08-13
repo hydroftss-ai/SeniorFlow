@@ -58406,6 +58406,13 @@ var promesaConTimeout = (promesa, timeoutMs = 15e3, mensaje = "La operaci\xF3n t
 ]);
 var esDataUrlPesada = (valor = "") => textoSeguroTrim(valor, "").startsWith("data:");
 var MS_POR_DIA = 1e3 * 60 * 60 * 24;
+var calcularPlazoEntreFechas = (fechaEmision = "", fechaCobro = "") => {
+  if (!fechaEmision || !fechaCobro) return "";
+  const inicio = /* @__PURE__ */ new Date(`${fechaEmision}T12:00:00`);
+  const fin = /* @__PURE__ */ new Date(`${fechaCobro}T12:00:00`);
+  if (Number.isNaN(inicio.getTime()) || Number.isNaN(fin.getTime())) return "";
+  return String(Math.max(0, Math.round((fin.getTime() - inicio.getTime()) / MS_POR_DIA)));
+};
 var CONTACTO_NEGOCIO_FALLBACK = {
   direccion: COMPANY_DEFAULTS.direccion || "",
   web: COMPANY_DEFAULTS.web || "",
@@ -69828,7 +69835,7 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
     const pagoBase = pagoEditar || null;
     const proveedorBase = pagoBase ? proveedor || proveedorCuentaSeleccionado || pagoBase?.proveedor : proveedor || proveedorCuentaSeleccionado;
     const nombre = textoSeguroTrim(proveedorBase?.nombre || proveedorBase, textoSeguroTrim(pagoBase?.proveedor, ""));
-    const plazoProveedor = Math.max(0, parseNumeroBasico(proveedorBase?.plazoChequesDias) || 0);
+    const plazoCalculado = calcularPlazoEntreFechas(pagoBase?.fechaEmision, pagoBase?.fechaCobro);
     setPagoProveedorAEditar(pagoBase);
     setFormPagoProveedor({
       proveedor: nombre,
@@ -69842,7 +69849,7 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
       emisor: textoSeguroTrim(pagoBase?.emisor, ""),
       fechaEmision: textoSeguroTrim(pagoBase?.fechaEmision, ""),
       fechaCobro: textoSeguroTrim(pagoBase?.fechaCobro, ""),
-      plazoDias: textoSeguroTrim(pagoBase?.plazoDias, plazoProveedor ? String(plazoProveedor) : ""),
+      plazoDias: plazoCalculado || textoSeguroTrim(pagoBase?.plazoDias, ""),
       pedidoCompraId: textoSeguroTrim(pagoBase?.pedidoCompraId || pedidoCompra?.id, ""),
       pedidoCompraNumero: textoSeguroTrim(pagoBase?.pedidoCompraNumero || pedidoCompra?.numero, ""),
       pedidoCompraEstado: textoSeguroTrim(pagoBase?.pedidoCompraEstado || pedidoCompra?.estado, ""),
@@ -70459,13 +70466,16 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
       head: [["Pedido", "Recibido", "Abonado", "Tipo", "Detalle", "M\xE9todo / Comp.", "Debe", "Haber", "Pendiente"]],
       body: estado.movimientosDesc.map((mov) => {
         const esPago = mov.tipoMovimiento === "pago";
+        const esCheque = esPago && ["cheque", "echeq"].includes(normalizarMetodoPago(mov.metodoPago));
+        const identificacionCheque = esCheque && mov.numeroComprobante ? `Cheque N.\xBA ${mov.numeroComprobante}` : mov.numeroComprobante || "";
+        const plazoCheque = esCheque && mov.plazoDias ? ` \xB7 a ${parseNumeroBasico(mov.plazoDias) || 0} d\xEDas` : "";
         return [
           esPago ? "-" : formatearFecha(mov.fechaPedido || mov.fecha),
           esPago ? "-" : mov.fechaRecepcion ? formatearFecha(mov.fechaRecepcion) : "-",
           esPago ? formatearFecha(mov.fecha || mov.fechaCreacion) : mov.fechaPago ? formatearFecha(mov.fechaPago) : "-",
           esPago ? "Pago" : "Compra",
-          esPago ? `${mov.numeroComprobante ? `${mov.numeroComprobante} - ` : ""}${mov.notas || "Pago a proveedor"}${Array.isArray(mov.pedidoCompraIds) && mov.pedidoCompraIds.length ? ` \xB7 Aplicado a ${mov.pedidoCompraIds.map((id) => `PC-${estado.cargosProcesados.find((cargo) => cargo.pedidoId === id)?.numero || "000000"}`).join(", ")}` : ""}` : `${mov.descripcion || "Pedido"}${mov.items?.length ? ` (${mov.items.length} \xEDtems)` : ""}${Number(mov.impuestoProvincial || 0) || Number(mov.otrosImpuestos || 0) ? ` \xB7 Imp.: ${formatearDinero(Number(mov.impuestoProvincial || 0) + Number(mov.otrosImpuestos || 0))}` : ""}`,
-          esPago ? `${obtenerEtiquetaMetodoPago(mov.metodoPago || "transferencia")}${mov.numeroComprobante ? ` \xB7 ${mov.numeroComprobante}` : ""}` : mov.metodoPago ? `${obtenerEtiquetaMetodoPago(mov.metodoPago)}${mov.numeroComprobante ? ` \xB7 ${mov.numeroComprobante}` : ""}` : "-",
+          esPago ? `${identificacionCheque ? `${identificacionCheque} - ` : ""}${mov.notas || "Pago a proveedor"}${plazoCheque}${Array.isArray(mov.pedidoCompraIds) && mov.pedidoCompraIds.length ? ` \xB7 Aplicado a ${mov.pedidoCompraIds.map((id) => `PC-${estado.cargosProcesados.find((cargo) => cargo.pedidoId === id)?.numero || "000000"}`).join(", ")}` : ""}` : `${mov.descripcion || "Pedido"}${mov.items?.length ? ` (${mov.items.length} \xEDtems)` : ""}${Number(mov.impuestoProvincial || 0) || Number(mov.otrosImpuestos || 0) ? ` \xB7 Imp.: ${formatearDinero(Number(mov.impuestoProvincial || 0) + Number(mov.otrosImpuestos || 0))}` : ""}`,
+          esPago ? `${obtenerEtiquetaMetodoPago(mov.metodoPago || "transferencia")}${mov.numeroComprobante ? ` \xB7 N.\xBA ${mov.numeroComprobante}` : ""}${plazoCheque}` : mov.metodoPago ? `${obtenerEtiquetaMetodoPago(mov.metodoPago)}${mov.numeroComprobante ? ` \xB7 ${mov.numeroComprobante}` : ""}` : "-",
           esPago ? "-" : formatearDinero(Number(mov.monto || 0)),
           esPago ? formatearDinero(Number(mov.monto || 0)) : "-",
           esPago ? Number(mov.saldoFavorGenerado || 0) > 9e-3 ? `A favor ${formatearDinero(mov.saldoFavorGenerado)}` : "-" : formatearDinero(Number(mov.pendiente || 0))
@@ -84403,13 +84413,13 @@ ${configuracion.nombre}`;
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
                 "input",
                 {
-                  type: "number",
-                  min: "0",
-                  step: "0.01",
+                  type: "text",
+                  inputMode: "decimal",
+                  autoComplete: "off",
                   value: formPagoProveedor.monto || "",
-                  onChange: (e2) => setFormPagoProveedor((prev) => ({ ...prev, monto: e2.target.value })),
+                  onChange: (e2) => setFormPagoProveedor((prev) => ({ ...prev, monto: e2.target.value.replace(/[^0-9.,]/g, "") })),
                   className: "w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white font-black text-sm text-right outline-none focus:ring-2 focus:ring-emerald-500",
-                  placeholder: "0.00",
+                  placeholder: "3.305.054,50",
                   required: true
                 }
               )
@@ -84516,7 +84526,11 @@ ${configuracion.nombre}`;
                   {
                     type: "date",
                     value: formPagoProveedor.fechaEmision || "",
-                    onChange: (e2) => setFormPagoProveedor((prev) => ({ ...prev, fechaEmision: e2.target.value })),
+                    onChange: (e2) => setFormPagoProveedor((prev) => ({
+                      ...prev,
+                      fechaEmision: e2.target.value,
+                      plazoDias: calcularPlazoEntreFechas(e2.target.value, prev.fechaCobro)
+                    })),
                     className: "w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white font-bold text-sm outline-none focus:ring-2 focus:ring-emerald-500"
                   }
                 )
@@ -84528,26 +84542,26 @@ ${configuracion.nombre}`;
                   {
                     type: "date",
                     value: formPagoProveedor.fechaCobro || "",
-                    onChange: (e2) => setFormPagoProveedor((prev) => ({ ...prev, fechaCobro: e2.target.value })),
+                    onChange: (e2) => setFormPagoProveedor((prev) => ({
+                      ...prev,
+                      fechaCobro: e2.target.value,
+                      plazoDias: calcularPlazoEntreFechas(prev.fechaEmision, e2.target.value)
+                    })),
                     className: "w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white font-bold text-sm outline-none focus:ring-2 focus:ring-emerald-500"
                   }
                 )
               ] }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "md:col-span-2", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "block text-[10px] font-black text-gray-600 uppercase tracking-wider mb-1", children: "Plazo (d\xEDas)" }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-                  "select",
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "block text-[10px] font-black text-gray-600 uppercase tracking-wider mb-1", children: "Plazo calculado (d\xEDas)" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                  "input",
                   {
+                    type: "text",
                     value: formPagoProveedor.plazoDias || "",
-                    onChange: (e2) => setFormPagoProveedor((prev) => ({ ...prev, plazoDias: e2.target.value })),
-                    className: "w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white font-bold text-sm outline-none focus:ring-2 focus:ring-emerald-500",
-                    children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "", children: "Seleccionar plazo" }),
-                      [15, 30, 45, 60, 90, 120].map((dias) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("option", { value: dias, children: [
-                        dias,
-                        " d\xEDas"
-                      ] }, `pago-prov-plazo-${dias}`))
-                    ]
+                    readOnly: true,
+                    tabIndex: -1,
+                    placeholder: "Se calcula con las fechas",
+                    className: "w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-100 text-gray-600 font-bold text-sm outline-none"
                   }
                 )
               ] })
@@ -84613,7 +84627,9 @@ ${configuracion.nombre}`;
           const ids = marcado ? Array.from(/* @__PURE__ */ new Set([...prev.chequesRecibidosIds || [], cheque.id])) : (prev.chequesRecibidosIds || []).filter((id) => id !== cheque.id);
           const total = chequesDisponiblesParaPagoProveedor.filter((item2) => ids.includes(item2.id)).reduce((suma, item2) => suma + Number(item2.monto || 0), 0);
           const chequeBase = marcado ? cheque : ids.length ? chequesDisponiblesParaPagoProveedor.find((item2) => item2.id === ids[ids.length - 1]) : null;
-          return { ...prev, chequesRecibidosIds: ids, monto: total > 0 ? total.toFixed(2) : prev.monto, numeroComprobante: chequeBase ? chequeBase.numeroCheque || prev.numeroComprobante || "" : "", banco: chequeBase ? chequeBase.banco || "" : "", emisor: chequeBase ? chequeBase.titular || chequeBase.emisor || "" : "", fechaEmision: chequeBase ? chequeBase.fechaEmision || "" : "", fechaCobro: chequeBase ? chequeBase.fechaCobro || "" : "" };
+          const fechaEmision = chequeBase ? chequeBase.fechaEmision || "" : "";
+          const fechaCobro = chequeBase ? chequeBase.fechaCobro || "" : "";
+          return { ...prev, chequesRecibidosIds: ids, monto: total > 0 ? total.toFixed(2) : prev.monto, numeroComprobante: chequeBase ? chequeBase.numeroCheque || prev.numeroComprobante || "" : "", banco: chequeBase ? chequeBase.banco || "" : "", emisor: chequeBase ? chequeBase.titular || chequeBase.emisor || "" : "", fechaEmision, fechaCobro, plazoDias: calcularPlazoEntreFechas(fechaEmision, fechaCobro) };
         })
       }
     ),
