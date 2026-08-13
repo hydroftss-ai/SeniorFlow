@@ -78556,6 +78556,14 @@ ${configuracion.nombre}`;
         .sf-modal-panel .sf-pv-item-actions .sf-pv-add-product:hover { background:#15803d !important; }
         .sf-modal-panel .sf-pv-item-actions .sf-pv-add-service { width:120px !important; min-width:120px !important; border:1px solid #2563eb !important; background:#2563eb !important; }
         .sf-modal-panel .sf-pv-item-actions .sf-pv-add-service:hover { background:#1d4ed8 !important; }
+        .sf-purchase-item-header { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:12px; width:100%; min-width:0; }
+        .sf-purchase-item-title { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .sf-purchase-item-actions { display:flex; flex:0 0 auto; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:8px; min-width:0; }
+        .sf-purchase-item-actions button { display:inline-flex; flex:0 0 auto; align-items:center; justify-content:center; min-height:34px; white-space:nowrap; }
+        @media (max-width:680px) {
+          .sf-purchase-item-header { grid-template-columns:1fr; align-items:flex-start; }
+          .sf-purchase-item-actions { width:100%; justify-content:flex-start; }
+        }
         .sf-enterprise-shell .sf-pv-item-header { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:12px; width:100%; margin-bottom:8px; flex:0 0 auto; }
         .sf-enterprise-shell .sf-pv-item-header h3 { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         @media (max-width:680px) {
@@ -86374,14 +86382,14 @@ ${configuracion.nombre}`;
           ] }) }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex flex-col gap-3 min-h-0 flex-1", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "bg-white border border-slate-200 rounded-2xl overflow-hidden min-h-0 flex-1 flex flex-col", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "px-3 py-2 border-b border-slate-100 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "text-[11px] font-black text-slate-700 uppercase tracking-wider", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sf-purchase-item-header px-3 py-2 border-b border-slate-100 bg-slate-50", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "sf-purchase-item-title text-[11px] font-black text-slate-700 uppercase tracking-wider", children: [
                   compraDirectaActiva ? "Items de la compra" : "Items del pedido",
                   " (",
                   itemsPedidoCompra.length,
                   ")"
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex flex-wrap items-center justify-start sm:justify-end gap-2 w-full sm:w-auto min-w-0", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sf-purchase-item-actions", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", onClick: () => {
                     setBusquedaSelectorInventarioPedidoCompra("");
                     setSelectorInventarioPedidoCompraAbierto(true);
