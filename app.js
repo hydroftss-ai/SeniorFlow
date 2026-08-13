@@ -78688,7 +78688,7 @@ ${configuracion.nombre}`;
         .sf-purchase-item-title { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         .sf-purchase-actions-grid { display:grid !important; grid-template-columns:112px 112px 100px !important; align-items:center !important; justify-content:end !important; gap:8px !important; width:340px !important; min-width:340px !important; overflow:visible !important; }
         .sf-purchase-actions-grid > .sf-purchase-action { appearance:none !important; display:inline-flex !important; position:static !important; inset:auto !important; transform:none !important; margin:0 !important; box-sizing:border-box !important; width:100% !important; min-width:0 !important; height:34px !important; min-height:34px !important; padding:0 12px !important; align-items:center !important; justify-content:center !important; gap:6px !important; border-radius:7px !important; font-size:11px !important; line-height:1 !important; font-weight:800 !important; letter-spacing:0 !important; text-transform:none !important; white-space:nowrap !important; overflow:hidden !important; }
-        .sf-purchase-actions-grid > .sf-purchase-action-add { border:1px solid #16a34a !important; background:#16a34a !important; color:#fff !important; }
+        .sf-enterprise-shell .sf-purchase-actions-grid > .sf-purchase-action-add { width:100% !important; min-width:0 !important; height:34px !important; min-height:34px !important; padding:0 12px !important; border:1px solid #16a34a !important; background:#16a34a !important; color:#fff !important; }
         .sf-purchase-actions-grid > .sf-purchase-action-manual { border:1px solid #2563eb !important; background:#2563eb !important; color:#fff !important; }
         .sf-purchase-actions-grid > .sf-purchase-action-clear { border:1px solid #dbe3ee !important; background:#fff !important; color:#475569 !important; }
         .sf-purchase-actions-grid > .sf-purchase-action:disabled { cursor:not-allowed !important; opacity:.45 !important; }
@@ -86529,9 +86529,9 @@ ${configuracion.nombre}`;
                   /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", onClick: () => {
                     setBusquedaSelectorInventarioPedidoCompra("");
                     setSelectorInventarioPedidoCompraAbierto(true);
-                  }, className: "sf-purchase-action sf-purchase-action-add", title: "Abrir inventario", children: [
+                  }, className: "sf-purchase-action sf-purchase-action-add", "aria-label": "Agregar producto del inventario", children: [
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { size: 13 }),
-                    " Agregar"
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: "Agregar" })
                   ] }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: agregarItemManualPedidoCompra, className: "sf-purchase-action sf-purchase-action-manual", children: "+ Manual" }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => setItemsPedidoCompra([]), disabled: !itemsPedidoCompra.length, className: "sf-purchase-action sf-purchase-action-clear", children: "Limpiar" })
