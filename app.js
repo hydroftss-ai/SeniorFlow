@@ -78556,13 +78556,19 @@ ${configuracion.nombre}`;
         .sf-modal-panel .sf-pv-item-actions .sf-pv-add-product:hover { background:#15803d !important; }
         .sf-modal-panel .sf-pv-item-actions .sf-pv-add-service { width:120px !important; min-width:120px !important; border:1px solid #2563eb !important; background:#2563eb !important; }
         .sf-modal-panel .sf-pv-item-actions .sf-pv-add-service:hover { background:#1d4ed8 !important; }
-        .sf-purchase-item-header { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:12px; width:100%; min-width:0; }
+        .sf-purchase-item-header { display:flex !important; flex-direction:column !important; align-items:stretch !important; gap:10px; width:100%; min-width:0; overflow:visible !important; }
         .sf-purchase-item-title { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .sf-purchase-item-actions { display:flex; flex:0 0 auto; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:8px; min-width:0; }
-        .sf-purchase-item-actions button { display:inline-flex; flex:0 0 auto; align-items:center; justify-content:center; min-height:34px; white-space:nowrap; }
+        .sf-purchase-item-actions { display:flex !important; flex:0 0 auto; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:8px; width:100%; min-width:0; overflow:visible !important; }
+        .sf-purchase-item-actions button { display:inline-flex !important; flex:0 0 auto !important; align-items:center; justify-content:center; width:auto !important; min-width:104px !important; min-height:34px !important; height:34px !important; padding:0 14px !important; white-space:nowrap !important; position:relative; z-index:2; }
+        .sf-purchase-item-actions button:first-child { min-width:112px !important; }
+        .sf-purchase-item-actions button:nth-child(2) { min-width:112px !important; }
+        .sf-purchase-item-actions button:nth-child(3) { min-width:104px !important; }
         @media (max-width:680px) {
-          .sf-purchase-item-header { grid-template-columns:1fr; align-items:flex-start; }
-          .sf-purchase-item-actions { width:100%; justify-content:flex-start; }
+          .sf-purchase-item-actions { justify-content:flex-start; }
+          .sf-purchase-item-header { grid-template-columns:1fr !important; align-items:start !important; min-height:0 !important; }
+          .sf-purchase-item-actions { grid-template-columns:repeat(2,minmax(0,1fr)) !important; width:100% !important; justify-content:stretch !important; }
+          .sf-purchase-item-actions button { width:100% !important; min-width:0 !important; }
+          .sf-purchase-item-actions button:last-child { grid-column:1 / -1; }
         }
         .sf-enterprise-shell .sf-pv-item-header { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:12px; width:100%; margin-bottom:8px; flex:0 0 auto; }
         .sf-enterprise-shell .sf-pv-item-header h3 { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -86371,34 +86377,27 @@ ${configuracion.nombre}`;
                 ] })
               ] })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "flex flex-wrap items-center justify-end gap-2 bg-white border border-emerald-200 rounded-lg px-2 py-1.5", children: (() => {
-              const base = construirFilasPedidoCompra(itemsPedidoCompra || []).reduce((acc, item2) => acc + Number(item2.subtotalBase || item2.subtotal || 0), 0);
-              const ajuste = compraDirectaActiva ? parseNumeroConSigno(pedidoCompraAjusteMonto) : 0;
-              const impuestos = calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, "21") + calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, "10.5") + parseNumeroConSigno(pedidoCompraIngresosBrutos) + parseNumeroConSigno(pedidoCompraFlete);
-              const total = Math.max(0, base + impuestos + ajuste);
-              return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-black text-emerald-900 uppercase tracking-wide", children: compraDirectaActiva ? `Base neta ${formatearDinero(base)} \xB7 Impuestos/flete ${formatearDinero(impuestos)} \xB7 Total ${formatearDinero(total)}` : `Total estimado ${formatearDinero(total)}` });
-            })() }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "flex justify-end", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: guardarPedidoCompra, disabled: !itemsPedidoCompra.length, className: "w-full sm:w-auto sm:min-w-[260px] bg-slate-800 hover:bg-black disabled:bg-slate-300 text-white font-black py-2 rounded-lg text-[10px] uppercase tracking-wider", children: compraDirectaActiva ? "Registrar compra" : "Guardar pedido" }) })
+            !compraDirectaActiva && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "flex justify-end", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: guardarPedidoCompra, disabled: !itemsPedidoCompra.length, className: "w-full sm:w-auto sm:min-w-[260px] bg-slate-800 hover:bg-black disabled:bg-slate-300 text-white font-black py-2 rounded-lg text-[10px] uppercase tracking-wider", children: "Guardar pedido" }) })
           ] }) }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex flex-col gap-3 min-h-0 flex-1", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "bg-white border border-slate-200 rounded-2xl overflow-hidden min-h-0 flex-1 flex flex-col", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sf-purchase-item-header px-3 py-2 border-b border-slate-100 bg-slate-50", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "sf-purchase-item-title text-[11px] font-black text-slate-700 uppercase tracking-wider", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sf-purchase-item-header px-3 py-2 border-b border-slate-100 bg-slate-50", style: { display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "center", gap: 12, minHeight: 58, height: "auto", overflow: "visible" }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "sf-purchase-item-title text-[11px] font-black text-slate-700 uppercase tracking-wider", style: { minWidth: 0, margin: 0 }, children: [
                   compraDirectaActiva ? "Items de la compra" : "Items del pedido",
                   " (",
                   itemsPedidoCompra.length,
                   ")"
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sf-purchase-item-actions", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sf-purchase-item-actions", style: { display: "grid", gridTemplateColumns: "150px 150px 120px", alignItems: "center", justifyContent: "end", gap: 8, width: "auto", minWidth: 0, overflow: "visible" }, children: [
                   /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", onClick: () => {
                     setBusquedaSelectorInventarioPedidoCompra("");
                     setSelectorInventarioPedidoCompraAbierto(true);
-                  }, className: "inline-flex shrink-0 items-center justify-center gap-1 min-h-[34px] px-3 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] font-black uppercase tracking-wider whitespace-nowrap", title: "Abrir inventario", children: [
+                  }, className: "sf-purchase-action-button", style: { display: "inline-flex", width: 150, minWidth: 150, height: 34, minHeight: 34, boxSizing: "border-box", alignItems: "center", justifyContent: "center", gap: 6, padding: "0 12px", border: "1px solid #a7f3d0", borderRadius: 8, background: "#ecfdf5", color: "#047857", fontSize: 11, fontWeight: 900, whiteSpace: "nowrap", overflow: "visible", visibility: "visible", opacity: 1 }, title: "Abrir inventario", children: [
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { size: 13 }),
                     " Agregar"
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: agregarItemManualPedidoCompra, className: "inline-flex shrink-0 items-center justify-center min-h-[34px] px-3 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] font-black uppercase tracking-wider whitespace-nowrap", children: "+ Manual" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => setItemsPedidoCompra([]), disabled: !itemsPedidoCompra.length, className: "inline-flex shrink-0 items-center justify-center min-h-[34px] px-3 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-40 text-[10px] font-black uppercase tracking-wider whitespace-nowrap", children: "Limpiar" })
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: agregarItemManualPedidoCompra, className: "sf-purchase-action-button", style: { display: "inline-flex", width: 150, minWidth: 150, height: 34, minHeight: 34, boxSizing: "border-box", alignItems: "center", justifyContent: "center", gap: 6, padding: "0 12px", border: "1px solid #a7f3d0", borderRadius: 8, background: "#ecfdf5", color: "#047857", fontSize: 11, fontWeight: 900, whiteSpace: "nowrap", overflow: "visible", visibility: "visible", opacity: 1 }, children: "+ Manual" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => setItemsPedidoCompra([]), disabled: !itemsPedidoCompra.length, className: "sf-purchase-action-button", style: { display: "inline-flex", width: 120, minWidth: 120, height: 34, minHeight: 34, boxSizing: "border-box", alignItems: "center", justifyContent: "center", padding: "0 12px", border: "1px solid #dbe3ee", borderRadius: 8, background: "#fff", color: "#475569", fontSize: 11, fontWeight: 900, whiteSpace: "nowrap", overflow: "visible", visibility: "visible", opacity: itemsPedidoCompra.length ? 1 : 0.45 }, children: "Limpiar" })
                 ] })
               ] }),
               itemsPedidoCompra.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "p-6 text-sm font-bold text-slate-400 text-center", children: compraDirectaActiva ? "Agrega productos para registrar la compra." : "Agrega productos para crear el pedido." }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-slate-50/70", children: [
@@ -86530,7 +86529,7 @@ ${configuracion.nombre}`;
                 }) })
               ] })
             ] }),
-            compraDirectaActiva && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "shrink-0 grid grid-cols-1 sm:grid-cols-[1fr_260px] gap-2 items-end rounded-xl border border-emerald-200 bg-emerald-50 p-2.5", children: [
+            compraDirectaActiva && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "shrink-0 grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_260px_auto] gap-2 items-end rounded-xl border border-emerald-200 bg-emerald-50 p-2.5", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-black uppercase tracking-wider text-emerald-800", children: "Monto total de la compra" }),
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-bold text-emerald-700", children: "Se calcula autom\xE1ticamente con los \xEDtems cargados." })
@@ -86538,11 +86537,12 @@ ${configuracion.nombre}`;
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
                 "input",
                 {
-                  value: formatearDinero(construirFilasPedidoCompra(itemsPedidoCompra || []).reduce((acc, item2) => acc + Number(item2.subtotal || 0), 0) + parseNumeroConSigno(pedidoCompraAjusteMonto)),
+                  value: formatearDinero(construirFilasPedidoCompra(itemsPedidoCompra || []).reduce((acc, item2) => acc + Number(item2.subtotal || 0), 0) + calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, "21") + calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, "10.5") + parseNumeroConSigno(pedidoCompraIngresosBrutos) + parseNumeroConSigno(pedidoCompraFlete) + parseNumeroConSigno(pedidoCompraAjusteMonto)),
                   readOnly: true,
-                  className: "w-full px-3 py-2 rounded-lg border border-emerald-300 bg-white text-sm font-black text-right text-emerald-900 outline-none focus:ring-2 focus:ring-emerald-500"
+                  className: "w-full h-10 min-h-10 px-3 py-0 rounded-lg border border-emerald-300 bg-white text-sm font-black text-right text-emerald-900 outline-none focus:ring-2 focus:ring-emerald-500"
                 }
-              )
+              ),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: guardarPedidoCompra, disabled: !itemsPedidoCompra.length, className: "w-full sm:w-auto sm:min-w-[140px] h-10 min-h-10 px-4 py-0 bg-slate-800 hover:bg-black disabled:bg-slate-300 text-white font-black rounded-lg text-[10px] uppercase tracking-wider", children: "Registrar" })
             ] })
           ] })
         ] })
