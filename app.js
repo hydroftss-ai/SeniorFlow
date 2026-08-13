@@ -78556,15 +78556,15 @@ ${configuracion.nombre}`;
         .sf-modal-panel .sf-pv-item-actions .sf-pv-add-product:hover { background:#15803d !important; }
         .sf-modal-panel .sf-pv-item-actions .sf-pv-add-service { width:120px !important; min-width:120px !important; border:1px solid #2563eb !important; background:#2563eb !important; }
         .sf-modal-panel .sf-pv-item-actions .sf-pv-add-service:hover { background:#1d4ed8 !important; }
-        .sf-purchase-item-header { display:grid !important; grid-template-columns:minmax(0,1fr) auto !important; align-items:center !important; gap:12px; width:100%; min-width:0; min-height:0 !important; height:auto !important; overflow:visible !important; }
+        .sf-purchase-item-header { display:grid !important; grid-template-columns:minmax(0,1fr) auto !important; align-items:center !important; gap:8px; width:100%; min-width:0; min-height:0 !important; height:auto !important; overflow:visible !important; }
         .sf-purchase-item-title { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .sf-purchase-item-actions { display:grid !important; grid-template-columns:150px 150px 120px !important; flex:0 0 auto; align-items:center; justify-content:end; gap:8px; width:auto !important; min-width:0; overflow:visible !important; }
-        .sf-purchase-item-actions button { display:inline-flex !important; flex:0 0 auto !important; align-items:center; justify-content:center; width:150px !important; min-width:150px !important; min-height:34px !important; height:34px !important; padding:0 12px !important; white-space:nowrap !important; position:relative; z-index:2; }
-        .sf-purchase-item-actions button:nth-child(3) { width:120px !important; min-width:120px !important; }
+        .sf-purchase-item-actions { display:flex !important; flex:0 0 auto; align-items:center; justify-content:flex-end; flex-wrap:nowrap; gap:6px; width:auto !important; min-width:0; overflow:visible !important; white-space:nowrap; }
+        .sf-purchase-item-actions button { display:inline-flex !important; flex:0 0 auto !important; align-items:center; justify-content:center; width:120px !important; min-width:120px !important; min-height:32px !important; height:32px !important; padding:0 10px !important; white-space:nowrap !important; position:relative; z-index:2; }
+        .sf-purchase-item-actions button:nth-child(3) { width:104px !important; min-width:104px !important; }
         @media (max-width:680px) {
           .sf-purchase-item-actions { justify-content:flex-start; }
           .sf-purchase-item-header { grid-template-columns:1fr !important; align-items:start !important; min-height:0 !important; }
-          .sf-purchase-item-actions { grid-template-columns:repeat(2,minmax(0,1fr)) !important; width:100% !important; justify-content:stretch !important; }
+          .sf-purchase-item-actions { flex-wrap:wrap; width:100% !important; justify-content:flex-start !important; }
           .sf-purchase-item-actions button { width:100% !important; min-width:0 !important; }
           .sf-purchase-item-actions button:last-child { grid-column:1 / -1; }
         }
@@ -86379,14 +86379,14 @@ ${configuracion.nombre}`;
           ] }) }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex flex-col gap-3 min-h-0 flex-1", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "bg-white border border-slate-200 rounded-2xl overflow-hidden min-h-0 flex-1 flex flex-col", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sf-purchase-item-header px-3 py-2 border-b border-slate-100 bg-slate-50", style: { display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "center", gap: 12, minHeight: 58, height: "auto", overflow: "visible" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sf-purchase-item-header px-3 py-1.5 border-b border-slate-100 bg-slate-50", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "sf-purchase-item-title text-[11px] font-black text-slate-700 uppercase tracking-wider", style: { minWidth: 0, margin: 0 }, children: [
                   compraDirectaActiva ? "Items de la compra" : "Items del pedido",
                   " (",
                   itemsPedidoCompra.length,
                   ")"
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sf-purchase-item-actions", style: { display: "grid", gridTemplateColumns: "150px 150px 120px", alignItems: "center", justifyContent: "end", gap: 8, width: "auto", minWidth: 0, overflow: "visible" }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sf-purchase-item-actions", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", onClick: () => {
                     setBusquedaSelectorInventarioPedidoCompra("");
                     setSelectorInventarioPedidoCompraAbierto(true);
