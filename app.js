@@ -81165,7 +81165,7 @@ ${configuracion.nombre}`;
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: `mt-1 text-[10px] font-black uppercase tracking-wider ${pedido?.estado === "recibido" ? "text-emerald-700" : pedido?.pagoRegistradoProveedor ? "text-amber-700" : "text-slate-500"}`, children: etiquetaEstadoPago })
                     ] }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-4 py-3 text-right", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex justify-end gap-1.5", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => abrirPedidoCompraGuardado(pedido), className: "p-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100", title: "Abrir pedido", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Eye, { size: 14 }) }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => abrirPedidoCompraGuardado(pedido), className: "p-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100", title: "Editar pedido", "aria-label": "Editar pedido", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pen, { size: 14 }) }),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: async () => {
                         const filas = construirFilasPedidoCompra(pedido?.items || []);
                         if (!filas.length) return;
@@ -81184,32 +81184,6 @@ ${configuracion.nombre}`;
                           incluirTransporte: Boolean(pedido?.mostrarTransporte)
                         });
                       }, className: "p-2 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100", title: "PDF general", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Download, { size: 14 }) }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: async () => {
-                        const filas = construirFilasPedidoCompra(pedido?.items || []);
-                        if (!filas.length) return;
-                        const grupos = filas.reduce((acc, item2) => {
-                          const prov = textoSeguroTrim(item2?.proveedor, "Sin proveedor");
-                          if (!acc[prov]) acc[prov] = [];
-                          acc[prov].push(item2);
-                          return acc;
-                        }, {});
-                        for (const [prov, lista] of Object.entries(grupos)) {
-                          await generarPdfPedidoCompra({
-                            items: lista,
-                            titulo: `Pedido a proveedor: ${prov}`,
-                            nombreArchivo: `pedido_compra_${normalizarTextoArchivo(prov)}_pc_${textoSeguroTrim(pedido?.numero, "000000")}`,
-                            incluirImagenes: Boolean(pedido?.incluirImagenes),
-                            mostrarPrecioUnitario: pedido?.mostrarPrecioUnitario !== false,
-                            mostrarSubtotal: pedido?.mostrarSubtotal !== false,
-                            mostrarTotal: pedido?.mostrarTotal !== false,
-                            notas: pedido?.notas || "",
-                            numeroPedido: `PC-${textoSeguroTrim(pedido?.numero, "000000")}`,
-                            fechaPedido: pedido?.fechaPedido || pedido?.fechaComprobante || "",
-                            transporte: pedido?.transporte || "",
-                            incluirTransporte: Boolean(pedido?.mostrarTransporte)
-                          });
-                        }
-                      }, className: "p-2 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100", title: "PDF por proveedor", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FileSpreadsheet, { size: 14 }) }),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => eliminarPedidoCompraGuardado(pedido), className: "p-2 rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100", title: "Eliminar", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { size: 14 }) })
                     ] }) })
                   ]
