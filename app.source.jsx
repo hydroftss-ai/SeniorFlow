@@ -830,6 +830,13 @@ const promesaConTimeout = (promesa, timeoutMs = 15000, mensaje = 'La operación 
 );
 const esDataUrlPesada = (valor = '') => textoSeguroTrim(valor, '').startsWith('data:');
 const MS_POR_DIA = 1000 * 60 * 60 * 24;
+const calcularPlazoEntreFechas = (fechaEmision = '', fechaCobro = '') => {
+  if (!fechaEmision || !fechaCobro) return '';
+  const inicio = new Date(`${fechaEmision}T12:00:00`);
+  const fin = new Date(`${fechaCobro}T12:00:00`);
+  if (Number.isNaN(inicio.getTime()) || Number.isNaN(fin.getTime())) return '';
+  return String(Math.max(0, Math.round((fin.getTime() - inicio.getTime()) / MS_POR_DIA)));
+};
 const CONTACTO_NEGOCIO_FALLBACK = {
   direccion: COMPANY_DEFAULTS.direccion || '',
   web: COMPANY_DEFAULTS.web || '',
@@ -5141,7 +5148,13 @@ function AppInterna() {
           .filter(Boolean)
           .filter((item) => normalizarTextoBusqueda(item?.proveedor || '') === key);
         if (!filasProveedor.length) return [];
-        const monto = filasProveedor.reduce((acc, item) => acc + Number(item.subtotal || 0), 0);
+        // Las compras directas ya guardan el neto por ítem y el total real
+        // separado. La cuenta corriente debe tomar ese total, no solo el neto.
+        const esCompraDirecta = textoSeguroTrim(pedido?.tipoRegistro, '') === 'compra_directa';
+        const montoItems = filasProveedor.reduce((acc, item) => acc + Number(item.subtotal || 0), 0);
+        const monto = esCompraDirecta
+          ? Math.max(0, parseNumeroBasico(pedido?.totalEstimado) || montoItems)
+          : montoItems;
         const estadoPedido = textoSeguroTrim(pedido?.estado, 'guardado');
         const pagoPedido = obtenerPagoProveedorDePedido(pedido?.id, proveedorNombre);
         const fechaPedido = pedido?.fechaCreacion || pedido?.fechaComprobante || pedido?.fechaActualizacion || new Date().toISOString();
@@ -5154,6 +5167,8 @@ function AppInterna() {
           numero: textoSeguroTrim(pedido?.numero, '000000'),
           remitoProveedor: textoSeguroTrim(pedido?.remitoProveedor, ''),
           fechaRemitoProveedor: textoSeguroTrim(pedido?.fechaRemitoProveedor, ''),
+          tipoComprobanteProveedor: textoSeguroTrim(pedido?.tipoComprobanteProveedor, ''),
+          numeroComprobanteProveedor: textoSeguroTrim(pedido?.numeroComprobanteProveedor, ''),
           proveedor: proveedorNombre,
           fecha: fechaRecepcion || fechaPedido,
           fechaPedido,
@@ -5165,6 +5180,10 @@ function AppInterna() {
           estadoPedido,
           descuentoPorcentaje: parseNumeroBasico(pedido?.descuentoPorcentaje),
           ajusteMonto: parseNumeroConSigno(pedido?.ajusteMonto),
+          iva21: Math.max(0, parseNumeroBasico(pedido?.iva21)),
+          iva105: Math.max(0, parseNumeroBasico(pedido?.iva105)),
+          ingresosBrutos: Math.max(0, parseNumeroBasico(pedido?.ingresosBrutos)),
+          flete: Math.max(0, parseNumeroBasico(pedido?.flete)),
           impuestoProvincial: parseNumeroBasico(pedido?.detalleRecepcion?.impuestoProvincial),
           otrosImpuestos: parseNumeroBasico(pedido?.detalleRecepcion?.otrosImpuestos),
           monto,
@@ -13577,7 +13596,7 @@ const abrirPuntoVenta = () => {
     const pagoBase = pagoEditar || null;
     const proveedorBase = pagoBase ? (proveedor || proveedorCuentaSeleccionado || pagoBase?.proveedor) : (proveedor || proveedorCuentaSeleccionado);
     const nombre = textoSeguroTrim(proveedorBase?.nombre || proveedorBase, textoSeguroTrim(pagoBase?.proveedor, ''));
-    const plazoProveedor = Math.max(0, parseNumeroBasico(proveedorBase?.plazoChequesDias) || 0);
+    const plazoCalculado = calcularPlazoEntreFechas(pagoBase?.fechaEmision, pagoBase?.fechaCobro);
     setPagoProveedorAEditar(pagoBase);
     setFormPagoProveedor({
       proveedor: nombre,
@@ -13591,7 +13610,7 @@ const abrirPuntoVenta = () => {
       emisor: textoSeguroTrim(pagoBase?.emisor, ''),
       fechaEmision: textoSeguroTrim(pagoBase?.fechaEmision, ''),
       fechaCobro: textoSeguroTrim(pagoBase?.fechaCobro, ''),
-      plazoDias: textoSeguroTrim(pagoBase?.plazoDias, plazoProveedor ? String(plazoProveedor) : ''),
+      plazoDias: plazoCalculado || textoSeguroTrim(pagoBase?.plazoDias, ''),
       pedidoCompraId: textoSeguroTrim(pagoBase?.pedidoCompraId || pedidoCompra?.id, ''),
       pedidoCompraNumero: textoSeguroTrim(pagoBase?.pedidoCompraNumero || pedidoCompra?.numero, ''),
       pedidoCompraEstado: textoSeguroTrim(pagoBase?.pedidoCompraEstado || pedidoCompra?.estado, ''),
@@ -13649,7 +13668,14 @@ const abrirPuntoVenta = () => {
       configuracion?.logo,
       textoSeguroTrim(configuracion?.logoCorporativo, LOGO_EMPRESA_FALLBACK_URL)
     );
-    const logoEmpresa = logoFuente ? (logoFuente.startsWith('data:') ? logoFuente : await srcADataUrl(logoFuente)) : '';
+    let logoEmpresa = '';
+    if (logoFuente) {
+      try {
+        logoEmpresa = logoFuente.startsWith('data:') ? logoFuente : await srcADataUrl(logoFuente);
+      } catch (error) {
+        console.warn('No se pudo cargar el logo para la cuenta corriente de proveedor.', error);
+      }
+    }
     docPdf.setFillColor(255, 255, 255);
     docPdf.setDrawColor(219, 227, 239);
     docPdf.roundedRect(10, 8, 190, 24, 2, 2, 'FD');
@@ -14264,39 +14290,123 @@ const abrirPuntoVenta = () => {
     }
     docPdf.setTextColor(15, 23, 42);
 
-    autoTable(docPdf, {
-      startY: 72,
-      head: [['Pedido', 'Recibido', 'Abonado', 'Tipo', 'Detalle', 'Método / Comp.', 'Debe', 'Haber', 'Pendiente']],
-      body: estado.movimientosDesc.map((mov) => {
-        const esPago = mov.tipoMovimiento === 'pago';
-        return [
-          esPago ? '-' : formatearFecha(mov.fechaPedido || mov.fecha),
-          esPago ? '-' : (mov.fechaRecepcion ? formatearFecha(mov.fechaRecepcion) : '-'),
-          esPago ? formatearFecha(mov.fecha || mov.fechaCreacion) : (mov.fechaPago ? formatearFecha(mov.fechaPago) : '-'),
-          esPago ? 'Pago' : 'Compra',
-          esPago
-            ? `${mov.numeroComprobante ? `${mov.numeroComprobante} - ` : ''}${mov.notas || 'Pago a proveedor'}${Array.isArray(mov.pedidoCompraIds) && mov.pedidoCompraIds.length ? ` · Aplicado a ${mov.pedidoCompraIds.map((id) => `PC-${(estado.cargosProcesados.find((cargo) => cargo.pedidoId === id)?.numero || '000000')}`).join(', ')}` : ''}`
-            : `${mov.descripcion || 'Pedido'}${mov.items?.length ? ` (${mov.items.length} ítems)` : ''}${Number(mov.impuestoProvincial || 0) || Number(mov.otrosImpuestos || 0) ? ` · Imp.: ${formatearDinero(Number(mov.impuestoProvincial || 0) + Number(mov.otrosImpuestos || 0))}` : ''}`,
-          esPago
-            ? `${obtenerEtiquetaMetodoPago(mov.metodoPago || 'transferencia')}${mov.numeroComprobante ? ` · ${mov.numeroComprobante}` : ''}`
-            : (mov.metodoPago ? `${obtenerEtiquetaMetodoPago(mov.metodoPago)}${mov.numeroComprobante ? ` · ${mov.numeroComprobante}` : ''}` : '-'),
-          esPago ? '-' : formatearDinero(Number(mov.monto || 0)),
-          esPago ? formatearDinero(Number(mov.monto || 0)) : '-',
-          esPago ? (Number(mov.saldoFavorGenerado || 0) > 0.009 ? `A favor ${formatearDinero(mov.saldoFavorGenerado)}` : '-') : formatearDinero(Number(mov.pendiente || 0))
-        ];
-      }),
-      styles: { fontSize: 7.5, cellPadding: 1.6, overflow: 'linebreak' },
-      headStyles: { fillColor: [15, 23, 42], textColor: 255, fontStyle: 'bold' },
-      columnStyles: {
-        4: { cellWidth: 78 },
-        6: { halign: 'right' },
-        7: { halign: 'right' },
-        8: { halign: 'right' }
-      },
-      margin: { left: 14, right: 14 }
+    const formatearFechaCuentaPdf = (valor = '') => {
+      try {
+        const fecha = new Date(valor);
+        return Number.isNaN(fecha.getTime()) ? '-' : formatearFecha(fecha);
+      } catch {
+        return '-';
+      }
+    };
+    const pagosProveedorPdf = Array.isArray(estado.pagos) ? estado.pagos : [];
+    const cargosProveedorPdf = Array.isArray(estado.cargosProcesados) ? estado.cargosProcesados : [];
+    const pagosPorId = new Map(pagosProveedorPdf.map((pago) => [pago?.id, pago]));
+    const pagosAplicadosIds = new Set();
+    let cursorCuentaY = 80;
+    const asegurarEspacioCuenta = (alto = 35) => {
+      if (cursorCuentaY + alto <= 270) return;
+      docPdf.addPage();
+      cursorCuentaY = 20;
+    };
+    const descripcionPagoProveedorPdf = (pago = {}, aplicado = 0) => {
+      const esCheque = ['cheque', 'echeq'].includes(normalizarMetodoPago(pago.metodoPago));
+      const cheque = esCheque && pago.numeroComprobante ? `Cheque N.º ${pago.numeroComprobante}` : '';
+      const plazo = esCheque && pago.plazoDias ? ` · a ${parseNumeroBasico(pago.plazoDias) || 0} días` : '';
+      const comprobante = cheque || (pago.numeroComprobante ? `N.º ${pago.numeroComprobante}` : '');
+      return `${obtenerEtiquetaMetodoPago(pago.metodoPago || 'transferencia')}${comprobante ? ` · ${comprobante}` : ''}${plazo}${aplicado > 0 ? ` · aplicado ${formatearDinero(aplicado)}` : ''}`;
+    };
+    const cargosPdf = cargosProveedorPdf.filter((cargo) => cargo?.imputableSaldo);
+    cargosPdf.forEach((cargo) => {
+      const comprobante = [cargo.tipoComprobanteProveedor, cargo.numeroComprobanteProveedor].filter(Boolean).join(' ')
+        || (cargo.remitoProveedor ? `Remito ${cargo.remitoProveedor}` : `Pedido PC-${cargo.numero || '000000'}`);
+      const pagosDelCargo = (Array.isArray(cargo?.pagosAplicados) ? cargo.pagosAplicados : [])
+        .map((aplicado) => ({ aplicado, pago: pagosPorId.get(aplicado?.id) }))
+        .filter((item) => item.aplicado && item.pago);
+      pagosDelCargo.forEach(({ aplicado }) => pagosAplicadosIds.add(aplicado.id));
+      asegurarEspacioCuenta(55);
+      docPdf.setFillColor(15, 23, 42);
+      docPdf.roundedRect(14, cursorCuentaY, pageWidth - 28, 8, 1.5, 1.5, 'F');
+      docPdf.setTextColor(255, 255, 255);
+      docPdf.setFont('helvetica', 'bold');
+      docPdf.setFontSize(9);
+      docPdf.text(`${comprobante} · PC-${cargo.numero || '000000'}`, 18, cursorCuentaY + 5.5);
+      cursorCuentaY += 11;
+      docPdf.setTextColor(15, 23, 42);
+      autoTable(docPdf, {
+        startY: cursorCuentaY,
+        head: [['Fecha', 'Recepción', 'Detalle', 'Monto', 'Saldo']],
+        body: [[
+          formatearFechaCuentaPdf(cargo.fechaPedido || cargo.fecha),
+          cargo.fechaRecepcion ? formatearFechaCuentaPdf(cargo.fechaRecepcion) : '-',
+          `${cargo.descripcion || 'Compra'}${cargo.items?.length ? ` (${cargo.items.length} ítems)` : ''}${Number(cargo.iva21 || 0) || Number(cargo.iva105 || 0) ? ` · IVA ${formatearDinero(Number(cargo.iva21 || 0) + Number(cargo.iva105 || 0))}` : ''}`,
+          formatearDinero(Number(cargo.monto || 0)),
+          formatearDinero(Number(cargo.pendiente || 0))
+        ]],
+        styles: { fontSize: 7.5, cellPadding: 1.6, overflow: 'linebreak' },
+        headStyles: { fillColor: [51, 65, 85], textColor: 255, fontStyle: 'bold' },
+        columnStyles: { 2: { cellWidth: 95 }, 3: { halign: 'right' }, 4: { halign: 'right' } },
+        margin: { left: 14, right: 14 }
+      });
+      cursorCuentaY = (docPdf.lastAutoTable?.finalY || cursorCuentaY + 15) + 2;
+      if (pagosDelCargo.length) {
+        docPdf.setFont('helvetica', 'bold');
+        docPdf.setFontSize(8);
+        docPdf.setTextColor(5, 150, 105);
+        docPdf.text('Pagos aplicados a este comprobante', 18, cursorCuentaY + 4);
+        cursorCuentaY += 7;
+        autoTable(docPdf, {
+          startY: cursorCuentaY,
+          head: [['Fecha', 'Forma / comprobante', 'Importe aplicado', 'Saldo después']],
+          body: pagosDelCargo.map(({ aplicado, pago }) => [
+            formatearFechaCuentaPdf(pago.fecha || pago.fechaCreacion),
+            `${descripcionPagoProveedorPdf(pago, Number(aplicado.monto || 0))}${pago.notas ? ` · ${pago.notas}` : ''}`,
+            formatearDinero(Number(aplicado.monto || 0)),
+            formatearDinero(Number(aplicado.pendienteDespues || 0))
+          ]),
+          styles: { fontSize: 7.2, cellPadding: 1.5, overflow: 'linebreak' },
+          headStyles: { fillColor: [5, 150, 105], textColor: 255, fontStyle: 'bold' },
+          columnStyles: { 1: { cellWidth: 105 }, 2: { halign: 'right' }, 3: { halign: 'right' } },
+          margin: { left: 18, right: 18 }
+        });
+        cursorCuentaY = (docPdf.lastAutoTable?.finalY || cursorCuentaY + 14) + 3;
+      } else {
+        docPdf.setFont('helvetica', 'italic');
+        docPdf.setFontSize(8);
+        docPdf.setTextColor(100, 116, 139);
+        docPdf.text('Sin pagos aplicados a este comprobante.', 18, cursorCuentaY + 4);
+        cursorCuentaY += 9;
+      }
+      docPdf.setFont('helvetica', 'bold');
+      docPdf.setFontSize(8.5);
+      docPdf.setTextColor(Number(cargo.pendiente || 0) > 0.009 ? 185 : 5, Number(cargo.pendiente || 0) > 0.009 ? 28 : 150, Number(cargo.pendiente || 0) > 0.009 ? 28 : 105);
+      docPdf.text(`Saldo pendiente de ${comprobante}: ${formatearDinero(Number(cargo.pendiente || 0))}`, 18, cursorCuentaY + 4);
+      cursorCuentaY += 10;
     });
+    const pagosGeneralesPdf = pagosProveedorPdf.filter((pago) => !pagosAplicadosIds.has(pago?.id) && !(pago?.pedidoCompraId || (Array.isArray(pago?.pedidoCompraIds) ? pago.pedidoCompraIds.length : 0)));
+    if (pagosGeneralesPdf.length) {
+      asegurarEspacioCuenta(35);
+      docPdf.setFont('helvetica', 'bold');
+      docPdf.setFontSize(10);
+      docPdf.setTextColor(15, 23, 42);
+      docPdf.text('PAGOS GENERALES SIN REMITO ASIGNADO', 14, cursorCuentaY);
+      cursorCuentaY += 5;
+      autoTable(docPdf, {
+        startY: cursorCuentaY,
+        head: [['Fecha', 'Forma / comprobante', 'Importe', 'Saldo a favor']],
+        body: pagosGeneralesPdf.map((pago) => [
+          formatearFechaCuentaPdf(pago.fecha || pago.fechaCreacion),
+          descripcionPagoProveedorPdf(pago),
+          formatearDinero(Number(pago.monto || 0)),
+          Number(pago.saldoFavorGenerado || 0) > 0.009 ? formatearDinero(pago.saldoFavorGenerado) : '-'
+        ]),
+        styles: { fontSize: 7.5, cellPadding: 1.6, overflow: 'linebreak' },
+        headStyles: { fillColor: [100, 116, 139], textColor: 255, fontStyle: 'bold' },
+        columnStyles: { 1: { cellWidth: 110 }, 2: { halign: 'right' }, 3: { halign: 'right' } },
+        margin: { left: 14, right: 14 }
+      });
+    }
 
-    const adjuntosImagen = estado.pagos.flatMap((pago) => (pago.adjuntos || [])
+    const adjuntosImagen = pagosProveedorPdf.flatMap((pago) => (Array.isArray(pago?.adjuntos) ? pago.adjuntos : [])
       .filter((adj) => textoSeguroTrim(adj?.tipo, '').startsWith('image/') && textoSeguroTrim(adj?.dataUrl, ''))
       .map((adj) => ({ ...adj, pago }))
     );
@@ -14309,7 +14419,7 @@ const abrirPuntoVenta = () => {
       for (const adj of adjuntosImagen.slice(0, 6)) {
         try {
           docPdf.setFontSize(8);
-          docPdf.text(`${formatearFecha(adj.pago?.fecha)} - ${adj.nombre || 'Adjunto'}`, 14, y);
+          docPdf.text(`${formatearFechaCuentaPdf(adj.pago?.fecha)} - ${adj.nombre || 'Adjunto'}`, 14, y);
           docPdf.addImage(adj.dataUrl, adj?.tipo?.includes('png') ? 'PNG' : 'JPEG', 14, y + 3, 80, 55, undefined, 'FAST');
           y += 65;
           if (y > 250) {
@@ -18057,6 +18167,16 @@ function obtenerCategoriaProducto(producto) {
     return '';
   };
 
+  // En compras el costo de cada producto se trabaja siempre como neto.
+  // Si el costo del proveedor fue guardado con IVA incluido, lo llevamos a
+  // neto antes de mostrarlo; el IVA se suma al total cuando se selecciona.
+  const convertirCostoProveedorNetoParaPedidoCompra = (costo = {}, producto = {}) => {
+    const costoPesos = Math.max(0, convertirCostoProveedorAPesos(costo, producto));
+    if (!Boolean(costo?.ivaIncluido)) return costoPesos;
+    const factorIva = obtenerFactorIvaProducto(producto?.iva);
+    return factorIva > 0 ? costoPesos / (1 + factorIva) : costoPesos;
+  };
+
   const obtenerCostoBaseProductoParaPedidoCompra = (producto = {}, proveedor = '') => {
     const costo = producto?.costoOriginal ?? producto?.costo ?? '';
     const moneda = ['ARS', 'USD_BNA', 'USD_BLUE'].includes(producto?.monedaCosto) ? producto.monedaCosto : 'ARS';
@@ -18065,13 +18185,17 @@ function obtenerCategoriaProducto(producto) {
       codigoProveedor: textoSeguroTrim(producto?.proveedor, '') === textoSeguroTrim(proveedor, '') ? textoSeguroTrim(producto?.codigoProveedor, '') : '',
       costo,
       moneda,
-      costoPesos: Math.max(0, convertirCostoProveedorAPesos({ costo, moneda }, producto))
+      costoPesos: Math.max(0, convertirCostoProveedorNetoParaPedidoCompra({
+        costo,
+        moneda,
+        ivaIncluido: Boolean(producto?.costoIvaIncluido)
+      }, producto))
     };
   };
 
   const obtenerCostoProveedorParaPedidoCompra = (producto = {}, proveedor = '', costoPreferido = null) => {
     const costos = obtenerCostosProveedorProducto(producto)
-      .map((costo) => ({ ...costo, costoPesos: convertirCostoProveedorAPesos(costo, producto) }));
+      .map((costo) => ({ ...costo, costoPesos: convertirCostoProveedorNetoParaPedidoCompra(costo, producto) }));
     if (costoPreferido) {
       const costoExacto = costos.find((costo) => (
         normalizarTextoBusqueda(costo?.proveedor || '') === normalizarTextoBusqueda(costoPreferido?.proveedor || '')
@@ -18264,7 +18388,7 @@ function obtenerCategoriaProducto(producto) {
         unidad: item?.unidad || 'unid',
         cantidad: Math.max(0, parseNumeroPresupuesto(item?.cantidad) || 0),
         stock: Math.max(0, parseNumeroPresupuesto(item?.cantidad) || 0),
-        iva: item?.iva || '21',
+        iva: item?.iva || '',
         imagen: '',
         imagenes: [],
         esProductoCompuesto: false,
@@ -18305,7 +18429,7 @@ function obtenerCategoriaProducto(producto) {
           costo: costoProveedor.costo ?? '',
           moneda: costoProveedor.moneda || 'ARS',
           costoPesos: costoProveedor.costoPesos || 0,
-          iva: producto?.iva ?? '21',
+          iva: producto?.iva ?? '',
           imagen: producto.imagen || ''
         }, prev.length)
       ];
@@ -18336,7 +18460,10 @@ function obtenerCategoriaProducto(producto) {
         codigoProveedor: mejor?.codigoProveedor || fila.codigoProveedor || '',
         costo: mejor?.costo ?? '',
         moneda: mejor?.moneda || 'ARS',
-        costoPesos: mejor?.costoPesos || fila.costoPesos || 0,
+        costoPesos: producto && mejor
+          ? convertirCostoProveedorNetoParaPedidoCompra(mejor, producto)
+          : (fila.costoPesos || 0),
+        iva: producto?.iva ?? '',
         imagen: producto?.imagen || ''
       }, index);
     });
@@ -18407,7 +18534,9 @@ function obtenerCategoriaProducto(producto) {
         codigoProveedor: mejor.codigoProveedor || '',
         costo: mejor.costo ?? item.costo,
         moneda: mejor.moneda || 'ARS',
-        costoPesos: mejor.costoPesos || item.costoPesos
+        costoPesos: producto
+          ? convertirCostoProveedorNetoParaPedidoCompra(mejor, producto)
+          : item.costoPesos
       });
     }));
   };
@@ -18422,7 +18551,7 @@ function obtenerCategoriaProducto(producto) {
           || normalizarTextoBusqueda(p?.descripcion || '') === normalizarTextoBusqueda(item?.descripcion || '')
         ));
       const costos = obtenerCostosProveedorProducto(productoRelacionado)
-        .map((costo) => ({ ...costo, costoPesos: convertirCostoProveedorAPesos(costo) }))
+        .map((costo) => ({ ...costo, costoPesos: convertirCostoProveedorNetoParaPedidoCompra(costo, productoRelacionado) }))
         .filter((costo) => costo.costoPesos > 0)
         .sort((a, b) => a.costoPesos - b.costoPesos);
       const proveedorElegido = textoSeguroTrim(item?.proveedorCompra, '');
@@ -23260,15 +23389,17 @@ function obtenerCategoriaProducto(producto) {
         .sf-modal-panel .sf-pv-item-actions .sf-pv-add-product:hover { background:#15803d !important; }
         .sf-modal-panel .sf-pv-item-actions .sf-pv-add-service { width:120px !important; min-width:120px !important; border:1px solid #2563eb !important; background:#2563eb !important; }
         .sf-modal-panel .sf-pv-item-actions .sf-pv-add-service:hover { background:#1d4ed8 !important; }
-        .sf-purchase-item-header { display:flex !important; flex-direction:column !important; align-items:stretch !important; gap:10px; width:100%; min-width:0; overflow:visible !important; }
+        .sf-purchase-item-header { display:grid !important; grid-template-columns:minmax(0,1fr) auto !important; align-items:center !important; gap:8px; width:100%; min-width:0; min-height:0 !important; height:auto !important; overflow:visible !important; }
         .sf-purchase-item-title { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .sf-purchase-item-actions { display:flex !important; flex:0 0 auto; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:8px; width:100%; min-width:0; overflow:visible !important; }
-        .sf-purchase-item-actions button { display:inline-flex !important; flex:0 0 auto !important; align-items:center; justify-content:center; width:auto !important; min-width:104px !important; min-height:34px !important; height:34px !important; padding:0 14px !important; white-space:nowrap !important; position:relative; z-index:2; }
-        .sf-purchase-item-actions button:first-child { min-width:112px !important; }
-        .sf-purchase-item-actions button:nth-child(2) { min-width:112px !important; }
-        .sf-purchase-item-actions button:nth-child(3) { min-width:104px !important; }
+        .sf-purchase-item-actions { display:flex !important; flex:0 0 auto; align-items:center; justify-content:flex-end; flex-wrap:nowrap; gap:6px; width:auto !important; min-width:0; overflow:visible !important; white-space:nowrap; }
+        .sf-purchase-item-actions button { display:inline-flex !important; flex:0 0 auto !important; align-items:center; justify-content:center; width:120px !important; min-width:120px !important; min-height:32px !important; height:32px !important; padding:0 10px !important; white-space:nowrap !important; position:relative; z-index:2; }
+        .sf-purchase-item-actions button:nth-child(3) { width:104px !important; min-width:104px !important; }
         @media (max-width:680px) {
           .sf-purchase-item-actions { justify-content:flex-start; }
+          .sf-purchase-item-header { grid-template-columns:1fr !important; align-items:start !important; min-height:0 !important; }
+          .sf-purchase-item-actions { flex-wrap:wrap; width:100% !important; justify-content:flex-start !important; }
+          .sf-purchase-item-actions button { width:100% !important; min-width:0 !important; }
+          .sf-purchase-item-actions button:last-child { grid-column:1 / -1; }
         }
         .sf-enterprise-shell .sf-pv-item-header { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:12px; width:100%; margin-bottom:8px; flex:0 0 auto; }
         .sf-enterprise-shell .sf-pv-item-header h3 { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -26188,7 +26319,7 @@ function obtenerCategoriaProducto(producto) {
                                 </div>
                               <div className="flex items-center gap-2">
                                 <button type="button" disabled={!proveedorActivo} onClick={() => abrirPagoProveedor(proveedorActivo)} className="px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-300 text-white text-xs font-black uppercase tracking-wider flex items-center gap-1.5"><Plus size={14} /> Cargar pago</button>
-                                <button type="button" disabled={!proveedorActivo} onClick={() => imprimirCuentaProveedor(proveedorActivo)} className="px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 text-slate-700 text-xs font-black uppercase tracking-wider flex items-center gap-1.5"><Printer size={14} /> Imprimir</button>
+                                <button type="button" disabled={!proveedorActivo} onClick={() => imprimirCuentaProveedor(proveedorActivo).catch(async (error) => { console.error('No se pudo descargar la cuenta del proveedor.', error); await notificarSistema('No se pudo generar el PDF de la cuenta del proveedor.', { tipo: 'error', titulo: 'Error al descargar PDF' }); })} className="px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 text-slate-700 text-xs font-black uppercase tracking-wider flex items-center gap-1.5"><Printer size={14} /> Imprimir</button>
                                 <span className="px-2 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-black">{movimientosProveedorFiltrados.length}</span>
                               </div>
                             </div>
@@ -28807,13 +28938,13 @@ function obtenerCategoriaProducto(producto) {
               <div>
                 <label className="block text-[10px] font-black text-gray-600 uppercase tracking-wider mb-1">Monto</label>
                 <input
-                  type="number"
-                  min="0"
-                  step="0.01"
+                  type="text"
+                  inputMode="decimal"
+                  autoComplete="off"
                   value={formPagoProveedor.monto || ''}
-                  onChange={(e) => setFormPagoProveedor((prev) => ({ ...prev, monto: e.target.value }))}
+                  onChange={(e) => setFormPagoProveedor((prev) => ({ ...prev, monto: e.target.value.replace(/[^0-9.,]/g, '') }))}
                   className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white font-black text-sm text-right outline-none focus:ring-2 focus:ring-emerald-500"
-                  placeholder="0.00"
+                  placeholder="3.305.054,50"
                   required
                 />
               </div>
@@ -28891,7 +29022,11 @@ function obtenerCategoriaProducto(producto) {
                       <input
                         type="date"
                         value={formPagoProveedor.fechaEmision || ''}
-                        onChange={(e) => setFormPagoProveedor((prev) => ({ ...prev, fechaEmision: e.target.value }))}
+                        onChange={(e) => setFormPagoProveedor((prev) => ({
+                          ...prev,
+                          fechaEmision: e.target.value,
+                          plazoDias: calcularPlazoEntreFechas(e.target.value, prev.fechaCobro)
+                        }))}
                         className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white font-bold text-sm outline-none focus:ring-2 focus:ring-emerald-500"
                       />
                     </div>
@@ -28900,22 +29035,24 @@ function obtenerCategoriaProducto(producto) {
                       <input
                         type="date"
                         value={formPagoProveedor.fechaCobro || ''}
-                        onChange={(e) => setFormPagoProveedor((prev) => ({ ...prev, fechaCobro: e.target.value }))}
+                        onChange={(e) => setFormPagoProveedor((prev) => ({
+                          ...prev,
+                          fechaCobro: e.target.value,
+                          plazoDias: calcularPlazoEntreFechas(prev.fechaEmision, e.target.value)
+                        }))}
                         className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white font-bold text-sm outline-none focus:ring-2 focus:ring-emerald-500"
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-[10px] font-black text-gray-600 uppercase tracking-wider mb-1">Plazo (días)</label>
-                      <select
+                      <label className="block text-[10px] font-black text-gray-600 uppercase tracking-wider mb-1">Plazo calculado (días)</label>
+                      <input
+                        type="text"
                         value={formPagoProveedor.plazoDias || ''}
-                        onChange={(e) => setFormPagoProveedor((prev) => ({ ...prev, plazoDias: e.target.value }))}
-                        className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white font-bold text-sm outline-none focus:ring-2 focus:ring-emerald-500"
-                      >
-                        <option value="">Seleccionar plazo</option>
-                        {[15, 30, 45, 60, 90, 120].map((dias) => (
-                          <option key={`pago-prov-plazo-${dias}`} value={dias}>{dias} días</option>
-                        ))}
-                      </select>
+                        readOnly
+                        tabIndex={-1}
+                        placeholder="Se calcula con las fechas"
+                        className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-100 text-gray-600 font-bold text-sm outline-none"
+                      />
                     </div>
                   </>
                 )}
@@ -28985,7 +29122,9 @@ function obtenerCategoriaProducto(producto) {
           const ids = marcado ? Array.from(new Set([...(prev.chequesRecibidosIds || []), cheque.id])) : (prev.chequesRecibidosIds || []).filter((id) => id !== cheque.id);
           const total = chequesDisponiblesParaPagoProveedor.filter((item) => ids.includes(item.id)).reduce((suma, item) => suma + Number(item.monto || 0), 0);
           const chequeBase = marcado ? cheque : (ids.length ? chequesDisponiblesParaPagoProveedor.find((item) => item.id === ids[ids.length - 1]) : null);
-          return { ...prev, chequesRecibidosIds: ids, monto: total > 0 ? total.toFixed(2) : prev.monto, numeroComprobante: chequeBase ? (chequeBase.numeroCheque || prev.numeroComprobante || '') : '', banco: chequeBase ? (chequeBase.banco || '') : '', emisor: chequeBase ? (chequeBase.titular || chequeBase.emisor || '') : '', fechaEmision: chequeBase ? (chequeBase.fechaEmision || '') : '', fechaCobro: chequeBase ? (chequeBase.fechaCobro || '') : '' };
+          const fechaEmision = chequeBase ? (chequeBase.fechaEmision || '') : '';
+          const fechaCobro = chequeBase ? (chequeBase.fechaCobro || '') : '';
+          return { ...prev, chequesRecibidosIds: ids, monto: total > 0 ? total.toFixed(2) : prev.monto, numeroComprobante: chequeBase ? (chequeBase.numeroCheque || prev.numeroComprobante || '') : '', banco: chequeBase ? (chequeBase.banco || '') : '', emisor: chequeBase ? (chequeBase.titular || chequeBase.emisor || '') : '', fechaEmision, fechaCobro, plazoDias: calcularPlazoEntreFechas(fechaEmision, fechaCobro) };
         })}
       />
 
@@ -30856,16 +30995,16 @@ function obtenerCategoriaProducto(producto) {
 
             <div className="flex flex-col gap-3 min-h-0 flex-1">
               <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden min-h-0 flex-1 flex flex-col">
-                <div className="sf-purchase-item-header px-3 py-2 border-b border-slate-100 bg-slate-50">
-                  <p className="sf-purchase-item-title text-[11px] font-black text-slate-700 uppercase tracking-wider">{compraDirectaActiva ? 'Items de la compra' : 'Items del pedido'} ({itemsPedidoCompra.length})</p>
+                <div className="sf-purchase-item-header px-3 py-1.5 border-b border-slate-100 bg-slate-50">
+                  <p className="sf-purchase-item-title text-[11px] font-black text-slate-700 uppercase tracking-wider" style={{ minWidth: 0, margin: 0 }}>{compraDirectaActiva ? 'Items de la compra' : 'Items del pedido'} ({itemsPedidoCompra.length})</p>
                   <div className="sf-purchase-item-actions">
-                    <button type="button" onClick={() => { setBusquedaSelectorInventarioPedidoCompra(''); setSelectorInventarioPedidoCompraAbierto(true); }} className="inline-flex shrink-0 items-center justify-center gap-1 min-h-[34px] px-3 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] font-black uppercase tracking-wider whitespace-nowrap" title="Abrir inventario">
+                    <button type="button" onClick={() => { setBusquedaSelectorInventarioPedidoCompra(''); setSelectorInventarioPedidoCompraAbierto(true); }} className="sf-purchase-action-button" style={{ display: 'inline-flex', width: 150, minWidth: 150, height: 34, minHeight: 34, boxSizing: 'border-box', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '0 12px', border: '1px solid #a7f3d0', borderRadius: 8, background: '#ecfdf5', color: '#047857', fontSize: 11, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'visible', visibility: 'visible', opacity: 1 }} title="Abrir inventario">
                       <Search size={13} /> Agregar
                     </button>
-                    <button type="button" onClick={agregarItemManualPedidoCompra} className="inline-flex shrink-0 items-center justify-center min-h-[34px] px-3 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] font-black uppercase tracking-wider whitespace-nowrap">
+                    <button type="button" onClick={agregarItemManualPedidoCompra} className="sf-purchase-action-button" style={{ display: 'inline-flex', width: 150, minWidth: 150, height: 34, minHeight: 34, boxSizing: 'border-box', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '0 12px', border: '1px solid #a7f3d0', borderRadius: 8, background: '#ecfdf5', color: '#047857', fontSize: 11, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'visible', visibility: 'visible', opacity: 1 }}>
                       + Manual
                     </button>
-                    <button type="button" onClick={() => setItemsPedidoCompra([])} disabled={!itemsPedidoCompra.length} className="inline-flex shrink-0 items-center justify-center min-h-[34px] px-3 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-40 text-[10px] font-black uppercase tracking-wider whitespace-nowrap">
+                    <button type="button" onClick={() => setItemsPedidoCompra([])} disabled={!itemsPedidoCompra.length} className="sf-purchase-action-button" style={{ display: 'inline-flex', width: 120, minWidth: 120, height: 34, minHeight: 34, boxSizing: 'border-box', alignItems: 'center', justifyContent: 'center', padding: '0 12px', border: '1px solid #dbe3ee', borderRadius: 8, background: '#fff', color: '#475569', fontSize: 11, fontWeight: 900, whiteSpace: 'nowrap', overflow: 'visible', visibility: 'visible', opacity: itemsPedidoCompra.length ? 1 : .45 }}>
                       Limpiar
                     </button>
                   </div>
@@ -31000,10 +31139,10 @@ function obtenerCategoriaProducto(producto) {
                   <input
                     value={formatearDinero(construirFilasPedidoCompra(itemsPedidoCompra || []).reduce((acc, item) => acc + Number(item.subtotal || 0), 0) + calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, '21') + calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, '10.5') + parseNumeroConSigno(pedidoCompraIngresosBrutos) + parseNumeroConSigno(pedidoCompraFlete) + parseNumeroConSigno(pedidoCompraAjusteMonto))}
                     readOnly
-                    className="w-full px-3 py-2 rounded-lg border border-emerald-300 bg-white text-sm font-black text-right text-emerald-900 outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full h-10 min-h-10 px-3 py-0 rounded-lg border border-emerald-300 bg-white text-sm font-black text-right text-emerald-900 outline-none focus:ring-2 focus:ring-emerald-500"
                   />
-                  <button type="button" onClick={guardarPedidoCompra} disabled={!itemsPedidoCompra.length} className="w-full sm:w-auto sm:min-w-[260px] bg-slate-800 hover:bg-black disabled:bg-slate-300 text-white font-black py-2 rounded-lg text-[10px] uppercase tracking-wider">
-                    Registrar compra
+                  <button type="button" onClick={guardarPedidoCompra} disabled={!itemsPedidoCompra.length} className="w-full sm:w-auto sm:min-w-[140px] h-10 min-h-10 px-4 py-0 bg-slate-800 hover:bg-black disabled:bg-slate-300 text-white font-black rounded-lg text-[10px] uppercase tracking-wider">
+                    Registrar
                   </button>
                 </div>
               )}
