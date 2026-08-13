@@ -69903,7 +69903,14 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
       configuracion?.logo,
       textoSeguroTrim(configuracion?.logoCorporativo, LOGO_EMPRESA_FALLBACK_URL)
     );
-    const logoEmpresa = logoFuente ? logoFuente.startsWith("data:") ? logoFuente : await srcADataUrl(logoFuente) : "";
+    let logoEmpresa = "";
+    if (logoFuente) {
+      try {
+        logoEmpresa = logoFuente.startsWith("data:") ? logoFuente : await srcADataUrl(logoFuente);
+      } catch (error) {
+        console.warn("No se pudo cargar el logo para la cuenta corriente de proveedor.", error);
+      }
+    }
     docPdf.setFillColor(255, 255, 255);
     docPdf.setDrawColor(219, 227, 239);
     docPdf.roundedRect(10, 8, 190, 24, 2, 2, "FD");
@@ -70412,7 +70419,14 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
       configuracion?.logo,
       textoSeguroTrim(configuracion?.logoCorporativo, LOGO_EMPRESA_FALLBACK_URL)
     );
-    const logoEmpresa = logoFuente ? logoFuente.startsWith("data:") ? logoFuente : await srcADataUrl(logoFuente) : "";
+    let logoEmpresa = "";
+    if (logoFuente) {
+      try {
+        logoEmpresa = logoFuente.startsWith("data:") ? logoFuente : await srcADataUrl(logoFuente);
+      } catch (error) {
+        console.warn("No se pudo cargar el logo para la cuenta corriente de proveedor.", error);
+      }
+    }
     docPdf.setFillColor(255, 255, 255);
     docPdf.setDrawColor(219, 227, 239);
     docPdf.roundedRect(10, 8, pageWidth - 20, 24, 2, 2, "FD");
@@ -70420,16 +70434,17 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
       try {
         const propsLogo = docPdf.getImageProperties(logoEmpresa);
         const ratioLogo = (propsLogo?.width || 1) / Math.max(propsLogo?.height || 1, 1);
-        const boxLogo = { x: 14, y: 6, w: 52, h: 18 };
+        const boxLogo = { x: 14, y: 10, w: 52, h: 15 };
         let drawW = boxLogo.w;
         let drawH = drawW / Math.max(ratioLogo, 0.01);
         if (drawH > boxLogo.h) {
           drawH = boxLogo.h;
           drawW = drawH * ratioLogo;
         }
+        const drawX = boxLogo.x + (boxLogo.w - drawW) / 2;
         const drawY = boxLogo.y + (boxLogo.h - drawH) / 2;
         const formatoLogo = /image\/jpe?g/i.test(logoEmpresa) ? "JPEG" : "PNG";
-        docPdf.addImage(logoEmpresa, formatoLogo, boxLogo.x, drawY, drawW, drawH);
+        docPdf.addImage(logoEmpresa, formatoLogo, drawX, drawY, drawW, drawH);
       } catch (error) {
         console.warn("No se pudo insertar el logo en la cuenta corriente de proveedor.", error);
       }
@@ -70437,7 +70452,7 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
     docPdf.setFont("helvetica", "bold");
     docPdf.setTextColor(15, 23, 42);
     docPdf.setFontSize(11);
-    docPdf.text("CUENTA CORRIENTE DE PROVEEDOR", 14, 26);
+    docPdf.text("CUENTA CORRIENTE DE PROVEEDOR", 14, 28);
     docPdf.setFontSize(9);
     docPdf.text(`Emitido: ${formatearFecha(fechaEmision)} ${formatearHora(fechaEmision)}`, pageWidth - 14, 14, { align: "right" });
     docPdf.setTextColor(15, 23, 42);
@@ -70463,64 +70478,120 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
       docPdf.text(`Saldo a favor: ${formatearDinero(estado.saldoFavor)}`, pageWidth - 14, 70, { align: "right" });
     }
     docPdf.setTextColor(15, 23, 42);
-    const comprasPdf = estado.movimientosDesc.filter((mov) => mov.tipoMovimiento === "compra");
-    const pagosPdf = estado.movimientosDesc.filter((mov) => mov.tipoMovimiento === "pago");
-    docPdf.setFont("helvetica", "bold");
-    docPdf.setFontSize(10);
-    docPdf.text("REMITOS Y FACTURAS DEL PROVEEDOR", 14, 80);
-    autoTable(docPdf, {
-      startY: 84,
-      head: [["Fecha", "Recepci\xF3n", "Factura / remito", "Detalle", "Total", "Pendiente"]],
-      body: comprasPdf.map((mov) => {
-        const comprobante = [mov.tipoComprobanteProveedor, mov.numeroComprobanteProveedor].filter(Boolean).join(" ") || (mov.remitoProveedor ? `Remito ${mov.remitoProveedor}` : `Pedido PC-${mov.numero || "000000"}`);
-        return [
-          formatearFecha(mov.fechaPedido || mov.fecha),
-          mov.fechaRecepcion ? formatearFecha(mov.fechaRecepcion) : "-",
-          comprobante,
-          `${mov.descripcion || "Compra"}${mov.items?.length ? ` (${mov.items.length} \xEDtems)` : ""}${Number(mov.iva21 || 0) || Number(mov.iva105 || 0) ? ` \xB7 IVA: ${formatearDinero(Number(mov.iva21 || 0) + Number(mov.iva105 || 0))}` : ""}${Number(mov.ingresosBrutos || 0) || Number(mov.flete || 0) ? ` \xB7 Flete/IB: ${formatearDinero(Number(mov.ingresosBrutos || 0) + Number(mov.flete || 0))}` : ""}`,
-          formatearDinero(Number(mov.monto || 0)),
-          formatearDinero(Number(mov.pendiente || 0))
-        ];
-      }),
-      styles: { fontSize: 7.5, cellPadding: 1.6, overflow: "linebreak" },
-      headStyles: { fillColor: [15, 23, 42], textColor: 255, fontStyle: "bold" },
-      columnStyles: { 3: { cellWidth: 92 }, 4: { halign: "right" }, 5: { halign: "right" } },
-      margin: { left: 14, right: 14 }
-    });
-    let inicioPagosY = (docPdf.lastAutoTable?.finalY || 84) + 10;
-    if (pagosPdf.length) {
-      if (inicioPagosY > 260) {
-        docPdf.addPage();
-        inicioPagosY = 20;
+    const formatearFechaCuentaPdf = (valor = "") => {
+      try {
+        const fecha = new Date(valor);
+        return Number.isNaN(fecha.getTime()) ? "-" : formatearFecha(fecha);
+      } catch {
+        return "-";
+      }
+    };
+    const pagosProveedorPdf = Array.isArray(estado.pagos) ? estado.pagos : [];
+    const cargosProveedorPdf = Array.isArray(estado.cargosProcesados) ? estado.cargosProcesados : [];
+    const pagosPorId = new Map(pagosProveedorPdf.map((pago) => [pago?.id, pago]));
+    const pagosAplicadosIds = /* @__PURE__ */ new Set();
+    let cursorCuentaY = 80;
+    const asegurarEspacioCuenta = (alto = 35) => {
+      if (cursorCuentaY + alto <= 270) return;
+      docPdf.addPage();
+      cursorCuentaY = 20;
+    };
+    const descripcionPagoProveedorPdf = (pago = {}, aplicado = 0) => {
+      const esCheque = ["cheque", "echeq"].includes(normalizarMetodoPago(pago.metodoPago));
+      const cheque = esCheque && pago.numeroComprobante ? `Cheque N.\xBA ${pago.numeroComprobante}` : "";
+      const plazo = esCheque && pago.plazoDias ? ` \xB7 a ${parseNumeroBasico(pago.plazoDias) || 0} d\xEDas` : "";
+      const comprobante = cheque || (pago.numeroComprobante ? `N.\xBA ${pago.numeroComprobante}` : "");
+      return `${obtenerEtiquetaMetodoPago(pago.metodoPago || "transferencia")}${comprobante ? ` \xB7 ${comprobante}` : ""}${plazo}${aplicado > 0 ? ` \xB7 aplicado ${formatearDinero(aplicado)}` : ""}`;
+    };
+    const cargosPdf = cargosProveedorPdf.filter((cargo) => cargo?.imputableSaldo);
+    cargosPdf.forEach((cargo) => {
+      const comprobante = [cargo.tipoComprobanteProveedor, cargo.numeroComprobanteProveedor].filter(Boolean).join(" ") || (cargo.remitoProveedor ? `Remito ${cargo.remitoProveedor}` : `Pedido PC-${cargo.numero || "000000"}`);
+      const pagosDelCargo = (Array.isArray(cargo?.pagosAplicados) ? cargo.pagosAplicados : []).map((aplicado) => ({ aplicado, pago: pagosPorId.get(aplicado?.id) })).filter((item2) => item2.aplicado && item2.pago);
+      pagosDelCargo.forEach(({ aplicado }) => pagosAplicadosIds.add(aplicado.id));
+      asegurarEspacioCuenta(55);
+      docPdf.setFillColor(15, 23, 42);
+      docPdf.roundedRect(14, cursorCuentaY, pageWidth - 28, 8, 1.5, 1.5, "F");
+      docPdf.setTextColor(255, 255, 255);
+      docPdf.setFont("helvetica", "bold");
+      docPdf.setFontSize(9);
+      docPdf.text(`${comprobante} \xB7 PC-${cargo.numero || "000000"}`, 18, cursorCuentaY + 5.5);
+      cursorCuentaY += 11;
+      docPdf.setTextColor(15, 23, 42);
+      autoTable(docPdf, {
+        startY: cursorCuentaY,
+        head: [["Fecha", "Recepci\xF3n", "Detalle", "Monto", "Saldo"]],
+        body: [[
+          formatearFechaCuentaPdf(cargo.fechaPedido || cargo.fecha),
+          cargo.fechaRecepcion ? formatearFechaCuentaPdf(cargo.fechaRecepcion) : "-",
+          `${cargo.descripcion || "Compra"}${cargo.items?.length ? ` (${cargo.items.length} \xEDtems)` : ""}${Number(cargo.iva21 || 0) || Number(cargo.iva105 || 0) ? ` \xB7 IVA ${formatearDinero(Number(cargo.iva21 || 0) + Number(cargo.iva105 || 0))}` : ""}`,
+          formatearDinero(Number(cargo.monto || 0)),
+          formatearDinero(Number(cargo.pendiente || 0))
+        ]],
+        styles: { fontSize: 7.5, cellPadding: 1.6, overflow: "linebreak" },
+        headStyles: { fillColor: [51, 65, 85], textColor: 255, fontStyle: "bold" },
+        columnStyles: { 2: { cellWidth: 95 }, 3: { halign: "right" }, 4: { halign: "right" } },
+        margin: { left: 14, right: 14 }
+      });
+      cursorCuentaY = (docPdf.lastAutoTable?.finalY || cursorCuentaY + 15) + 2;
+      if (pagosDelCargo.length) {
+        docPdf.setFont("helvetica", "bold");
+        docPdf.setFontSize(8);
+        docPdf.setTextColor(5, 150, 105);
+        docPdf.text("Pagos aplicados a este comprobante", 18, cursorCuentaY + 4);
+        cursorCuentaY += 7;
+        autoTable(docPdf, {
+          startY: cursorCuentaY,
+          head: [["Fecha", "Forma / comprobante", "Importe aplicado", "Saldo despu\xE9s"]],
+          body: pagosDelCargo.map(({ aplicado, pago }) => [
+            formatearFechaCuentaPdf(pago.fecha || pago.fechaCreacion),
+            `${descripcionPagoProveedorPdf(pago, Number(aplicado.monto || 0))}${pago.notas ? ` \xB7 ${pago.notas}` : ""}`,
+            formatearDinero(Number(aplicado.monto || 0)),
+            formatearDinero(Number(aplicado.pendienteDespues || 0))
+          ]),
+          styles: { fontSize: 7.2, cellPadding: 1.5, overflow: "linebreak" },
+          headStyles: { fillColor: [5, 150, 105], textColor: 255, fontStyle: "bold" },
+          columnStyles: { 1: { cellWidth: 105 }, 2: { halign: "right" }, 3: { halign: "right" } },
+          margin: { left: 18, right: 18 }
+        });
+        cursorCuentaY = (docPdf.lastAutoTable?.finalY || cursorCuentaY + 14) + 3;
+      } else {
+        docPdf.setFont("helvetica", "italic");
+        docPdf.setFontSize(8);
+        docPdf.setTextColor(100, 116, 139);
+        docPdf.text("Sin pagos aplicados a este comprobante.", 18, cursorCuentaY + 4);
+        cursorCuentaY += 9;
       }
       docPdf.setFont("helvetica", "bold");
+      docPdf.setFontSize(8.5);
+      docPdf.setTextColor(Number(cargo.pendiente || 0) > 9e-3 ? 185 : 5, Number(cargo.pendiente || 0) > 9e-3 ? 28 : 150, Number(cargo.pendiente || 0) > 9e-3 ? 28 : 105);
+      docPdf.text(`Saldo pendiente de ${comprobante}: ${formatearDinero(Number(cargo.pendiente || 0))}`, 18, cursorCuentaY + 4);
+      cursorCuentaY += 10;
+    });
+    const pagosGeneralesPdf = pagosProveedorPdf.filter((pago) => !pagosAplicadosIds.has(pago?.id) && !(pago?.pedidoCompraId || (Array.isArray(pago?.pedidoCompraIds) ? pago.pedidoCompraIds.length : 0)));
+    if (pagosGeneralesPdf.length) {
+      asegurarEspacioCuenta(35);
+      docPdf.setFont("helvetica", "bold");
       docPdf.setFontSize(10);
-      docPdf.text("PAGOS REGISTRADOS Y APLICADOS", 14, inicioPagosY);
+      docPdf.setTextColor(15, 23, 42);
+      docPdf.text("PAGOS GENERALES SIN REMITO ASIGNADO", 14, cursorCuentaY);
+      cursorCuentaY += 5;
       autoTable(docPdf, {
-        startY: inicioPagosY + 4,
-        head: [["Fecha", "Forma / comprobante", "Aplicaci\xF3n", "Importe", "Saldo a favor"]],
-        body: pagosPdf.map((mov) => {
-          const esCheque = ["cheque", "echeq"].includes(normalizarMetodoPago(mov.metodoPago));
-          const cheque = esCheque && mov.numeroComprobante ? `Cheque N.\xBA ${mov.numeroComprobante}` : "";
-          const plazo = esCheque && mov.plazoDias ? ` \xB7 a ${parseNumeroBasico(mov.plazoDias) || 0} d\xEDas` : "";
-          const idsAplicados = Array.isArray(mov.pedidoCompraIds) && mov.pedidoCompraIds.length ? mov.pedidoCompraIds : mov.pedidoCompraId ? [mov.pedidoCompraId] : [];
-          const aplicacion = idsAplicados.length ? `Aplicado a ${idsAplicados.map((id) => `PC-${estado.cargosProcesados.find((cargo) => cargo.pedidoId === id)?.numero || "000000"}`).join(", ")}` : "Pago general a cuenta";
-          return [
-            formatearFecha(mov.fecha || mov.fechaCreacion),
-            `${obtenerEtiquetaMetodoPago(mov.metodoPago || "transferencia")}${cheque ? ` \xB7 ${cheque}` : mov.numeroComprobante ? ` \xB7 N.\xBA ${mov.numeroComprobante}` : ""}${plazo}`,
-            `${aplicacion}${mov.notas ? ` \xB7 ${mov.notas}` : ""}`,
-            formatearDinero(Number(mov.monto || 0)),
-            Number(mov.saldoFavorGenerado || 0) > 9e-3 ? formatearDinero(mov.saldoFavorGenerado) : "-"
-          ];
-        }),
+        startY: cursorCuentaY,
+        head: [["Fecha", "Forma / comprobante", "Importe", "Saldo a favor"]],
+        body: pagosGeneralesPdf.map((pago) => [
+          formatearFechaCuentaPdf(pago.fecha || pago.fechaCreacion),
+          descripcionPagoProveedorPdf(pago),
+          formatearDinero(Number(pago.monto || 0)),
+          Number(pago.saldoFavorGenerado || 0) > 9e-3 ? formatearDinero(pago.saldoFavorGenerado) : "-"
+        ]),
         styles: { fontSize: 7.5, cellPadding: 1.6, overflow: "linebreak" },
-        headStyles: { fillColor: [5, 150, 105], textColor: 255, fontStyle: "bold" },
-        columnStyles: { 2: { cellWidth: 100 }, 3: { halign: "right" }, 4: { halign: "right" } },
+        headStyles: { fillColor: [100, 116, 139], textColor: 255, fontStyle: "bold" },
+        columnStyles: { 1: { cellWidth: 110 }, 2: { halign: "right" }, 3: { halign: "right" } },
         margin: { left: 14, right: 14 }
       });
     }
-    const adjuntosImagen = estado.pagos.flatMap(
-      (pago) => (pago.adjuntos || []).filter((adj) => textoSeguroTrim(adj?.tipo, "").startsWith("image/") && textoSeguroTrim(adj?.dataUrl, "")).map((adj) => ({ ...adj, pago }))
+    const adjuntosImagen = pagosProveedorPdf.flatMap(
+      (pago) => (Array.isArray(pago?.adjuntos) ? pago.adjuntos : []).filter((adj) => textoSeguroTrim(adj?.tipo, "").startsWith("image/") && textoSeguroTrim(adj?.dataUrl, "")).map((adj) => ({ ...adj, pago }))
     );
     if (adjuntosImagen.length) {
       docPdf.addPage();
@@ -70531,7 +70602,7 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
       for (const adj of adjuntosImagen.slice(0, 6)) {
         try {
           docPdf.setFontSize(8);
-          docPdf.text(`${formatearFecha(adj.pago?.fecha)} - ${adj.nombre || "Adjunto"}`, 14, y3);
+          docPdf.text(`${formatearFechaCuentaPdf(adj.pago?.fecha)} - ${adj.nombre || "Adjunto"}`, 14, y3);
           docPdf.addImage(adj.dataUrl, adj?.tipo?.includes("png") ? "PNG" : "JPEG", 14, y3 + 3, 80, 55, void 0, "FAST");
           y3 += 65;
           if (y3 > 250) {
@@ -70543,7 +70614,9 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
         }
       }
     }
-    docPdf.save(`cuenta_proveedor_${normalizarTextoArchivo(nombreProveedor)}_${obtenerFechaInputLocal()}.pdf`);
+    const nombreArchivoCuentaProveedor = `cuenta_proveedor_${normalizarTextoArchivo(nombreProveedor)}_${obtenerFechaInputLocal()}.pdf`;
+    const blobCuentaProveedor = docPdf.output("blob");
+    descargarArchivoTemporal(new File([blobCuentaProveedor], nombreArchivoCuentaProveedor, { type: "application/pdf" }));
   };
   const calcularRutaProveedor = async () => {
     if (calculandoRutaProveedor) return;
@@ -81533,7 +81606,10 @@ ${configuracion.nombre}`;
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { size: 14 }),
                     " Cargar pago"
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", disabled: !proveedorActivo, onClick: () => imprimirCuentaProveedor(proveedorActivo), className: "px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 text-slate-700 text-xs font-black uppercase tracking-wider flex items-center gap-1.5", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", disabled: !proveedorActivo, onClick: () => imprimirCuentaProveedor(proveedorActivo).catch(async (error) => {
+                    console.error("No se pudo descargar la cuenta del proveedor.", error);
+                    await notificarSistema("No se pudo generar el PDF de la cuenta del proveedor.", { tipo: "error", titulo: "Error al descargar PDF" });
+                  }), className: "px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 text-slate-700 text-xs font-black uppercase tracking-wider flex items-center gap-1.5", children: [
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Printer, { size: 14 }),
                     " Imprimir"
                   ] }),
