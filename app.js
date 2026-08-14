@@ -59230,7 +59230,7 @@ var SelectorChequesModal = ({ abierto, onClose, busqueda, setBusqueda, cheques, 
   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "flex justify-end pt-1", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: onClose, className: "rounded-xl bg-violet-600 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white hover:bg-violet-700", children: "Listo" }) })
 ] }) }) : null;
 var FORM_VENDEDOR_VACIO = { nombre: "", documento: "", telefono: "", email: "", direccion: "", notas: "", activo: true };
-var ModuloVendedores = ({ vendedores = [], retiros = [], movimientos = [], notificar, usuario = null, nombreEmpresa = "SeniorFlow" }) => {
+var ModuloVendedores = ({ vendedores = [], retiros = [], movimientos = [], notificar, usuario = null, nombreEmpresa = "SeniorFlow", onVerVenta = null }) => {
   const [busqueda, setBusqueda] = (0, import_react4.useState)("");
   const [vendedorSeleccionadoId, setVendedorSeleccionadoId] = (0, import_react4.useState)("");
   const [vendedorEditando, setVendedorEditando] = (0, import_react4.useState)(null);
@@ -59247,6 +59247,7 @@ var ModuloVendedores = ({ vendedores = [], retiros = [], movimientos = [], notif
         const totalVenta = Math.max(0, Number(mov?.monto || 0));
         const comision = Math.max(0, Number(mov?.detallesPago?.comisionMonto ?? totalVenta * porcentaje / 100));
         const tipo = OPCIONES_COMPROBANTE_VENTA.find((opcion) => opcion.value === mov?.detallesPago?.tipoComprobante)?.label || "Comprobante";
+        const comprobanteTexto = `${tipo} ${textoSeguroTrim(mov?.detallesPago?.numeroComprobante, "Sin n\xFAmero")}`;
         const itemsComision = (Array.isArray(mov?.detallesPago?.comisionItems) && mov.detallesPago.comisionItems.length ? mov.detallesPago.comisionItems : (mov?.detallesPago?.items || []).map((item2) => ({
           itemId: item2?.id,
           codigo: item2?.codigo,
@@ -59257,7 +59258,17 @@ var ModuloVendedores = ({ vendedores = [], retiros = [], movimientos = [], notif
         return {
           id: mov.id,
           fecha: mov.fecha,
-          comprobante: `${tipo} ${textoSeguroTrim(mov?.detallesPago?.numeroComprobante, "Sin n\xFAmero")}`,
+          comprobanteTexto,
+          comprobante: onVerVenta ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", onClick: (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onVerVenta(mov);
+          }, className: "inline-flex items-center gap-1 text-left font-black text-blue-700 hover:text-blue-900 hover:underline", title: "Previsualizar e imprimir comprobante", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Eye, { size: 13 }),
+            " ",
+            comprobanteTexto
+          ] }) : comprobanteTexto,
+          movimiento: mov,
           cliente: textoSeguroTrim(mov?.detallesPago?.cliente, "-"),
           totalVenta,
           porcentaje,
@@ -59284,7 +59295,7 @@ var ModuloVendedores = ({ vendedores = [], retiros = [], movimientos = [], notif
       resultado[vendedor.id] = { vendedor, ventas, retiros: retirosVendedor, totalComisiones, totalRetirado, saldo: Math.max(0, totalComisiones - totalRetirado) };
     });
     return resultado;
-  }, [vendedores, retiros, movimientos]);
+  }, [vendedores, retiros, movimientos, onVerVenta]);
   (0, import_react4.useEffect)(() => {
     if (!vendedorSeleccionadoId && vendedores.length) setVendedorSeleccionadoId(vendedores[0].id);
     if (vendedorSeleccionadoId && !vendedores.some((vendedor) => vendedor.id === vendedorSeleccionadoId)) setVendedorSeleccionadoId(vendedores[0]?.id || "");
@@ -59297,7 +59308,7 @@ var ModuloVendedores = ({ vendedores = [], retiros = [], movimientos = [], notif
       const venta = ventasPendientesRetiro.find((item2) => item2.id === ventaId);
       if (!venta) return null;
       const aplicado = Math.max(0, Number(venta.pendiente || 0));
-      return { ventaId, orden: indice + 1, comprobante: venta.comprobante, saldoAntes: venta.pendiente, montoAplicado: aplicado, saldoDespues: 0 };
+      return { ventaId, orden: indice + 1, comprobante: venta.comprobanteTexto, saldoAntes: venta.pendiente, montoAplicado: aplicado, saldoDespues: 0 };
     }).filter(Boolean);
     const monto = aplicaciones.reduce((total, item2) => total + item2.montoAplicado, 0);
     return { monto, aplicaciones, aplicado: monto, restante: 0 };
@@ -59351,7 +59362,7 @@ var ModuloVendedores = ({ vendedores = [], retiros = [], movimientos = [], notif
       const retiroRef = await addDoc(collection(db, "retiros_vendedores"), payload);
       if (payload.impactaCaja) {
         try {
-          const movimientoRef = await addDoc(collection(db, "movimientos"), { tipo: "gasto", monto: payload.monto, descripcion: `Retiro de comisi\xF3n \xB7 ${payload.vendedorNombre}`, metodoPago: payload.metodoPago, fecha: payload.fecha, usuario: usuario?.nombre || "", detallesPago: { origen: "retiro_vendedor", retiroVendedorId: retiroRef.id, vendedorId: payload.vendedorId, vendedorNombre: payload.vendedorNombre } });
+          const movimientoRef = await addDoc(collection(db, "movimientos"), { tipo: "gasto", monto: payload.monto, categoria: "Pago a vendedores", descripcion: `Pago de comisi\xF3n a vendedor \xB7 ${payload.vendedorNombre}`, metodoPago: payload.metodoPago, fecha: payload.fecha, usuario: usuario?.nombre || "", detallesPago: { origen: "retiro_vendedor", retiroVendedorId: retiroRef.id, vendedorId: payload.vendedorId, vendedorNombre: payload.vendedorNombre } });
           await updateDoc(doc(db, "retiros_vendedores", retiroRef.id), { movimientoCajaId: movimientoRef.id });
         } catch (errorCaja) {
           console.warn("El retiro se guard\xF3, pero no pudo sincronizarse con caja.", errorCaja);
@@ -59405,7 +59416,7 @@ var ModuloVendedores = ({ vendedores = [], retiros = [], movimientos = [], notif
     documento.text(`Ventas: ${formatearDinero(cuentaSeleccionada.ventas.reduce((total, venta) => total + venta.totalVenta, 0))}   Comisiones: ${formatearDinero(cuentaSeleccionada.totalComisiones)}   Retiros: ${formatearDinero(cuentaSeleccionada.totalRetirado)}   Saldo a favor: ${formatearDinero(cuentaSeleccionada.saldo)}`, 14, 49);
     const filas = [];
     cuentaSeleccionada.ventas.forEach((venta) => {
-      filas.push([formatearFecha(venta.fecha), venta.comprobante, venta.cliente, formatearDinero(venta.totalVenta), `${formatearCantidad(venta.porcentaje)}%`, formatearDinero(venta.comision), formatearDinero(venta.pendiente)]);
+      filas.push([formatearFecha(venta.fecha), venta.comprobanteTexto, venta.cliente, formatearDinero(venta.totalVenta), `${formatearCantidad(venta.porcentaje)}%`, formatearDinero(venta.comision), formatearDinero(venta.pendiente)]);
       venta.itemsComision.forEach((item2) => filas.push(["\u21B3 \xCDtem", "", `${item2.codigo ? `${item2.codigo} \xB7 ` : ""}${item2.descripcion || "Sin detalle"}`, "", `${formatearCantidad(item2.porcentaje || venta.porcentaje)}%`, formatearDinero(item2.monto), ""]));
       venta.retirosAplicados.forEach((retiro) => filas.push([`\u21B3 ${formatearFecha(retiro.fecha)}`, `RETIRO ${textoSeguroTrim(retiro.numeroComprobante, "")}`, retiro.notas || obtenerEtiquetaMetodoPago(retiro.metodoPago), "", "", `-${formatearDinero(retiro.montoAplicado)}`, `Saldo ${formatearDinero(retiro.saldoDespues)}`]));
     });
@@ -60960,6 +60971,41 @@ function AppInterna() {
     });
     impuestos.totalVentas = impuestos.ventas21 + impuestos.ventas105;
     impuestos.totalCompras = impuestos.compras21 + impuestos.compras105;
+    const vendedoresReportePorId = new Map((vendedores || []).map((vendedor) => [vendedor.id, {
+      vendedorId: vendedor.id,
+      vendedorNombre: textoSeguroTrim(vendedor?.nombre, "Vendedor"),
+      ventas: 0,
+      comisiones: 0,
+      pagos: 0,
+      balancePeriodo: 0,
+      comprobantes: 0
+    }]));
+    movsFiltrados.filter((movimiento) => movimiento?.tipo === "venta" && movimiento?.detallesPago?.vendedorId).forEach((movimiento) => {
+      const vendedorId = movimiento.detallesPago.vendedorId;
+      const fila = vendedoresReportePorId.get(vendedorId) || { vendedorId, vendedorNombre: textoSeguroTrim(movimiento?.detallesPago?.vendedorNombre, "Vendedor"), ventas: 0, comisiones: 0, pagos: 0, balancePeriodo: 0, comprobantes: 0 };
+      const signo = obtenerSignoPuntoVenta(movimiento);
+      fila.ventas += signo * Math.max(0, Number(movimiento?.monto || 0));
+      fila.comisiones += signo * Math.max(0, Number(movimiento?.detallesPago?.comisionMonto || 0));
+      fila.comprobantes += 1;
+      vendedoresReportePorId.set(vendedorId, fila);
+    });
+    (retirosVendedores || []).forEach((retiro) => {
+      const fechaRetiro = new Date(retiro?.fecha || retiro?.fechaCreacion || 0);
+      if (Number.isNaN(fechaRetiro.getTime()) || fechaRetiro < inicio || fechaRetiro > fin) return;
+      const vendedorId = textoSeguroTrim(retiro?.vendedorId, "");
+      if (!vendedorId) return;
+      const fila = vendedoresReportePorId.get(vendedorId) || { vendedorId, vendedorNombre: textoSeguroTrim(retiro?.vendedorNombre, "Vendedor"), ventas: 0, comisiones: 0, pagos: 0, balancePeriodo: 0, comprobantes: 0 };
+      fila.pagos += Math.max(0, Number(retiro?.monto || 0));
+      vendedoresReportePorId.set(vendedorId, fila);
+    });
+    const vendedoresReporte = Array.from(vendedoresReportePorId.values()).map((fila) => ({ ...fila, balancePeriodo: fila.comisiones - fila.pagos })).filter((fila) => Math.abs(fila.ventas) > 9e-3 || Math.abs(fila.comisiones) > 9e-3 || Math.abs(fila.pagos) > 9e-3).sort((a3, b2) => b2.comisiones - a3.comisiones || a3.vendedorNombre.localeCompare(b2.vendedorNombre, "es"));
+    const reporteVendedores = {
+      filas: vendedoresReporte,
+      ventas: vendedoresReporte.reduce((total, fila) => total + fila.ventas, 0),
+      comisiones: vendedoresReporte.reduce((total, fila) => total + fila.comisiones, 0),
+      pagos: vendedoresReporte.reduce((total, fila) => total + fila.pagos, 0),
+      balancePeriodo: vendedoresReporte.reduce((total, fila) => total + fila.balancePeriodo, 0)
+    };
     return {
       movimientos: movsFiltrados,
       ventas,
@@ -60974,9 +61020,10 @@ function AppInterna() {
       flujoNeto,
       inicio,
       fin,
-      impuestos
+      impuestos,
+      vendedores: reporteVendedores
     };
-  }, [movimientos, pedidosCompra, reporteTiempo, reporteMesSeleccionado, reporteFechaDesdeReporte, reporteFechaHastaReporte]);
+  }, [movimientos, pedidosCompra, productos, vendedores, retirosVendedores, reporteTiempo, reporteMesSeleccionado, reporteFechaDesdeReporte, reporteFechaHastaReporte]);
   const mostrarDetalleIndicadorReporte = async (clave) => {
     const periodo = `Per\xEDodo: ${formatearFecha(datosReporte.inicio)} al ${formatearFecha(datosReporte.fin)}.`;
     const detalles = {
@@ -66549,19 +66596,21 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
     }
     setGuardandoAsignacionVendedor(true);
     try {
-      await updateDoc(doc(db, "movimientos", ventaAsignarVendedor.id), {
-        detallesPago: limpiarDatoFirestore({
-          ...ventaAsignarVendedor.detallesPago || {},
-          vendedorId: vendedor.id,
-          vendedorNombre: vendedor.nombre,
-          comisionPorcentaje: porcentaje,
-          comisionMonto,
-          items: itemsConComision,
-          comisionItems: itemsConComision.map((item2) => ({ itemId: textoSeguroTrim(item2?.id, ""), productoId: textoSeguroTrim(item2?.productoId, ""), codigo: textoSeguroTrim(item2?.codigo, ""), descripcion: textoSeguroTrim(item2?.descripcion, ""), porcentaje, monto: Math.max(0, Number(item2?.comisionMonto || 0)) })),
-          comisionAsignadaEn: (/* @__PURE__ */ new Date()).toISOString(),
-          comisionAsignadaPor: usuarioActual?.nombre || ""
-        })
+      const detallesPagoActualizados = limpiarDatoFirestore({
+        ...ventaAsignarVendedor.detallesPago || {},
+        vendedorId: vendedor.id,
+        vendedorNombre: vendedor.nombre,
+        comisionPorcentaje: porcentaje,
+        comisionMonto,
+        items: itemsConComision,
+        comisionItems: itemsConComision.map((item2) => ({ itemId: textoSeguroTrim(item2?.id, ""), productoId: textoSeguroTrim(item2?.productoId, ""), codigo: textoSeguroTrim(item2?.codigo, ""), descripcion: textoSeguroTrim(item2?.descripcion, ""), porcentaje, monto: Math.max(0, Number(item2?.comisionMonto || 0)) })),
+        comisionAsignadaEn: (/* @__PURE__ */ new Date()).toISOString(),
+        comisionAsignadaPor: usuarioActual?.nombre || ""
       });
+      await updateDoc(doc(db, "movimientos", ventaAsignarVendedor.id), {
+        detallesPago: detallesPagoActualizados
+      });
+      setMovimientos((prev) => prev.map((movimiento) => movimiento.id === ventaAsignarVendedor.id ? { ...movimiento, detallesPago: detallesPagoActualizados } : movimiento));
       setVentaAsignarVendedor(null);
       await notificarSistema(`Venta asignada a ${vendedor.nombre}. Comisi\xF3n: ${formatearDinero(comisionMonto)}.`, { tipo: "success", titulo: "Comisi\xF3n asignada" });
     } catch (error) {
@@ -66592,7 +66641,9 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       delete limpio.comisionMonto;
       return limpio;
     });
-    await updateDoc(doc(db, "movimientos", ventaAsignarVendedor.id), { detallesPago: limpiarDatoFirestore(detalles) });
+    const detallesPagoActualizados = limpiarDatoFirestore(detalles);
+    await updateDoc(doc(db, "movimientos", ventaAsignarVendedor.id), { detallesPago: detallesPagoActualizados });
+    setMovimientos((prev) => prev.map((movimiento) => movimiento.id === ventaAsignarVendedor.id ? { ...movimiento, detallesPago: detallesPagoActualizados } : movimiento));
     setVentaAsignarVendedor(null);
     await notificarSistema("Se quit\xF3 la asignaci\xF3n del vendedor.", { tipo: "success", titulo: "Asignaci\xF3n eliminada" });
   };
@@ -67770,6 +67821,9 @@ Esta acci\xF3n no se puede deshacer. \xBFContinuar?`;
     const saldadosBase = remitosBase.filter((ticket) => Number(ticket.pendiente || 0) <= 9e-3);
     const saldoPendienteSinRecargos = Math.max(0, pendientesBase.reduce((acc, item2) => acc + Number(item2.pendiente || 0), 0));
     const pendientePorCargoId = Object.fromEntries((estado?.cargosProcesados || []).map((cargo) => [cargo.id, Number(cargo.pendiente || 0)]));
+    const totalCreditosClientePdf = (estado?.movimientosDesc || []).filter((movimiento) => movimiento?.tipo === "cobro" || esMovimientoDescuentoCuentaCorriente(movimiento)).reduce((total, movimiento) => total + Math.abs(Number(movimiento?.monto || 0)), 0);
+    const totalCargosClientePdf = remitosBase.reduce((total, cargo) => total + Math.max(0, Number(cargo?.montoOriginal ?? cargo?.monto ?? 0)), 0);
+    const saldoFavorClientePdf = Math.max(0, totalCreditosClientePdf - totalCargosClientePdf);
     const doc2 = crearPdfA4("landscape", { titulo: "Resumen de cuenta corriente" });
     const nombreEmpresa = obtenerNombreEmpresaPresupuesto();
     const fechaEmision = (/* @__PURE__ */ new Date()).toISOString();
@@ -67809,11 +67863,19 @@ Esta acci\xF3n no se puede deshacer. \xBFContinuar?`;
     doc2.text(formatearDinero(saldoPendienteSinRecargos), 278, 54, { align: "right" });
     doc2.setFontSize(8);
     doc2.setTextColor(71, 85, 105);
-    doc2.text(`${pendientesBase.length} impago(s) \xB7 ${saldadosBase.length} saldado(s)`, 278, 59, { align: "right" });
+    doc2.text(`${pendientesBase.length} impago(s) \xB7 ${saldadosBase.length} saldado(s)${saldoFavorClientePdf > 9e-3 ? ` \xB7 A favor ${formatearDinero(saldoFavorClientePdf)}` : ""}`, 278, 59, { align: "right" });
     doc2.setFont("helvetica", "normal");
     doc2.setFontSize(7.5);
     doc2.setTextColor(100, 116, 139);
     doc2.text("Este resumen muestra remitos de cuenta corriente y pagos aplicados. No incluye recargos de mora.", 14, 65);
+    doc2.setFont("helvetica", "bold");
+    doc2.setFontSize(7);
+    doc2.setTextColor(15, 23, 42);
+    doc2.text("Rxx = remito/venta", 14, 69);
+    doc2.setTextColor(5, 150, 105);
+    doc2.text("Pxx = pago/cobro", 48, 69);
+    doc2.setTextColor(217, 119, 6);
+    doc2.text("l\xEDnea de color = el mismo pago contin\xFAa en otro remito o termina como saldo a favor", 80, 69);
     const usarDetalleAgrupadoClientesPdf = true;
     if (usarDetalleAgrupadoClientesPdf) {
       const pageWidthClientePdf = doc2.internal.pageSize.getWidth();
@@ -67822,7 +67884,46 @@ Esta acci\xF3n no se puede deshacer. \xBFContinuar?`;
         ...estado?.movimientosDesc || [],
         ...movimientos || []
       ].filter((mov) => mov?.id).map((mov) => [mov.id, mov]));
-      let cursorClienteY = 72;
+      const referenciaCargoClientePdf = new Map(remitosBase.map((cargo, indice) => {
+        const detalle = cargo?.detallesPago || {};
+        const numero = textoSeguroTrim(detalle?.numeroComprobante, textoSeguroTrim(detalle?.comprobanteNumero, "-"));
+        const tipo = OPCIONES_COMPROBANTE_VENTA.find((opcion) => opcion.value === detalle?.tipoComprobante)?.label || textoSeguroTrim(detalle?.tipoComprobante, "Remito");
+        return [cargo.id, { codigo: `R${String(indice + 1).padStart(2, "0")}`, comprobante: `${tipo} ${numero}`.trim() }];
+      }));
+      const trazabilidadCobrosClientePdf = /* @__PURE__ */ new Map();
+      remitosBase.forEach((cargo) => {
+        const referencia = referenciaCargoClientePdf.get(cargo.id);
+        (Array.isArray(cargo?.pagosAplicados) ? cargo.pagosAplicados : []).forEach((pago, indicePago) => {
+          const pagoId = textoSeguroTrim(pago?.id, `${pago?.fecha || "sin-fecha"}-${cargo?.id || "cargo"}-${indicePago}`);
+          const movimientoPago = movimientosPagoClientePdf.get(pagoId) || null;
+          if (!trazabilidadCobrosClientePdf.has(pagoId)) trazabilidadCobrosClientePdf.set(pagoId, { id: pagoId, movimiento: movimientoPago, fecha: pago?.fecha || movimientoPago?.fecha || "", total: Math.abs(Number(movimientoPago?.monto || pago?.monto || 0)), aplicado: 0, aplicaciones: [] });
+          const traza = trazabilidadCobrosClientePdf.get(pagoId);
+          const montoAplicado = Math.max(0, Number(pago?.monto || 0));
+          traza.aplicado += montoAplicado;
+          traza.aplicaciones.push({ cargoId: cargo.id, codigo: referencia?.codigo || "R--", comprobante: referencia?.comprobante || "Comprobante", monto: montoAplicado });
+        });
+      });
+      (estado?.movimientosDesc || []).filter((movimiento) => movimiento?.tipo === "cobro" || esMovimientoDescuentoCuentaCorriente(movimiento)).forEach((movimiento) => {
+        if (!movimiento?.id || trazabilidadCobrosClientePdf.has(movimiento.id)) return;
+        trazabilidadCobrosClientePdf.set(movimiento.id, { id: movimiento.id, movimiento, fecha: movimiento.fecha || "", total: Math.abs(Number(movimiento.monto || 0)), aplicado: 0, aplicaciones: [] });
+      });
+      const cobrosTrazadosClientePdf = Array.from(trazabilidadCobrosClientePdf.values()).sort((a3, b2) => new Date(a3.fecha || 0) - new Date(b2.fecha || 0));
+      const codigoCobroClientePdf = new Map(cobrosTrazadosClientePdf.map((traza, indice) => [traza.id, `P${String(indice + 1).padStart(2, "0")}`]));
+      cobrosTrazadosClientePdf.forEach((traza) => {
+        traza.sobrante = Math.max(0, Number(traza.total || 0) - Number(traza.aplicado || 0));
+      });
+      const coloresTrazabilidadClientePdf = [[5, 150, 105], [37, 99, 235], [124, 58, 237], [217, 119, 6], [8, 145, 178], [190, 24, 93]];
+      const colorCobroClientePdf = (pagoId = "") => coloresTrazabilidadClientePdf[Math.max(0, cobrosTrazadosClientePdf.findIndex((traza) => traza.id === pagoId)) % coloresTrazabilidadClientePdf.length];
+      const rutaCobroClientePdf = (pagoId = "") => {
+        const traza = trazabilidadCobrosClientePdf.get(pagoId);
+        if (!traza) return "-";
+        const codigo = codigoCobroClientePdf.get(pagoId) || "P--";
+        const total = traza.total > 0 ? traza.total : traza.aplicado;
+        const destinos = traza.aplicaciones.map((aplicacion) => `${aplicacion.codigo} ${formatearDinero(aplicacion.monto)}`).join(" => ");
+        return `${codigo} RECIBIDO ${formatearDinero(total)}${destinos ? ` => ${destinos}` : ""}${traza.sobrante > 9e-3 ? ` => SALDO A FAVOR ${formatearDinero(traza.sobrante)}` : ""}`;
+      };
+      const puntosCobroClientePdf = /* @__PURE__ */ new Map();
+      let cursorClienteY = 76;
       const paginaActualClientePdf = () => Number(
         doc2.internal?.getCurrentPageInfo?.()?.pageNumber || doc2.internal?.getNumberOfPages?.() || 1
       );
@@ -67856,6 +67957,39 @@ Esta acci\xF3n no se puede deshacer. \xBFContinuar?`;
         }
         doc2.setPage(paginaRetorno);
       };
+      const dibujarContinuidadCobroClientePdf = (pagoId = "", puntos = []) => {
+        if (puntos.length < 2) return;
+        const paginaRetorno = paginaActualClientePdf();
+        const [r2, g2, b2] = colorCobroClientePdf(pagoId);
+        const x3 = pageWidthClientePdf - 10.5;
+        doc2.setDrawColor(r2, g2, b2);
+        doc2.setFillColor(r2, g2, b2);
+        doc2.setTextColor(r2, g2, b2);
+        doc2.setLineWidth(0.7);
+        puntos.forEach((punto, indice) => {
+          doc2.setPage(punto.pagina);
+          doc2.line(pageWidthClientePdf - 17.8, punto.y, x3, punto.y);
+          doc2.circle(x3, punto.y, 1.05, "F");
+          doc2.setFont("helvetica", "bold");
+          doc2.setFontSize(6.4);
+          doc2.text(codigoCobroClientePdf.get(pagoId) || "P--", x3 - 1.8, punto.y - 1.8, { align: "right" });
+          const siguiente = puntos[indice + 1];
+          if (!siguiente) return;
+          if (punto.pagina === siguiente.pagina) {
+            doc2.line(x3, punto.y, x3, siguiente.y);
+            doc2.triangle(x3, siguiente.y + 1.6, x3 - 1.35, siguiente.y - 1.1, x3 + 1.35, siguiente.y - 1.1, "F");
+          } else {
+            doc2.line(x3, punto.y, x3, pageHeightClientePdf - 6.5);
+            doc2.triangle(x3, pageHeightClientePdf - 5, x3 - 1.35, pageHeightClientePdf - 7.7, x3 + 1.35, pageHeightClientePdf - 7.7, "F");
+            doc2.setPage(siguiente.pagina);
+            doc2.setDrawColor(r2, g2, b2);
+            doc2.setFillColor(r2, g2, b2);
+            doc2.line(x3, 6.5, x3, siguiente.y);
+            doc2.triangle(x3, siguiente.y + 1.6, x3 - 1.35, siguiente.y - 1.1, x3 + 1.35, siguiente.y - 1.1, "F");
+          }
+        });
+        doc2.setPage(paginaRetorno);
+      };
       const formatearFechaClientePdf = (valor = "") => {
         const fecha = new Date(valor);
         return Number.isNaN(fecha.getTime()) ? "-" : formatearFecha(fecha);
@@ -67886,6 +68020,7 @@ Esta acci\xF3n no se puede deshacer. \xBFContinuar?`;
         const numeroComprobante = textoSeguroTrim(detalleCargo?.numeroComprobante, textoSeguroTrim(detalleCargo?.comprobanteNumero, "-"));
         const tipoComprobante = OPCIONES_COMPROBANTE_VENTA.find((opcion) => opcion.value === detalleCargo?.tipoComprobante)?.label || textoSeguroTrim(detalleCargo?.tipoComprobante, "Remito");
         const comprobante = `${tipoComprobante} ${numeroComprobante}`.trim();
+        const referenciaCargo = referenciaCargoClientePdf.get(cargo.id) || { codigo: "R--", comprobante };
         const ventaSaldada = Number(cargo?.pendiente || 0) <= 9e-3;
         const pagosCargo = (Array.isArray(cargo?.pagosAplicados) ? cargo.pagosAplicados : []).map((pago) => ({ pago, movimiento: movimientosPagoClientePdf.get(pago?.id) || null })).filter((item2) => item2.pago);
         asegurarEspacioClientePdf(55);
@@ -67896,7 +68031,7 @@ Esta acci\xF3n no se puede deshacer. \xBFContinuar?`;
         doc2.setTextColor(255, 255, 255);
         doc2.setFont("helvetica", "bold");
         doc2.setFontSize(9);
-        doc2.text(`${comprobante} \xB7 ${textoSeguroTrim(cliente?.nombre, "Cliente")}`, 18, cursorClienteY + 5.5);
+        doc2.text(`${referenciaCargo.codigo} \xB7 ${comprobante} \xB7 ${textoSeguroTrim(cliente?.nombre, "Cliente")}`, 18, cursorClienteY + 5.5);
         if (ventaSaldada) {
           doc2.setFillColor(5, 150, 105);
           doc2.roundedRect(pageWidthClientePdf - 61, cursorClienteY + 1.2, 43, 5.6, 1.3, 1.3, "F");
@@ -67940,11 +68075,12 @@ Esta acci\xF3n no se puede deshacer. \xBFContinuar?`;
           cursorClienteY += 7;
           autoTable(doc2, {
             startY: cursorClienteY,
-            head: [["Fecha", "Forma / comprobante / emisor", "Aclaraci\xF3n", "Cobro total", "Importe aplicado", "Saldo despu\xE9s"]],
+            head: [["Fecha", "Pago / forma / emisor", "Ruta completa del dinero", "Cobro total", "Aplicado aqu\xED", "Saldo remito"]],
             body: pagosCargo.map(({ pago, movimiento }) => [
               formatearFechaClientePdf(pago.fecha || movimiento?.fecha),
-              describirCobroClientePdf(pago, movimiento),
-              aclaracionCobroClientePdf(pago, movimiento),
+              `${codigoCobroClientePdf.get(pago?.id) || "P--"} \xB7 ${describirCobroClientePdf(pago, movimiento)}`,
+              `${rutaCobroClientePdf(pago?.id)}
+${aclaracionCobroClientePdf(pago, movimiento)}`,
               formatearDinero(Math.abs(Number(movimiento?.monto || pago?.monto || 0))),
               formatearDinero(Number(pago.monto || 0)),
               formatearDinero(Number(pago.pendienteDespues || 0))
@@ -67953,15 +68089,29 @@ Esta acci\xF3n no se puede deshacer. \xBFContinuar?`;
             headStyles: { fillColor: [5, 150, 105], textColor: 255, fontStyle: "bold" },
             columnStyles: {
               0: { cellWidth: 24 },
-              1: { cellWidth: 80 },
-              2: { cellWidth: 47, fontStyle: "bold" },
-              3: { cellWidth: 36, halign: "right" },
-              4: { cellWidth: 37, halign: "right" },
+              1: { cellWidth: 62 },
+              2: { cellWidth: 68, fontStyle: "bold" },
+              3: { cellWidth: 34, halign: "right" },
+              4: { cellWidth: 36, halign: "right" },
               5: { cellWidth: 37, halign: "right" }
             },
             didParseCell: (data) => {
               if (data.section === "head" && [3, 4, 5].includes(data.column.index)) data.cell.styles.halign = "right";
-              if (data.section === "body" && data.column.index === 2) data.cell.styles.fontStyle = "bold";
+              if (data.section === "body") {
+                const pagoFila = pagosCargo[data.row.index]?.pago;
+                const color = colorCobroClientePdf(pagoFila?.id);
+                data.cell.styles.fillColor = color.map((valor) => Math.round(246 + valor / 255 * 8));
+                if ([0, 1, 2].includes(data.column.index)) data.cell.styles.fontStyle = "bold";
+                if (data.column.index === 1) data.cell.styles.textColor = color;
+              }
+            },
+            didDrawCell: (data) => {
+              if (data.section !== "body" || data.column.index !== 0) return;
+              const pagoId = pagosCargo[data.row.index]?.pago?.id;
+              if (!pagoId) return;
+              const puntos = puntosCobroClientePdf.get(pagoId) || [];
+              puntos.push({ pagina: paginaActualClientePdf(), y: Number(data.cell?.y || 0) + Number(data.cell?.height || 0) / 2 });
+              puntosCobroClientePdf.set(pagoId, puntos);
             },
             margin: { left: 18, right: 18 }
           });
@@ -67985,6 +68135,26 @@ Esta acci\xF3n no se puede deshacer. \xBFContinuar?`;
         }
         cursorClienteY += 10;
       });
+      const cobrosConSobranteClientePdf = cobrosTrazadosClientePdf.filter((traza) => traza.sobrante > 9e-3 || !traza.aplicaciones.length);
+      if (cobrosConSobranteClientePdf.length) {
+        asegurarEspacioClientePdf(32);
+        doc2.setFont("helvetica", "bold");
+        doc2.setFontSize(9);
+        doc2.setTextColor(180, 83, 9);
+        doc2.text("SALDOS A FAVOR Y PAGOS A\xDAN NO APLICADOS", 14, cursorClienteY + 2);
+        cursorClienteY += 6;
+        autoTable(doc2, {
+          startY: cursorClienteY,
+          head: [["Pago", "Fecha", "Ruta verificada", "Total", "Aplicado", "Disponible"]],
+          body: cobrosConSobranteClientePdf.map((traza) => [codigoCobroClientePdf.get(traza.id) || "P--", formatearFechaClientePdf(traza.fecha), rutaCobroClientePdf(traza.id), formatearDinero(traza.total), formatearDinero(traza.aplicado), formatearDinero(traza.sobrante)]),
+          styles: { fontSize: 7.2, cellPadding: 1.5, overflow: "linebreak" },
+          headStyles: { fillColor: [217, 119, 6], textColor: 255, fontStyle: "bold" },
+          columnStyles: { 0: { cellWidth: 18, fontStyle: "bold" }, 1: { cellWidth: 25 }, 2: { cellWidth: 122, fontStyle: "bold" }, 3: { cellWidth: 32, halign: "right" }, 4: { cellWidth: 32, halign: "right" }, 5: { cellWidth: 32, halign: "right", fontStyle: "bold" } },
+          margin: { left: 14, right: 14 }
+        });
+        cursorClienteY = (doc2.lastAutoTable?.finalY || cursorClienteY + 14) + 4;
+      }
+      puntosCobroClientePdf.forEach((puntos, pagoId) => dibujarContinuidadCobroClientePdf(pagoId, puntos));
       if (!remitosBase.length) {
         doc2.setFont("helvetica", "bold");
         doc2.setFontSize(11);
@@ -71499,7 +71669,15 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
     const cargosProveedorPdf = Array.isArray(estado.cargosProcesados) ? estado.cargosProcesados : [];
     const pagosPorId = new Map(pagosProveedorPdf.map((pago) => [pago?.id, pago]));
     const pagosAplicadosIds = /* @__PURE__ */ new Set();
-    let cursorCuentaY = 80;
+    docPdf.setFont("helvetica", "bold");
+    docPdf.setFontSize(7);
+    docPdf.setTextColor(15, 23, 42);
+    docPdf.text("Rxx = remito/factura", 14, 75);
+    docPdf.setTextColor(5, 150, 105);
+    docPdf.text("Pxx = pago", 52, 75);
+    docPdf.setTextColor(217, 119, 6);
+    docPdf.text("naranja = sobrante transferido o saldo a favor", 78, 75);
+    let cursorCuentaY = 82;
     const obtenerPaginaCuentaPdf = () => Number(
       docPdf.internal?.getCurrentPageInfo?.()?.pageNumber || docPdf.internal?.getNumberOfPages?.() || 1
     );
@@ -71587,11 +71765,77 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
       ].filter(Boolean).join(" \xB7 ") || "-";
     };
     const cargosPdf = cargosProveedorPdf.filter((cargo) => cargo?.imputableSaldo);
+    const referenciaCargoProveedorPdf = new Map(cargosPdf.map((cargo, indice) => {
+      const comprobante = [cargo.tipoComprobanteProveedor, cargo.numeroComprobanteProveedor].filter(Boolean).join(" ") || (cargo.remitoProveedor ? `Remito ${cargo.remitoProveedor}` : `Pedido PC-${cargo.numero || "000000"}`);
+      return [cargo.pedidoId || cargo.id, { codigo: `R${String(indice + 1).padStart(2, "0")}`, comprobante }];
+    }));
+    const trazabilidadPagosProveedorPdf = new Map(pagosProveedorPdf.filter((pago) => pago?.id).map((pago) => [pago.id, { id: pago.id, pago, fecha: pago.fecha || pago.fechaCreacion || "", total: Math.max(0, Number(pago.monto || 0)), aplicado: 0, aplicaciones: [], sobrante: 0 }]));
+    cargosPdf.forEach((cargo) => {
+      const referencia = referenciaCargoProveedorPdf.get(cargo.pedidoId || cargo.id) || { codigo: "R--", comprobante: "Comprobante" };
+      (cargo?.pagosAplicados || []).forEach((aplicado) => {
+        if (!aplicado?.id) return;
+        const pago = pagosPorId.get(aplicado.id) || {};
+        const traza = trazabilidadPagosProveedorPdf.get(aplicado.id) || { id: aplicado.id, pago, fecha: pago.fecha || aplicado.fecha || "", total: Math.max(0, Number(pago.monto || 0)), aplicado: 0, aplicaciones: [], sobrante: 0 };
+        const monto = Math.max(0, Number(aplicado.monto || 0));
+        traza.aplicado += monto;
+        traza.aplicaciones.push({ cargoId: cargo.pedidoId || cargo.id, codigo: referencia.codigo, comprobante: referencia.comprobante, monto, desdeSaldoFavor: Boolean(aplicado.desdeSaldoFavor) });
+        trazabilidadPagosProveedorPdf.set(aplicado.id, traza);
+      });
+    });
+    const pagosTrazadosProveedorPdf = Array.from(trazabilidadPagosProveedorPdf.values()).sort((a3, b2) => new Date(a3.fecha || 0) - new Date(b2.fecha || 0));
+    const codigoPagoProveedorPdf = new Map(pagosTrazadosProveedorPdf.map((traza, indice) => [traza.id, `P${String(indice + 1).padStart(2, "0")}`]));
+    pagosTrazadosProveedorPdf.forEach((traza) => {
+      traza.sobrante = Math.max(0, traza.total - traza.aplicado);
+    });
+    const coloresTrazabilidadProveedorPdf = [[5, 150, 105], [37, 99, 235], [124, 58, 237], [217, 119, 6], [8, 145, 178], [190, 24, 93]];
+    const colorPagoProveedorPdf = (pagoId = "") => coloresTrazabilidadProveedorPdf[Math.max(0, pagosTrazadosProveedorPdf.findIndex((traza) => traza.id === pagoId)) % coloresTrazabilidadProveedorPdf.length];
+    const rutaPagoProveedorPdf = (pagoId = "") => {
+      const traza = trazabilidadPagosProveedorPdf.get(pagoId);
+      if (!traza) return "-";
+      const codigo = codigoPagoProveedorPdf.get(pagoId) || "P--";
+      const destinos = traza.aplicaciones.map((aplicacion) => `${aplicacion.codigo} ${formatearDinero(aplicacion.monto)}${aplicacion.desdeSaldoFavor ? " (desde sobrante)" : ""}`).join(" => ");
+      return `${codigo} PAGADO ${formatearDinero(traza.total)}${destinos ? ` => ${destinos}` : ""}${traza.sobrante > 9e-3 ? ` => SALDO A FAVOR ${formatearDinero(traza.sobrante)}` : ""}`;
+    };
+    const puntosPagoProveedorPdf = /* @__PURE__ */ new Map();
+    const dibujarContinuidadPagoProveedorPdf = (pagoId = "", puntos = []) => {
+      if (puntos.length < 2) return;
+      const paginaRetorno = obtenerPaginaCuentaPdf();
+      const [r2, g2, b2] = colorPagoProveedorPdf(pagoId);
+      const x3 = pageWidth - 8.5;
+      docPdf.setDrawColor(r2, g2, b2);
+      docPdf.setFillColor(r2, g2, b2);
+      docPdf.setTextColor(r2, g2, b2);
+      docPdf.setLineWidth(0.7);
+      puntos.forEach((punto, indice) => {
+        docPdf.setPage(punto.pagina);
+        docPdf.line(pageWidth - 17.8, punto.y, x3, punto.y);
+        docPdf.circle(x3, punto.y, 1.05, "F");
+        docPdf.setFont("helvetica", "bold");
+        docPdf.setFontSize(6.4);
+        docPdf.text(codigoPagoProveedorPdf.get(pagoId) || "P--", x3 - 1.8, punto.y - 1.8, { align: "right" });
+        const siguiente = puntos[indice + 1];
+        if (!siguiente) return;
+        if (punto.pagina === siguiente.pagina) {
+          docPdf.line(x3, punto.y, x3, siguiente.y);
+          docPdf.triangle(x3, siguiente.y + 1.6, x3 - 1.35, siguiente.y - 1.1, x3 + 1.35, siguiente.y - 1.1, "F");
+        } else {
+          docPdf.line(x3, punto.y, x3, pageHeight - 6.5);
+          docPdf.triangle(x3, pageHeight - 5, x3 - 1.35, pageHeight - 7.7, x3 + 1.35, pageHeight - 7.7, "F");
+          docPdf.setPage(siguiente.pagina);
+          docPdf.setDrawColor(r2, g2, b2);
+          docPdf.setFillColor(r2, g2, b2);
+          docPdf.line(x3, 6.5, x3, siguiente.y);
+          docPdf.triangle(x3, siguiente.y + 1.6, x3 - 1.35, siguiente.y - 1.1, x3 + 1.35, siguiente.y - 1.1, "F");
+        }
+      });
+      docPdf.setPage(paginaRetorno);
+    };
     const origenSaldoFavorPorPagoId = /* @__PURE__ */ new Map();
     const conexionesSaldoFavorPendientesPdf = [];
     cargosPdf.forEach((cargo) => {
       const compraSaldada = Number(cargo?.pendiente || 0) <= 9e-3;
       const comprobante = [cargo.tipoComprobanteProveedor, cargo.numeroComprobanteProveedor].filter(Boolean).join(" ") || (cargo.remitoProveedor ? `Remito ${cargo.remitoProveedor}` : `Pedido PC-${cargo.numero || "000000"}`);
+      const referenciaCargo = referenciaCargoProveedorPdf.get(cargo.pedidoId || cargo.id) || { codigo: "R--", comprobante };
       const pagosDelCargo = (Array.isArray(cargo?.pagosAplicados) ? cargo.pagosAplicados : []).map((aplicado) => ({ aplicado, pago: pagosPorId.get(aplicado?.id) })).filter((item2) => item2.aplicado && item2.pago);
       const pagosDesdeSaldoFavor = pagosDelCargo.filter(({ aplicado }) => aplicado?.desdeSaldoFavor);
       const totalSaldoFavorAplicadoCargo = pagosDesdeSaldoFavor.reduce((total, { aplicado }) => total + Number(aplicado?.monto || 0), 0);
@@ -71604,7 +71848,7 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
       docPdf.setTextColor(255, 255, 255);
       docPdf.setFont("helvetica", "bold");
       docPdf.setFontSize(9);
-      docPdf.text(`${comprobante} \xB7 PC-${cargo.numero || "000000"}`, 18, cursorCuentaY + 5.5);
+      docPdf.text(`${referenciaCargo.codigo} \xB7 ${comprobante} \xB7 PC-${cargo.numero || "000000"}`, 18, cursorCuentaY + 5.5);
       if (compraSaldada) {
         docPdf.setFillColor(5, 150, 105);
         docPdf.roundedRect(pageWidth - 61, cursorCuentaY + 1.2, 43, 5.6, 1.3, 1.3, "F");
@@ -71670,11 +71914,12 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
         cursorCuentaY += 7;
         autoTable(docPdf, {
           startY: cursorCuentaY,
-          head: [["Fecha", "Forma / comprobante / emisor", "Aclaraci\xF3n", "Pago total", "Importe aplicado", "Saldo despu\xE9s"]],
+          head: [["Fecha", "Pago / forma / emisor", "Ruta completa del dinero", "Pago total", "Aplicado aqu\xED", "Saldo remito"]],
           body: pagosDelCargo.map(({ aplicado, pago }) => [
             formatearFechaCuentaPdf(pago.fecha || pago.fechaCreacion),
-            descripcionPagoProveedorPdf(pago, Number(aplicado.monto || 0), cargo.pedidoId, aplicado),
-            aclaracionPagoProveedorPdf(pago),
+            `${codigoPagoProveedorPdf.get(pago.id) || "P--"} \xB7 ${descripcionPagoProveedorPdf(pago, Number(aplicado.monto || 0), cargo.pedidoId, aplicado)}`,
+            `${rutaPagoProveedorPdf(pago.id)}
+${aclaracionPagoProveedorPdf(pago)}`,
             formatearDinero(Number(pago.monto || 0)),
             formatearDinero(Number(aplicado.monto || 0)),
             formatearDinero(Number(aplicado.pendienteDespues || 0))
@@ -71683,20 +71928,30 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
           headStyles: { fillColor: [5, 150, 105], textColor: 255, fontStyle: "bold" },
           columnStyles: {
             0: { cellWidth: 24 },
-            1: { cellWidth: 80 },
-            2: { cellWidth: 47, fontStyle: "bold" },
-            3: { cellWidth: 36, halign: "right" },
-            4: { cellWidth: 37, halign: "right" },
+            1: { cellWidth: 62 },
+            2: { cellWidth: 68, fontStyle: "bold" },
+            3: { cellWidth: 34, halign: "right" },
+            4: { cellWidth: 36, halign: "right" },
             5: { cellWidth: 37, halign: "right" }
           },
           didParseCell: (data) => {
             if (data.section === "head" && [3, 4, 5].includes(data.column.index)) data.cell.styles.halign = "right";
-            if (data.section === "body" && data.column.index === 2) data.cell.styles.fontStyle = "bold";
+            if (data.section === "body") {
+              const pagoFila = pagosDelCargo[data.row.index]?.pago;
+              const color = colorPagoProveedorPdf(pagoFila?.id);
+              data.cell.styles.fillColor = color.map((valor) => Math.round(246 + valor / 255 * 8));
+              if ([0, 1, 2].includes(data.column.index)) data.cell.styles.fontStyle = "bold";
+              if (data.column.index === 1) data.cell.styles.textColor = color;
+            }
           },
           didDrawCell: (data) => {
             if (data.section !== "body" || data.column.index !== 0) return;
             const itemPago = pagosDelCargo[data.row.index];
-            if (!itemPago?.pago?.id || itemPago?.aplicado?.desdeSaldoFavor || Number(itemPago?.pago?.saldoFavorConsumido || 0) <= 9e-3) return;
+            if (!itemPago?.pago?.id) return;
+            const puntos = puntosPagoProveedorPdf.get(itemPago.pago.id) || [];
+            puntos.push({ pagina: obtenerPaginaCuentaPdf(), y: Number(data.cell?.y || 0) + Number(data.cell?.height || 0) / 2 });
+            puntosPagoProveedorPdf.set(itemPago.pago.id, puntos);
+            if (itemPago?.aplicado?.desdeSaldoFavor || Number(itemPago?.pago?.saldoFavorConsumido || 0) <= 9e-3) return;
             origenSaldoFavorPorPagoId.set(itemPago.pago.id, {
               paginaOrigen: obtenerPaginaCuentaPdf(),
               yOrigen: Number(data.cell?.y || 0) + Number(data.cell?.height || 0) / 2,
@@ -71773,6 +72028,7 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
         },
         margin: { left: 14, right: 14 }
       });
+      cursorCuentaY = (docPdf.lastAutoTable?.finalY || cursorCuentaY + 14) + 4;
     }
     conexionesSaldoFavorPendientesPdf.forEach((conexion) => {
       const origen = origenSaldoFavorPorPagoId.get(conexion.pagoId);
@@ -71784,6 +72040,23 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
         yDestino: conexion.yDestino
       });
     });
+    puntosPagoProveedorPdf.forEach((puntos, pagoId) => dibujarContinuidadPagoProveedorPdf(pagoId, puntos));
+    asegurarEspacioCuenta(32);
+    docPdf.setFont("helvetica", "bold");
+    docPdf.setFontSize(9);
+    docPdf.setTextColor(15, 23, 42);
+    docPdf.text("TRAZABILIDAD GENERAL DE PAGOS Y SOBRANTES", 14, cursorCuentaY + 2);
+    cursorCuentaY += 6;
+    autoTable(docPdf, {
+      startY: cursorCuentaY,
+      head: [["Pago", "Fecha", "Recorrido completo", "Total", "Aplicado", "A favor"]],
+      body: pagosTrazadosProveedorPdf.length ? pagosTrazadosProveedorPdf.map((traza) => [codigoPagoProveedorPdf.get(traza.id) || "P--", formatearFechaCuentaPdf(traza.fecha), rutaPagoProveedorPdf(traza.id), formatearDinero(traza.total), formatearDinero(traza.aplicado), traza.sobrante > 9e-3 ? formatearDinero(traza.sobrante) : "-"]) : [["-", "-", "Sin pagos registrados", "-", "-", "-"]],
+      styles: { fontSize: 7.2, cellPadding: 1.5, overflow: "linebreak" },
+      headStyles: { fillColor: [30, 64, 109], textColor: 255, fontStyle: "bold" },
+      columnStyles: { 0: { cellWidth: 18, fontStyle: "bold" }, 1: { cellWidth: 25 }, 2: { cellWidth: 122, fontStyle: "bold" }, 3: { cellWidth: 32, halign: "right" }, 4: { cellWidth: 32, halign: "right" }, 5: { cellWidth: 32, halign: "right", fontStyle: "bold" } },
+      margin: { left: 14, right: 14 }
+    });
+    cursorCuentaY = (docPdf.lastAutoTable?.finalY || cursorCuentaY + 14) + 4;
     const adjuntosImagen = pagosProveedorPdf.flatMap(
       (pago) => (Array.isArray(pago?.adjuntos) ? pago.adjuntos : []).filter((adj) => textoSeguroTrim(adj?.tipo, "").startsWith("image/") && textoSeguroTrim(adj?.dataUrl, "")).map((adj) => ({ ...adj, pago }))
     );
@@ -80779,7 +81052,8 @@ ${configuracion.nombre}`;
           movimientos,
           notificar: notificarSistema,
           usuario: usuarioActual,
-          nombreEmpresa: configuracion?.nombre || "SeniorFlow"
+          nombreEmpresa: configuracion?.nombre || "SeniorFlow",
+          onVerVenta: (movimiento) => abrirPreviewVentaDocumento(movimiento)
         }
       ),
       puedeVerClientes && vista === "clientes" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sf-module-page sf-module-clients h-full min-h-0 flex flex-col gap-4 overflow-hidden animate-in fade-in duration-300 print:hidden", children: [
@@ -84507,9 +84781,10 @@ ${configuracion.nombre}`;
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex gap-2 bg-slate-100 p-1 rounded-lg self-start", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => setReporteTipo("general"), className: `px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${reporteTipo === "general" ? "bg-white shadow-sm text-blue-700" : "text-gray-500 hover:text-gray-800"}`, children: "BALANCE DE CAJA" }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => setReporteTipo("clientes"), className: `px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${reporteTipo === "clientes" ? "bg-white shadow-sm text-purple-700" : "text-gray-500 hover:text-gray-800"}`, children: "CTAS CORRIENTES" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => setReporteTipo("vendedores"), className: `px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${reporteTipo === "vendedores" ? "bg-white shadow-sm text-emerald-700" : "text-gray-500 hover:text-gray-800"}`, children: "VENDEDORES" }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => setReporteTipo("impuestos"), className: `px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${reporteTipo === "impuestos" ? "bg-white shadow-sm text-orange-700" : "text-gray-500 hover:text-gray-800"}`, children: "REPORTES IMPOSITIVOS" })
             ] }),
-            ["general", "impuestos"].includes(reporteTipo) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex flex-wrap gap-2 items-end", children: [
+            ["general", "impuestos", "vendedores"].includes(reporteTipo) && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex flex-wrap gap-2 items-end", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => setReporteTiempo("hoy"), className: `px-3 py-1.5 text-xs font-bold rounded-lg border transition-all ${reporteTiempo === "hoy" ? "bg-blue-50 border-blue-600 text-blue-700" : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"}`, children: "Hoy" }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => setReporteTiempo("mes"), className: `px-3 py-1.5 text-xs font-bold rounded-lg border transition-all ${reporteTiempo === "mes" ? "bg-blue-50 border-blue-600 text-blue-700" : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"}`, children: "Mes" }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: () => setReporteTiempo("todo"), className: `px-3 py-1.5 text-xs font-bold rounded-lg border transition-all ${reporteTiempo === "todo" ? "bg-blue-50 border-blue-600 text-blue-700" : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"}`, children: "Todo el Hist\xF3rico" }),
@@ -84593,7 +84868,8 @@ ${configuracion.nombre}`;
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tbody", { className: "divide-y divide-gray-100 font-medium", children: datosReporte.movimientos.map((m4) => {
                 const isRetiro = m4.tipo === "retiro_caja";
                 const esPagoProveedor = m4.tipo === "gasto" && Boolean(m4?.pagoProveedorId || m4?.detallesPago?.origen === "pago_proveedor" || normalizarTextoBusqueda(m4?.categoria || "").includes("pago a proveedor"));
-                const tipoVisible = esPagoProveedor ? "pago proveedor" : m4.tipo.replace("_", " ");
+                const esPagoVendedor = m4.tipo === "gasto" && m4?.detallesPago?.origen === "retiro_vendedor";
+                const tipoVisible = esPagoProveedor ? "pago proveedor" : esPagoVendedor ? "pago vendedor" : m4.tipo.replace("_", " ");
                 return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { className: "hover:bg-slate-50 print:hover:bg-transparent", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("td", { className: "px-4 py-3 whitespace-nowrap print:px-2 print:py-2", children: [
                     formatearFecha(m4.fecha),
@@ -84611,6 +84887,40 @@ ${configuracion.nombre}`;
                 ] }, m4.id);
               }) })
             ] }) })
+          ] }),
+          reporteTipo === "vendedores" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "space-y-5", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "rounded-2xl border border-emerald-200 bg-emerald-50 p-4", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { className: "text-lg font-black text-emerald-900", children: "Comisiones y pagos a vendedores" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "mt-1 text-xs font-bold text-emerald-700", children: "Ventas asignadas, ganancia por comisi\xF3n y retiros registrados dentro del per\xEDodo seleccionado." })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(WidgetCard, { titulo: "Ventas asignadas", monto: datosReporte.vendedores.ventas, icono: TrendingUp, colorClase: "text-blue-600", printOculto: false, subtitulo: "Importe de comprobantes con vendedor" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(WidgetCard, { titulo: "Ganancia vendedores", monto: datosReporte.vendedores.comisiones, icono: Users, colorClase: "text-emerald-600", printOculto: false, subtitulo: "Comisiones generadas en el per\xEDodo" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(WidgetCard, { titulo: "Pagos a vendedores", monto: datosReporte.vendedores.pagos, icono: CircleArrowDown, colorClase: "text-red-600", printOculto: false, subtitulo: "Retiros registrados, impacten o no caja" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(WidgetCard, { titulo: "Balance del per\xEDodo", monto: datosReporte.vendedores.balancePeriodo, icono: Wallet, colorClase: datosReporte.vendedores.balancePeriodo >= 0 ? "text-amber-600" : "text-purple-600", printOculto: false, subtitulo: "Comisiones menos pagos del per\xEDodo" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "overflow-x-auto rounded-2xl border border-slate-200 print:overflow-visible", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("table", { className: "w-full text-left text-sm text-slate-600 print:text-[10.5px]", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("thead", { className: "bg-slate-900 text-[10px] font-black uppercase tracking-wider text-white print:bg-transparent print:text-slate-900", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-4 py-3", children: "Vendedor" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-4 py-3 text-center", children: "Comprobantes" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-4 py-3 text-right", children: "Ventas" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-4 py-3 text-right", children: "Ganancia / comisi\xF3n" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-4 py-3 text-right", children: "Pagado" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-4 py-3 text-right", children: "Balance" })
+              ] }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tbody", { className: "divide-y divide-slate-100 font-bold", children: [
+                datosReporte.vendedores.filas.map((fila) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-4 py-3 font-black text-slate-900", children: fila.vendedorNombre }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-4 py-3 text-center", children: fila.comprobantes }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-4 py-3 text-right", children: formatearDinero(fila.ventas) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-4 py-3 text-right text-emerald-700", children: formatearDinero(fila.comisiones) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-4 py-3 text-right text-red-600", children: formatearDinero(fila.pagos) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-4 py-3 text-right font-black text-amber-700", children: formatearDinero(fila.balancePeriodo) })
+                ] }, fila.vendedorId)),
+                !datosReporte.vendedores.filas.length && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tr", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { colSpan: "6", className: "px-4 py-10 text-center font-bold text-slate-400", children: "No hay ventas ni pagos de vendedores en este per\xEDodo." }) })
+              ] })
+            ] }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[11px] font-bold text-slate-500", children: "Los pagos con \u201CDescontar de caja\u201D se registran adem\xE1s como gasto \u201CPago de comisi\xF3n a vendedor\u201D. Los pagos sin impacto en caja igualmente figuran en este reporte y en la cuenta del vendedor." })
           ] }),
           reporteTipo === "impuestos" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "space-y-5", children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "rounded-2xl border border-orange-200 bg-orange-50 p-4", children: [
@@ -90804,6 +91114,16 @@ ${configuracion.nombre}`;
                           children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Eye, { size: 18 })
                         }
                       ),
+                      puedeVerVendedores && !esNotaCredito && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                        "button",
+                        {
+                          type: "button",
+                          onClick: () => abrirAsignacionVendedorVenta(mov),
+                          className: "inline-flex items-center justify-center text-teal-700 hover:text-teal-900",
+                          title: mov?.detallesPago?.vendedorId ? "Editar vendedor y comisi\xF3n" : "Asignar vendedor y comisi\xF3n",
+                          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UserCog, { size: 18 })
+                        }
+                      ),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
                         "button",
                         {
@@ -92542,16 +92862,15 @@ ${configuracion.nombre}`;
               ] })
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sf-pv-actions flex flex-col sm:flex-row sm:justify-end gap-3 pt-3 border-t border-gray-200 shrink-0", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
                 "button",
                 {
                   type: "button",
                   onClick: abrirAsignacionVendedorPuntoVenta,
-                  className: `btn sm:min-w-52 ${formPuntoVenta.vendedorId ? "border-teal-300 bg-teal-50 text-teal-800" : "border-blue-300 bg-blue-50 text-blue-800"}`,
-                  children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UserCog, { size: 16 }),
-                    formPuntoVenta.vendedorId ? `${textoSeguroTrim(formPuntoVenta.vendedorNombre, "Vendedor")} \xB7 ${formatearCantidad(formPuntoVenta.comisionPorcentaje)}%` : "Asignar vendedor"
-                  ]
+                  className: "btn btn-primary !w-12 !min-w-12 !px-0",
+                  title: formPuntoVenta.vendedorId ? `${textoSeguroTrim(formPuntoVenta.vendedorNombre, "Vendedor")} \xB7 ${formatearCantidad(formPuntoVenta.comisionPorcentaje)}%` : "Asignar vendedor",
+                  "aria-label": "Asignar vendedor",
+                  children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UserCog, { size: 19 })
                 }
               ),
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
@@ -92680,7 +92999,7 @@ ${configuracion.nombre}`;
         ]
       }
     ),
-    modalActivo === "punto_venta" && asignacionVendedorPuntoVentaAbierta && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Modal, { titulo: "Asignar vendedor a esta venta", onClose: () => setAsignacionVendedorPuntoVentaAbierta(false), customWidth: "max-w-3xl", extraClases: "z-[75]", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", { onSubmit: confirmarAsignacionVendedorPuntoVenta, className: "space-y-4", children: [
+    modalActivo === "punto_venta" && asignacionVendedorPuntoVentaAbierta && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Modal, { titulo: "Asignar vendedor a esta venta", onClose: () => setAsignacionVendedorPuntoVentaAbierta(false), customWidth: "max-w-lg", extraClases: "z-[75]", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", { onSubmit: confirmarAsignacionVendedorPuntoVenta, className: "space-y-4", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "rounded-2xl border border-slate-200 bg-slate-50 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-black uppercase tracking-wider text-slate-500", children: "Venta actual" }),
@@ -92714,26 +93033,14 @@ ${configuracion.nombre}`;
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "rounded-2xl border border-teal-200 bg-teal-50 p-4 flex items-center justify-between gap-4", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-black uppercase tracking-wider text-teal-700", children: "Comisi\xF3n total calculada" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "mt-1 text-xs font-bold text-teal-700", children: "Se distribuye proporcionalmente entre todos los \xEDtems." })
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "mt-1 text-xs font-bold text-teal-700", children: "Quedar\xE1 vinculada a este comprobante." })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-2xl font-black text-teal-900", children: formatearDinero(comisionPuntoVentaVista) })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "max-h-64 overflow-y-auto rounded-xl border border-slate-200", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("table", { className: "w-full text-xs", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("thead", { className: "sticky top-0 bg-slate-100 text-slate-500 uppercase", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-3 py-2 text-left", children: "\xCDtem" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-3 py-2 text-right", children: "Subtotal" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-3 py-2 text-right", children: "Comisi\xF3n" })
-        ] }) }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tbody", { className: "divide-y divide-slate-100", children: distribucionComisionPuntoVentaVista.length ? distribucionComisionPuntoVentaVista.map((item2) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-3 py-2 font-bold text-slate-700", children: item2.descripcion }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-3 py-2 text-right font-bold", children: formatearDinero(item2.subtotal) }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-3 py-2 text-right font-black text-teal-700", children: formatearDinero(item2.comision) })
-        ] }, `comision-item-${item2.id}`)) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tr", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { colSpan: 3, className: "p-6 text-center font-bold text-slate-400", children: "Carg\xE1 \xEDtems para ver la distribuci\xF3n." }) }) })
-      ] }) }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex flex-col sm:flex-row gap-2 pt-1", children: [
         formPuntoVenta.vendedorId && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: quitarAsignacionVendedorPuntoVenta, className: "rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-black text-red-700", children: "Quitar vendedor" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => setAsignacionVendedorPuntoVentaAbierta(false), className: "rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-black text-slate-700", children: "Cancelar" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "submit", className: "flex-1 rounded-xl bg-teal-600 px-4 py-3 text-xs font-black text-white disabled:bg-teal-300", disabled: !distribucionComisionPuntoVentaVista.length, children: "Aplicar vendedor y comisi\xF3n" })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "submit", className: "flex-1 rounded-xl bg-teal-600 px-4 py-3 text-xs font-black text-white", children: "Aplicar vendedor y comisi\xF3n" })
       ] })
     ] }) }),
     modalActivo === "punto_venta" && modalItemServicioPuntoVentaAbierto && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(

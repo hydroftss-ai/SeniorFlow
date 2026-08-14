@@ -57,7 +57,7 @@
     <div id="root"></div>
     <script>
       (() => {
-        const CURRENT_BUILD = 'seniorflow-sales-seller-20260813-29';
+        const CURRENT_BUILD = 'seniorflow-pdf-traceability-20260813-31';
         const BUILD_KEY = 'seniorflow-current-build';
         if (window.location.protocol === 'file:' || localStorage.getItem(BUILD_KEY) === CURRENT_BUILD) return;
         const actualizarSistema = async () => {
@@ -80,12 +80,12 @@
         actualizarSistema();
       })();
     </script>
-    <script type="module" src="./app.js?v=seniorflow-sales-seller-20260813-29"></script>
+    <script type="module" src="./app.js?v=seniorflow-pdf-traceability-20260813-31"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker
-            .register('./sw.js?v=seniorflow-sales-seller-20260813-29')
+            .register('./sw.js?v=seniorflow-pdf-traceability-20260813-31')
             .catch((error) => console.error('No se pudo registrar la webapp:', error));
         });
       }
