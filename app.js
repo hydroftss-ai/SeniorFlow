@@ -59230,7 +59230,52 @@ var SelectorChequesModal = ({ abierto, onClose, busqueda, setBusqueda, cheques, 
   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "flex justify-end pt-1", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: onClose, className: "rounded-xl bg-violet-600 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white hover:bg-violet-700", children: "Listo" }) })
 ] }) }) : null;
 var FORM_VENDEDOR_VACIO = { nombre: "", documento: "", telefono: "", email: "", direccion: "", notas: "", activo: true };
-var ModuloVendedores = ({ vendedores = [], retiros = [], movimientos = [], notificar, usuario = null, nombreEmpresa = "SeniorFlow", onVerVenta = null }) => {
+var calcularPreciosConComisionVendedor = (items = [], porcentaje = 0) => {
+  const tasa = Math.min(100, Math.max(0, parseNumeroBasico(porcentaje) || 0));
+  let totalBase = 0;
+  let totalFinal = 0;
+  const itemsActualizados = (Array.isArray(items) ? items : []).map((item2) => {
+    const cantidad = Math.max(0, parseNumeroBasico(item2?.cantidad) || 0);
+    const descuento = Math.min(100, Math.max(0, parseNumeroBasico(item2?.descuento) || 0));
+    const precioActual = Math.max(0, parseNumeroBasico(item2?.precio) || 0);
+    const tienePrecioBaseGuardado = item2?.precioAntesComisionVendedor !== void 0 && item2?.precioAntesComisionVendedor !== null && String(item2.precioAntesComisionVendedor).trim() !== "";
+    const precioBaseGuardado = tienePrecioBaseGuardado ? parseNumeroBasico(item2.precioAntesComisionVendedor) : NaN;
+    const precioBase = tienePrecioBaseGuardado && Number.isFinite(precioBaseGuardado) && precioBaseGuardado >= 0 ? precioBaseGuardado : precioActual;
+    const precioFinal = tasa > 0 ? Math.round(precioBase * (1 + tasa / 100) * 100) / 100 : precioBase;
+    const factorDescuento = 1 - descuento / 100;
+    const subtotalBase = Math.max(0, cantidad * precioBase * factorDescuento);
+    const subtotalFinal = Math.max(0, cantidad * precioFinal * factorDescuento);
+    const comisionMonto = Math.max(0, Math.round((subtotalFinal - subtotalBase) * 100) / 100);
+    totalBase += subtotalBase;
+    totalFinal += subtotalFinal;
+    return {
+      ...item2,
+      precioAntesComisionVendedor: precioBase,
+      precio: precioFinal,
+      comisionPrecioIncluida: tasa > 0,
+      comisionPorcentaje: tasa,
+      comisionMonto
+    };
+  });
+  return {
+    items: itemsActualizados,
+    totalBase: Math.round(totalBase * 100) / 100,
+    totalFinal: Math.round(totalFinal * 100) / 100,
+    totalComision: Math.round((totalFinal - totalBase) * 100) / 100
+  };
+};
+var restaurarPreciosSinComisionVendedor = (items = []) => (Array.isArray(items) ? items : []).map((item2) => {
+  const limpio = { ...item2 };
+  const tienePrecioBaseGuardado = limpio?.precioAntesComisionVendedor !== void 0 && limpio?.precioAntesComisionVendedor !== null && String(limpio.precioAntesComisionVendedor).trim() !== "";
+  const precioBaseGuardado = tienePrecioBaseGuardado ? parseNumeroBasico(limpio.precioAntesComisionVendedor) : NaN;
+  if (tienePrecioBaseGuardado && Number.isFinite(precioBaseGuardado) && precioBaseGuardado >= 0) limpio.precio = precioBaseGuardado;
+  delete limpio.precioAntesComisionVendedor;
+  delete limpio.comisionPrecioIncluida;
+  delete limpio.comisionPorcentaje;
+  delete limpio.comisionMonto;
+  return limpio;
+});
+var ModuloVendedores = ({ vendedores = [], retiros = [], movimientos = [], notificar, usuario = null, nombreEmpresa = "SeniorFlow", onVerVenta = null, onEditarComision = null }) => {
   const [busqueda, setBusqueda] = (0, import_react4.useState)("");
   const [vendedorSeleccionadoId, setVendedorSeleccionadoId] = (0, import_react4.useState)("");
   const [vendedorEditando, setVendedorEditando] = (0, import_react4.useState)(null);
@@ -59463,7 +59508,7 @@ var ModuloVendedores = ({ vendedores = [], retiros = [], movimientos = [], notif
           ] }, vendedor.id);
         }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "p-6 text-center text-sm font-bold text-slate-400", children: "No hay vendedores cargados." }) })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "min-h-0 flex flex-col rounded-2xl border border-slate-200 bg-white overflow-hidden", children: !cuentaSeleccionada ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "m-auto text-center text-slate-400", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "min-h-0 min-w-0 flex flex-col rounded-2xl border border-slate-200 bg-white overflow-hidden", children: !cuentaSeleccionada ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "m-auto text-center text-slate-400", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Users, { size: 42, className: "mx-auto mb-3 opacity-30" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "font-bold", children: "Seleccion\xE1 o carg\xE1 un vendedor." })
       ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
@@ -59508,9 +59553,17 @@ var ModuloVendedores = ({ vendedores = [], retiros = [], movimientos = [], notif
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "flex-1 min-h-0 overflow-auto", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("table", { className: "w-full text-left text-xs", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "flex-1 min-h-0 overflow-auto", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("table", { className: "w-full table-fixed text-left text-xs", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("colgroup", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("col", { className: "w-[28%]" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("col", { className: "w-[20%]" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("col", { className: "w-[14%]" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("col", { className: "w-[10%]" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("col", { className: "w-[14%]" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("col", { className: "w-[14%]" })
+          ] }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("thead", { className: "sticky top-0 bg-slate-50 text-[10px] uppercase text-slate-500", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-3 py-2", children: "Fecha / comprobante" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-3 py-2", children: "Comprobante / fecha" }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-3 py-2", children: "Cliente" }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-3 py-2 text-right", children: "Venta" }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-3 py-2 text-right", children: "%" }),
@@ -59519,18 +59572,19 @@ var ModuloVendedores = ({ vendedores = [], retiros = [], movimientos = [], notif
           ] }) }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tbody", { className: "divide-y divide-slate-100", children: cuentaSeleccionada.ventas.length ? cuentaSeleccionada.ventas.map((venta) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react4.default.Fragment, { children: [
             /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("td", { className: "px-3 py-3", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "font-black text-slate-800", children: venta.comprobante }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-bold text-slate-400", children: formatearFecha(venta.fecha) })
-              ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-3 py-3 font-bold text-slate-600", children: venta.cliente }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-3 py-3 text-right font-black", children: formatearDinero(venta.totalVenta) }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("td", { className: "px-3 py-3 text-right font-black text-blue-700", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-3 py-3 align-top", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "min-w-0", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "max-w-full font-black text-slate-800", children: venta.comprobante }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "mt-1 whitespace-nowrap text-[10px] font-bold text-slate-400", children: formatearFecha(venta.fecha) })
+              ] }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "truncate px-3 py-3 font-bold text-slate-600", title: venta.cliente, children: venta.cliente }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "whitespace-nowrap px-3 py-3 text-right font-black", children: formatearDinero(venta.totalVenta) }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-3 py-3 text-right", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", onClick: () => onEditarComision?.(venta.movimiento), className: "inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2 py-1 font-black text-blue-700 hover:bg-blue-100", title: "Modificar porcentaje de comisi\xF3n", children: [
                 formatearCantidad(venta.porcentaje),
-                "%"
-              ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-3 py-3 text-right font-black text-blue-700", children: formatearDinero(venta.comision) }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-3 py-3 text-right font-black text-emerald-700", children: formatearDinero(venta.pendiente) })
+                "% ",
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pen, { size: 11 })
+              ] }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "whitespace-nowrap px-3 py-3 text-right font-black text-blue-700", children: formatearDinero(venta.comision) }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "whitespace-nowrap px-3 py-3 text-right font-black text-emerald-700", children: formatearDinero(venta.pendiente) })
             ] }),
             venta.retirosAplicados.map((retiro) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { className: "bg-emerald-50/60", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("td", { className: "px-3 py-2 pl-7 font-black text-emerald-700", children: [
@@ -63202,27 +63256,12 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
     Math.min(2.25, 20 / Math.max(10, totalFormularioPuntoVentaTexto.length))
   );
   const porcentajeComisionPuntoVentaVista = Math.min(100, Math.max(0, parseNumeroBasico(formAsignacionVendedorPuntoVenta.porcentaje) || 0));
-  const comisionPuntoVentaVista = Math.round(totalFormularioPuntoVenta * porcentajeComisionPuntoVentaVista / 100 * 100) / 100;
-  const distribucionComisionPuntoVentaVista = (0, import_react4.useMemo)(() => {
-    const lineas = (formPuntoVenta.items || []).map((item2) => {
-      const cantidad = Math.max(0, parseNumeroBasico(item2?.cantidad) || 0);
-      const precio = Math.max(0, parseNumeroBasico(item2?.precio) || 0);
-      const descuento = Math.min(100, Math.max(0, parseNumeroBasico(item2?.descuento) || 0));
-      const bruto = cantidad * precio;
-      return {
-        id: item2?.id,
-        descripcion: textoSeguroTrim(item2?.descripcion, textoSeguroTrim(item2?.codigo, "\xCDtem sin detalle")),
-        subtotal: Math.max(0, bruto - bruto * descuento / 100)
-      };
-    }).filter((item2) => item2.subtotal > 0);
-    const totalLineas = lineas.reduce((total, item2) => total + item2.subtotal, 0);
-    let distribuido = 0;
-    return lineas.map((item2, indice) => {
-      const comision = indice === lineas.length - 1 ? Math.max(0, comisionPuntoVentaVista - distribuido) : Math.round((totalLineas > 0 ? item2.subtotal / totalLineas : 0) * comisionPuntoVentaVista * 100) / 100;
-      distribuido += comision;
-      return { ...item2, comision };
-    });
-  }, [formPuntoVenta.items, comisionPuntoVentaVista]);
+  const simulacionComisionPuntoVentaVista = (0, import_react4.useMemo)(
+    () => calcularPreciosConComisionVendedor(formPuntoVenta.items || [], porcentajeComisionPuntoVentaVista),
+    [formPuntoVenta.items, porcentajeComisionPuntoVentaVista]
+  );
+  const comisionPuntoVentaVista = simulacionComisionPuntoVentaVista.totalComision;
+  const totalConComisionPuntoVentaVista = simulacionComisionPuntoVentaVista.totalFinal;
   const abrirAsignacionVendedorPuntoVenta = async () => {
     if (formPuntoVenta.tipoComprobante === "nota_credito") {
       await notificarSistema("Las notas de cr\xE9dito no generan una nueva comisi\xF3n de vendedor.", { tipo: "info", titulo: "Comisi\xF3n no aplicable" });
@@ -63246,7 +63285,10 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       await notificarSistema("Seleccion\xE1 un vendedor activo e ingres\xE1 un porcentaje mayor a cero.", { tipo: "warning", titulo: "Asignaci\xF3n incompleta" });
       return;
     }
-    setFormPuntoVenta((prev) => ({ ...prev, vendedorId: vendedor.id, vendedorNombre: vendedor.nombre, comisionPorcentaje: porcentaje }));
+    setFormPuntoVenta((prev) => {
+      const preciosConComision = calcularPreciosConComisionVendedor(prev.items || [], porcentaje);
+      return { ...prev, items: preciosConComision.items, vendedorId: vendedor.id, vendedorNombre: vendedor.nombre, comisionPorcentaje: porcentaje, comisionMonto: preciosConComision.totalComision };
+    });
     setAsignacionVendedorPuntoVentaAbierta(false);
   };
   const quitarAsignacionVendedorPuntoVenta = async () => {
@@ -63256,7 +63298,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       await notificarSistema("No se puede quitar el vendedor porque esta comisi\xF3n ya tiene retiros aplicados.", { tipo: "warning", titulo: "Venta con retiros" });
       return;
     }
-    setFormPuntoVenta((prev) => ({ ...prev, vendedorId: "", vendedorNombre: "", comisionPorcentaje: "" }));
+    setFormPuntoVenta((prev) => ({ ...prev, items: restaurarPreciosSinComisionVendedor(prev.items || []), vendedorId: "", vendedorNombre: "", comisionPorcentaje: "", comisionMonto: 0 }));
     setFormAsignacionVendedorPuntoVenta({ vendedorId: "", porcentaje: "" });
     setAsignacionVendedorPuntoVentaAbierta(false);
   };
@@ -64848,6 +64890,8 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       logoMarca: textoSeguroTrim(item2?.logoMarca, ""),
       comisionPorcentaje: Math.max(0, Number(item2?.comisionPorcentaje || 0)),
       comisionMonto: Math.max(0, Number(item2?.comisionMonto || 0)),
+      precioAntesComisionVendedor: Number.isFinite(Number(item2?.precioAntesComisionVendedor)) ? Number(item2.precioAntesComisionVendedor) : void 0,
+      comisionPrecioIncluida: Boolean(item2?.comisionPrecioIncluida),
       esItemServicio: Boolean(item2?.esItemServicio),
       componentesServicio: Array.isArray(item2?.componentesServicio) ? item2.componentesServicio : [],
       precioProductos: parseNumeroBasico(item2?.precioProductos) || 0,
@@ -65081,6 +65125,10 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
           } : item2;
         });
       }
+      const vendedorIdPuntoVenta = textoSeguroTrim(formPuntoVenta.vendedorId, "");
+      const porcentajeComisionPuntoVenta = Math.min(100, Math.max(0, parseNumeroBasico(formPuntoVenta.comisionPorcentaje) || 0));
+      const preciosComisionPuntoVenta = formPuntoVenta.tipoComprobante !== "nota_credito" && vendedorIdPuntoVenta && porcentajeComisionPuntoVenta > 0 ? calcularPreciosConComisionVendedor(itemsNormalizados, porcentajeComisionPuntoVenta) : { items: restaurarPreciosSinComisionVendedor(itemsNormalizados), totalComision: 0 };
+      itemsNormalizados = preciosComisionPuntoVenta.items;
       const totalBase = itemsNormalizados.reduce((acc, item2) => {
         const subtotal = item2.cantidad * item2.precio;
         return acc + Math.max(0, subtotal - subtotal * item2.descuento / 100);
@@ -65098,14 +65146,12 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       const tipoComp = formPuntoVenta.tipoComprobante || "factura_c";
       const esNotaCredito = tipoComp === "nota_credito";
       const movimientoOriginal = formPuntoVenta.idMovimiento ? movimientos.find((mov) => mov.id === formPuntoVenta.idMovimiento) : null;
-      const vendedorIdPuntoVenta = textoSeguroTrim(formPuntoVenta.vendedorId, "");
-      const porcentajeComisionPuntoVenta = Math.min(100, Math.max(0, parseNumeroBasico(formPuntoVenta.comisionPorcentaje) || 0));
       const vendedorPuntoVenta = !esNotaCredito && vendedorIdPuntoVenta ? vendedores.find((vendedor) => vendedor.id === vendedorIdPuntoVenta && (vendedor.activo !== false || vendedor.id === movimientoOriginal?.detallesPago?.vendedorId)) : null;
       if (!esNotaCredito && (vendedorIdPuntoVenta || porcentajeComisionPuntoVenta > 0) && (!vendedorPuntoVenta || porcentajeComisionPuntoVenta <= 0)) {
         await notificarSistema("La asignaci\xF3n del vendedor est\xE1 incompleta. Volv\xE9 a elegir el vendedor y el porcentaje.", { tipo: "warning", titulo: "Revisar comisi\xF3n" });
         return;
       }
-      const comisionMontoPuntoVenta = vendedorPuntoVenta ? Math.round(total * porcentajeComisionPuntoVenta / 100 * 100) / 100 : 0;
+      const comisionMontoPuntoVenta = vendedorPuntoVenta ? preciosComisionPuntoVenta.totalComision : 0;
       const retirosAplicadosVenta = movimientoOriginal?.id ? retirosVendedores.flatMap((retiro) => (retiro?.aplicacionesVentas || []).filter((aplicacion) => aplicacion?.ventaId === movimientoOriginal.id)) : [];
       const totalRetiradoVenta = retirosAplicadosVenta.reduce((suma, aplicacion) => suma + Math.max(0, Number(aplicacion?.montoAplicado || 0)), 0);
       const vendedorAnteriorId = textoSeguroTrim(movimientoOriginal?.detallesPago?.vendedorId, "");
@@ -65117,19 +65163,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
         await notificarSistema(`La comisi\xF3n no puede quedar por debajo de lo ya retirado (${formatearDinero(totalRetiradoVenta)}).`, { tipo: "warning", titulo: "Comisi\xF3n insuficiente" });
         return;
       }
-      const totalLineasComision = itemsNormalizados.reduce((suma, item2) => {
-        const bruto = item2.cantidad * item2.precio;
-        return suma + Math.max(0, bruto - bruto * item2.descuento / 100);
-      }, 0);
-      let comisionDistribuida = 0;
-      const itemsVentaNormalizados = itemsNormalizados.map((item2, indice) => {
-        if (!vendedorPuntoVenta) return item2;
-        const bruto = item2.cantidad * item2.precio;
-        const subtotalComision = Math.max(0, bruto - bruto * item2.descuento / 100);
-        const comisionItem = indice === itemsNormalizados.length - 1 ? Math.max(0, comisionMontoPuntoVenta - comisionDistribuida) : Math.round((totalLineasComision > 0 ? subtotalComision / totalLineasComision : 0) * comisionMontoPuntoVenta * 100) / 100;
-        comisionDistribuida += comisionItem;
-        return { ...item2, comisionPorcentaje: porcentajeComisionPuntoVenta, comisionMonto: comisionItem };
-      });
+      const itemsVentaNormalizados = itemsNormalizados;
       const metodoFormulario = normalizarMetodoPago(formPuntoVenta.metodoPago);
       if (!opciones?.confirmarPago && ["efectivo", "transferencia"].includes(metodoFormulario)) {
         setPagoPendientePuntoVenta(metodoFormulario);
@@ -65299,6 +65333,8 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
             vendedorNombre: vendedorPuntoVenta.nombre,
             comisionPorcentaje: porcentajeComisionPuntoVenta,
             comisionMonto: comisionMontoPuntoVenta,
+            comisionPrecioIncluida: true,
+            montoSinComisionVendedor: preciosComisionPuntoVenta.totalBase,
             comisionItems: itemsVentaNormalizados.map((item2) => ({
               itemId: textoSeguroTrim(item2?.id, ""),
               productoId: textoSeguroTrim(item2?.productoId, ""),
@@ -66573,22 +66609,14 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       await notificarSistema("Esta venta ya tiene retiros de comisi\xF3n aplicados. Elimin\xE1 primero esos retiros antes de cambiar el vendedor.", { tipo: "warning", titulo: "Venta con retiros" });
       return;
     }
-    const comisionMonto = Math.round(Math.max(0, Number(ventaAsignarVendedor.monto || 0)) * porcentaje / 100 * 100) / 100;
     const itemsVenta = Array.isArray(ventaAsignarVendedor?.detallesPago?.items) ? ventaAsignarVendedor.detallesPago.items : [];
-    const totalItemsVenta = itemsVenta.reduce((suma, item2) => {
-      const bruto = Math.max(0, parseNumeroBasico(item2?.cantidad) || 0) * Math.max(0, parseNumeroBasico(item2?.precio) || 0);
-      const descuento = Math.min(100, Math.max(0, parseNumeroBasico(item2?.descuento) || 0));
-      return suma + Math.max(0, bruto - bruto * descuento / 100);
-    }, 0);
-    let comisionItemsDistribuida = 0;
-    const itemsConComision = itemsVenta.map((item2, indice) => {
-      const bruto = Math.max(0, parseNumeroBasico(item2?.cantidad) || 0) * Math.max(0, parseNumeroBasico(item2?.precio) || 0);
-      const descuento = Math.min(100, Math.max(0, parseNumeroBasico(item2?.descuento) || 0));
-      const subtotal = Math.max(0, bruto - bruto * descuento / 100);
-      const montoItem = indice === itemsVenta.length - 1 ? Math.max(0, comisionMonto - comisionItemsDistribuida) : Math.round((totalItemsVenta > 0 ? subtotal / totalItemsVenta : 0) * comisionMonto * 100) / 100;
-      comisionItemsDistribuida += montoItem;
-      return { ...item2, comisionPorcentaje: porcentaje, comisionMonto: montoItem };
-    });
+    const preciosConComision = calcularPreciosConComisionVendedor(itemsVenta, porcentaje);
+    const montoAnterior = Math.max(0, Number(ventaAsignarVendedor.monto || 0));
+    const comisionAnterior = Math.max(0, Number(ventaAsignarVendedor?.detallesPago?.comisionMonto || 0));
+    const montoBaseSinItems = Number.isFinite(Number(ventaAsignarVendedor?.detallesPago?.montoSinComisionVendedor)) ? Math.max(0, Number(ventaAsignarVendedor.detallesPago.montoSinComisionVendedor)) : ventaAsignarVendedor?.detallesPago?.comisionPrecioIncluida ? Math.max(0, montoAnterior - comisionAnterior) : montoAnterior;
+    const comisionMonto = itemsVenta.length ? preciosConComision.totalComision : Math.round(montoBaseSinItems * porcentaje / 100 * 100) / 100;
+    const montoNuevo = itemsVenta.length ? preciosConComision.totalFinal : Math.round((montoBaseSinItems + comisionMonto) * 100) / 100;
+    const itemsConComision = preciosConComision.items;
     const totalRetirado = aplicacionesExistentes.reduce((total, item2) => total + Number(item2.aplicacion?.montoAplicado || 0), 0);
     if (comisionMonto + 9e-3 < totalRetirado) {
       await notificarSistema(`La comisi\xF3n no puede quedar por debajo de los retiros ya aplicados (${formatearDinero(totalRetirado)}).`, { tipo: "warning", titulo: "Comisi\xF3n insuficiente" });
@@ -66602,17 +66630,27 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
         vendedorNombre: vendedor.nombre,
         comisionPorcentaje: porcentaje,
         comisionMonto,
+        comisionPrecioIncluida: true,
+        montoSinComisionVendedor: itemsVenta.length ? preciosConComision.totalBase : montoBaseSinItems,
         items: itemsConComision,
         comisionItems: itemsConComision.map((item2) => ({ itemId: textoSeguroTrim(item2?.id, ""), productoId: textoSeguroTrim(item2?.productoId, ""), codigo: textoSeguroTrim(item2?.codigo, ""), descripcion: textoSeguroTrim(item2?.descripcion, ""), porcentaje, monto: Math.max(0, Number(item2?.comisionMonto || 0)) })),
         comisionAsignadaEn: (/* @__PURE__ */ new Date()).toISOString(),
         comisionAsignadaPor: usuarioActual?.nombre || ""
       });
-      await updateDoc(doc(db, "movimientos", ventaAsignarVendedor.id), {
-        detallesPago: detallesPagoActualizados
-      });
-      setMovimientos((prev) => prev.map((movimiento) => movimiento.id === ventaAsignarVendedor.id ? { ...movimiento, detallesPago: detallesPagoActualizados } : movimiento));
+      await updateDoc(doc(db, "movimientos", ventaAsignarVendedor.id), { monto: montoNuevo, detallesPago: detallesPagoActualizados });
+      const deltaCuentaCliente = Math.round((montoNuevo - montoAnterior) * 100) / 100;
+      const clienteId = textoSeguroTrim(ventaAsignarVendedor?.detallesPago?.clienteId, "");
+      if (clienteId && normalizarMetodoPago(ventaAsignarVendedor?.metodoPago) === "cuenta_corriente" && Math.abs(deltaCuentaCliente) > 9e-3) {
+        const cliente = clientes.find((item2) => item2.id === clienteId);
+        if (cliente) {
+          const saldoActualizado = Math.max(0, Math.round((Number(cliente.saldo || 0) + deltaCuentaCliente) * 100) / 100);
+          await updateDoc(doc(db, "clientes", clienteId), { saldo: saldoActualizado });
+          setClientes((prev) => prev.map((item2) => item2.id === clienteId ? { ...item2, saldo: saldoActualizado } : item2));
+        }
+      }
+      setMovimientos((prev) => prev.map((movimiento) => movimiento.id === ventaAsignarVendedor.id ? { ...movimiento, monto: montoNuevo, detallesPago: detallesPagoActualizados } : movimiento));
       setVentaAsignarVendedor(null);
-      await notificarSistema(`Venta asignada a ${vendedor.nombre}. Comisi\xF3n: ${formatearDinero(comisionMonto)}.`, { tipo: "success", titulo: "Comisi\xF3n asignada" });
+      await notificarSistema(`Venta asignada a ${vendedor.nombre}. La comisi\xF3n de ${formatearDinero(comisionMonto)} se distribuy\xF3 en los precios de los \xEDtems.`, { tipo: "success", titulo: "Comisi\xF3n asignada" });
     } catch (error) {
       console.error(error);
       await notificarSistema("No se pudo guardar la asignaci\xF3n del vendedor.", { tipo: "error", titulo: "Error" });
@@ -66628,22 +66666,33 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       return;
     }
     const detalles = { ...ventaAsignarVendedor.detallesPago || {} };
+    const montoAnterior = Math.max(0, Number(ventaAsignarVendedor.monto || 0));
+    const itemsRestaurados = restaurarPreciosSinComisionVendedor(detalles.items || []);
+    const totalItemsRestaurados = calcularPreciosConComisionVendedor(itemsRestaurados, 0).totalFinal;
+    const montoNuevo = itemsRestaurados.length ? totalItemsRestaurados : Math.max(0, Number(detalles.montoSinComisionVendedor ?? montoAnterior - Number(detalles.comisionMonto || 0)));
     delete detalles.vendedorId;
     delete detalles.vendedorNombre;
     delete detalles.comisionPorcentaje;
     delete detalles.comisionMonto;
     delete detalles.comisionItems;
+    delete detalles.comisionPrecioIncluida;
+    delete detalles.montoSinComisionVendedor;
     delete detalles.comisionAsignadaEn;
     delete detalles.comisionAsignadaPor;
-    detalles.items = (Array.isArray(detalles.items) ? detalles.items : []).map((item2) => {
-      const limpio = { ...item2 };
-      delete limpio.comisionPorcentaje;
-      delete limpio.comisionMonto;
-      return limpio;
-    });
+    detalles.items = itemsRestaurados;
     const detallesPagoActualizados = limpiarDatoFirestore(detalles);
-    await updateDoc(doc(db, "movimientos", ventaAsignarVendedor.id), { detallesPago: detallesPagoActualizados });
-    setMovimientos((prev) => prev.map((movimiento) => movimiento.id === ventaAsignarVendedor.id ? { ...movimiento, detallesPago: detallesPagoActualizados } : movimiento));
+    await updateDoc(doc(db, "movimientos", ventaAsignarVendedor.id), { monto: montoNuevo, detallesPago: detallesPagoActualizados });
+    const deltaCuentaCliente = Math.round((montoNuevo - montoAnterior) * 100) / 100;
+    const clienteId = textoSeguroTrim(ventaAsignarVendedor?.detallesPago?.clienteId, "");
+    if (clienteId && normalizarMetodoPago(ventaAsignarVendedor?.metodoPago) === "cuenta_corriente" && Math.abs(deltaCuentaCliente) > 9e-3) {
+      const cliente = clientes.find((item2) => item2.id === clienteId);
+      if (cliente) {
+        const saldoActualizado = Math.max(0, Math.round((Number(cliente.saldo || 0) + deltaCuentaCliente) * 100) / 100);
+        await updateDoc(doc(db, "clientes", clienteId), { saldo: saldoActualizado });
+        setClientes((prev) => prev.map((item2) => item2.id === clienteId ? { ...item2, saldo: saldoActualizado } : item2));
+      }
+    }
+    setMovimientos((prev) => prev.map((movimiento) => movimiento.id === ventaAsignarVendedor.id ? { ...movimiento, monto: montoNuevo, detallesPago: detallesPagoActualizados } : movimiento));
     setVentaAsignarVendedor(null);
     await notificarSistema("Se quit\xF3 la asignaci\xF3n del vendedor.", { tipo: "success", titulo: "Asignaci\xF3n eliminada" });
   };
@@ -81053,7 +81102,8 @@ ${configuracion.nombre}`;
           notificar: notificarSistema,
           usuario: usuarioActual,
           nombreEmpresa: configuracion?.nombre || "SeniorFlow",
-          onVerVenta: (movimiento) => abrirPreviewVentaDocumento(movimiento)
+          onVerVenta: (movimiento) => abrirPreviewVentaDocumento(movimiento),
+          onEditarComision: (movimiento) => abrirAsignacionVendedorVenta(movimiento)
         }
       ),
       puedeVerClientes && vista === "clientes" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sf-module-page sf-module-clients h-full min-h-0 flex flex-col gap-4 overflow-hidden animate-in fade-in duration-300 print:hidden", children: [
@@ -85950,7 +86000,7 @@ ${configuracion.nombre}`;
         ] })
       }
     ),
-    ventaAsignarVendedor && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Modal, { titulo: "Asignar vendedor y comisi\xF3n", onClose: guardandoAsignacionVendedor ? null : () => setVentaAsignarVendedor(null), customWidth: "max-w-lg", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", { onSubmit: guardarAsignacionVendedorVenta, className: "space-y-4", children: [
+    ventaAsignarVendedor && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Modal, { titulo: "Asignar vendedor y comisi\xF3n", onClose: guardandoAsignacionVendedor ? null : () => setVentaAsignarVendedor(null), customWidth: "max-w-lg", extraClases: "z-[120]", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", { onSubmit: guardarAsignacionVendedorVenta, className: "space-y-4", children: [
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "rounded-xl border border-slate-200 bg-slate-50 p-3", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-black uppercase tracking-wider text-slate-500", children: "Venta seleccionada" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "mt-1 font-black text-slate-900", children: [
@@ -85981,9 +86031,12 @@ ${configuracion.nombre}`;
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "absolute right-3 top-1/2 -translate-y-1/2 font-black text-slate-500", children: "%" })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "rounded-xl border border-teal-200 bg-teal-50 p-3 flex items-center justify-between gap-3", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "text-xs font-black uppercase text-teal-700", children: "Comisi\xF3n calculada" }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { className: "text-lg text-teal-800", children: formatearDinero(Math.max(0, Number(ventaAsignarVendedor.monto || 0)) * Math.max(0, parseNumeroBasico(formAsignacionVendedor.porcentaje)) / 100) })
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "rounded-xl border border-teal-200 bg-teal-50 p-3 space-y-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex items-center justify-between gap-3", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "text-xs font-black uppercase text-teal-700", children: "Comisi\xF3n incorporada a los \xEDtems" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { className: "text-lg text-teal-800", children: formatearDinero(calcularPreciosConComisionVendedor(ventaAsignarVendedor?.detallesPago?.items || [], formAsignacionVendedor.porcentaje).totalComision) })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[11px] font-bold text-teal-700", children: "Al guardar se recalcula desde el precio original y cambia el total de la venta." })
       ] }),
       vendedores.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => {
         setVentaAsignarVendedor(null);
@@ -93030,12 +93083,16 @@ ${configuracion.nombre}`;
           ] })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "rounded-2xl border border-teal-200 bg-teal-50 p-4 flex items-center justify-between gap-4", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "rounded-2xl border border-teal-200 bg-teal-50 p-4 grid grid-cols-1 sm:grid-cols-2 gap-3", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-black uppercase tracking-wider text-teal-700", children: "Comisi\xF3n total calculada" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "mt-1 text-xs font-bold text-teal-700", children: "Quedar\xE1 vinculada a este comprobante." })
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-black uppercase tracking-wider text-teal-700", children: "Comisi\xF3n incorporada a los \xEDtems" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "mt-1 text-2xl font-black text-teal-900", children: formatearDinero(comisionPuntoVentaVista) })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-2xl font-black text-teal-900", children: formatearDinero(comisionPuntoVentaVista) })
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sm:text-right", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-black uppercase tracking-wider text-teal-700", children: "Nuevo total de venta" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "mt-1 text-2xl font-black text-teal-900", children: formatearDinero(totalConComisionPuntoVentaVista) })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "sm:col-span-2 text-xs font-bold text-teal-700", children: "El porcentaje se suma proporcionalmente al precio original de cada \xEDtem." })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex flex-col sm:flex-row gap-2 pt-1", children: [
         formPuntoVenta.vendedorId && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: quitarAsignacionVendedorPuntoVenta, className: "rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-black text-red-700", children: "Quitar vendedor" }),
