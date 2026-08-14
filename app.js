@@ -59409,11 +59409,10 @@ var ModuloVendedores = ({ vendedores = [], retiros = [], movimientos = [], notif
             event.preventDefault();
             event.stopPropagation();
             onVerVenta(mov);
-          }, className: "inline-flex items-center gap-1 text-left font-black text-blue-700 hover:text-blue-900 hover:underline", title: "Previsualizar e imprimir comprobante", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Eye, { size: 13 }),
-            " ",
-            comprobanteTexto
-          ] }) : comprobanteTexto,
+          }, className: "inline-flex max-w-full items-center gap-1 whitespace-nowrap text-left font-black text-blue-700 hover:text-blue-900 hover:underline", title: "Previsualizar e imprimir comprobante", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Eye, { size: 13, className: "shrink-0" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "whitespace-nowrap", children: comprobanteTexto })
+          ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "whitespace-nowrap", children: comprobanteTexto }),
           movimiento: mov,
           cliente: textoSeguroTrim(mov?.detallesPago?.cliente, "-"),
           totalVenta,

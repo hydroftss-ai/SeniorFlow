@@ -57,7 +57,7 @@
     <div id="root"></div>
     <script>
       (() => {
-        const CURRENT_BUILD = 'seniorflow-simple-account-pdf-20260814-34';
+        const CURRENT_BUILD = 'seniorflow-seller-receipt-line-20260814-35';
         const BUILD_KEY = 'seniorflow-current-build';
         if (window.location.protocol === 'file:' || localStorage.getItem(BUILD_KEY) === CURRENT_BUILD) return;
         const actualizarSistema = async () => {
@@ -80,12 +80,12 @@
         actualizarSistema();
       })();
     </script>
-    <script type="module" src="./app.js?v=seniorflow-simple-account-pdf-20260814-34"></script>
+    <script type="module" src="./app.js?v=seniorflow-seller-receipt-line-20260814-35"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker
-            .register('./sw.js?v=seniorflow-simple-account-pdf-20260814-34')
+            .register('./sw.js?v=seniorflow-seller-receipt-line-20260814-35')
             .catch((error) => console.error('No se pudo registrar la webapp:', error));
         });
       }
