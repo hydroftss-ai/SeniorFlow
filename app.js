@@ -42222,33 +42222,49 @@ var __iconNode58 = [
 ];
 var Upload = createLucideIcon("upload", __iconNode58);
 
-// node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/user-plus.mjs
+// node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/user-cog.mjs
 var __iconNode59 = [
+  ["path", { d: "M10 15H6a4 4 0 0 0-4 4v2", key: "1nfge6" }],
+  ["path", { d: "m14.305 16.53.923-.382", key: "1itpsq" }],
+  ["path", { d: "m15.228 13.852-.923-.383", key: "eplpkm" }],
+  ["path", { d: "m16.852 12.228-.383-.923", key: "13v3q0" }],
+  ["path", { d: "m16.852 17.772-.383.924", key: "1i8mnm" }],
+  ["path", { d: "m19.148 12.228.383-.923", key: "1q8j1v" }],
+  ["path", { d: "m19.53 18.696-.382-.924", key: "vk1qj3" }],
+  ["path", { d: "m20.772 13.852.924-.383", key: "n880s0" }],
+  ["path", { d: "m20.772 16.148.924.383", key: "1g6xey" }],
+  ["circle", { cx: "18", cy: "15", r: "3", key: "gjjjvw" }],
+  ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]
+];
+var UserCog = createLucideIcon("user-cog", __iconNode59);
+
+// node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/user-plus.mjs
+var __iconNode60 = [
   ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }],
   ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }],
   ["line", { x1: "19", x2: "19", y1: "8", y2: "14", key: "1bvyxn" }],
   ["line", { x1: "22", x2: "16", y1: "11", y2: "11", key: "1shjgl" }]
 ];
-var UserPlus = createLucideIcon("user-plus", __iconNode59);
+var UserPlus = createLucideIcon("user-plus", __iconNode60);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/user.mjs
-var __iconNode60 = [
+var __iconNode61 = [
   ["path", { d: "M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2", key: "975kel" }],
   ["circle", { cx: "12", cy: "7", r: "4", key: "17ys0d" }]
 ];
-var User = createLucideIcon("user", __iconNode60);
+var User = createLucideIcon("user", __iconNode61);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/users.mjs
-var __iconNode61 = [
+var __iconNode62 = [
   ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }],
   ["path", { d: "M16 3.128a4 4 0 0 1 0 7.744", key: "16gr8j" }],
   ["path", { d: "M22 21v-2a4 4 0 0 0-3-3.87", key: "kshegd" }],
   ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]
 ];
-var Users = createLucideIcon("users", __iconNode61);
+var Users = createLucideIcon("users", __iconNode62);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/wallet.mjs
-var __iconNode62 = [
+var __iconNode63 = [
   [
     "path",
     {
@@ -42258,14 +42274,14 @@ var __iconNode62 = [
   ],
   ["path", { d: "M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4", key: "xoc0q4" }]
 ];
-var Wallet = createLucideIcon("wallet", __iconNode62);
+var Wallet = createLucideIcon("wallet", __iconNode63);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/x.mjs
-var __iconNode63 = [
+var __iconNode64 = [
   ["path", { d: "M18 6 6 18", key: "1bl5f8" }],
   ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
 ];
-var X = createLucideIcon("x", __iconNode63);
+var X = createLucideIcon("x", __iconNode64);
 
 // node_modules/.pnpm/jspdf@4.2.1/node_modules/jspdf/dist/jspdf.es.min.js
 init_typeof();
@@ -57648,7 +57664,9 @@ var COLECCIONES_BACKUP = [
   "facturas_emitidas",
   "marcas",
   "pedidos_compra",
-  "respaldos_precios"
+  "respaldos_precios",
+  "vendedores",
+  "retiros_vendedores"
 ];
 var formatearDinero = (monto) => new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 2 }).format(monto);
 var formatearCantidad = (valor) => {
@@ -58060,6 +58078,7 @@ var FORM_USUARIO_VACIO = {
   puedeVerStockBajo: false,
   puedeVerRastreo: false,
   puedeVerVariacionPrecios: false,
+  puedeVerVendedores: false,
   puedeVerResumenes: false
 };
 var PERMISOS_USUARIO_OPCIONES = [
@@ -58083,6 +58102,7 @@ var PERMISOS_USUARIO_OPCIONES = [
   { key: "puedeVerStockBajo", label: "Stock bajo", description: "Acceso al listado de alertas de stock." },
   { key: "puedeVerRastreo", label: "Rastreo", description: "Acceso al rastreo de comprobantes y cheques." },
   { key: "puedeVerVariacionPrecios", label: "Variaci\xF3n de precio", description: "Acceso al historial y ranking de variaciones." },
+  { key: "puedeVerVendedores", label: "Vendedores", description: "Administrar vendedores, comisiones y retiros." },
   { key: "puedeVerResumenes", label: "Tarjetas de ventas", description: "Ver tarjetas de ventas diarias/mensuales en Caja, Ventas y Cuentas corrientes." }
 ];
 var AYUDA_SECCIONES = [
@@ -59206,6 +59226,409 @@ var SelectorChequesModal = ({ abierto, onClose, busqueda, setBusqueda, cheques, 
   cheques.length > 12 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[11px] font-bold text-violet-700", children: "Hay m\xE1s resultados. Refin\xE1 la b\xFAsqueda para encontrar un cheque espec\xEDfico." }),
   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "flex justify-end pt-1", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: onClose, className: "rounded-xl bg-violet-600 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white hover:bg-violet-700", children: "Listo" }) })
 ] }) }) : null;
+var FORM_VENDEDOR_VACIO = { nombre: "", documento: "", telefono: "", email: "", direccion: "", notas: "", activo: true };
+var ModuloVendedores = ({ vendedores = [], retiros = [], movimientos = [], notificar, usuario = null, nombreEmpresa = "SeniorFlow" }) => {
+  const [busqueda, setBusqueda] = (0, import_react4.useState)("");
+  const [vendedorSeleccionadoId, setVendedorSeleccionadoId] = (0, import_react4.useState)("");
+  const [vendedorEditando, setVendedorEditando] = (0, import_react4.useState)(null);
+  const [formVendedor, setFormVendedor] = (0, import_react4.useState)(FORM_VENDEDOR_VACIO);
+  const [modalVendedor, setModalVendedor] = (0, import_react4.useState)(false);
+  const [modalRetiro, setModalRetiro] = (0, import_react4.useState)(false);
+  const [guardando, setGuardando] = (0, import_react4.useState)(false);
+  const [formRetiro, setFormRetiro] = (0, import_react4.useState)({ monto: "", fecha: obtenerFechaInputLocal(), metodoPago: "efectivo", numeroComprobante: "", notas: "", ventaIds: [], impactaCaja: true });
+  const cuentas = (0, import_react4.useMemo)(() => {
+    const resultado = {};
+    vendedores.forEach((vendedor) => {
+      const ventas = movimientos.filter((mov) => mov?.detallesPago?.vendedorId === vendedor.id && mov?.detallesPago?.tipoComprobante !== "nota_credito").map((mov) => {
+        const porcentaje = Math.max(0, parseNumeroBasico(mov?.detallesPago?.comisionPorcentaje));
+        const totalVenta = Math.max(0, Number(mov?.monto || 0));
+        const comision = Math.max(0, Number(mov?.detallesPago?.comisionMonto ?? totalVenta * porcentaje / 100));
+        const tipo = OPCIONES_COMPROBANTE_VENTA.find((opcion) => opcion.value === mov?.detallesPago?.tipoComprobante)?.label || "Comprobante";
+        return {
+          id: mov.id,
+          fecha: mov.fecha,
+          comprobante: `${tipo} ${textoSeguroTrim(mov?.detallesPago?.numeroComprobante, "Sin n\xFAmero")}`,
+          cliente: textoSeguroTrim(mov?.detallesPago?.cliente, "-"),
+          totalVenta,
+          porcentaje,
+          comision,
+          pendiente: comision,
+          retirosAplicados: []
+        };
+      }).sort((a3, b2) => new Date(a3.fecha) - new Date(b2.fecha));
+      const porId = new Map(ventas.map((venta) => [venta.id, venta]));
+      const retirosVendedor = retiros.filter((retiro) => retiro?.vendedorId === vendedor.id).sort((a3, b2) => new Date(a3.fecha || a3.fechaCreacion || 0) - new Date(b2.fecha || b2.fechaCreacion || 0));
+      retirosVendedor.forEach((retiro) => {
+        (Array.isArray(retiro?.aplicacionesVentas) ? retiro.aplicacionesVentas : []).forEach((aplicacion) => {
+          const venta = porId.get(aplicacion?.ventaId);
+          if (!venta || venta.pendiente <= 0) return;
+          const aplicado = Math.min(venta.pendiente, Math.max(0, Number(aplicacion?.montoAplicado || 0)));
+          if (aplicado <= 0) return;
+          venta.pendiente = Math.max(0, venta.pendiente - aplicado);
+          venta.retirosAplicados.push({ ...retiro, montoAplicado: aplicado, saldoDespues: venta.pendiente });
+        });
+      });
+      const totalComisiones = ventas.reduce((total, venta) => total + venta.comision, 0);
+      const totalRetirado = ventas.reduce((total, venta) => total + venta.retirosAplicados.reduce((suma, retiro) => suma + retiro.montoAplicado, 0), 0);
+      resultado[vendedor.id] = { vendedor, ventas, retiros: retirosVendedor, totalComisiones, totalRetirado, saldo: Math.max(0, totalComisiones - totalRetirado) };
+    });
+    return resultado;
+  }, [vendedores, retiros, movimientos]);
+  (0, import_react4.useEffect)(() => {
+    if (!vendedorSeleccionadoId && vendedores.length) setVendedorSeleccionadoId(vendedores[0].id);
+    if (vendedorSeleccionadoId && !vendedores.some((vendedor) => vendedor.id === vendedorSeleccionadoId)) setVendedorSeleccionadoId(vendedores[0]?.id || "");
+  }, [vendedores, vendedorSeleccionadoId]);
+  const vendedoresFiltrados = vendedores.filter((vendedor) => coincideBusquedaCompuesta([vendedor.nombre, vendedor.documento, vendedor.telefono, vendedor.email], busqueda));
+  const cuentaSeleccionada = cuentas[vendedorSeleccionadoId] || null;
+  const ventasPendientesRetiro = (cuentaSeleccionada?.ventas || []).filter((venta) => venta.pendiente > 9e-3);
+  const resumenRetiro = (0, import_react4.useMemo)(() => {
+    let restante = Math.max(0, parseNumeroBasico(formRetiro.monto));
+    const aplicaciones = (formRetiro.ventaIds || []).map((ventaId, indice) => {
+      const venta = ventasPendientesRetiro.find((item2) => item2.id === ventaId);
+      if (!venta) return null;
+      const aplicado = Math.min(restante, venta.pendiente);
+      restante = Math.max(0, restante - aplicado);
+      return { ventaId, orden: indice + 1, comprobante: venta.comprobante, saldoAntes: venta.pendiente, montoAplicado: aplicado, saldoDespues: Math.max(0, venta.pendiente - aplicado), restanteDespues: restante };
+    }).filter(Boolean);
+    return { monto: Math.max(0, parseNumeroBasico(formRetiro.monto)), aplicaciones, aplicado: aplicaciones.reduce((total, item2) => total + item2.montoAplicado, 0), restante };
+  }, [formRetiro.monto, formRetiro.ventaIds, ventasPendientesRetiro]);
+  const abrirVendedor = (vendedor = null) => {
+    setVendedorEditando(vendedor);
+    setFormVendedor(vendedor ? { nombre: vendedor.nombre || "", documento: vendedor.documento || "", telefono: vendedor.telefono || "", email: vendedor.email || "", direccion: vendedor.direccion || "", notas: vendedor.notas || "", activo: vendedor.activo !== false } : FORM_VENDEDOR_VACIO);
+    setModalVendedor(true);
+  };
+  const guardarVendedor = async (event) => {
+    event.preventDefault();
+    const nombre = textoSeguroTrim(formVendedor.nombre, "");
+    if (!nombre || guardando) return;
+    const duplicado = vendedores.some((vendedor) => vendedor.id !== vendedorEditando?.id && normalizarTextoBusqueda(vendedor.nombre) === normalizarTextoBusqueda(nombre));
+    if (duplicado) {
+      await notificar("Ya existe un vendedor con ese nombre.", { tipo: "warning", titulo: "Vendedor duplicado" });
+      return;
+    }
+    setGuardando(true);
+    try {
+      const payload = limpiarDatoFirestore({ ...formVendedor, nombre, fechaActualizacion: (/* @__PURE__ */ new Date()).toISOString(), fechaCreacion: vendedorEditando?.fechaCreacion || (/* @__PURE__ */ new Date()).toISOString() });
+      if (vendedorEditando?.id) await updateDoc(doc(db, "vendedores", vendedorEditando.id), payload);
+      else {
+        const referencia = await addDoc(collection(db, "vendedores"), payload);
+        setVendedorSeleccionadoId(referencia.id);
+      }
+      setModalVendedor(false);
+      await notificar("Los datos del vendedor fueron guardados.", { tipo: "success", titulo: "Vendedor guardado" });
+    } catch (error) {
+      console.error(error);
+      await notificar("No se pudo guardar el vendedor.", { tipo: "error", titulo: "Error" });
+    } finally {
+      setGuardando(false);
+    }
+  };
+  const abrirRetiro = () => {
+    setFormRetiro({ monto: "", fecha: obtenerFechaInputLocal(), metodoPago: "efectivo", numeroComprobante: "", notas: "", ventaIds: [], impactaCaja: true });
+    setModalRetiro(true);
+  };
+  const guardarRetiro = async (event) => {
+    event.preventDefault();
+    if (!cuentaSeleccionada || guardando) return;
+    if (resumenRetiro.monto <= 0 || !resumenRetiro.aplicaciones.length) {
+      await notificar("Ingres\xE1 un importe y seleccion\xE1 al menos un remito.", { tipo: "warning", titulo: "Retiro incompleto" });
+      return;
+    }
+    if (resumenRetiro.restante > 9e-3) {
+      await notificar(`Faltan comprobantes para aplicar ${formatearDinero(resumenRetiro.restante)}.`, { tipo: "warning", titulo: "Importe sin aplicar" });
+      return;
+    }
+    setGuardando(true);
+    try {
+      const fecha = formRetiro.fecha ? (/* @__PURE__ */ new Date(`${formRetiro.fecha}T12:00:00`)).toISOString() : (/* @__PURE__ */ new Date()).toISOString();
+      const payload = limpiarDatoFirestore({ vendedorId: cuentaSeleccionada.vendedor.id, vendedorNombre: cuentaSeleccionada.vendedor.nombre, monto: resumenRetiro.monto, fecha, metodoPago: formRetiro.metodoPago, numeroComprobante: textoSeguroTrim(formRetiro.numeroComprobante, ""), notas: textoSeguroTrim(formRetiro.notas, ""), impactaCaja: Boolean(formRetiro.impactaCaja), aplicacionesVentas: resumenRetiro.aplicaciones, usuario: usuario?.nombre || "", fechaCreacion: (/* @__PURE__ */ new Date()).toISOString() });
+      const retiroRef = await addDoc(collection(db, "retiros_vendedores"), payload);
+      if (payload.impactaCaja) {
+        try {
+          const movimientoRef = await addDoc(collection(db, "movimientos"), { tipo: "gasto", monto: payload.monto, descripcion: `Retiro de comisi\xF3n \xB7 ${payload.vendedorNombre}`, metodoPago: payload.metodoPago, fecha: payload.fecha, usuario: usuario?.nombre || "", detallesPago: { origen: "retiro_vendedor", retiroVendedorId: retiroRef.id, vendedorId: payload.vendedorId, vendedorNombre: payload.vendedorNombre, numeroComprobante: payload.numeroComprobante } });
+          await updateDoc(doc(db, "retiros_vendedores", retiroRef.id), { movimientoCajaId: movimientoRef.id });
+        } catch (errorCaja) {
+          console.warn("El retiro se guard\xF3, pero no pudo sincronizarse con caja.", errorCaja);
+        }
+      }
+      setModalRetiro(false);
+      await notificar("El retiro qued\xF3 aplicado a los comprobantes seleccionados.", { tipo: "success", titulo: "Retiro guardado" });
+    } catch (error) {
+      console.error(error);
+      await notificar("No se pudo guardar el retiro.", { tipo: "error", titulo: "Error" });
+    } finally {
+      setGuardando(false);
+    }
+  };
+  const eliminarRetiro = async (retiro) => {
+    const confirmar = await notificar(`\xBFEliminar el retiro de ${formatearDinero(retiro.monto)}? Las comisiones volver\xE1n a quedar pendientes.`, { tipo: "confirm", titulo: "Eliminar retiro", textoAceptar: "Eliminar" });
+    if (!confirmar) return;
+    if (retiro.movimientoCajaId) {
+      try {
+        await deleteDoc(doc(db, "movimientos", retiro.movimientoCajaId));
+      } catch {
+      }
+    }
+    await deleteDoc(doc(db, "retiros_vendedores", retiro.id));
+  };
+  const eliminarVendedor = async (vendedor) => {
+    const cuenta = cuentas[vendedor.id];
+    if (cuenta?.ventas?.length || 0 || (cuenta?.retiros?.length || 0)) {
+      await notificar("No se puede eliminar porque tiene ventas o retiros asociados. Pod\xE9s marcarlo como inactivo.", { tipo: "warning", titulo: "Vendedor con historial" });
+      return;
+    }
+    const confirmar = await notificar(`\xBFEliminar a ${vendedor.nombre}?`, { tipo: "confirm", titulo: "Eliminar vendedor", textoAceptar: "Eliminar" });
+    if (confirmar) await deleteDoc(doc(db, "vendedores", vendedor.id));
+  };
+  const imprimirCuenta = () => {
+    if (!cuentaSeleccionada) return;
+    const documento = crearPdfA4("landscape", { titulo: `Cuenta vendedor ${cuentaSeleccionada.vendedor.nombre}` });
+    documento.setFillColor(15, 23, 42);
+    documento.roundedRect(14, 10, 268, 22, 2, 2, "F");
+    documento.setTextColor(255, 255, 255);
+    documento.setFont("helvetica", "bold");
+    documento.setFontSize(14);
+    documento.text((nombreEmpresa || "SENIORFLOW").toUpperCase(), 18, 19);
+    documento.setFontSize(9);
+    documento.text("DETALLE DE COMISIONES DEL VENDEDOR", 18, 26);
+    documento.text(`Emitido: ${formatearFecha(/* @__PURE__ */ new Date())}`, 278, 19, { align: "right" });
+    documento.setTextColor(15, 23, 42);
+    documento.setFontSize(12);
+    documento.text(cuentaSeleccionada.vendedor.nombre.toUpperCase(), 14, 42);
+    documento.setFontSize(9);
+    documento.text(`Ventas: ${formatearDinero(cuentaSeleccionada.ventas.reduce((total, venta) => total + venta.totalVenta, 0))}   Comisiones: ${formatearDinero(cuentaSeleccionada.totalComisiones)}   Retiros: ${formatearDinero(cuentaSeleccionada.totalRetirado)}   Saldo a favor: ${formatearDinero(cuentaSeleccionada.saldo)}`, 14, 49);
+    const filas = [];
+    cuentaSeleccionada.ventas.forEach((venta) => {
+      filas.push([formatearFecha(venta.fecha), venta.comprobante, venta.cliente, formatearDinero(venta.totalVenta), `${formatearCantidad(venta.porcentaje)}%`, formatearDinero(venta.comision), formatearDinero(venta.pendiente)]);
+      venta.retirosAplicados.forEach((retiro) => filas.push([`\u21B3 ${formatearFecha(retiro.fecha)}`, `RETIRO ${textoSeguroTrim(retiro.numeroComprobante, "")}`, retiro.notas || obtenerEtiquetaMetodoPago(retiro.metodoPago), "", "", `-${formatearDinero(retiro.montoAplicado)}`, `Saldo ${formatearDinero(retiro.saldoDespues)}`]));
+    });
+    autoTable(documento, { startY: 56, head: [["Fecha", "Remito / comprobante", "Cliente / detalle", "Venta", "Comisi\xF3n %", "Comisi\xF3n / retiro", "Saldo"]], body: filas.length ? filas : [["-", "Sin movimientos", "-", "-", "-", "-", "-"]], theme: "grid", styles: { fontSize: 7.5, cellPadding: 2 }, headStyles: { fillColor: [30, 64, 109], textColor: 255, fontStyle: "bold" }, columnStyles: { 3: { halign: "right" }, 4: { halign: "right" }, 5: { halign: "right" }, 6: { halign: "right" } }, didParseCell: (data) => {
+      if (data.section === "body" && String(data.row.raw?.[0] || "").startsWith("\u21B3")) {
+        data.cell.styles.textColor = [5, 150, 105];
+        data.cell.styles.fontStyle = "bold";
+      }
+    } });
+    const nombreArchivo = normalizarTextoBusqueda(cuentaSeleccionada.vendedor.nombre).replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "") || "vendedor";
+    documento.save(`cuenta_vendedor_${nombreArchivo}.pdf`);
+  };
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sf-module-page h-full min-h-0 flex flex-col gap-4 overflow-hidden animate-in fade-in duration-300 print:hidden", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sf-screen-header shrink-0 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "sf-sales-kicker", children: "Equipo comercial" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { children: "Vendedores" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Ventas asignadas, comisiones y retiros por comprobante." })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", onClick: () => abrirVendedor(), className: "bg-teal-600 text-white inline-flex items-center gap-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UserPlus, { size: 16 }),
+        " Nuevo vendedor"
+      ] })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex-1 min-h-0 grid grid-cols-1 xl:grid-cols-[320px_minmax(0,1fr)] gap-4 overflow-hidden", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "min-h-0 flex flex-col rounded-2xl border border-slate-200 bg-white overflow-hidden", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "p-3 border-b border-slate-100", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "relative", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { size: 15, className: "absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { value: busqueda, onChange: (event) => setBusqueda(event.target.value), placeholder: "Buscar vendedor...", className: "w-full rounded-xl border border-slate-200 py-2.5 pl-9 pr-3 text-sm font-bold outline-none focus:ring-2 focus:ring-teal-500" })
+        ] }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "flex-1 overflow-y-auto divide-y divide-slate-100", children: vendedoresFiltrados.length ? vendedoresFiltrados.map((vendedor) => {
+          const cuenta = cuentas[vendedor.id] || {};
+          const seleccionado = vendedor.id === vendedorSeleccionadoId;
+          return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", onClick: () => setVendedorSeleccionadoId(vendedor.id), className: `w-full p-3 text-left ${seleccionado ? "bg-teal-50" : "hover:bg-slate-50"}`, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex items-center justify-between gap-2", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "font-black text-slate-800", children: vendedor.nombre }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `rounded-full px-2 py-1 text-[9px] font-black uppercase ${vendedor.activo === false ? "bg-slate-100 text-slate-500" : "bg-emerald-100 text-emerald-700"}`, children: vendedor.activo === false ? "Inactivo" : "Activo" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "mt-1 text-xs font-bold text-slate-500", children: vendedor.telefono || vendedor.documento || "Sin contacto" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "mt-2 text-xs font-black text-teal-700", children: [
+              "Saldo ",
+              formatearDinero(cuenta.saldo || 0)
+            ] })
+          ] }, vendedor.id);
+        }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "p-6 text-center text-sm font-bold text-slate-400", children: "No hay vendedores cargados." }) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "min-h-0 flex flex-col rounded-2xl border border-slate-200 bg-white overflow-hidden", children: !cuentaSeleccionada ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "m-auto text-center text-slate-400", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Users, { size: 42, className: "mx-auto mb-3 opacity-30" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "font-bold", children: "Seleccion\xE1 o carg\xE1 un vendedor." })
+      ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "shrink-0 border-b border-slate-100 p-4", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { className: "text-xl font-black text-slate-900", children: cuentaSeleccionada.vendedor.nombre }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-xs font-bold text-slate-500", children: [cuentaSeleccionada.vendedor.documento, cuentaSeleccionada.vendedor.telefono, cuentaSeleccionada.vendedor.email].filter(Boolean).join(" \xB7 ") || "Sin datos adicionales" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex flex-wrap gap-2", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", onClick: () => abrirVendedor(cuentaSeleccionada.vendedor), className: "rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pen, { size: 14, className: "inline mr-1" }),
+                " Editar"
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", onClick: imprimirCuenta, className: "rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-black text-blue-700", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Printer, { size: 14, className: "inline mr-1" }),
+                " Imprimir cuenta"
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", disabled: !ventasPendientesRetiro.length, onClick: abrirRetiro, className: "rounded-xl bg-emerald-600 px-3 py-2 text-xs font-black text-white disabled:bg-slate-300", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleArrowDown, { size: 14, className: "inline mr-1" }),
+                " Registrar retiro"
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => eliminarVendedor(cuentaSeleccionada.vendedor), className: "rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-black text-red-700", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { size: 14 }) })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "mt-4 grid grid-cols-2 lg:grid-cols-4 gap-2", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "rounded-xl bg-slate-50 p-3", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[9px] font-black uppercase text-slate-500", children: "Ventas asignadas" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-base font-black text-slate-900", children: cuentaSeleccionada.ventas.length })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "rounded-xl bg-blue-50 p-3", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[9px] font-black uppercase text-blue-600", children: "Comisiones" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-base font-black text-blue-800", children: formatearDinero(cuentaSeleccionada.totalComisiones) })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "rounded-xl bg-amber-50 p-3", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[9px] font-black uppercase text-amber-600", children: "Retiros" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-base font-black text-amber-800", children: formatearDinero(cuentaSeleccionada.totalRetirado) })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "rounded-xl bg-emerald-50 p-3", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[9px] font-black uppercase text-emerald-600", children: "Saldo a favor" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-base font-black text-emerald-800", children: formatearDinero(cuentaSeleccionada.saldo) })
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "flex-1 min-h-0 overflow-auto", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("table", { className: "w-full text-left text-xs", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("thead", { className: "sticky top-0 bg-slate-50 text-[10px] uppercase text-slate-500", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-3 py-2", children: "Fecha / comprobante" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-3 py-2", children: "Cliente" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-3 py-2 text-right", children: "Venta" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-3 py-2 text-right", children: "%" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-3 py-2 text-right", children: "Comisi\xF3n" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-3 py-2 text-right", children: "Saldo" })
+          ] }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tbody", { className: "divide-y divide-slate-100", children: cuentaSeleccionada.ventas.length ? cuentaSeleccionada.ventas.map((venta) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_react4.default.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("td", { className: "px-3 py-3", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "font-black text-slate-800", children: venta.comprobante }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-bold text-slate-400", children: formatearFecha(venta.fecha) })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-3 py-3 font-bold text-slate-600", children: venta.cliente }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-3 py-3 text-right font-black", children: formatearDinero(venta.totalVenta) }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("td", { className: "px-3 py-3 text-right font-black text-blue-700", children: [
+                formatearCantidad(venta.porcentaje),
+                "%"
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-3 py-3 text-right font-black text-blue-700", children: formatearDinero(venta.comision) }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-3 py-3 text-right font-black text-emerald-700", children: formatearDinero(venta.pendiente) })
+            ] }),
+            venta.retirosAplicados.map((retiro) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { className: "bg-emerald-50/60", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("td", { className: "px-3 py-2 pl-7 font-black text-emerald-700", children: [
+                "\u21B3 Retiro ",
+                formatearFecha(retiro.fecha)
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("td", { className: "px-3 py-2 font-bold text-emerald-700", children: [
+                obtenerEtiquetaMetodoPago(retiro.metodoPago),
+                " ",
+                retiro.numeroComprobante || ""
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { colSpan: 2, className: "px-3 py-2 font-bold text-emerald-700", children: retiro.notas || "Pago de comisi\xF3n" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("td", { className: "px-3 py-2 text-right font-black text-red-600", children: [
+                "-",
+                formatearDinero(retiro.montoAplicado)
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-3 py-2 text-right", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => eliminarRetiro(retiro), className: "text-red-600", title: "Eliminar retiro", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { size: 13 }) }) })
+            ] }, `${venta.id}-${retiro.id}`))
+          ] }, venta.id)) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tr", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { colSpan: 6, className: "p-10 text-center font-bold text-slate-400", children: "Todav\xEDa no tiene ventas asignadas." }) }) })
+        ] }) })
+      ] }) })
+    ] }),
+    modalVendedor && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Modal, { titulo: vendedorEditando ? "Editar vendedor" : "Nuevo vendedor", onClose: guardando ? null : () => setModalVendedor(false), customWidth: "max-w-xl", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", { onSubmit: guardarVendedor, className: "space-y-3", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "block text-[10px] font-black uppercase text-slate-500 mb-1", children: "Nombre completo" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { value: formVendedor.nombre, onChange: (event) => setFormVendedor((prev) => ({ ...prev, nombre: event.target.value })), required: true, className: "w-full rounded-xl border border-slate-200 px-3 py-2.5 font-bold outline-none focus:ring-2 focus:ring-teal-500" })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "grid sm:grid-cols-2 gap-3", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { value: formVendedor.documento, onChange: (event) => setFormVendedor((prev) => ({ ...prev, documento: event.target.value })), placeholder: "DNI / CUIT", className: "rounded-xl border border-slate-200 px-3 py-2.5 font-bold" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { value: formVendedor.telefono, onChange: (event) => setFormVendedor((prev) => ({ ...prev, telefono: event.target.value })), placeholder: "Tel\xE9fono", className: "rounded-xl border border-slate-200 px-3 py-2.5 font-bold" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "email", value: formVendedor.email, onChange: (event) => setFormVendedor((prev) => ({ ...prev, email: event.target.value })), placeholder: "Email", className: "rounded-xl border border-slate-200 px-3 py-2.5 font-bold" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { value: formVendedor.direccion, onChange: (event) => setFormVendedor((prev) => ({ ...prev, direccion: event.target.value })), placeholder: "Direcci\xF3n", className: "rounded-xl border border-slate-200 px-3 py-2.5 font-bold" })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", { rows: 3, value: formVendedor.notas, onChange: (event) => setFormVendedor((prev) => ({ ...prev, notas: event.target.value })), placeholder: "Notas", className: "w-full rounded-xl border border-slate-200 px-3 py-2.5 font-bold" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { className: "flex items-center gap-2 text-xs font-black text-slate-700", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "checkbox", checked: formVendedor.activo, onChange: (event) => setFormVendedor((prev) => ({ ...prev, activo: event.target.checked })) }),
+        " Vendedor activo"
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex gap-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => setModalVendedor(false), className: "w-36 rounded-xl border border-slate-200 py-3 text-xs font-black", children: "Cancelar" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "submit", disabled: guardando, className: "flex-1 rounded-xl bg-teal-600 py-3 text-xs font-black text-white disabled:bg-teal-300", children: guardando ? "Guardando..." : "Guardar vendedor" })
+      ] })
+    ] }) }),
+    modalRetiro && cuentaSeleccionada && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Modal, { titulo: `Retiro de comisi\xF3n \xB7 ${cuentaSeleccionada.vendedor.nombre}`, onClose: guardando ? null : () => setModalRetiro(false), customWidth: "max-w-4xl", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", { onSubmit: guardarRetiro, className: "space-y-4", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "grid sm:grid-cols-2 lg:grid-cols-4 gap-3", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "block text-[10px] font-black uppercase text-slate-500 mb-1", children: "Monto" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { inputMode: "decimal", value: formRetiro.monto, onChange: (event) => setFormRetiro((prev) => ({ ...prev, monto: event.target.value.replace(/[^0-9.,]/g, "") })), placeholder: "0,00", className: "w-full rounded-xl border border-slate-200 px-3 py-2.5 text-right font-black" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "block text-[10px] font-black uppercase text-slate-500 mb-1", children: "Fecha" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "date", value: formRetiro.fecha, onChange: (event) => setFormRetiro((prev) => ({ ...prev, fecha: event.target.value })), className: "w-full rounded-xl border border-slate-200 px-3 py-2.5 font-bold" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "block text-[10px] font-black uppercase text-slate-500 mb-1", children: "Forma de pago" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { value: formRetiro.metodoPago, onChange: (event) => setFormRetiro((prev) => ({ ...prev, metodoPago: event.target.value })), className: "w-full rounded-xl border border-slate-200 px-3 py-2.5 font-bold", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "efectivo", children: "Efectivo" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "transferencia", children: "Transferencia" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "cheque", children: "Cheque" })
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "block text-[10px] font-black uppercase text-slate-500 mb-1", children: "Comprobante" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { value: formRetiro.numeroComprobante, onChange: (event) => setFormRetiro((prev) => ({ ...prev, numeroComprobante: event.target.value })), className: "w-full rounded-xl border border-slate-200 px-3 py-2.5 font-bold" })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "grid grid-cols-3 gap-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "rounded-xl bg-slate-50 p-3", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[9px] font-black uppercase text-slate-500", children: "Retiro" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "font-black", children: formatearDinero(resumenRetiro.monto) })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "rounded-xl bg-emerald-50 p-3", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[9px] font-black uppercase text-emerald-600", children: "Aplicado" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "font-black text-emerald-800", children: formatearDinero(resumenRetiro.aplicado) })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: `rounded-xl p-3 ${resumenRetiro.restante > 9e-3 ? "bg-amber-50" : "bg-emerald-50"}`, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[9px] font-black uppercase text-slate-500", children: "Resta aplicar" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "font-black", children: formatearDinero(resumenRetiro.restante) })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "max-h-64 overflow-y-auto rounded-xl border border-slate-200 divide-y divide-slate-100", children: ventasPendientesRetiro.map((venta) => {
+        const marcado = formRetiro.ventaIds.includes(venta.id);
+        const aplicacion = resumenRetiro.aplicaciones.find((item2) => item2.ventaId === venta.id);
+        return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { className: `flex items-start gap-3 p-3 cursor-pointer ${marcado ? "bg-emerald-50" : "hover:bg-slate-50"}`, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "checkbox", checked: marcado, onChange: (event) => setFormRetiro((prev) => ({ ...prev, ventaIds: event.target.checked ? [...prev.ventaIds, venta.id] : prev.ventaIds.filter((id) => id !== venta.id) })), className: "mt-1" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "flex-1", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "block text-xs font-black text-slate-800", children: [
+              venta.comprobante,
+              " \xB7 ",
+              formatearFecha(venta.fecha)
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "text-[10px] font-bold text-slate-500", children: [
+              "Comisi\xF3n pendiente ",
+              formatearDinero(venta.pendiente)
+            ] }),
+            marcado && aplicacion && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "block mt-1 text-[10px] font-black text-emerald-700", children: [
+              "Aplica ",
+              formatearDinero(aplicacion.montoAplicado),
+              " \xB7 queda del retiro ",
+              formatearDinero(aplicacion.restanteDespues)
+            ] })
+          ] })
+        ] }, venta.id);
+      }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", { rows: 2, value: formRetiro.notas, onChange: (event) => setFormRetiro((prev) => ({ ...prev, notas: event.target.value })), placeholder: "Aclaraci\xF3n del retiro", className: "w-full rounded-xl border border-slate-200 px-3 py-2.5 font-bold" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { className: "flex items-center gap-2 text-xs font-black text-slate-700", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "checkbox", checked: formRetiro.impactaCaja, onChange: (event) => setFormRetiro((prev) => ({ ...prev, impactaCaja: event.target.checked })) }),
+        " Descontar este retiro de la caja"
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex gap-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => setModalRetiro(false), className: "w-36 rounded-xl border border-slate-200 py-3 text-xs font-black", children: "Cancelar" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "submit", disabled: guardando, className: "flex-1 rounded-xl bg-emerald-600 py-3 text-xs font-black text-white disabled:bg-emerald-300", children: guardando ? "Guardando..." : "Guardar retiro" })
+      ] })
+    ] }) })
+  ] });
+};
 var ImagenProductoPreview = ({ imagen = "", logoMarca = "", alt = "Producto", placeholder = "image" }) => {
   const [previewPos, setPreviewPos] = (0, import_react4.useState)(null);
   const actualizarPosicion = (event) => {
@@ -59396,6 +59819,8 @@ function AppInterna() {
   const [proveedores, setProveedores] = (0, import_react4.useState)([]);
   const [pagosProveedores, setPagosProveedores] = (0, import_react4.useState)([]);
   const [facturasEmitidas, setFacturasEmitidas] = (0, import_react4.useState)([]);
+  const [vendedores, setVendedores] = (0, import_react4.useState)([]);
+  const [retirosVendedores, setRetirosVendedores] = (0, import_react4.useState)([]);
   const [marcas, setMarcas] = (0, import_react4.useState)([]);
   const [usuarioActual, setUsuarioActual] = (0, import_react4.useState)(null);
   const [loginForm, setLoginForm] = (0, import_react4.useState)({ username: "", password: "", error: "" });
@@ -59443,6 +59868,9 @@ function AppInterna() {
   }, []);
   const [clienteSeleccionado, setClienteSeleccionado] = (0, import_react4.useState)(null);
   const [modalActivo, setModalActivo] = (0, import_react4.useState)(null);
+  const [ventaAsignarVendedor, setVentaAsignarVendedor] = (0, import_react4.useState)(null);
+  const [formAsignacionVendedor, setFormAsignacionVendedor] = (0, import_react4.useState)({ vendedorId: "", porcentaje: "" });
+  const [guardandoAsignacionVendedor, setGuardandoAsignacionVendedor] = (0, import_react4.useState)(false);
   const [movimientoAEditar, setMovimientoAEditar] = (0, import_react4.useState)(null);
   const [movimientoAEliminar, setMovimientoAEliminar] = (0, import_react4.useState)(null);
   const [reciboCobroSeleccionado, setReciboCobroSeleccionado] = (0, import_react4.useState)(null);
@@ -60172,6 +60600,18 @@ function AppInterna() {
       loaded.sort((a3, b2) => new Date(b2?.fechaFactura || b2?.fechaCreacion || 0) - new Date(a3?.fechaFactura || a3?.fechaCreacion || 0));
       setFacturasEmitidas(loaded);
     }, (err2) => console.error(err2));
+    const unsubVendedores = onSnapshot(collection(db, "vendedores"), (snapshot) => {
+      const loaded = [];
+      snapshot.forEach((item2) => loaded.push({ id: item2.id, ...item2.data() }));
+      loaded.sort((a3, b2) => (a3?.nombre || "").localeCompare(b2?.nombre || "", "es", { sensitivity: "base" }));
+      setVendedores(loaded);
+    }, (err2) => console.error("No se pudieron cargar los vendedores.", err2));
+    const unsubRetirosVendedores = onSnapshot(collection(db, "retiros_vendedores"), (snapshot) => {
+      const loaded = [];
+      snapshot.forEach((item2) => loaded.push({ id: item2.id, ...item2.data() }));
+      loaded.sort((a3, b2) => new Date(b2?.fecha || b2?.fechaCreacion || 0) - new Date(a3?.fecha || a3?.fechaCreacion || 0));
+      setRetirosVendedores(loaded);
+    }, (err2) => console.error("No se pudieron cargar los retiros de vendedores.", err2));
     const unsubMarcas = onSnapshot(collection(db, "marcas"), (snapshot) => {
       const nombresMarcas = /* @__PURE__ */ new Map();
       snapshot.forEach((item2) => {
@@ -60219,6 +60659,8 @@ function AppInterna() {
       unsubProveedores();
       unsubPagosProveedores();
       unsubFacturasEmitidas();
+      unsubVendedores();
+      unsubRetirosVendedores();
       unsubMarcas();
       unsubPedidosCompra();
     };
@@ -60616,6 +61058,8 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
         return rol === "cajero" || Boolean(usuario?.puedeVerCaja);
       case "ventas":
         return ["cajero", "vendedor"].includes(rol) || Boolean(usuario?.puedeVerVentas);
+      case "vendedores":
+        return Boolean(usuario?.puedeVerVendedores);
       case "clientes":
         return ["cajero", "vendedor"].includes(rol) || Boolean(usuario?.puedeVerClientes);
       case "cuentas_corrientes":
@@ -60662,7 +61106,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
   };
   const usuarioPuedeVerResumenes = (usuario = usuarioActual) => (usuario?.rol || "").toLowerCase() === "admin" || Boolean(usuario?.puedeVerResumenes);
   const obtenerVistaInicialUsuario = (usuario = usuarioActual) => {
-    const vistas = ["caja", "notificaciones", "ventas", "clientes", "combos", "flyer", "inventario", "mod_masiva", "variacion_precios", "sugerencias", "compras", "proveedores", "comparativa", "presupuestos", "reportes", "rastreo", "ajustes", "ayuda"];
+    const vistas = ["caja", "notificaciones", "ventas", "vendedores", "clientes", "combos", "flyer", "inventario", "mod_masiva", "variacion_precios", "sugerencias", "compras", "proveedores", "comparativa", "presupuestos", "reportes", "rastreo", "ajustes", "ayuda"];
     return vistas.find((vistaItem) => usuarioPuedeVerModulo(vistaItem, usuario)) || "caja";
   };
   const clientesVisiblesSegunAcceso = (0, import_react4.useMemo)(() => {
@@ -62269,6 +62713,36 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
     const cargos = obtenerCargosProveedorDesdePedidos(proveedorNombre).sort((a3, b2) => new Date(a3.fecha) - new Date(b2.fecha));
     const cargosProcesados = cargos.map((cargo) => ({ ...cargo, pendiente: cargo.imputableSaldo ? Number(cargo.monto || 0) : 0 }));
     const pagos = obtenerPagosProveedor(proveedorNombre).map((pago) => ({ ...pago, monto: Math.max(0, parseNumeroBasico(pago?.monto)) })).sort((a3, b2) => new Date(a3.fecha || a3.fechaCreacion || 0) - new Date(b2.fecha || b2.fechaCreacion || 0));
+    const aplicarSaldoFavorAComprasPosteriores = (pago, saldoDisponible = 0) => {
+      let restante = Math.max(0, Number(saldoDisponible || 0));
+      if (restante <= 9e-3) return 0;
+      const fechaPagoMs = new Date(pago?.fecha || pago?.fechaCreacion || 0).getTime();
+      const cargosPosteriores = cargosProcesados.filter((cargo) => {
+        if (Number(cargo?.pendiente || 0) <= 9e-3) return false;
+        const fechaCargoMs = new Date(cargo?.fecha || cargo?.fechaRecepcion || cargo?.fechaPedido || 0).getTime();
+        if (!Number.isFinite(fechaPagoMs) || fechaPagoMs <= 0) return true;
+        return Number.isFinite(fechaCargoMs) && fechaCargoMs >= fechaPagoMs;
+      }).sort((a3, b2) => new Date(a3.fecha || 0) - new Date(b2.fecha || 0));
+      cargosPosteriores.forEach((cargo) => {
+        if (restante <= 9e-3) return;
+        const saldoFavorAntes = restante;
+        const aplicado = Math.min(restante, Math.max(0, Number(cargo.pendiente || 0)));
+        if (aplicado <= 0) return;
+        cargo.pendiente = Math.max(0, Number(cargo.pendiente || 0) - aplicado);
+        cargo.pagosAplicados = [...cargo.pagosAplicados || [], {
+          id: pago.id,
+          fecha: pago.fecha,
+          monto: aplicado,
+          pendienteDespues: cargo.pendiente,
+          desdeSaldoFavor: true,
+          saldoFavorAntes,
+          saldoFavorDespues: Math.max(0, saldoFavorAntes - aplicado)
+        }];
+        restante = Math.max(0, restante - aplicado);
+        pago.saldoFavorConsumido = Number(pago.saldoFavorConsumido || 0) + aplicado;
+      });
+      return restante;
+    };
     pagos.forEach((pago) => {
       let restante = Math.max(0, Number(pago.monto || 0));
       const aplicacionesGuardadas = Array.isArray(pago?.aplicacionesComprobantes) ? pago.aplicacionesComprobantes.filter((aplicacion) => textoSeguroTrim(aplicacion?.pedidoCompraId, "") && Number(aplicacion?.montoAplicado || 0) > 0) : [];
@@ -62290,6 +62764,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
           }];
           restante -= aplicado;
         });
+        restante = aplicarSaldoFavorAComprasPosteriores(pago, restante);
         pago.saldoFavorGenerado = Math.max(0, restante);
         return;
       }
@@ -62302,6 +62777,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
         cargo.pagosAplicados = [...cargo.pagosAplicados || [], { id: pago.id, fecha: pago.fecha, monto: aplicado, pendienteDespues: cargo.pendiente }];
         restante -= aplicado;
       });
+      restante = aplicarSaldoFavorAComprasPosteriores(pago, restante);
       pago.saldoFavorGenerado = Math.max(0, restante);
     });
     const totalCompras = cargosProcesados.reduce((acc, cargo) => acc + (cargo.imputableSaldo ? Number(cargo.monto || 0) : 0), 0);
@@ -65887,6 +66363,11 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
   };
   const eliminarComprobantePuntoVenta = async (mov = null) => {
     if (!mov?.id) return;
+    const tieneRetirosVendedor = retirosVendedores.some((retiro) => (retiro?.aplicacionesVentas || []).some((aplicacion) => aplicacion?.ventaId === mov.id));
+    if (tieneRetirosVendedor) {
+      await notificarSistema("Esta venta tiene retiros de comisi\xF3n aplicados. Elimin\xE1 primero esos retiros desde la cuenta del vendedor.", { tipo: "warning", titulo: "Venta vinculada a un vendedor" });
+      return;
+    }
     const confirmar = await confirmarSistema("\xBFEliminar este comprobante de venta?", {
       titulo: "Eliminar venta",
       tipo: "danger",
@@ -65909,6 +66390,75 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       tipo: "success",
       titulo: "Venta eliminada"
     });
+  };
+  const abrirAsignacionVendedorVenta = (mov = null) => {
+    if (!mov) return;
+    setVentaAsignarVendedor(mov);
+    setFormAsignacionVendedor({
+      vendedorId: textoSeguroTrim(mov?.detallesPago?.vendedorId, ""),
+      porcentaje: mov?.detallesPago?.comisionPorcentaje ?? ""
+    });
+  };
+  const guardarAsignacionVendedorVenta = async (event) => {
+    event.preventDefault();
+    if (!ventaAsignarVendedor?.id || guardandoAsignacionVendedor) return;
+    const vendedor = vendedores.find((item2) => item2.id === formAsignacionVendedor.vendedorId);
+    const porcentaje = Math.max(0, parseNumeroBasico(formAsignacionVendedor.porcentaje));
+    if (!vendedor || porcentaje <= 0 || porcentaje > 100) {
+      await notificarSistema("Seleccion\xE1 un vendedor e ingres\xE1 un porcentaje mayor a 0 y menor o igual a 100.", { tipo: "warning", titulo: "Asignaci\xF3n incompleta" });
+      return;
+    }
+    const aplicacionesExistentes = retirosVendedores.flatMap((retiro) => (retiro?.aplicacionesVentas || []).filter((aplicacion) => aplicacion?.ventaId === ventaAsignarVendedor.id).map((aplicacion) => ({ retiro, aplicacion })));
+    const vendedorAnteriorId = textoSeguroTrim(ventaAsignarVendedor?.detallesPago?.vendedorId, "");
+    if (aplicacionesExistentes.length && vendedorAnteriorId && vendedorAnteriorId !== vendedor.id) {
+      await notificarSistema("Esta venta ya tiene retiros de comisi\xF3n aplicados. Elimin\xE1 primero esos retiros antes de cambiar el vendedor.", { tipo: "warning", titulo: "Venta con retiros" });
+      return;
+    }
+    const comisionMonto = Math.round(Math.max(0, Number(ventaAsignarVendedor.monto || 0)) * porcentaje / 100 * 100) / 100;
+    const totalRetirado = aplicacionesExistentes.reduce((total, item2) => total + Number(item2.aplicacion?.montoAplicado || 0), 0);
+    if (comisionMonto + 9e-3 < totalRetirado) {
+      await notificarSistema(`La comisi\xF3n no puede quedar por debajo de los retiros ya aplicados (${formatearDinero(totalRetirado)}).`, { tipo: "warning", titulo: "Comisi\xF3n insuficiente" });
+      return;
+    }
+    setGuardandoAsignacionVendedor(true);
+    try {
+      await updateDoc(doc(db, "movimientos", ventaAsignarVendedor.id), {
+        detallesPago: limpiarDatoFirestore({
+          ...ventaAsignarVendedor.detallesPago || {},
+          vendedorId: vendedor.id,
+          vendedorNombre: vendedor.nombre,
+          comisionPorcentaje: porcentaje,
+          comisionMonto,
+          comisionAsignadaEn: (/* @__PURE__ */ new Date()).toISOString(),
+          comisionAsignadaPor: usuarioActual?.nombre || ""
+        })
+      });
+      setVentaAsignarVendedor(null);
+      await notificarSistema(`Venta asignada a ${vendedor.nombre}. Comisi\xF3n: ${formatearDinero(comisionMonto)}.`, { tipo: "success", titulo: "Comisi\xF3n asignada" });
+    } catch (error) {
+      console.error(error);
+      await notificarSistema("No se pudo guardar la asignaci\xF3n del vendedor.", { tipo: "error", titulo: "Error" });
+    } finally {
+      setGuardandoAsignacionVendedor(false);
+    }
+  };
+  const quitarAsignacionVendedorVenta = async () => {
+    if (!ventaAsignarVendedor?.id) return;
+    const tieneRetiros = retirosVendedores.some((retiro) => (retiro?.aplicacionesVentas || []).some((aplicacion) => aplicacion?.ventaId === ventaAsignarVendedor.id));
+    if (tieneRetiros) {
+      await notificarSistema("No se puede quitar el vendedor porque la comisi\xF3n ya tiene retiros aplicados.", { tipo: "warning", titulo: "Venta con retiros" });
+      return;
+    }
+    const detalles = { ...ventaAsignarVendedor.detallesPago || {} };
+    delete detalles.vendedorId;
+    delete detalles.vendedorNombre;
+    delete detalles.comisionPorcentaje;
+    delete detalles.comisionMonto;
+    delete detalles.comisionAsignadaEn;
+    delete detalles.comisionAsignadaPor;
+    await updateDoc(doc(db, "movimientos", ventaAsignarVendedor.id), { detallesPago: limpiarDatoFirestore(detalles) });
+    setVentaAsignarVendedor(null);
+    await notificarSistema("Se quit\xF3 la asignaci\xF3n del vendedor.", { tipo: "success", titulo: "Asignaci\xF3n eliminada" });
   };
   const seleccionarClienteCargaCuenta = (cliente) => {
     if (!cliente) return;
@@ -66884,6 +67434,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       puedeVerStockBajo: limpiarPermiso(formUsuario.puedeVerStockBajo),
       puedeVerRastreo: limpiarPermiso(formUsuario.puedeVerRastreo),
       puedeVerVariacionPrecios: limpiarPermiso(formUsuario.puedeVerVariacionPrecios),
+      puedeVerVendedores: limpiarPermiso(formUsuario.puedeVerVendedores),
       puedeVerResumenes: limpiarPermiso(formUsuario.puedeVerResumenes),
       // Compatibilidad con versiones previas
       puedeVerCuentasInstitucionales: limpiarPermiso(formUsuario.puedeVerClientesEspeciales)
@@ -68178,6 +68729,7 @@ Saldo a descontar: ${formatearDinero(pendienteTotal)}.`,
       puedeVerStockBajo: usuario?.puedeVerStockBajo === void 0 ? Boolean(usuario?.puedeVerInventario) : Boolean(usuario?.puedeVerStockBajo),
       puedeVerRastreo: usuario?.puedeVerRastreo === void 0 ? Boolean(usuario?.puedeVerVentas || usuario?.puedeVerCuentasCorrientes || usuario?.puedeVerReportes) : Boolean(usuario?.puedeVerRastreo),
       puedeVerVariacionPrecios: usuario?.puedeVerVariacionPrecios === void 0 ? Boolean(usuario?.puedeUsarModificacionMasiva || usuario?.puedeVerInventario) : Boolean(usuario?.puedeVerVariacionPrecios),
+      puedeVerVendedores: Boolean(usuario?.puedeVerVendedores),
       puedeVerResumenes: Boolean(usuario?.puedeVerResumenes)
     });
     setModalActivo("usuario_form");
@@ -70845,7 +71397,34 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
       }
       docPdf.setPage(paginaRetorno);
     };
-    const descripcionPagoProveedorPdf = (pago = {}, aplicado = 0, pedidoCompraId = "") => {
+    const dibujarConexionSaldoFavorPdf = ({ paginaOrigen, yOrigen, paginaDestino, yDestino }) => {
+      if (!paginaOrigen || !paginaDestino) return;
+      const paginaRetorno = obtenerPaginaCuentaPdf();
+      const xConexion = pageWidth - 11;
+      docPdf.setDrawColor(217, 119, 6);
+      docPdf.setFillColor(217, 119, 6);
+      docPdf.setLineWidth(0.75);
+      if (paginaOrigen === paginaDestino) {
+        docPdf.setPage(paginaOrigen);
+        docPdf.circle(xConexion, yOrigen, 1.2, "F");
+        docPdf.line(pageWidth - 18, yOrigen, xConexion, yOrigen);
+        docPdf.line(xConexion, yOrigen, xConexion, yDestino);
+        docPdf.line(xConexion, yDestino, pageWidth - 14.8, yDestino);
+        docPdf.triangle(pageWidth - 17.5, yDestino, pageWidth - 14.8, yDestino - 1.5, pageWidth - 14.8, yDestino + 1.5, "F");
+      } else {
+        docPdf.setPage(paginaOrigen);
+        docPdf.circle(xConexion, yOrigen, 1.2, "F");
+        docPdf.line(pageWidth - 18, yOrigen, xConexion, yOrigen);
+        docPdf.line(xConexion, yOrigen, xConexion, pageHeight - 7);
+        docPdf.triangle(xConexion, pageHeight - 5.5, xConexion - 1.5, pageHeight - 8.2, xConexion + 1.5, pageHeight - 8.2, "F");
+        docPdf.setPage(paginaDestino);
+        docPdf.line(xConexion, 7, xConexion, yDestino);
+        docPdf.line(xConexion, yDestino, pageWidth - 14.8, yDestino);
+        docPdf.triangle(pageWidth - 17.5, yDestino, pageWidth - 14.8, yDestino - 1.5, pageWidth - 14.8, yDestino + 1.5, "F");
+      }
+      docPdf.setPage(paginaRetorno);
+    };
+    const descripcionPagoProveedorPdf = (pago = {}, aplicado = 0, pedidoCompraId = "", aplicacionCuenta = null) => {
       const esCheque = ["cheque", "echeq"].includes(normalizarMetodoPago(pago.metodoPago));
       const cheque = esCheque && pago.numeroComprobante ? `Cheque N.\xBA ${pago.numeroComprobante}` : "";
       const plazo = esCheque && pago.plazoDias ? ` \xB7 a ${parseNumeroBasico(pago.plazoDias) || 0} d\xEDas` : "";
@@ -70854,20 +71433,32 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
       const aplicaciones = Array.isArray(pago?.aplicacionesComprobantes) ? pago.aplicacionesComprobantes : [];
       const aplicacionActual = pedidoCompraId ? aplicaciones.find((item2) => item2?.pedidoCompraId === pedidoCompraId) : null;
       const orden = aplicacionActual && aplicaciones.length > 1 ? ` \xB7 distribuci\xF3n ${aplicacionActual.orden || 1}/${aplicaciones.length}` : "";
-      return `${obtenerEtiquetaMetodoPago(pago.metodoPago || "transferencia")}${comprobante ? ` \xB7 ${comprobante}` : ""}${emisor ? ` \xB7 Emisor: ${emisor}` : ""}${plazo}${orden}`;
+      const origenSaldoFavor = aplicacionCuenta?.desdeSaldoFavor ? " \xB7 cr\xE9dito de saldo a favor" : "";
+      return `${obtenerEtiquetaMetodoPago(pago.metodoPago || "transferencia")}${comprobante ? ` \xB7 ${comprobante}` : ""}${emisor ? ` \xB7 Emisor: ${emisor}` : ""}${plazo}${orden}${origenSaldoFavor}`;
     };
     const aclaracionPagoProveedorPdf = (pago = {}) => {
-      const saldoFavor = Number(pago?.saldoFavorRegistrado || pago?.saldoFavorGenerado || 0);
+      const saldoFavor = Number(pago?.saldoFavorGenerado ?? pago?.saldoFavorRegistrado ?? 0);
+      const saldoFavorConsumido = Number(pago?.saldoFavorConsumido || 0);
+      const destinosSaldoFavor = cargosProveedorPdf.flatMap((cargo) => (cargo?.pagosAplicados || []).filter((aplicado) => aplicado?.id === pago?.id && aplicado?.desdeSaldoFavor).map((aplicado) => {
+        const comprobanteDestino = [cargo.tipoComprobanteProveedor, cargo.numeroComprobanteProveedor].filter(Boolean).join(" ") || (cargo.remitoProveedor ? `Remito ${cargo.remitoProveedor}` : `Pedido PC-${cargo.numero || "000000"}`);
+        return `${comprobanteDestino}: ${formatearDinero(Number(aplicado?.monto || 0))}`;
+      }));
       return [
         textoSeguroTrim(pago?.notas, ""),
-        saldoFavor > 9e-3 ? `Resto registrado como saldo a favor: ${formatearDinero(saldoFavor)}` : ""
+        saldoFavorConsumido > 9e-3 ? `Saldo a favor utilizado: ${formatearDinero(saldoFavorConsumido)}` : "",
+        destinosSaldoFavor.length ? `Sobrante aplicado a ${destinosSaldoFavor.join(" \xB7 ")}` : "",
+        saldoFavor > 9e-3 ? `Saldo a favor disponible: ${formatearDinero(saldoFavor)}` : ""
       ].filter(Boolean).join(" \xB7 ") || "-";
     };
     const cargosPdf = cargosProveedorPdf.filter((cargo) => cargo?.imputableSaldo);
+    const origenSaldoFavorPorPagoId = /* @__PURE__ */ new Map();
+    const conexionesSaldoFavorPendientesPdf = [];
     cargosPdf.forEach((cargo) => {
       const compraSaldada = Number(cargo?.pendiente || 0) <= 9e-3;
       const comprobante = [cargo.tipoComprobanteProveedor, cargo.numeroComprobanteProveedor].filter(Boolean).join(" ") || (cargo.remitoProveedor ? `Remito ${cargo.remitoProveedor}` : `Pedido PC-${cargo.numero || "000000"}`);
       const pagosDelCargo = (Array.isArray(cargo?.pagosAplicados) ? cargo.pagosAplicados : []).map((aplicado) => ({ aplicado, pago: pagosPorId.get(aplicado?.id) })).filter((item2) => item2.aplicado && item2.pago);
+      const pagosDesdeSaldoFavor = pagosDelCargo.filter(({ aplicado }) => aplicado?.desdeSaldoFavor);
+      const totalSaldoFavorAplicadoCargo = pagosDesdeSaldoFavor.reduce((total, { aplicado }) => total + Number(aplicado?.monto || 0), 0);
       pagosDelCargo.forEach(({ aplicado }) => pagosAplicadosIds.add(aplicado.id));
       asegurarEspacioCuenta(55);
       const paginaCargo = obtenerPaginaCuentaPdf();
@@ -70884,7 +71475,29 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
         docPdf.setFontSize(7.2);
         docPdf.text("COMPRA SALDADA", pageWidth - 39.5, cursorCuentaY + 5, { align: "center" });
       }
+      pagosDesdeSaldoFavor.forEach(({ aplicado, pago }) => conexionesSaldoFavorPendientesPdf.push({
+        pagoId: pago.id,
+        paginaDestino: paginaCargo,
+        yDestino: inicioCargoY + 4,
+        comprobanteDestino: comprobante,
+        montoAplicado: Number(aplicado?.monto || 0)
+      }));
       cursorCuentaY += 11;
+      if (totalSaldoFavorAplicadoCargo > 9e-3) {
+        docPdf.setFont("helvetica", "bold");
+        docPdf.setFontSize(7.8);
+        docPdf.setTextColor(180, 83, 9);
+        const origenesCredito = pagosDesdeSaldoFavor.map(({ pago }) => {
+          const numeroPago = textoSeguroTrim(pago?.numeroComprobante, "");
+          return numeroPago ? `pago ${numeroPago}` : `pago del ${formatearFechaCuentaPdf(pago?.fecha || pago?.fechaCreacion)}`;
+        }).join(", ");
+        const lineasOrigenCredito = docPdf.splitTextToSize(
+          `SALDO A FAVOR APLICADO: ${formatearDinero(totalSaldoFavorAplicadoCargo)} \xB7 proviene de ${origenesCredito}`,
+          pageWidth - 36
+        );
+        docPdf.text(lineasOrigenCredito, 18, cursorCuentaY + 3.5);
+        cursorCuentaY += Math.max(6, lineasOrigenCredito.length * 3.4 + 2);
+      }
       docPdf.setTextColor(15, 23, 42);
       autoTable(docPdf, {
         startY: cursorCuentaY,
@@ -70924,7 +71537,7 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
           head: [["Fecha", "Forma / comprobante / emisor", "Aclaraci\xF3n", "Pago total", "Importe aplicado", "Saldo despu\xE9s"]],
           body: pagosDelCargo.map(({ aplicado, pago }) => [
             formatearFechaCuentaPdf(pago.fecha || pago.fechaCreacion),
-            descripcionPagoProveedorPdf(pago, Number(aplicado.monto || 0), cargo.pedidoId),
+            descripcionPagoProveedorPdf(pago, Number(aplicado.monto || 0), cargo.pedidoId, aplicado),
             aclaracionPagoProveedorPdf(pago),
             formatearDinero(Number(pago.monto || 0)),
             formatearDinero(Number(aplicado.monto || 0)),
@@ -70943,6 +71556,16 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
           didParseCell: (data) => {
             if (data.section === "head" && [3, 4, 5].includes(data.column.index)) data.cell.styles.halign = "right";
             if (data.section === "body" && data.column.index === 2) data.cell.styles.fontStyle = "bold";
+          },
+          didDrawCell: (data) => {
+            if (data.section !== "body" || data.column.index !== 0) return;
+            const itemPago = pagosDelCargo[data.row.index];
+            if (!itemPago?.pago?.id || itemPago?.aplicado?.desdeSaldoFavor || Number(itemPago?.pago?.saldoFavorConsumido || 0) <= 9e-3) return;
+            origenSaldoFavorPorPagoId.set(itemPago.pago.id, {
+              paginaOrigen: obtenerPaginaCuentaPdf(),
+              yOrigen: Number(data.cell?.y || 0) + Number(data.cell?.height || 0) / 2,
+              comprobanteOrigen: comprobante
+            });
           },
           margin: { left: 18, right: 18 }
         });
@@ -71002,9 +71625,29 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
           if (data.section === "head" && [3, 4].includes(data.column.index)) data.cell.styles.halign = "right";
           if (data.section === "body" && data.column.index === 2) data.cell.styles.fontStyle = "bold";
         },
+        didDrawCell: (data) => {
+          if (data.section !== "body" || data.column.index !== 0) return;
+          const pago = pagosGeneralesPdf[data.row.index];
+          if (!pago?.id || Number(pago?.saldoFavorConsumido || 0) <= 9e-3) return;
+          origenSaldoFavorPorPagoId.set(pago.id, {
+            paginaOrigen: obtenerPaginaCuentaPdf(),
+            yOrigen: Number(data.cell?.y || 0) + Number(data.cell?.height || 0) / 2,
+            comprobanteOrigen: textoSeguroTrim(pago?.numeroComprobante, "") || "Pago general"
+          });
+        },
         margin: { left: 14, right: 14 }
       });
     }
+    conexionesSaldoFavorPendientesPdf.forEach((conexion) => {
+      const origen = origenSaldoFavorPorPagoId.get(conexion.pagoId);
+      if (!origen) return;
+      dibujarConexionSaldoFavorPdf({
+        paginaOrigen: origen.paginaOrigen,
+        yOrigen: origen.yOrigen,
+        paginaDestino: conexion.paginaDestino,
+        yDestino: conexion.yDestino
+      });
+    });
     const adjuntosImagen = pagosProveedorPdf.flatMap(
       (pago) => (Array.isArray(pago?.adjuntos) ? pago.adjuntos : []).filter((adj) => textoSeguroTrim(adj?.tipo, "").startsWith("image/") && textoSeguroTrim(adj?.dataUrl, "")).map((adj) => ({ ...adj, pago }))
     );
@@ -77989,6 +78632,7 @@ ${configuracion.nombre}`;
   const puedeVerSistema = cajaSegura.estado === "abierta" || esAdminActual;
   const puedeVerClientes = usuarioPuedeVerModulo("clientes", usuarioActual);
   const puedeVerVentas = usuarioPuedeVerModulo("ventas", usuarioActual);
+  const puedeVerVendedores = usuarioPuedeVerModulo("vendedores", usuarioActual);
   const puedeVerCaja = usuarioPuedeVerModulo("caja", usuarioActual);
   const puedeVerCuentasCorrientes = usuarioPuedeVerModulo("cuentas_corrientes", usuarioActual);
   const puedeUsarOfertas = usuarioPuedeVerModulo("ofertas", usuarioActual);
@@ -78012,6 +78656,7 @@ ${configuracion.nombre}`;
   const mostrarNavegacion = [
     puedeVerCaja,
     puedeVerVentas,
+    puedeVerVendedores,
     puedeVerClientes,
     puedeVerCuentasCorrientes,
     puedeUsarCombos,
@@ -78035,6 +78680,7 @@ ${configuracion.nombre}`;
     { visible: puedeVerNotificaciones, vista: "notificaciones", etiqueta: "Notificaciones", Icono: Bell, color: "rose" },
     { visible: puedeVerCaja, vista: "caja", etiqueta: "Caja diaria", Icono: Wallet, color: "blue" },
     { visible: puedeVerVentas, vista: "ventas", etiqueta: "Ventas", Icono: ClipboardList, color: "emerald" },
+    { visible: puedeVerVendedores, vista: "vendedores", etiqueta: "Vendedores", Icono: UserCog, color: "teal" },
     { visible: puedeVerClientes || puedeVerCuentasCorrientes, vista: "clientes", etiqueta: "Cuentas corrientes", Icono: CreditCard, color: "purple" },
     { visible: puedeVerPresupuestos, vista: "presupuestos", etiqueta: "Presupuestos", Icono: FileText, color: "teal" },
     { visible: puedeUsarCombos, vista: "combos", etiqueta: "Presupuesto combo", Icono: FileText, color: "indigo" },
@@ -78056,7 +78702,7 @@ ${configuracion.nombre}`;
   const opcionesNavegacionVisibles = opcionesNavegacion.filter((opcion) => opcion.visible);
   const obtenerRutaSidebar = (vistaRuta) => opcionesNavegacionVisibles.find((opcion) => opcion.vista === vistaRuta);
   const gruposSidebar = [
-    { id: "ventas", etiqueta: "Ventas", Icono: ShoppingCart, rutas: ["ventas", "caja", "clientes", "presupuestos", "combos", "flyer"] },
+    { id: "ventas", etiqueta: "Ventas", Icono: ShoppingCart, rutas: ["ventas", "vendedores", "caja", "clientes", "presupuestos", "combos", "flyer"] },
     { id: "inventario", etiqueta: "Inventario", Icono: Package, rutas: ["inventario", "stock_bajo", "compras", "variacion_precios", "mod_masiva", "sugerencias", "comparativa"] }
   ].map((grupo) => ({ ...grupo, hijos: grupo.rutas.map(obtenerRutaSidebar).filter(Boolean) })).filter((grupo) => grupo.hijos.length > 0);
   const entradasSidebarGestion = ["notificaciones", "proveedores", "comparativa_paralela", "rastreo"].map(obtenerRutaSidebar).filter(Boolean);
@@ -79858,6 +80504,7 @@ ${configuracion.nombre}`;
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-4 py-3", children: "Fecha" }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-4 py-3", children: "Comprobante" }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-4 py-3", children: "Cliente" }),
+                  puedeVerVendedores && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-4 py-3", children: "Vendedor" }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-4 py-3", children: "Pago" }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-4 py-3 text-right", children: "Total" }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-4 py-3 text-right", children: "Acciones" })
@@ -79878,6 +80525,14 @@ ${configuracion.nombre}`;
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-black uppercase tracking-wider text-gray-500", children: textoSeguroTrim(detalles?.numeroComprobante, "Sin n\xFAmero") })
                     ] }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-4 py-3 font-bold text-gray-800", children: textoSeguroTrim(detalles?.cliente, "-") }),
+                    puedeVerVendedores && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-4 py-3", children: detalles?.vendedorId ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "font-black text-teal-700", children: textoSeguroTrim(detalles?.vendedorNombre, "Vendedor") }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "text-[10px] font-black text-slate-500", children: [
+                        formatearCantidad(detalles?.comisionPorcentaje),
+                        "% \xB7 ",
+                        formatearDinero(Number(detalles?.comisionMonto || 0))
+                      ] })
+                    ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "text-[10px] font-bold text-slate-400", children: "Sin asignar" }) }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-4 py-3", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border ${normalizarMetodoPago(mov.metodoPago) === "cuenta_corriente" ? "bg-purple-50 text-purple-700 border-purple-200" : "bg-emerald-50 text-emerald-700 border-emerald-200"}`, children: obtenerEtiquetaMetodoPago(mov.metodoPago) }) }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("td", { className: `px-4 py-3 text-right font-black whitespace-nowrap ${esNotaCredito ? "text-red-600" : "text-emerald-700"}`, children: [
                       esNotaCredito ? "-" : "",
@@ -79912,6 +80567,16 @@ ${configuracion.nombre}`;
                           className: "p-2 rounded-lg border border-orange-200 text-orange-700 bg-orange-50 hover:bg-orange-100 transition-colors",
                           title: "Registrar devoluci\xF3n",
                           children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Undo2, { size: 14 })
+                        }
+                      ),
+                      puedeVerVendedores && !esNotaCredito && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                        "button",
+                        {
+                          type: "button",
+                          onClick: () => abrirAsignacionVendedorVenta(mov),
+                          className: `p-2 rounded-lg border transition-colors ${detalles?.vendedorId ? "border-teal-200 text-teal-700 bg-teal-50 hover:bg-teal-100" : "border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100"}`,
+                          title: detalles?.vendedorId ? "Editar vendedor y comisi\xF3n" : "Asignar vendedor y comisi\xF3n",
+                          children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UserPlus, { size: 14 })
                         }
                       ),
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
@@ -79970,6 +80635,17 @@ ${configuracion.nombre}`;
           ] }) })
         ] })
       ] }),
+      puedeVerVendedores && vista === "vendedores" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        ModuloVendedores,
+        {
+          vendedores,
+          retiros: retirosVendedores,
+          movimientos,
+          notificar: notificarSistema,
+          usuario: usuarioActual,
+          nombreEmpresa: configuracion?.nombre || "SeniorFlow"
+        }
+      ),
       puedeVerClientes && vista === "clientes" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sf-module-page sf-module-clients h-full min-h-0 flex flex-col gap-4 overflow-hidden animate-in fade-in duration-300 print:hidden", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sf-screen-header sf-clients-hero shrink-0 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 rounded-2xl border p-4 shadow-sm", children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex items-center gap-3", children: [
@@ -82060,7 +82736,7 @@ ${configuracion.nombre}`;
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-3 py-2", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `px-2 py-1 rounded-md text-[10px] font-black uppercase ${esPago ? "bg-emerald-50 border border-emerald-200 text-emerald-700" : "bg-indigo-50 border border-indigo-200 text-indigo-700"}`, children: esPago ? "Pago" : obtenerEtiquetaEstadoCompraProveedor(obtenerPedidoCompraPorId(mov?.pedidoId)) }) }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("td", { className: "px-3 py-2 min-w-[260px]", children: [
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "font-bold text-slate-900", children: esPago ? mov.notas || "Pago a proveedor" : mov.descripcion }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-bold text-slate-500 line-clamp-2", children: esPago ? `${obtenerEtiquetaMetodoPago(mov.metodoPago)}${(mov.adjuntos || []).length ? ` \xB7 ${mov.adjuntos.length} adjunto(s)` : ""}` : detalleItems })
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-bold text-slate-500 line-clamp-2", children: esPago ? `${obtenerEtiquetaMetodoPago(mov.metodoPago)}${Number(mov.saldoFavorConsumido || 0) > 9e-3 ? ` \xB7 saldo a favor utilizado ${formatearDinero(mov.saldoFavorConsumido)}` : ""}${Number(mov.saldoFavorGenerado || 0) > 9e-3 ? ` \xB7 disponible ${formatearDinero(mov.saldoFavorGenerado)}` : ""}${(mov.adjuntos || []).length ? ` \xB7 ${mov.adjuntos.length} adjunto(s)` : ""}` : detalleItems })
                     ] }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-3 py-2 text-xs font-bold text-slate-600", children: esPago ? mov.numeroComprobante || "-" : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
                       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { children: [
@@ -84828,6 +85504,51 @@ ${configuracion.nombre}`;
         ] })
       }
     ),
+    ventaAsignarVendedor && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Modal, { titulo: "Asignar vendedor y comisi\xF3n", onClose: guardandoAsignacionVendedor ? null : () => setVentaAsignarVendedor(null), customWidth: "max-w-lg", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", { onSubmit: guardarAsignacionVendedorVenta, className: "space-y-4", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "rounded-xl border border-slate-200 bg-slate-50 p-3", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-black uppercase tracking-wider text-slate-500", children: "Venta seleccionada" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "mt-1 font-black text-slate-900", children: [
+          OPCIONES_COMPROBANTE_VENTA.find((opcion) => opcion.value === ventaAsignarVendedor?.detallesPago?.tipoComprobante)?.label || "Comprobante",
+          " ",
+          textoSeguroTrim(ventaAsignarVendedor?.detallesPago?.numeroComprobante, "Sin n\xFAmero")
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "text-xs font-bold text-slate-500", children: [
+          textoSeguroTrim(ventaAsignarVendedor?.detallesPago?.cliente, "Sin cliente"),
+          " \xB7 Total ",
+          formatearDinero(Number(ventaAsignarVendedor.monto || 0))
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "block text-[10px] font-black uppercase tracking-wider text-slate-600 mb-1", children: "Vendedor" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", { value: formAsignacionVendedor.vendedorId, onChange: (event) => setFormAsignacionVendedor((prev) => ({ ...prev, vendedorId: event.target.value })), required: true, className: "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold outline-none focus:ring-2 focus:ring-teal-500", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: "", children: "Seleccionar vendedor" }),
+          vendedores.filter((vendedor) => vendedor.activo !== false || vendedor.id === formAsignacionVendedor.vendedorId).map((vendedor) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("option", { value: vendedor.id, children: [
+            vendedor.nombre,
+            vendedor.activo === false ? " (inactivo)" : ""
+          ] }, vendedor.id))
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "block text-[10px] font-black uppercase tracking-wider text-slate-600 mb-1", children: "Porcentaje de comisi\xF3n" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "relative", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { inputMode: "decimal", value: formAsignacionVendedor.porcentaje, onChange: (event) => setFormAsignacionVendedor((prev) => ({ ...prev, porcentaje: event.target.value.replace(/[^0-9.,]/g, "") })), placeholder: "Ej.: 5", required: true, className: "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 pr-10 text-right text-lg font-black outline-none focus:ring-2 focus:ring-teal-500" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "absolute right-3 top-1/2 -translate-y-1/2 font-black text-slate-500", children: "%" })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "rounded-xl border border-teal-200 bg-teal-50 p-3 flex items-center justify-between gap-3", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "text-xs font-black uppercase text-teal-700", children: "Comisi\xF3n calculada" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { className: "text-lg text-teal-800", children: formatearDinero(Math.max(0, Number(ventaAsignarVendedor.monto || 0)) * Math.max(0, parseNumeroBasico(formAsignacionVendedor.porcentaje)) / 100) })
+      ] }),
+      vendedores.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => {
+        setVentaAsignarVendedor(null);
+        setVista("vendedores");
+      }, className: "w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2.5 text-xs font-black text-blue-700", children: "Primero carg\xE1 un vendedor" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex flex-col sm:flex-row gap-2", children: [
+        ventaAsignarVendedor?.detallesPago?.vendedorId && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", disabled: guardandoAsignacionVendedor, onClick: quitarAsignacionVendedorVenta, className: "rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-black text-red-700", children: "Quitar asignaci\xF3n" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", disabled: guardandoAsignacionVendedor, onClick: () => setVentaAsignarVendedor(null), className: "rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-black text-slate-700", children: "Cancelar" }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "submit", disabled: guardandoAsignacionVendedor || !vendedores.length, className: "flex-1 rounded-xl bg-teal-600 px-4 py-3 text-xs font-black text-white disabled:bg-teal-300", children: guardandoAsignacionVendedor ? "Guardando..." : "Guardar asignaci\xF3n" })
+      ] })
+    ] }) }),
     modalActivo === "pago_proveedor" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
       Modal,
       {
@@ -92964,6 +93685,7 @@ lucide-react/dist/esm/icons/trending-up.mjs:
 lucide-react/dist/esm/icons/truck.mjs:
 lucide-react/dist/esm/icons/undo-2.mjs:
 lucide-react/dist/esm/icons/upload.mjs:
+lucide-react/dist/esm/icons/user-cog.mjs:
 lucide-react/dist/esm/icons/user-plus.mjs:
 lucide-react/dist/esm/icons/user.mjs:
 lucide-react/dist/esm/icons/users.mjs:
