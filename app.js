@@ -87974,7 +87974,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       restante = Math.max(0, restante - aplicado);
       totalSeleccionado += pendienteAntes;
       totalAplicado += aplicado;
-      const estado2 = aplicado <= 9e-3 ? "sin_aplicar" : pendienteDespues > 9e-3 ? "parcial" : "saldado";
+      const estado = aplicado <= 9e-3 ? "sin_aplicar" : pendienteDespues > 9e-3 ? "parcial" : "saldado";
       const item = {
         id: ticket.id,
         fecha: ticket.fecha,
@@ -87983,9 +87983,9 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
         pendienteAntes,
         aplicado,
         pendienteDespues,
-        estado: estado2
+        estado
       };
-      if (estado2 === "parcial" && !remitoParcial) remitoParcial = item;
+      if (estado === "parcial" && !remitoParcial) remitoParcial = item;
       return item;
     }).filter(Boolean);
     return {
@@ -88027,24 +88027,24 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
   const estadoCuentaClientes = (0, import_react4.useMemo)(() => {
     const estadoPorId = {};
     clientes.forEach((cliente) => {
-      const estado2 = calcularEstadoCuentaCliente(cliente);
-      const saldoPendiente = Math.max(0, Number(estado2?.saldoPendiente ?? cliente.saldo ?? 0));
-      const tieneDeuda = Boolean(estado2?.tieneDeuda || saldoPendiente > 9e-3);
-      const diasDeuda = tieneDeuda ? estado2.diasDeuda : null;
+      const estado = calcularEstadoCuentaCliente(cliente);
+      const saldoPendiente = Math.max(0, Number(estado?.saldoPendiente ?? cliente.saldo ?? 0));
+      const tieneDeuda = Boolean(estado?.tieneDeuda || saldoPendiente > 9e-3);
+      const diasDeuda = tieneDeuda ? estado.diasDeuda : null;
       const vencido30 = Boolean(tieneDeuda && diasDeuda !== null && diasDeuda > 30);
-      const recargosAplicados = Number(estado2?.recargosAplicados || 0);
-      const ultimaFechaRecargo = estado2?.ultimaFechaRecargo || null;
-      const diasDesdeUltimoRecargo = Number.isFinite(Number(estado2?.diasDesdeUltimoRecargo)) ? Number(estado2.diasDesdeUltimoRecargo) : null;
-      const ultimoPorcentajeRecargo = Math.max(0, Number(estado2?.ultimoPorcentajeRecargo || 0));
-      const tramosSugeridosRecargo = Math.max(0, Number(estado2?.tramosSugeridosRecargo || 0));
-      const porcentajeSugeridoRecargo = Math.max(0, Number(estado2?.porcentajeSugeridoRecargo || 0));
+      const recargosAplicados = Number(estado?.recargosAplicados || 0);
+      const ultimaFechaRecargo = estado?.ultimaFechaRecargo || null;
+      const diasDesdeUltimoRecargo = Number.isFinite(Number(estado?.diasDesdeUltimoRecargo)) ? Number(estado.diasDesdeUltimoRecargo) : null;
+      const ultimoPorcentajeRecargo = Math.max(0, Number(estado?.ultimoPorcentajeRecargo || 0));
+      const tramosSugeridosRecargo = Math.max(0, Number(estado?.tramosSugeridosRecargo || 0));
+      const porcentajeSugeridoRecargo = Math.max(0, Number(estado?.porcentajeSugeridoRecargo || 0));
       estadoPorId[cliente.id] = {
         tieneDeuda,
         vencido30,
         diasDeuda,
         saldoPendiente,
-        ticketsVencidos: estado2?.ticketsVencidos || [],
-        cantidadRemitosVencidos: (estado2?.ticketsVencidos || []).length,
+        ticketsVencidos: estado?.ticketsVencidos || [],
+        cantidadRemitosVencidos: (estado?.ticketsVencidos || []).length,
         recargosAplicados,
         ultimaFechaRecargo,
         diasDesdeUltimoRecargo,
@@ -88059,8 +88059,8 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
     let total = 0;
     let clientesConDeuda = 0;
     clientesVisiblesSegunAcceso.forEach((cliente) => {
-      const estado2 = estadoCuentaClientes[cliente.id];
-      const saldoPendiente = Math.max(0, Number(estado2?.saldoPendiente ?? cliente?.saldo ?? 0));
+      const estado = estadoCuentaClientes[cliente.id];
+      const saldoPendiente = Math.max(0, Number(estado?.saldoPendiente ?? cliente?.saldo ?? 0));
       if (saldoPendiente > 9e-3) {
         clientesConDeuda += 1;
         total += saldoPendiente;
@@ -88129,8 +88129,8 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
         const nuevosRecargos = [];
         const incrementoPorCliente = {};
         clientes.forEach((cliente) => {
-          const estado2 = calcularEstadoCuentaCliente(cliente);
-          const pendientesBase = (estado2.ticketsPendientes || []).filter((ticket) => !esRecargoMoraMovimiento(ticket));
+          const estado = calcularEstadoCuentaCliente(cliente);
+          const pendientesBase = (estado.ticketsPendientes || []).filter((ticket) => !esRecargoMoraMovimiento(ticket));
           const operacionRecargoId = `RCA-${cliente.id}-${Date.now()}`;
           const aplicadoEnOperacion = (/* @__PURE__ */ new Date()).toISOString();
           pendientesBase.forEach((ticket) => {
@@ -88279,9 +88279,9 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       const campos = [c4.nombre, c4.whatsapp, c4.documento, c4.email, c4.direccion, c4.numero, obtenerNumeroClienteTexto(c4)];
       return coincideBusquedaCompuesta(campos, busquedaDirectorio);
     });
-    const enriquecidos = baseFiltrada.map((cliente) => ({ cliente, estado: estadoCuentaClientes[cliente.id] || { tieneDeuda: false, diasDeuda: null } })).filter(({ cliente, estado: estado2 }) => {
+    const enriquecidos = baseFiltrada.map((cliente) => ({ cliente, estado: estadoCuentaClientes[cliente.id] || { tieneDeuda: false, diasDeuda: null } })).filter(({ cliente, estado }) => {
       if (!mostrarSoloConSaldoPendiente) return true;
-      return Boolean(estado2.tieneDeuda || Number(estado2.saldoPendiente ?? 0) > 9e-3);
+      return Boolean(estado.tieneDeuda || Number(estado.saldoPendiente ?? 0) > 9e-3);
     });
     enriquecidos.sort((a3, b3) => {
       if (mostrarSoloConSaldoPendiente) {
@@ -88382,8 +88382,8 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
     });
     productosStockBajo.slice(0, 12).forEach(({ producto, stockActual, stockMinimo }) => alertas.push({ id: `stock-${producto.id}`, prioridad: "urgente", vista: "inventario", productoId: producto.id, busquedaProducto: producto.codigo || producto.codigoInterno || producto.descripcion || "", titulo: "Stock bajo", detalle: `${producto.descripcion || "Producto"} \xB7 ${formatearCantidad(stockActual)} de m\xEDnimo ${formatearCantidad(stockMinimo)}` }));
     clientes.forEach((cliente) => {
-      const estado2 = estadoCuentaClientes[cliente.id];
-      if (Number(estado2?.cantidadRemitosVencidos || 0) > 0) alertas.push({ id: `cliente-vencido-${cliente.id}`, prioridad: "urgente", vista: "clientes", clienteId: cliente.id, movimientoId: estado2.ticketsVencidos?.[0]?.id || "", titulo: "Remitos vencidos", detalle: `${cliente.nombre} \xB7 ${estado2.cantidadRemitosVencidos} remito(s) vencido(s)` });
+      const estado = estadoCuentaClientes[cliente.id];
+      if (Number(estado?.cantidadRemitosVencidos || 0) > 0) alertas.push({ id: `cliente-vencido-${cliente.id}`, prioridad: "urgente", vista: "clientes", clienteId: cliente.id, movimientoId: estado.ticketsVencidos?.[0]?.id || "", titulo: "Remitos vencidos", detalle: `${cliente.nombre} \xB7 ${estado.cantidadRemitosVencidos} remito(s) vencido(s)` });
     });
     const productosVencidosPorProveedor = {};
     if (configuracion?.alertaActualizacionPreciosActiva) productos.forEach((producto) => {
@@ -92664,10 +92664,10 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       if (!esCuentaCorriente || !clienteId) return null;
       const cliente = clientes.find((item) => item.id === clienteId);
       if (!cliente) return null;
-      const estado2 = calcularEstadoCuentaCliente(cliente);
-      const cargo = (estado2?.cargosProcesados || []).find((item) => item.id === mov.id);
+      const estado = calcularEstadoCuentaCliente(cliente);
+      const cargo = (estado?.cargosProcesados || []).find((item) => item.id === mov.id);
       if (!cargo || Number(cargo.pendiente || 0) <= 9e-3) return null;
-      const recargosRelacionados = (estado2?.cargosProcesados || []).filter((item) => esRecargoMoraMovimiento(item) && textoSeguroTrim(item?.detallesPago?.cargoOrigenId, "") === mov.id);
+      const recargosRelacionados = (estado?.cargosProcesados || []).filter((item) => esRecargoMoraMovimiento(item) && textoSeguroTrim(item?.detallesPago?.cargoOrigenId, "") === mov.id);
       const recargoPendienteRegistrado = recargosRelacionados.reduce((acumulado, item) => acumulado + Math.max(0, Number(item.pendiente || 0)), 0);
       const porcentaje = obtenerPorcentajeRecargoConfigurado(configuracion);
       const calculo = calcularRecargoMoraTicket({
@@ -93268,9 +93268,9 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       }
     }));
   };
-  const obtenerSemaforoEstadoCuenta = (estado2 = {}) => {
-    const tieneDeuda = Boolean(estado2?.tieneDeuda);
-    const dias = Math.max(0, Number.isFinite(estado2?.diasDeuda) ? Number(estado2.diasDeuda) : 0);
+  const obtenerSemaforoEstadoCuenta = (estado = {}) => {
+    const tieneDeuda = Boolean(estado?.tieneDeuda);
+    const dias = Math.max(0, Number.isFinite(estado?.diasDeuda) ? Number(estado.diasDeuda) : 0);
     if (!tieneDeuda) {
       return {
         estadoTexto: "Al d\xEDa",
@@ -93363,14 +93363,21 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
         return;
       }
       const ultimoCierre = obtenerUltimoCierreCaja();
+      const puedeEditarApertura = (usuarioActual?.rol || "").toLowerCase() === "admin";
+      const efectivoApertura = puedeEditarApertura ? parseMontoCaja(formData.efectivo) : ultimoCierre.efectivo;
+      const chequesApertura = puedeEditarApertura && formData.tieneCheques ? parseMontoCaja(formData.cheques) : puedeEditarApertura ? 0 : ultimoCierre.cheques;
+      if (!Number.isFinite(efectivoApertura) || efectivoApertura < 0 || !Number.isFinite(chequesApertura) || chequesApertura < 0) {
+        await notificarSistema("Ingres\xE1 importes v\xE1lidos para abrir la caja.", { tipo: "warning", titulo: "Importe inv\xE1lido" });
+        return;
+      }
       const docRef = doc2(db, "sistema", "caja");
       await setDoc(docRef, {
         estado: "abierta",
-        efectivoInicial: ultimoCierre.efectivo,
-        chequesInicial: ultimoCierre.cheques,
+        efectivoInicial: efectivoApertura,
+        chequesInicial: chequesApertura,
         fechaApertura: (/* @__PURE__ */ new Date()).toISOString(),
-        aperturaEfectivo: ultimoCierre.efectivo,
-        aperturaCheques: ultimoCierre.cheques
+        aperturaEfectivo: efectivoApertura,
+        aperturaCheques: chequesApertura
       }, { merge: true });
       setFormData({ monto: "", efectivo: "", cheques: "", tieneCheques: false, descripcion: "", metodoPago: "efectivo", detallesPago: {} });
       setModalActivo(null);
@@ -94297,8 +94304,8 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
   };
   const limpiarCuentaCliente = async (cliente) => {
     if ((usuarioActual?.rol || "").toLowerCase() !== "admin") return;
-    const estado2 = estadoCuentaClientes[cliente?.id] || {};
-    const saldoPendiente = Math.max(0, Number(estado2.saldoPendiente ?? cliente?.saldo ?? 0));
+    const estado = estadoCuentaClientes[cliente?.id] || {};
+    const saldoPendiente = Math.max(0, Number(estado.saldoPendiente ?? cliente?.saldo ?? 0));
     const relacionados = movimientos.filter((mov) => esMovimientoRelacionadoACliente(mov, cliente));
     const mensaje = `Se limpiar\xE1 la cuenta corriente de "${cliente?.nombre || "cliente"}".
 
@@ -94371,13 +94378,13 @@ Esta acci\xF3n no se puede deshacer. \xBFContinuar?`;
   };
   const generarPdfResumenCuentaClienteFile = async (cliente = null) => {
     if (!cliente) throw new Error("Cliente no disponible");
-    const estado2 = calcularEstadoCuentaCliente(cliente);
-    const remitosBase = (estado2.cargosProcesados || []).filter((cargo) => !esRecargoMoraMovimiento(cargo) && esMovimientoCargoCuentaCorriente(cargo));
+    const estado = calcularEstadoCuentaCliente(cliente);
+    const remitosBase = (estado.cargosProcesados || []).filter((cargo) => !esRecargoMoraMovimiento(cargo) && esMovimientoCargoCuentaCorriente(cargo));
     const pendientesBase = remitosBase.filter((ticket) => Number(ticket.pendiente || 0) > 9e-3);
     const saldadosBase = remitosBase.filter((ticket) => Number(ticket.pendiente || 0) <= 9e-3);
     const saldoPendienteSinRecargos = Math.max(0, pendientesBase.reduce((acc, item) => acc + Number(item.pendiente || 0), 0));
-    const pendientePorCargoId = Object.fromEntries((estado2?.cargosProcesados || []).map((cargo) => [cargo.id, Number(cargo.pendiente || 0)]));
-    const totalCreditosClientePdf = (estado2?.movimientosDesc || []).filter((movimiento) => movimiento?.tipo === "cobro" || esMovimientoDescuentoCuentaCorriente(movimiento)).reduce((total, movimiento) => total + Math.abs(Number(movimiento?.monto || 0)), 0);
+    const pendientePorCargoId = Object.fromEntries((estado?.cargosProcesados || []).map((cargo) => [cargo.id, Number(cargo.pendiente || 0)]));
+    const totalCreditosClientePdf = (estado?.movimientosDesc || []).filter((movimiento) => movimiento?.tipo === "cobro" || esMovimientoDescuentoCuentaCorriente(movimiento)).reduce((total, movimiento) => total + Math.abs(Number(movimiento?.monto || 0)), 0);
     const totalCargosClientePdf = remitosBase.reduce((total, cargo) => total + Math.max(0, Number(cargo?.montoOriginal ?? cargo?.monto ?? 0)), 0);
     const saldoFavorClientePdf = Math.max(0, totalCreditosClientePdf - totalCargosClientePdf);
     const doc3 = crearPdfA4("landscape", { titulo: "Resumen de cuenta corriente" });
@@ -94426,7 +94433,7 @@ Esta acci\xF3n no se puede deshacer. \xBFContinuar?`;
     doc3.text("Lectura simple por pago: importe recibido, comprobantes afectados, d\xEDas transcurridos y saldo resultante. No incluye recargos de mora.", 14, 66);
     const usarResumenSimpleClientesPdf = true;
     if (usarResumenSimpleClientesPdf) {
-      const movimientosPagoPorId = new Map([...estado2?.movimientosDesc || [], ...movimientos || []].filter((mov) => mov?.id).map((mov) => [mov.id, mov]));
+      const movimientosPagoPorId = new Map([...estado?.movimientosDesc || [], ...movimientos || []].filter((mov) => mov?.id).map((mov) => [mov.id, mov]));
       const pagosResumenMap = /* @__PURE__ */ new Map();
       remitosBase.forEach((cargo) => {
         const detalleCargo = cargo?.detallesPago || {};
@@ -94452,7 +94459,7 @@ Esta acci\xF3n no se puede deshacer. \xBFContinuar?`;
           resumenPago.aplicaciones.push({ comprobante, montoOriginal: Math.max(0, Number(cargo?.montoOriginal ?? cargo?.monto ?? 0)), aplicado, saldoDespues: Math.max(0, Number(pago?.pendienteDespues || 0)), dias, desdeSaldoFavor: Boolean(pago?.desdeSaldoFavor) });
         });
       });
-      (estado2?.movimientosDesc || []).filter((movimiento) => movimiento?.tipo === "cobro" || esMovimientoDescuentoCuentaCorriente(movimiento)).forEach((movimiento) => {
+      (estado?.movimientosDesc || []).filter((movimiento) => movimiento?.tipo === "cobro" || esMovimientoDescuentoCuentaCorriente(movimiento)).forEach((movimiento) => {
         if (!movimiento?.id || pagosResumenMap.has(movimiento.id)) return;
         const resumen = construirResumenReciboCobro(movimiento);
         const detallesPago = movimiento?.detallesPago || {};
@@ -94493,7 +94500,7 @@ Esta acci\xF3n no se puede deshacer. \xBFContinuar?`;
       const pageWidthClientePdf = doc3.internal.pageSize.getWidth();
       const pageHeightClientePdf = doc3.internal.pageSize.getHeight();
       const movimientosPagoClientePdf = new Map([
-        ...estado2?.movimientosDesc || [],
+        ...estado?.movimientosDesc || [],
         ...movimientos || []
       ].filter((mov) => mov?.id).map((mov) => [mov.id, mov]));
       const referenciaCargoClientePdf = new Map(remitosBase.map((cargo, indice) => {
@@ -94515,7 +94522,7 @@ Esta acci\xF3n no se puede deshacer. \xBFContinuar?`;
           traza.aplicaciones.push({ cargoId: cargo.id, codigo: referencia?.codigo || "R--", comprobante: referencia?.comprobante || "Comprobante", monto: montoAplicado });
         });
       });
-      (estado2?.movimientosDesc || []).filter((movimiento) => movimiento?.tipo === "cobro" || esMovimientoDescuentoCuentaCorriente(movimiento)).forEach((movimiento) => {
+      (estado?.movimientosDesc || []).filter((movimiento) => movimiento?.tipo === "cobro" || esMovimientoDescuentoCuentaCorriente(movimiento)).forEach((movimiento) => {
         if (!movimiento?.id || trazabilidadCobrosClientePdf.has(movimiento.id)) return;
         trazabilidadCobrosClientePdf.set(movimiento.id, { id: movimiento.id, movimiento, fecha: movimiento.fecha || "", total: Math.abs(Number(movimiento.monto || 0)), aplicado: 0, aplicaciones: [] });
       });
@@ -94834,7 +94841,7 @@ ${aclaracionCobroClientePdf(pago, movimiento)}`,
         );
         (Array.isArray(cargo?.pagosAplicados) ? cargo.pagosAplicados : []).forEach((pago, pagoIndex) => {
           const pagoId = textoSeguroTrim(pago?.id, `${pago?.fecha || "sin-fecha"}-${cargo?.id || "cargo"}-${pagoIndex}`);
-          const movimientoPago = (estado2?.movimientosDesc || []).find((mov) => mov?.id === pagoId) || movimientos.find((mov) => mov?.id === pagoId) || null;
+          const movimientoPago = (estado?.movimientosDesc || []).find((mov) => mov?.id === pagoId) || movimientos.find((mov) => mov?.id === pagoId) || null;
           const resumenPago = movimientoPago ? construirResumenReciboCobro(movimientoPago) : null;
           if (!pagosDetalleMap.has(pagoId)) {
             pagosDetalleMap.set(pagoId, {
@@ -94935,8 +94942,8 @@ ${aclaracionCobroClientePdf(pago, movimiento)}`,
     let totalRemitosImpagos = 0;
     let totalRecargosPendientes = 0;
     clientesVisiblesSegunAcceso.forEach((cliente) => {
-      const estado2 = estadoCuentaClientes[cliente.id] || {};
-      const saldoPendiente = Math.max(0, Number(estado2.saldoPendiente ?? cliente.saldo ?? 0));
+      const estado = estadoCuentaClientes[cliente.id] || {};
+      const saldoPendiente = Math.max(0, Number(estado.saldoPendiente ?? cliente.saldo ?? 0));
       if (saldoPendiente <= 9e-3) return;
       const estadoDetallado = calcularEstadoCuentaCliente(cliente);
       const remitosImpagos = (estadoDetallado.ticketsPendientes || []).filter((ticket) => !esRecargoMoraMovimiento(ticket) && Number(ticket.pendiente || 0) > 9e-3);
@@ -94966,8 +94973,8 @@ ${aclaracionCobroClientePdf(pago, movimiento)}`,
     const nombreEmpresa = obtenerNombreEmpresaPresupuesto();
     const fechaEmision = (/* @__PURE__ */ new Date()).toISOString();
     const totalDeudaGeneral = clientesVisiblesSegunAcceso.reduce((acc, cliente) => {
-      const estado2 = estadoCuentaClientes[cliente.id] || {};
-      return acc + Math.max(0, Number(estado2.saldoPendiente ?? cliente.saldo ?? 0));
+      const estado = estadoCuentaClientes[cliente.id] || {};
+      return acc + Math.max(0, Number(estado.saldoPendiente ?? cliente.saldo ?? 0));
     }, 0);
     doc3.setFillColor(22, 51, 104);
     doc3.roundedRect(14, 10, 268, 24, 2, 2, "F");
@@ -98200,7 +98207,7 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
     const prov = proveedor || proveedorCuentaSeleccionado;
     const nombreProveedor = textoSeguroTrim(prov?.nombre || prov, "");
     if (!nombreProveedor) return;
-    const estado2 = calcularEstadoCuentaProveedor(nombreProveedor);
+    const estado = calcularEstadoCuentaProveedor(nombreProveedor);
     const docPdf = crearPdfA4("landscape", { titulo: "Cuenta corriente de proveedor" });
     const fechaEmision = /* @__PURE__ */ new Date();
     const pageWidth = docPdf.internal.pageSize.getWidth();
@@ -98259,13 +98266,13 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
     docPdf.text(proveedorInfo || "Sin datos comerciales adicionales", 14, 52);
     docPdf.setFont("helvetica", "bold");
     docPdf.setFontSize(10);
-    docPdf.text(`Compras recibidas: ${formatearDinero(estado2.totalCompras)}`, 14, 64);
-    docPdf.text(`Pagos registrados: ${formatearDinero(estado2.totalPagos)}`, 78, 64);
+    docPdf.text(`Compras recibidas: ${formatearDinero(estado.totalCompras)}`, 14, 64);
+    docPdf.text(`Pagos registrados: ${formatearDinero(estado.totalPagos)}`, 78, 64);
     docPdf.setTextColor(153, 27, 27);
-    docPdf.text(`Saldo pendiente: ${formatearDinero(estado2.saldoPendiente)}`, pageWidth - 14, 64, { align: "right" });
-    if (Number(estado2.saldoFavor || 0) > 9e-3) {
+    docPdf.text(`Saldo pendiente: ${formatearDinero(estado.saldoPendiente)}`, pageWidth - 14, 64, { align: "right" });
+    if (Number(estado.saldoFavor || 0) > 9e-3) {
       docPdf.setTextColor(180, 83, 9);
-      docPdf.text(`Saldo a favor: ${formatearDinero(estado2.saldoFavor)}`, pageWidth - 14, 70, { align: "right" });
+      docPdf.text(`Saldo a favor: ${formatearDinero(estado.saldoFavor)}`, pageWidth - 14, 70, { align: "right" });
     }
     docPdf.setTextColor(15, 23, 42);
     const formatearFechaCuentaPdf = (valor = "") => {
@@ -98276,8 +98283,8 @@ Margen estimado: ${resumenGanancia.margen.toFixed(1)}%`,
         return "-";
       }
     };
-    const pagosProveedorPdf = Array.isArray(estado2.pagos) ? estado2.pagos : [];
-    const cargosProveedorPdf = Array.isArray(estado2.cargosProcesados) ? estado2.cargosProcesados : [];
+    const pagosProveedorPdf = Array.isArray(estado.pagos) ? estado.pagos : [];
+    const cargosProveedorPdf = Array.isArray(estado.cargosProcesados) ? estado.cargosProcesados : [];
     const pagosPorId = new Map(pagosProveedorPdf.map((pago) => [pago?.id, pago]));
     const pagosAplicadosIds = /* @__PURE__ */ new Set();
     const usarResumenSimpleProveedorPdf = true;
@@ -102063,14 +102070,14 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
     imagen: textoSeguroTrim(item?.imagen, ""),
     manual: Boolean(item?.manual)
   });
-  const obtenerEstadoPedidoCompraLabel = (estado2 = "") => {
-    const key = textoSeguroTrim(estado2, "guardado");
+  const obtenerEstadoPedidoCompraLabel = (estado = "") => {
+    const key = textoSeguroTrim(estado, "guardado");
     if (key === "enviado") return "Enviado";
     if (key === "recibido") return "Recibido";
     return "Guardado";
   };
-  const obtenerEstadoPedidoCompraClase = (estado2 = "") => {
-    const key = textoSeguroTrim(estado2, "guardado");
+  const obtenerEstadoPedidoCompraClase = (estado = "") => {
+    const key = textoSeguroTrim(estado, "guardado");
     if (key === "enviado") return "bg-indigo-50 text-indigo-700 border-indigo-200";
     if (key === "recibido") return "bg-emerald-50 text-emerald-700 border-emerald-200";
     return "bg-amber-50 text-amber-700 border-amber-200";
@@ -102720,9 +102727,9 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
     });
     setModalActivo(null);
   };
-  const cambiarEstadoPedidoCompra = async (pedido = null, estado2 = "guardado") => {
+  const cambiarEstadoPedidoCompra = async (pedido = null, estado = "guardado") => {
     if (!pedido?.id) return;
-    const estadoNormalizado = textoSeguroTrim(estado2, "guardado") || "guardado";
+    const estadoNormalizado = textoSeguroTrim(estado, "guardado") || "guardado";
     if (estadoNormalizado === "recibido") {
       abrirRecepcionCompraPedido(pedido);
       return;
@@ -105251,8 +105258,8 @@ ${configuracion.nombre}`;
       });
       return;
     }
-    const estado2 = estadoInput || estadoCuentaClientes[cliente.id] || {};
-    const tieneDeuda = Boolean(estado2.tieneDeuda || Number(estado2.saldoPendiente ?? 0) > 9e-3);
+    const estado = estadoInput || estadoCuentaClientes[cliente.id] || {};
+    const tieneDeuda = Boolean(estado.tieneDeuda || Number(estado.saldoPendiente ?? 0) > 9e-3);
     if (!tieneDeuda) {
       await notificarSistema("El cliente est\xE1 al d\xEDa, no hay saldo pendiente para recordar.", {
         tipo: "info",
@@ -105271,8 +105278,8 @@ ${configuracion.nombre}`;
     }
     const estadoDetallado = calcularEstadoCuentaCliente(cliente);
     const saldoPendienteTickets = (estadoDetallado.ticketsPendientes || []).reduce((acc, ticket) => acc + Number(ticket.pendiente || 0), 0);
-    const dias = Number.isFinite(estado2?.diasDeuda) ? estado2.diasDeuda : estadoDetallado?.diasDeuda ?? 0;
-    const saldoPendiente = Math.max(0, Number(estado2?.saldoPendiente ?? cliente.saldo ?? 0), saldoPendienteTickets);
+    const dias = Number.isFinite(estado?.diasDeuda) ? estado.diasDeuda : estadoDetallado?.diasDeuda ?? 0;
+    const saldoPendiente = Math.max(0, Number(estado?.saldoPendiente ?? cliente.saldo ?? 0), saldoPendienteTickets);
     const nombreCliente = textoSeguroTrim(cliente?.nombre, "Cliente");
     const aliasPago = textoSeguroTrim(configuracion?.pagoAlias, "");
     const cbuPago = textoSeguroTrim(configuracion?.pagoCbu, "");
@@ -107883,22 +107890,22 @@ ${configuracion.nombre}`;
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "w-[110px] text-right", children: "Acciones" })
             ] }) }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tbody", { children: clientesPaginados.items.map((cliente) => (() => {
-              const estado2 = estadoCuentaClientes[cliente.id] || {};
-              const semaforo = obtenerSemaforoEstadoCuenta(estado2);
+              const estado = estadoCuentaClientes[cliente.id] || {};
+              const semaforo = obtenerSemaforoEstadoCuenta(estado);
               const saldoClass = semaforo.saldoClass;
               const estadoTexto = semaforo.estadoTexto;
               const estadoClass = semaforo.badgeClass;
-              const puedeAbonar = Boolean(estado2.tieneDeuda || Number(estado2.saldoPendiente ?? 0) > 9e-3);
-              const saldoPendiente = Math.max(0, Number(estado2.saldoPendiente ?? cliente.saldo ?? 0));
-              const mostrarIndicadoresDeudaCliente = Boolean(estado2.tieneDeuda && saldoPendiente > 9e-3);
+              const puedeAbonar = Boolean(estado.tieneDeuda || Number(estado.saldoPendiente ?? 0) > 9e-3);
+              const saldoPendiente = Math.max(0, Number(estado.saldoPendiente ?? cliente.saldo ?? 0));
+              const mostrarIndicadoresDeudaCliente = Boolean(estado.tieneDeuda && saldoPendiente > 9e-3);
               const recordatorios = Number(cliente.recordatoriosWhatsappEnviados || 0);
-              const recargosAplicados = mostrarIndicadoresDeudaCliente ? Math.max(0, Number(estado2.recargosAplicados || 0)) : 0;
-              const diasDeudaCliente = Number.isFinite(Number(estado2?.diasDeuda)) ? Number(estado2.diasDeuda) : null;
-              const diasDesdeUltimoRecargoCliente = Number.isFinite(Number(estado2?.diasDesdeUltimoRecargo)) ? Number(estado2.diasDesdeUltimoRecargo) : null;
-              const porcentajeSugeridoRecargoCliente = Math.max(0, Number(estado2?.porcentajeSugeridoRecargo || 0));
-              const tramosSugeridosRecargoCliente = Math.max(0, Number(estado2?.tramosSugeridosRecargo || 0));
-              const porcentajeBaseRecargoCliente = Math.max(0, Number(estado2?.ultimoPorcentajeRecargo || obtenerPorcentajeRecargoConfigurado(configuracion)));
-              const ultimaFechaRecargoCliente = estado2?.ultimaFechaRecargo ? new Date(estado2.ultimaFechaRecargo) : null;
+              const recargosAplicados = mostrarIndicadoresDeudaCliente ? Math.max(0, Number(estado.recargosAplicados || 0)) : 0;
+              const diasDeudaCliente = Number.isFinite(Number(estado?.diasDeuda)) ? Number(estado.diasDeuda) : null;
+              const diasDesdeUltimoRecargoCliente = Number.isFinite(Number(estado?.diasDesdeUltimoRecargo)) ? Number(estado.diasDesdeUltimoRecargo) : null;
+              const porcentajeSugeridoRecargoCliente = Math.max(0, Number(estado?.porcentajeSugeridoRecargo || 0));
+              const tramosSugeridosRecargoCliente = Math.max(0, Number(estado?.tramosSugeridosRecargo || 0));
+              const porcentajeBaseRecargoCliente = Math.max(0, Number(estado?.ultimoPorcentajeRecargo || obtenerPorcentajeRecargoConfigurado(configuracion)));
+              const ultimaFechaRecargoCliente = estado?.ultimaFechaRecargo ? new Date(estado.ultimaFechaRecargo) : null;
               const ultimaFechaRecargoValida = ultimaFechaRecargoCliente && !Number.isNaN(ultimaFechaRecargoCliente.getTime());
               const whatsappClienteUrl = construirUrlWhatsApp(cliente?.whatsapp || "");
               const esAdmin = (usuarioActual?.rol || "").toLowerCase() === "admin";
@@ -107914,7 +107921,7 @@ ${configuracion.nombre}`;
                   ] })
                 ] }) }),
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex items-center gap-2", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `sf-client-status ${estado2.tieneDeuda ? estadoClass : "sf-client-status-ok"}`, children: estado2.tieneDeuda ? estadoTexto : "Al d\xEDa" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `sf-client-status ${estado.tieneDeuda ? estadoClass : "sf-client-status-ok"}`, children: estado.tieneDeuda ? estadoTexto : "Al d\xEDa" }),
                   recargosAplicados > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "sf-client-recargo", title: ultimaFechaRecargoValida ? `\xDAltimo recargo: ${formatearFecha(ultimaFechaRecargoCliente)}` : "Recargos aplicados", children: [
                     "R",
                     recargosAplicados
@@ -107924,8 +107931,8 @@ ${configuracion.nombre}`;
                     " REC."
                   ] })
                 ] }) }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: `text-right font-black tabular-nums ${estado2.tieneDeuda ? saldoClass : "text-slate-400"}`, children: estado2.tieneDeuda ? formatearDinero(saldoPendiente) : "\u2014" }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: `text-right text-xs font-bold ${diasDeudaCliente !== null && diasDeudaCliente > 30 ? "text-amber-700" : "text-slate-500"}`, children: estado2.tieneDeuda && diasDeudaCliente !== null ? `${diasDeudaCliente} d\xEDas` : "\u2014" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: `text-right font-black tabular-nums ${estado.tieneDeuda ? saldoClass : "text-slate-400"}`, children: estado.tieneDeuda ? formatearDinero(saldoPendiente) : "\u2014" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: `text-right text-xs font-bold ${diasDeudaCliente !== null && diasDeudaCliente > 30 ? "text-amber-700" : "text-slate-500"}`, children: estado.tieneDeuda && diasDeudaCliente !== null ? `${diasDeudaCliente} d\xEDas` : "\u2014" }),
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { onClick: (e2) => e2.stopPropagation(), children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex items-center justify-end gap-1", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => abrirDetalleCliente(cliente), className: "sf-client-icon-action", title: "Ver cuenta corriente", "aria-label": "Ver cuenta corriente", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowRight, { size: 16 }) }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("details", { className: "sf-client-more", children: [
@@ -107935,7 +107942,7 @@ ${configuracion.nombre}`;
                         /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowRight, { size: 14 }),
                         " Registrar cobro"
                       ] }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", disabled: !estado2.tieneDeuda, onClick: () => enviarRecordatorioCliente(cliente, estado2), children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", { type: "button", disabled: !estado.tieneDeuda, onClick: () => enviarRecordatorioCliente(cliente, estado), children: [
                         /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Send, { size: 14 }),
                         " Enviar recordatorio"
                       ] }),
@@ -109716,15 +109723,15 @@ ${configuracion.nombre}`;
             estado: estadosCuentaProveedores[prov.nombre] || calcularEstadoCuentaProveedor(prov.nombre)
           }));
           const terminoBusquedaCuenta = textoSeguroTrim(busquedaCuentaProveedor, "");
-          const proveedoresConSaldoFiltrados = terminoBusquedaCuenta ? proveedoresConSaldo.filter(({ proveedor, estado: estado2 }) => coincideBusquedaCompuesta([
+          const proveedoresConSaldoFiltrados = terminoBusquedaCuenta ? proveedoresConSaldo.filter(({ proveedor, estado }) => coincideBusquedaCompuesta([
             proveedor?.nombre,
             proveedor?.cuit,
             proveedor?.direccion,
             proveedor?.telefono,
             proveedor?.email,
-            formatearDinero(estado2?.saldoPendiente || 0),
-            estado2?.cargosProcesados?.length,
-            estado2?.pagos?.length
+            formatearDinero(estado?.saldoPendiente || 0),
+            estado?.cargosProcesados?.length,
+            estado?.pagos?.length
           ], terminoBusquedaCuenta)) : proveedoresConSaldo;
           const proveedorPorBusqueda = terminoBusquedaCuenta ? proveedoresConCuentaCorriente.find((prov) => normalizarTextoBusqueda(prov?.nombre || "") === normalizarTextoBusqueda(terminoBusquedaCuenta)) : null;
           const proveedorActivo = proveedorCuentaSeleccionado || proveedorPorBusqueda || null;
@@ -111817,11 +111824,11 @@ ${configuracion.nombre}`;
                 /* @__PURE__ */ (0, import_jsx_runtime.jsx)("th", { className: "px-4 py-3 text-right", children: "Deuda" })
               ] }) }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tbody", { className: "divide-y divide-gray-100", children: clientes.map((c4) => {
-                const estado2 = estadoCuentaClientes[c4.id] || {};
-                const semaforo = obtenerSemaforoEstadoCuenta(estado2);
+                const estado = estadoCuentaClientes[c4.id] || {};
+                const semaforo = obtenerSemaforoEstadoCuenta(estado);
                 const estadoClass = semaforo.saldoClass;
-                const estadoTexto = estado2.tieneDeuda ? semaforo.estadoTexto : "Al d\xEDa";
-                const saldoCalculado = Math.max(0, Number(estado2.saldoPendiente ?? c4.saldo ?? 0));
+                const estadoTexto = estado.tieneDeuda ? semaforo.estadoTexto : "Al d\xEDa";
+                const saldoCalculado = Math.max(0, Number(estado.saldoPendiente ?? c4.saldo ?? 0));
                 return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("tr", { className: "hover:bg-slate-50 print:hover:bg-transparent", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-4 py-3", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "text-[10px] font-black text-purple-700 bg-purple-100 border border-purple-200 px-2 py-1 rounded-md tracking-wider", children: obtenerNumeroClienteTexto(c4) }) }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { className: "px-4 py-3 font-bold text-gray-900", children: c4.nombre }),
@@ -113908,7 +113915,7 @@ ${configuracion.nombre}`;
       }
     ),
     modalActivo === "abrir" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Modal, { titulo: "Abrir Caja", onClose: () => setModalActivo(null), children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", { onSubmit: abrirCaja, className: "space-y-4", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs font-bold text-blue-800", children: "La apertura toma autom\xE1ticamente el \xFAltimo cierre guardado. El importe no se puede modificar manualmente." }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs font-bold text-blue-800", children: (usuarioActual?.rol || "").toLowerCase() === "admin" ? "Como administrador pod\xE9s corregir manualmente el efectivo y los cheques antes de confirmar la apertura." : "La apertura toma autom\xE1ticamente el \xFAltimo cierre guardado. Solo un administrador puede modificar el importe." }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider", children: "Fondo inicial en efectivo" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "relative", children: [
@@ -113916,14 +113923,14 @@ ${configuracion.nombre}`;
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
             "input",
             {
-              type: "number",
-              step: "0.01",
-              min: "0",
+              type: "text",
+              inputMode: "decimal",
               required: true,
               value: formData.efectivo,
-              readOnly: true,
-              className: "w-full pl-10 pr-4 py-3 bg-white border-2 border-blue-200 rounded-xl text-2xl font-black text-blue-700 outline-none focus:border-blue-600",
-              placeholder: "0.00",
+              readOnly: (usuarioActual?.rol || "").toLowerCase() !== "admin",
+              onChange: (e2) => setFormData({ ...formData, efectivo: e2.target.value }),
+              className: `w-full pl-10 pr-4 py-3 bg-white border-2 border-blue-200 rounded-xl text-2xl font-black text-blue-700 outline-none focus:border-blue-600 ${(usuarioActual?.rol || "").toLowerCase() !== "admin" ? "cursor-not-allowed" : ""}`,
+              placeholder: "0,00",
               autoFocus: true
             }
           )
@@ -113936,7 +113943,7 @@ ${configuracion.nombre}`;
             {
               type: "checkbox",
               checked: !!formData.tieneCheques,
-              disabled: true,
+              disabled: (usuarioActual?.rol || "").toLowerCase() !== "admin",
               onChange: (e2) => setFormData({ ...formData, tieneCheques: e2.target.checked, cheques: e2.target.checked ? formData.cheques : "" }),
               className: "w-4 h-4"
             }
@@ -113948,12 +113955,12 @@ ${configuracion.nombre}`;
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
             "input",
             {
-              type: "number",
-              step: "0.01",
-              min: "0",
+              type: "text",
+              inputMode: "decimal",
               value: formData.cheques,
-              readOnly: true,
-              className: "w-full pl-8 pr-3 py-2.5 bg-white border border-orange-200 rounded-lg font-bold text-sm outline-none focus:border-orange-500",
+              readOnly: (usuarioActual?.rol || "").toLowerCase() !== "admin",
+              onChange: (e2) => setFormData({ ...formData, cheques: e2.target.value }),
+              className: `w-full pl-8 pr-3 py-2.5 bg-white border border-orange-200 rounded-lg font-bold text-sm outline-none focus:border-orange-500 ${(usuarioActual?.rol || "").toLowerCase() !== "admin" ? "cursor-not-allowed" : ""}`,
               placeholder: "Monto total en cheques"
             }
           )
@@ -117614,13 +117621,13 @@ ${configuracion.nombre}`;
         extraClases: "sf-client-account-modal",
         children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "sf-client-account-layout space-y-3", children: [
           (() => {
-            const estado2 = estadoCuentaClientes[clienteSeleccionado.id] || {};
-            const semaforo = obtenerSemaforoEstadoCuenta(estado2);
+            const estado = estadoCuentaClientes[clienteSeleccionado.id] || {};
+            const semaforo = obtenerSemaforoEstadoCuenta(estado);
             const saldoClass = semaforo.saldoClass;
             const estadoTexto = semaforo.estadoTexto;
             const estadoBadgeClass = semaforo.badgeClass;
-            const puedeAbonar = Boolean(estado2.tieneDeuda || Number(estado2.saldoPendiente ?? 0) > 9e-3);
-            const saldoPendiente = Math.max(0, Number(estado2.saldoPendiente ?? saldoPendienteClienteSeleccionado ?? 0));
+            const puedeAbonar = Boolean(estado.tieneDeuda || Number(estado.saldoPendiente ?? 0) > 9e-3);
+            const saldoPendiente = Math.max(0, Number(estado.saldoPendiente ?? saldoPendienteClienteSeleccionado ?? 0));
             const recordatorios = Number(clienteSeleccionado.recordatoriosWhatsappEnviados || 0);
             return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "bg-purple-50 border border-purple-200 rounded-2xl p-3", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3", children: [
@@ -117634,8 +117641,8 @@ ${configuracion.nombre}`;
                   ] })
                 ] }),
                 /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "text-left sm:text-right bg-white border border-purple-200 rounded-xl px-3 py-2", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-bold text-gray-500 uppercase tracking-wider", children: estado2.tieneDeuda ? "Saldo actual" : "Estado de cuenta" }),
-                  !estado2.tieneDeuda ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-base font-black tracking-tight text-green-700", children: "Al d\xEDa sin saldo" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-bold text-gray-500 uppercase tracking-wider", children: estado.tieneDeuda ? "Saldo actual" : "Estado de cuenta" }),
+                  !estado.tieneDeuda ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-base font-black tracking-tight text-green-700", children: "Al d\xEDa sin saldo" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: `text-2xl font-black tracking-tight ${saldoClass}`, children: formatearDinero(saldoPendiente) }),
                     /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: `mt-1 inline-flex px-2 py-0.5 rounded-md border text-[10px] font-black uppercase tracking-wider ${estadoBadgeClass}`, children: estadoTexto })
                   ] })
@@ -117650,10 +117657,10 @@ ${configuracion.nombre}`;
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] uppercase tracking-wider text-purple-600", children: "Disponible" }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "font-black text-purple-900", children: Number(clienteSeleccionado.limiteCuentaCorriente || 0) > 0 ? formatearDinero(Math.max(0, Number(clienteSeleccionado.limiteCuentaCorriente) - saldoPendiente)) : "Sin l\xEDmite" })
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: `rounded-xl px-3 py-2 border ${Number(estado2.cantidadRemitosVencidos || 0) > 0 ? "bg-red-50 border-red-200 text-red-800" : "bg-white/80 border-purple-100 text-purple-900"}`, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: `rounded-xl px-3 py-2 border ${Number(estado.cantidadRemitosVencidos || 0) > 0 ? "bg-red-50 border-red-200 text-red-800" : "bg-white/80 border-purple-100 text-purple-900"}`, children: [
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] uppercase tracking-wider", children: "Remitos vencidos" }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "font-black", children: [
-                    Number(estado2.cantidadRemitosVencidos || 0),
+                    Number(estado.cantidadRemitosVencidos || 0),
                     Number(clienteSeleccionado.plazoCuentaCorrienteDias || 0) > 0 ? ` \xB7 ${clienteSeleccionado.plazoCuentaCorrienteDias} d\xEDas` : ""
                   ] })
                 ] })
@@ -117684,8 +117691,8 @@ ${configuracion.nombre}`;
                 /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
                   "button",
                   {
-                    onClick: () => enviarRecordatorioCliente(clienteSeleccionado, estado2),
-                    disabled: !estado2.tieneDeuda,
+                    onClick: () => enviarRecordatorioCliente(clienteSeleccionado, estado),
+                    disabled: !estado.tieneDeuda,
                     className: "bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-50 disabled:bg-gray-200 disabled:text-gray-500 px-3 py-2 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all",
                     children: [
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Send, { size: 14 }),
@@ -117698,7 +117705,7 @@ ${configuracion.nombre}`;
                 /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
                   "button",
                   {
-                    onClick: () => abrirWidgetCuentaCorrienteDisplay(clienteSeleccionado, estado2),
+                    onClick: () => abrirWidgetCuentaCorrienteDisplay(clienteSeleccionado, estado),
                     disabled: !puedeAbonar,
                     className: "bg-cyan-600 hover:bg-cyan-700 text-white disabled:opacity-50 disabled:bg-gray-200 disabled:text-gray-500 px-3 py-2 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all",
                     children: [
@@ -117746,6 +117753,7 @@ ${configuracion.nombre}`;
             ] }) });
           })(),
           (() => {
+            const estado = estadoCuentaClientes[clienteSeleccionado.id] || {};
             const remitosCuenta = (estado.cargosProcesados || []).filter((cargo) => !esRecargoMoraMovimiento(cargo));
             const pagosCuenta = (movimientosClienteSeleccionadoVisibles || []).filter((mov) => mov.tipo === "cobro");
             return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "grid grid-cols-1 xl:grid-cols-2 gap-3", children: [
