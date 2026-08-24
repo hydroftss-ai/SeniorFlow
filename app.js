@@ -84553,6 +84553,13 @@ var textoSeguroTrim = (valor, fallback = "") => {
   const limpio = textoSeguro(valor, "").trim();
   return limpio || fallback;
 };
+var usuarioTieneRolAdministrador = (usuario = null) => {
+  const rol = textoSeguroTrim(
+    usuario?.rol || usuario?.role || usuario?.nivelAcceso || usuario?.nivel || usuario?.perfil,
+    ""
+  ).toLowerCase();
+  return ["admin", "administrador", "administrator"].includes(rol) || usuario?.esAdministrador === true || usuario?.esAdmin === true;
+};
 var obtenerEnlaceAppStockMovil = () => {
   try {
     return new URL("stock-app.html", window.location.href).href;
@@ -87473,7 +87480,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
   };
   const usuarioPuedeVerModulo = (modulo = "", usuario = usuarioActual) => {
     const rol = (usuario?.rol || "").toLowerCase();
-    if (rol === "admin") return true;
+    if (usuarioTieneRolAdministrador(usuario)) return true;
     switch (modulo) {
       case "caja":
         return rol === "cajero" || Boolean(usuario?.puedeVerCaja);
@@ -91624,13 +91631,13 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
           clienteNombre = "Consumidor Final";
           clienteWhatsapp = "";
         } else {
-          const ref2 = await addDoc(collection2(db, "clientes"), {
+          const ref2 = await promesaConTimeout(addDoc(collection2(db, "clientes"), {
             numero: obtenerSiguienteNumeroCliente(),
             nombre: nombreNuevo,
             whatsapp: textoSeguroTrim(formPuntoVenta.whatsapp, ""),
             saldo: 0,
             esEspecial: false
-          });
+          }), 15e3, "La creaci\xF3n del cliente tard\xF3 demasiado. Revis\xE1 la conexi\xF3n e intent\xE1 nuevamente.");
           clienteId = ref2.id;
           clienteNombre = nombreNuevo;
           clienteWhatsapp = textoSeguroTrim(formPuntoVenta.whatsapp, "");
@@ -91657,7 +91664,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
           if (clienteOriginal) {
             const signoOriginal = originalDetalles?.tipoComprobante === "nota_credito" ? 1 : -1;
             const saldoAjustado = Math.max(0, Number(clienteOriginal.saldo || 0) + signoOriginal * Number(movimientoOriginal?.monto || 0));
-            await updateDoc(doc2(db, "clientes", originalClienteId), { saldo: saldoAjustado });
+            await promesaConTimeout(updateDoc(doc2(db, "clientes", originalClienteId), { saldo: saldoAjustado }), 15e3, "La actualizaci\xF3n del cliente tard\xF3 demasiado.");
             if (originalClienteId === clienteId) saldoBaseClienteDestino = saldoAjustado;
           }
         }
@@ -91686,7 +91693,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
         const saldoActual2 = saldoBaseClienteDestino === null ? Number(estadoCuentaClientes[clienteId]?.saldoPendiente ?? clienteActual?.saldo ?? 0) : saldoBaseClienteDestino;
         const saldoActualizado = esNotaCredito ? Math.max(0, saldoActual2 - total) : saldoActual2 + total;
         try {
-          await updateDoc(doc2(db, "clientes", clienteId), { saldo: saldoActualizado });
+          await promesaConTimeout(updateDoc(doc2(db, "clientes", clienteId), { saldo: saldoActualizado }), 15e3, "La actualizaci\xF3n de la cuenta corriente tard\xF3 demasiado.");
         } catch (error) {
           console.error("No se pudo actualizar la cuenta corriente antes de guardar la venta", error);
           liberarBloqueoVenta();
@@ -91697,6 +91704,11 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
           return;
         }
       }
+      const itemsVentaFirestore = itemsVentaNormalizados.map((item) => ({
+        ...item,
+        imagen: esDataUrlPesada(item?.imagen) ? "" : item?.imagen,
+        logoMarca: esDataUrlPesada(item?.logoMarca) ? "" : item?.logoMarca
+      }));
       const payloadVenta = {
         tipo: "venta",
         monto: total,
@@ -91760,7 +91772,7 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
             tarjetaValorCuota: financiacionTarjetaVenta.cuota,
             tarjetaNetoEstimado: financiacionTarjetaVenta.netoEstimado
           } : {},
-          items: itemsVentaNormalizados
+          items: itemsVentaFirestore
         },
         fecha: fechaMovimiento,
         usuario: usuarioActual?.nombre || usuarioActual?.username || "Sistema"
@@ -91768,15 +91780,15 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       const payloadVentaFirestore = limpiarDatoFirestore(payloadVenta);
       try {
         if (movimientoOriginal?.id) {
-          await updateDoc(doc2(db, "movimientos", movimientoOriginal.id), payloadVentaFirestore);
+          await promesaConTimeout(updateDoc(doc2(db, "movimientos", movimientoOriginal.id), payloadVentaFirestore), 2e4, "La actualizaci\xF3n de la venta tard\xF3 demasiado. Revis\xE1 la conexi\xF3n e intent\xE1 nuevamente.");
         } else {
-          await addDoc(collection2(db, "movimientos"), payloadVentaFirestore);
+          await promesaConTimeout(addDoc(collection2(db, "movimientos"), payloadVentaFirestore), 2e4, "El guardado de la venta tard\xF3 demasiado. Revis\xE1 la conexi\xF3n e intent\xE1 nuevamente.");
         }
-        await aplicarImpactoStockPuntoVenta({
+        await promesaConTimeout(aplicarImpactoStockPuntoVenta({
           movimientoOriginal,
           itemsNuevos: itemsVentaNormalizados,
           tipoComprobanteNuevo: tipoComp
-        });
+        }), 2e4, "La actualizaci\xF3n del stock tard\xF3 demasiado. La venta pudo guardarse; revis\xE1 el listado antes de repetirla.");
       } catch (error) {
         console.error("No se pudo guardar la venta", error);
         liberarBloqueoVenta();
@@ -93362,10 +93374,8 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
         await notificarSistema("La caja ya est\xE1 abierta. Cerr\xE1 el turno actual antes de iniciar otro.", { tipo: "warning", titulo: "Caja ya abierta" });
         return;
       }
-      const ultimoCierre = obtenerUltimoCierreCaja();
-      const puedeEditarApertura = (usuarioActual?.rol || "").toLowerCase() === "admin";
-      const efectivoApertura = puedeEditarApertura ? parseMontoCaja(formData.efectivo) : ultimoCierre.efectivo;
-      const chequesApertura = puedeEditarApertura && formData.tieneCheques ? parseMontoCaja(formData.cheques) : puedeEditarApertura ? 0 : ultimoCierre.cheques;
+      const efectivoApertura = parseMontoCaja(formData.efectivo);
+      const chequesApertura = 0;
       if (!Number.isFinite(efectivoApertura) || efectivoApertura < 0 || !Number.isFinite(chequesApertura) || chequesApertura < 0) {
         await notificarSistema("Ingres\xE1 importes v\xE1lidos para abrir la caja.", { tipo: "warning", titulo: "Importe inv\xE1lido" });
         return;
@@ -95633,7 +95643,7 @@ Saldo a descontar: ${formatearDinero(pendienteTotal)}.`,
       nombre: usuario?.nombre || "",
       username: usuario?.username || "",
       password: (usuario?.password ?? "").toString(),
-      rol: usuario?.rol === "admin" ? "admin" : usuario?.rol === "vendedor" ? "vendedor" : "cajero",
+      rol: usuarioTieneRolAdministrador(usuario) ? "admin" : usuario?.rol === "vendedor" ? "vendedor" : "cajero",
       puedeVerClientesEspeciales: Boolean(usuario?.puedeVerClientesEspeciales || usuario?.puedeVerCuentasInstitucionales),
       puedeUsarCombos: Boolean(usuario?.puedeUsarCombos),
       puedeUsarFlyer: usuario?.puedeUsarFlyer === void 0 ? Boolean(usuario?.puedeUsarCombos || usuario?.puedeVerInventario) : Boolean(usuario?.puedeUsarFlyer),
@@ -105786,7 +105796,7 @@ ${configuracion.nombre}`;
     chequesInicial: Number(caja?.chequesInicial || 0),
     fechaApertura: caja?.fechaApertura || null
   };
-  const esAdminActual = usuarioActualSeguro.rol === "admin";
+  const esAdminActual = usuarioTieneRolAdministrador(usuarioActual);
   const cantidadAdministradores = usuarios.filter((usuario) => (usuario?.rol || "").toLowerCase() === "admin").length;
   const puedeVerSistema = cajaSegura.estado === "abierta" || esAdminActual;
   const puedeVerClientes = usuarioPuedeVerModulo("clientes", usuarioActual);
@@ -113915,7 +113925,7 @@ ${configuracion.nombre}`;
       }
     ),
     modalActivo === "abrir" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Modal, { titulo: "Abrir Caja", onClose: () => setModalActivo(null), children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", { onSubmit: abrirCaja, className: "space-y-4", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs font-bold text-blue-800", children: (usuarioActual?.rol || "").toLowerCase() === "admin" ? "Como administrador pod\xE9s corregir manualmente el efectivo y los cheques antes de confirmar la apertura." : "La apertura toma autom\xE1ticamente el \xFAltimo cierre guardado. Solo un administrador puede modificar el importe." }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs font-bold text-blue-800", children: usuarioTieneRolAdministrador(usuarioActual) ? "Pod\xE9s corregir manualmente el efectivo antes de confirmar la apertura. Los cheques se registran con la caja abierta." : "Revis\xE1 y correg\xED el efectivo inicial antes de confirmar la apertura. Los cheques se registran con la caja abierta." }),
       /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider", children: "Fondo inicial en efectivo" }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "relative", children: [
@@ -113927,41 +113937,11 @@ ${configuracion.nombre}`;
               inputMode: "decimal",
               required: true,
               value: formData.efectivo,
-              readOnly: (usuarioActual?.rol || "").toLowerCase() !== "admin",
+              readOnly: false,
               onChange: (e2) => setFormData({ ...formData, efectivo: e2.target.value }),
-              className: `w-full pl-10 pr-4 py-3 bg-white border-2 border-blue-200 rounded-xl text-2xl font-black text-blue-700 outline-none focus:border-blue-600 ${(usuarioActual?.rol || "").toLowerCase() !== "admin" ? "cursor-not-allowed" : ""}`,
+              className: "w-full pl-10 pr-4 py-3 bg-white border-2 border-blue-200 rounded-xl text-2xl font-black text-blue-700 outline-none focus:border-blue-600",
               placeholder: "0,00",
               autoFocus: true
-            }
-          )
-        ] })
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "bg-orange-50 border border-orange-200 rounded-xl p-3", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { className: "flex items-center gap-2 cursor-pointer", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-            "input",
-            {
-              type: "checkbox",
-              checked: !!formData.tieneCheques,
-              disabled: (usuarioActual?.rol || "").toLowerCase() !== "admin",
-              onChange: (e2) => setFormData({ ...formData, tieneCheques: e2.target.checked, cheques: e2.target.checked ? formData.cheques : "" }),
-              className: "w-4 h-4"
-            }
-          ),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "text-xs font-bold text-orange-800 uppercase tracking-wider", children: "Incluye cheques al abrir" })
-        ] }),
-        formData.tieneCheques && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "mt-3 relative", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "absolute left-3 top-1/2 -translate-y-1/2 text-orange-400 font-black", children: "$" }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-            "input",
-            {
-              type: "text",
-              inputMode: "decimal",
-              value: formData.cheques,
-              readOnly: (usuarioActual?.rol || "").toLowerCase() !== "admin",
-              onChange: (e2) => setFormData({ ...formData, cheques: e2.target.value }),
-              className: `w-full pl-8 pr-3 py-2.5 bg-white border border-orange-200 rounded-lg font-bold text-sm outline-none focus:border-orange-500 ${(usuarioActual?.rol || "").toLowerCase() !== "admin" ? "cursor-not-allowed" : ""}`,
-              placeholder: "Monto total en cheques"
             }
           )
         ] })
