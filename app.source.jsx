@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef, useDeferredValue } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useDeferredValue, startTransition } from 'react';
 import { createRoot } from 'react-dom/client';
 import { 
   Wallet, TrendingUp, TrendingDown, Store, Plus, Minus, X, Info, Lock, Unlock,
@@ -14,10 +14,10 @@ import autoTable from 'jspdf-autotable';
 import { COMPANY_RUNTIME_CONFIG } from './company-runtime-config.js';
 
 // --- INTEGRACIÓN FIREBASE ---
-import { auth, db, storage } from './firebase-config.js?v=seniorflow-react-20260622-flyer-studio-55';
-import { signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js';
-import { collection as firestoreCollection, doc as firestoreDoc, setDoc, onSnapshot, deleteDoc, updateDoc, addDoc, increment, getDocs, arrayUnion } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js';
-import { ref as storageRef, uploadString, getDownloadURL } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js';
+import { auth, db, storage } from './firebase-config.js?v=seniorflow-offline-firestore-20260817-01';
+import { signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { collection as firestoreCollection, doc as firestoreDoc, setDoc, onSnapshot, deleteDoc, updateDoc, addDoc, increment, getDocs, arrayUnion } from 'firebase/firestore';
+import { ref as storageRef, uploadString, getDownloadURL } from 'firebase/storage';
 
 // Compatibilidad con los datos existentes. La separación por empresa requiere
 // una migración explícita; no se cambia la ruta hasta copiar/verificar los datos.
@@ -72,7 +72,12 @@ const parseImporteCajaHistorico = (valor) => {
   const textoOriginal = (valor ?? '').toString().trim();
   if (!textoOriginal) return 0;
   const textoAnalisis = textoOriginal.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  const multiplicador = textoAnalisis.includes('millon') ? 1000000 : textoAnalisis.includes('mil') ? 1000 : 1;
+  // El sufijo sólo escala el número cuando viene escrito como texto libre.
+  // Si ya trae separador de miles ("37.000 mil"), no se debe volver a
+  // multiplicar: ese doble escalado era el que podía convertir $37.000 en
+  // $37.000.000 al recuperar una apertura histórica.
+  const tieneSufijoMillon = textoAnalisis.includes('millon');
+  const tieneSufijoMil = !tieneSufijoMillon && textoAnalisis.includes('mil');
   const texto = textoOriginal.replace(/\s+/g, '').replace(/\$/g, '').replace(/[^\d.,-]/g, '');
   const tieneComa = texto.includes(',');
   const tienePunto = texto.includes('.');
@@ -89,7 +94,11 @@ const parseImporteCajaHistorico = (valor) => {
     normalizado = partes.length > 2 || (partes[1] || '').length === 3 ? texto.replace(/\./g, '') : texto;
   }
   const numero = parseFloat(normalizado);
-  return Number.isFinite(numero) ? numero * multiplicador : 0;
+  if (!Number.isFinite(numero)) return 0;
+  const multiplicador = tieneSufijoMillon
+    ? (numero < 1000 ? 1000000 : 1)
+    : (tieneSufijoMil && numero < 1000 ? 1000 : 1);
+  return numero * multiplicador;
 };
 const obtenerStockActualProducto = (producto = {}) => parseNumeroBasico(producto?.cantidad ?? producto?.stock ?? 0);
 const obtenerStockMinimoProducto = (producto = {}) => {
@@ -975,6 +984,8 @@ const CONFIG_DEFAULT = {
 const normalizarPlanTarjeta = (plan = {}, index = 0) => ({
   id: textoSeguroTrim(plan?.id, `plan-${index + 1}`),
   tarjeta: textoSeguroTrim(plan?.tarjeta, 'Tarjeta'),
+  color: /^#[0-9a-f]{6}$/i.test(textoSeguroTrim(plan?.color, '')) ? textoSeguroTrim(plan.color, '') : '#6366f1',
+  logoTarjeta: textoSeguroTrim(plan?.logoTarjeta || plan?.logo, ''),
   tipo: ['debito', 'credito'].includes(normalizarMetodoPago(plan?.tipo)) ? normalizarMetodoPago(plan.tipo) : 'credito',
   plan: textoSeguroTrim(plan?.plan, `${Math.max(1, Math.floor(Number(plan?.cuotas || 1)))} cuota(s)`),
   cuotas: Math.max(1, Math.floor(Number(plan?.cuotas || 1))),
@@ -991,15 +1002,17 @@ const calcularFinanciacionTarjeta = (importeContado = 0, plan = null) => {
   const contado = Math.max(0, Number(importeContado) || 0);
   if (!plan) return { contado, totalPosnet: contado, recargo: 0, cuota: contado, cuotas: 1, netoEstimado: contado, porcentajeRecuperacion: 0 };
   const normalizado = normalizarPlanTarjeta(plan);
-  const tasaTotal = Math.min(99.99, normalizado.descuentoComercio + normalizado.otrosCargosPorcentaje);
-  const divisor = Math.max(0.0001, 1 - (tasaTotal / 100));
-  const totalCalculado = (contado + normalizado.cargoFijo) / divisor;
+  const costoFinancieroCliente = Math.min(99.99, Math.max(0, normalizado.descuentoComercio)) / 100;
+  const comisionComercio = Math.min(99.99, Math.max(0, normalizado.otrosCargosPorcentaje)) / 100;
+  const divisorComercio = Math.max(0.0001, 1 - comisionComercio);
+  const baseVentaTarjeta = (contado + normalizado.cargoFijo) / divisorComercio;
+  const totalCalculado = baseVentaTarjeta * (1 + costoFinancieroCliente);
   const cuotas = Math.max(1, normalizado.cuotas);
   const centavosMinimos = Math.ceil((totalCalculado - Number.EPSILON) * 100);
   const centavosPorCuota = Math.ceil(centavosMinimos / cuotas);
   const totalPosnet = (centavosPorCuota * cuotas) / 100;
   const cuota = centavosPorCuota / 100;
-  const netoEstimado = Math.max(0, totalPosnet * divisor - normalizado.cargoFijo);
+  const netoEstimado = Math.max(0, (totalPosnet / (1 + costoFinancieroCliente)) * divisorComercio - normalizado.cargoFijo);
   return {
     contado,
     totalPosnet,
@@ -1008,7 +1021,9 @@ const calcularFinanciacionTarjeta = (importeContado = 0, plan = null) => {
     cuotas,
     netoEstimado,
     porcentajeRecuperacion: contado > 0 ? ((totalPosnet / contado) - 1) * 100 : 0,
-    tasaTotal
+    tasaTotal: contado > 0 ? ((totalPosnet / contado) - 1) * 100 : 0,
+    costoFinancieroCliente: costoFinancieroCliente * 100,
+    comisionComercio: comisionComercio * 100
   };
 };
 const redondearImporteVentaHaciaArriba = (importe = 0) => {
@@ -2586,6 +2601,14 @@ function AppInterna() {
   const [menuContextualCheque, setMenuContextualCheque] = useState(null);
   const [productoCompuestoDetalle, setProductoCompuestoDetalle] = useState(null);
   const [guardandoProducto, setGuardandoProducto] = useState(false);
+  // Mantiene la escritura de los formularios fluida mientras React actualiza
+  // los listados grandes de productos/clientes que viven en esta pantalla.
+  const actualizarFormCliente = (cambios) => {
+    startTransition(() => setFormCliente((prev) => ({ ...prev, ...cambios })));
+  };
+  const actualizarFormProducto = (cambios) => {
+    startTransition(() => setFormProducto((prev) => ({ ...prev, ...cambios })));
+  };
   const [formFacturaCuentaCorriente, setFormFacturaCuentaCorriente] = useState(() => crearFormularioFacturaCuentaCorrienteVacio());
   const [puedePegarImagenProducto, setPuedePegarImagenProducto] = useState(false);
   const [productoImagenArrastrando, setProductoImagenArrastrando] = useState(false);
@@ -2968,6 +2991,7 @@ function AppInterna() {
   const remitoRFormularioInicialRef = useRef('');
   const remitoRModalRetornoRef = useRef(null);
   const ventaPreviewIframeRef = useRef(null);
+  const flyerIframeRef = useRef(null);
 
   const resolverDialogoSistema = (resultado = false) => {
     const resolver = dialogoSistemaResolverRef.current;
@@ -3093,6 +3117,39 @@ function AppInterna() {
       });
     return sugerencias.slice(0, 8);
   }, [pedidosCompra]);
+
+  useEffect(() => {
+    let desmontado = false;
+    const verificarInternetReal = async () => {
+      if (typeof navigator === 'undefined' || !navigator.onLine) {
+        setEstadoConexion('sin_internet');
+        return;
+      }
+      setEstadoConexion('conectando');
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 3500);
+      try {
+        await fetch(`https://www.gstatic.com/generate_204?seniorflow=${Date.now()}`, { cache: 'no-store', mode: 'no-cors', signal: controller.signal });
+        if (!desmontado) setEstadoConexion('conectado');
+      } catch (error) {
+        if (!desmontado) setEstadoConexion('sin_internet');
+      } finally {
+        clearTimeout(timeout);
+      }
+    };
+    const alVolverOnline = () => { void verificarInternetReal(); };
+    const alQuedarOffline = () => setEstadoConexion('sin_internet');
+    void verificarInternetReal();
+    const intervalo = setInterval(() => { void verificarInternetReal(); }, 15000);
+    window.addEventListener('online', alVolverOnline);
+    window.addEventListener('offline', alQuedarOffline);
+    return () => {
+      desmontado = true;
+      clearInterval(intervalo);
+      window.removeEventListener('online', alVolverOnline);
+      window.removeEventListener('offline', alQuedarOffline);
+    };
+  }, []);
 
   const transportesPedidoSugeridos = useMemo(() => {
     const vistos = new Set();
@@ -3514,14 +3571,15 @@ function AppInterna() {
     return movimientos.filter((m) => !m?.noImpactaCaja && new Date(m.fecha) >= new Date(caja.fechaApertura));
   }, [movimientos, caja]);
 
-  const movimientosHistoricos = useMemo(
-    () => movimientos.filter((m) => !m?.noImpactaCaja),
-    [movimientos]
-  );
+  // La lista de Caja también funciona como auditoría: debe mostrar los
+  // movimientos que afectan cuentas/clientes aunque no modifiquen el
+  // efectivo. Los totales siguen usando movimientosDelTurno y no los suman.
+  const movimientosHistoricos = useMemo(() => movimientos, [movimientos]);
 
   const calcularTotalesMovimientosCaja = (listaMovimientos = []) => {
     let ventas = 0; let gastos = 0; let otrosIngresos = 0; let ingresosEfectivo = 0; let egresosEfectivo = 0; let retirosEfectivo = 0;
     listaMovimientos.forEach((m) => {
+      if (m?.noImpactaCaja === true) return;
       const signoVenta = obtenerSignoPuntoVenta(m);
       if (m.tipo === 'venta') ventas += signoVenta * m.monto;
       if (m.tipo === 'gasto') gastos += m.monto;
@@ -5991,56 +6049,7 @@ function AppInterna() {
   }, [usuarios, usuarioActual?.id]);
 
   const parseMontoCaja = (valor) => {
-    const textoOriginal = (valor ?? '').toString().trim();
-    if (!textoOriginal) return 0;
-
-    const textoAnalisis = textoOriginal
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-    const multiplicador = textoAnalisis.includes('millon')
-      ? 1000000
-      : textoAnalisis.includes('mil')
-        ? 1000
-        : 1;
-
-    // Limpia símbolos comunes y espacios.
-    const texto = textoOriginal
-      .replace(/\s+/g, '')
-      .replace(/\$/g, '')
-      .replace(/[^\d.,-]/g, '');
-    const tieneComa = texto.includes(',');
-    const tienePunto = texto.includes('.');
-    let normalizado = texto;
-
-    if (tieneComa && tienePunto) {
-      // Formato es-AR típico: 150.000,50
-      if (texto.lastIndexOf(',') > texto.lastIndexOf('.')) {
-        normalizado = texto.replace(/\./g, '').replace(',', '.');
-      } else {
-        // Formato tipo 150,000.50
-        normalizado = texto.replace(/,/g, '');
-      }
-    } else if (tieneComa) {
-      const partes = texto.split(',');
-      if (partes.length > 2) {
-        normalizado = texto.replace(/,/g, '');
-      } else {
-        const decimales = partes[1] || '';
-        normalizado = decimales.length === 3 ? texto.replace(/,/g, '') : texto.replace(',', '.');
-      }
-    } else if (tienePunto) {
-      const partes = texto.split('.');
-      if (partes.length > 2) {
-        normalizado = texto.replace(/\./g, '');
-      } else {
-        const decimales = partes[1] || '';
-        normalizado = decimales.length === 3 ? texto.replace(/\./g, '') : texto;
-      }
-    }
-
-    const n = parseFloat(normalizado);
-    return Number.isFinite(n) ? (n * multiplicador) : 0;
+    return parseImporteCajaHistorico(valor);
   };
 
   function parseEnteroCliente(valor) {
@@ -6325,7 +6334,7 @@ function AppInterna() {
     : totalFormularioPuntoVenta;
   const totalCobroPuntoVentaVisible = Math.abs(totalCobroPuntoVenta) < 0.005 ? 0 : Math.max(0, totalCobroPuntoVenta);
   const mostrarResumenTarjetaPuntoVenta = Boolean(esTarjetaPuntoVenta && planTarjetaPuntoVenta && totalFormularioPuntoVenta > 0.009);
-  const totalFormularioPuntoVentaTexto = formatearDinero(totalFormularioPuntoVenta);
+  const totalFormularioPuntoVentaTexto = formatearDinero(totalCobroPuntoVentaVisible);
   const totalFormularioPuntoVentaFontSizeRem = Math.max(
     1.05,
     Math.min(2.25, 20 / Math.max(10, totalFormularioPuntoVentaTexto.length))
@@ -10523,10 +10532,22 @@ const abrirPuntoVenta = () => {
       return;
     }
     const porcentajeRecargo = obtenerPorcentajeRecargoConfigurado(configuracion);
+    const configuracionAnterior = configuracionPersistida || {};
+    const conservarTexto = (actual, anterior, fallback = '') => {
+      const valorActual = textoSeguroTrim(actual, '');
+      return valorActual || textoSeguroTrim(anterior, '') || textoSeguroTrim(fallback, '');
+    };
+    const planesActuales = Array.isArray(configuracion?.tarjetasPlanes) ? configuracion.tarjetasPlanes : [];
+    const planesAnteriores = Array.isArray(configuracionAnterior?.tarjetasPlanes) ? configuracionAnterior.tarjetasPlanes : [];
     const payloadConfiguracion = {
       ...CONFIG_DEFAULT,
       ...configuracion,
-      tarjetasPlanes: (Array.isArray(configuracion?.tarjetasPlanes) ? configuracion.tarjetasPlanes : [])
+      pagoAlias: conservarTexto(configuracion?.pagoAlias, configuracionAnterior?.pagoAlias),
+      pagoCbu: conservarTexto(configuracion?.pagoCbu, configuracionAnterior?.pagoCbu),
+      pagoTitular: conservarTexto(configuracion?.pagoTitular, configuracionAnterior?.pagoTitular),
+      pagoBanco: conservarTexto(configuracion?.pagoBanco, configuracionAnterior?.pagoBanco),
+      pagoDetalle: conservarTexto(configuracion?.pagoDetalle, configuracionAnterior?.pagoDetalle),
+      tarjetasPlanes: (planesActuales.length ? planesActuales : planesAnteriores)
         .map(normalizarPlanTarjeta)
         .filter((plan) => plan.tarjeta && plan.plan),
       recargosAutomaticosActivos: Boolean(configuracion?.recargosAutomaticosActivos),
@@ -10726,6 +10747,86 @@ const abrirPuntoVenta = () => {
       img.src = event.target.result;
     };
     reader.readAsDataURL(file);
+  };
+
+  const procesarLogoTarjeta = (e, tarjetaClave) => {
+    if (!editandoConfiguracion) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.type !== 'image/png' && !file.type.startsWith('image/')) {
+      notificarSistema('Seleccioná un logo de tarjeta en PNG o imagen válida.', {
+        tipo: 'warning',
+        titulo: 'Archivo inválido'
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const maxWidth = 260;
+        const maxHeight = 120;
+        const scale = Math.min(1, maxWidth / img.width, maxHeight / img.height);
+        const width = Math.max(1, Math.round(img.width * scale));
+        const height = Math.max(1, Math.round(img.height * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.clearRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+        // Quitar fondos blancos incrustados y recortar el espacio sobrante del logo.
+        const imageData = ctx.getImageData(0, 0, width, height);
+        const pixels = imageData.data;
+        let minX = width;
+        let minY = height;
+        let maxX = -1;
+        let maxY = -1;
+        for (let y = 0; y < height; y += 1) {{
+          for (let x = 0; x < width; x += 1) {{
+            const index = (y * width + x) * 4;
+            if (pixels[index + 3] > 0 && pixels[index] >= 242 && pixels[index + 1] >= 242 && pixels[index + 2] >= 242) {{
+              pixels[index + 3] = 0;
+            }}
+            if (pixels[index + 3] > 8) {{
+              minX = Math.min(minX, x);
+              minY = Math.min(minY, y);
+              maxX = Math.max(maxX, x);
+              maxY = Math.max(maxY, y);
+            }}
+          }}
+        }}
+        ctx.putImageData(imageData, 0, 0);
+        let dataUrl;
+        if (maxX >= minX && maxY >= minY) {{
+          const padding = 3;
+          const cropX = Math.max(0, minX - padding);
+          const cropY = Math.max(0, minY - padding);
+          const cropW = Math.min(width - cropX, maxX - minX + 1 + padding * 2);
+          const cropH = Math.min(height - cropY, maxY - minY + 1 + padding * 2);
+          const crop = document.createElement('canvas');
+          crop.width = cropW;
+          crop.height = cropH;
+          crop.getContext('2d')?.drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+          dataUrl = crop.toDataURL('image/png');
+        }} else {{
+          dataUrl = canvas.toDataURL('image/png');
+        }}
+        setConfiguracion((prev) => ({
+          ...prev,
+          tarjetasPlanes: (prev.tarjetasPlanes || []).map((actual) => (
+            normalizarTextoBusqueda(actual?.tarjeta || 'sin tarjeta') === tarjetaClave
+              ? { ...actual, logoTarjeta: dataUrl }
+              : actual
+          ))
+        }));
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
   };
 
   const abrirModalMovimiento = (tipo = 'gasto') => {
@@ -13062,15 +13163,9 @@ const abrirPuntoVenta = () => {
     try {
       const resumen = construirResumenReciboCobro(mov);
       if (!resumen) throw new Error('Recibo no disponible');
-      const { docPdf, fileName } = await generarPdfReciboCobroFile(mov);
-      const pdfBytes = docPdf.output('arraybuffer');
-      if (!pdfBytes || pdfBytes.byteLength < 512) {
-        throw new Error('El PDF del recibo se generó sin contenido.');
-      }
-      // Usar la descarga nativa de jsPDF evita el camino File/object URL que
-      // en algunos entornos produce un archivo descargado en blanco.
-      docPdf.save(fileName);
-      return fileName;
+      const archivo = await generarPdfReciboCobroFile(mov);
+      descargarArchivoTemporal(archivo);
+      return archivo;
     } catch (error) {
       console.error('No se pudo descargar el PDF del recibo', error);
       await notificarSistema('No se pudo descargar el PDF del recibo. Probá nuevamente.', {
@@ -15486,7 +15581,7 @@ const abrirPuntoVenta = () => {
     const factorCostoFactura = subtotalRecibidoBase > 0
       ? ((subtotalRecibidoBase + totalImpuestosRecepcion) / subtotalRecibidoBase)
       : 1;
-    const itemsRecibidos = itemsRecibidosBase.map((item) => {
+    let itemsRecibidos = itemsRecibidosBase.map((item) => {
       const costoPesosFactura = Number(item.costoPesos || 0) * factorCostoFactura;
       return {
         ...item,
@@ -15503,6 +15598,10 @@ const abrirPuntoVenta = () => {
       });
       return;
     }
+    // Si el artículo se cargó como manual en el pedido, se crea recién al
+    // recibirlo. Se guarda inicialmente sin stock para que la actualización
+    // siguiente sume exactamente la cantidad recibida una sola vez.
+    itemsRecibidos = await crearProductosManualesDesdeCompra(itemsRecibidos);
 
     const totalRecibido = itemsRecibidos.reduce((acc, item) => acc + Number(item?.subtotal || 0), 0);
     const recepcionYaPagada = Boolean(recepcionCompraPedido?.pagoRegistradoProveedor);
@@ -17775,8 +17874,6 @@ const abrirPuntoVenta = () => {
         titulo,
         detalle,
         fecha: new Date().toISOString(),
-        cantidad: Math.max(0, parseNumeroPresupuesto(item?.cantidad) || 0),
-        stock: Math.max(0, parseNumeroPresupuesto(item?.cantidad) || 0),
         usuarioId: usuarioActual?.id || '',
         usuarioNombre: usuarioActual?.nombre || usuarioActual?.username || '',
         estado: 'disponible'
@@ -19982,13 +20079,15 @@ function obtenerCategoriaProducto(producto) {
   };
 
   // En compras el costo de cada producto se trabaja siempre como neto.
-  // Si el costo del proveedor fue guardado con IVA incluido, lo llevamos a
-  // neto antes de mostrarlo; el IVA se suma al total cuando se selecciona.
+  // El importe cargado/traído se conserva tal cual: no se suma ni se resta
+  // IVA al costo unitario. El IVA solo se calcula en el total de una Factura A.
   const convertirCostoProveedorNetoParaPedidoCompra = (costo = {}, producto = {}) => {
-    const costoPesos = Math.max(0, convertirCostoProveedorAPesos(costo, producto));
-    if (!Boolean(costo?.ivaIncluido)) return costoPesos;
-    const factorIva = obtenerFactorIvaProducto(producto?.iva);
-    return factorIva > 0 ? costoPesos / (1 + factorIva) : costoPesos;
+    return Math.max(0, convertirCostoProveedorAPesos(costo, producto));
+  };
+
+  const compraEsFacturaA = (tipo = '') => {
+    const normalizado = normalizarTextoBusqueda(tipo);
+    return normalizado === 'factura_a' || normalizado === 'factura a' || normalizado.includes('factura a');
   };
 
   const obtenerCostoBaseProductoParaPedidoCompra = (producto = {}, proveedor = '') => {
@@ -20210,8 +20309,9 @@ function obtenerCategoriaProducto(producto) {
         costoPromedioProveedores: costoPesos,
         precio: costoPesos,
         unidad: item?.unidad || 'unid',
-        cantidad: Math.max(0, parseNumeroPresupuesto(item?.cantidad) || 0),
-        stock: Math.max(0, parseNumeroPresupuesto(item?.cantidad) || 0),
+        // El stock se suma después de crear el artículo, evitando duplicarlo.
+        cantidad: 0,
+        stock: 0,
         iva: item?.iva || '',
         imagen: '',
         imagenes: [],
@@ -20489,10 +20589,10 @@ function obtenerCategoriaProducto(producto) {
     const descuentoPorcentaje = 0;
     const descuentoMonto = Math.max(0, subtotalBruto - subtotalBase);
     const ajusteMonto = (compraDirectaActiva || pedidoCompraEditandoId) ? parseNumeroConSigno(pedidoCompraAjusteMonto) : 0;
-    const iva21 = compraDirectaActiva
+    const iva21 = compraDirectaActiva && compraEsFacturaA(compraDirectaTipoComprobante)
       ? calcularIvaAutomaticoPedidoCompra(filas, '21')
       : (pedidoCompraEditandoId ? Math.max(0, parseNumeroBasico(pedidoCompraIva21)) : 0);
-    const iva105 = compraDirectaActiva
+    const iva105 = compraDirectaActiva && compraEsFacturaA(compraDirectaTipoComprobante)
       ? calcularIvaAutomaticoPedidoCompra(filas, '10.5')
       : (pedidoCompraEditandoId ? Math.max(0, parseNumeroBasico(pedidoCompraIva105)) : 0);
     const ingresosBrutos = Math.max(0, parseNumeroConSigno(pedidoCompraIngresosBrutos));
@@ -21795,7 +21895,11 @@ function obtenerCategoriaProducto(producto) {
     docPdf.text('Gracias por confiar', 150, y + 13.5, { align: 'center' });
 
     const fileName = obtenerNombreArchivoReciboCobro(resumen, true);
-    return { docPdf, fileName };
+    const blob = docPdf.output('blob');
+    if (!blob || blob.size < 512 || blob.type !== 'application/pdf') {
+      throw new Error('El PDF del recibo se generó sin contenido.');
+    }
+    return new File([blob], fileName, { type: 'application/pdf' });
   };
 
   const descargarReciboCobro = async (mov = null) => {
@@ -24016,6 +24120,25 @@ function obtenerCategoriaProducto(producto) {
     setVista(obtenerVistaInicialUsuario(usuarioActual));
   }, [vista, usuarioActual]);
 
+  const enviarDatosAFlyer = () => {
+    const destino = flyerIframeRef.current?.contentWindow;
+    if (!destino) return;
+    destino.postMessage({
+      tipo: 'seniorflow-flyer-data',
+      payload: {
+        configuracion,
+        productos,
+        marcas
+      }
+    }, window.location.origin);
+  };
+
+  useEffect(() => {
+    if (vista !== 'flyer') return;
+    const timer = window.setTimeout(enviarDatosAFlyer, 350);
+    return () => window.clearTimeout(timer);
+  }, [vista, productos, marcas, configuracion]);
+
   useEffect(() => {
     if (vista === 'tarjetas_planes') setSeccionConfiguracionActiva('tarjetas');
   }, [vista]);
@@ -24167,10 +24290,10 @@ function obtenerCategoriaProducto(producto) {
   const opcionesNavegacionVisibles = opcionesNavegacion.filter((opcion) => opcion.visible);
   const obtenerRutaSidebar = (vistaRuta) => opcionesNavegacionVisibles.find((opcion) => opcion.vista === vistaRuta);
   const gruposSidebar = [
-    { id: 'ventas', etiqueta: 'Ventas', Icono: ShoppingCart, rutas: ['ventas', 'vendedores', 'tarjetas_planes', 'caja', 'clientes', 'presupuestos', 'combos', 'flyer'] },
+    { id: 'ventas', etiqueta: 'Ventas', Icono: ShoppingCart, rutas: ['ventas', 'vendedores', 'tarjetas_planes', 'caja', 'clientes', 'presupuestos', 'combos'] },
     { id: 'inventario', etiqueta: 'Inventario', Icono: Package, rutas: ['inventario', 'stock_bajo', 'compras', 'variacion_precios', 'mod_masiva', 'sugerencias', 'comparativa'] }
   ].map((grupo) => ({ ...grupo, hijos: grupo.rutas.map(obtenerRutaSidebar).filter(Boolean) })).filter((grupo) => grupo.hijos.length > 0);
-  const entradasSidebarGestion = ['notificaciones', 'proveedores', 'comparativa_paralela', 'rastreo'].map(obtenerRutaSidebar).filter(Boolean);
+  const entradasSidebarGestion = ['notificaciones', 'proveedores', 'flyer', 'comparativa_paralela', 'rastreo'].map(obtenerRutaSidebar).filter(Boolean);
   const entradasSidebarSistema = ['reportes', 'ajustes', 'ayuda'].map(obtenerRutaSidebar).filter(Boolean);
 
   const esAccionPersistente = (elemento) => {
@@ -24275,6 +24398,9 @@ function obtenerCategoriaProducto(producto) {
   // --- RENDER PRINCIPAL ---
   return (
     <div onClickCapture={protegerDobleClick} onSubmitCapture={protegerDobleEnvio} className={`sf-app-shell sf-enterprise-shell sf-screen-${perfilPantalla.tipo} sf-density-${perfilPantalla.densidad} min-h-screen bg-slate-50 font-sans pb-28 md:pb-8 print:bg-white print:pb-0`}>
+      <div className={`fixed right-3 bottom-3 z-[80] rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wide shadow-sm ${estadoConexion === 'sin_internet' ? 'bg-amber-100 text-amber-800 border border-amber-200' : estadoConexion === 'conectando' ? 'bg-slate-100 text-slate-600 border border-slate-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200'}`}>
+        {estadoConexion === 'sin_internet' ? `Sin internet · ${isDBReady ? 'datos locales listos' : 'sin datos locales'}` : estadoConexion === 'conectando' ? 'Cargando datos' : `Online · ${isDBReady ? 'datos locales listos' : 'cargando datos'}`}
+      </div>
       <style>{`
         .sf-app-shell table thead th {
           white-space: nowrap;
@@ -25804,6 +25930,7 @@ function obtenerCategoriaProducto(producto) {
                 ) : (
                   movimientosVisualizados.map((mov) => {
                     const isRetiro = mov.tipo === 'retiro_caja';
+                    const noImpactaCaja = mov?.noImpactaCaja === true;
                     const esCuentaCorriente = normalizarMetodoPago(mov.metodoPago) === 'cuenta_corriente';
                     const clienteMovimiento = esCuentaCorriente
                       ? textoSeguroTrim(
@@ -25838,8 +25965,8 @@ function obtenerCategoriaProducto(producto) {
                       </div>
                       
                       <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto border-t sm:border-0 pt-3 sm:pt-0 border-gray-100">
-                        <div className={`sf-cash-amount whitespace-nowrap tracking-tight ${mov.tipo === 'gasto' || isRetiro ? 'text-red-600' : (mov.tipo === 'cobro' ? 'text-purple-600' : (mov.tipo === 'ingreso_extra' ? 'text-teal-600' : 'text-green-600'))}`}>
-                          {mov.tipo === 'gasto' || isRetiro ? '-' : '+'}{formatearDinero(mov.monto)}
+                        <div className={`sf-cash-amount whitespace-nowrap tracking-tight ${noImpactaCaja ? 'text-slate-500' : (mov.tipo === 'gasto' || isRetiro ? 'text-red-600' : (mov.tipo === 'cobro' ? 'text-purple-600' : (mov.tipo === 'ingreso_extra' ? 'text-teal-600' : 'text-green-600')))}`}>
+                          {noImpactaCaja ? 'Sin impacto en caja · ' : `${mov.tipo === 'gasto' || isRetiro ? '-' : '+'}`}{formatearDinero(mov.monto)}
                         </div>
                         <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex gap-1">
                           <button onClick={() => iniciarEdicionMovimiento(mov)} className="p-2 bg-white border shadow-sm text-blue-600 hover:bg-blue-50 hover:border-blue-200 rounded-lg transition-all" title="Editar"><Edit2 size={16} /></button>
@@ -28171,6 +28298,7 @@ function obtenerCategoriaProducto(producto) {
                                 <span className="px-2 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-black">{movimientosProveedorFiltrados.length}</span>
                               </div>
                             </div>
+                            {(() => { const remitosProveedor = estadoProveedor.cargosProcesados || []; const pagosProveedor = estadoProveedor.pagos || []; return <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 p-3 border-b border-slate-200 bg-slate-50"><div className="rounded-xl border border-indigo-200 bg-white overflow-hidden"><div className="px-3 py-2 border-b border-indigo-100 bg-indigo-50"><h4 className="text-xs font-black uppercase tracking-wider text-indigo-900">Remitos y facturas recibidas</h4><p className="text-[10px] font-bold text-indigo-700">Compras separadas de los pagos.</p></div><div className="max-h-60 overflow-y-auto divide-y divide-slate-100">{remitosProveedor.length ? remitosProveedor.map((cargo) => <div key={`prov-remito-resumen-${cargo.id}`} className="px-3 py-2"><div className="flex items-start justify-between gap-2"><div><p className="text-xs font-black text-slate-900">{cargo.remitoProveedor ? `Remito ${cargo.remitoProveedor}` : `Pedido PC-${cargo.numero || '000000'}`}</p><p className="text-[10px] font-bold text-slate-500">{cargo.fecha ? formatearFecha(cargo.fecha) : '-'} · Total {formatearDinero(cargo.monto || 0)}</p></div><span className="text-[10px] font-black text-amber-700">Pendiente {formatearDinero(cargo.pendiente || 0)}</span></div>{(cargo.tipoComprobanteProveedor || cargo.numeroComprobanteProveedor) && <p className="mt-1 text-[10px] font-black text-blue-700">Factura {cargo.tipoComprobanteProveedor || 'B'}: {cargo.numeroComprobanteProveedor || '-'}</p>}{cargo.pagosAplicados?.length ? <p className="mt-1 text-[10px] font-bold text-emerald-700">Pagos aplicados: {cargo.pagosAplicados.map((item) => formatearDinero(item.monto || 0)).join(' · ')}</p> : <p className="mt-1 text-[10px] font-bold text-slate-400">Sin pagos aplicados</p>}</div>) : <p className="p-5 text-center text-xs font-bold text-slate-400">No hay remitos recibidos.</p>}</div></div><div className="rounded-xl border border-emerald-200 bg-white overflow-hidden"><div className="px-3 py-2 border-b border-emerald-100 bg-emerald-50"><h4 className="text-xs font-black uppercase tracking-wider text-emerald-900">Pagos realizados</h4><p className="text-[10px] font-bold text-emerald-700">Cada pago y a qué compra/remito se aplicó.</p></div><div className="max-h-60 overflow-y-auto divide-y divide-slate-100">{pagosProveedor.length ? pagosProveedor.map((pago) => <div key={`prov-pago-resumen-${pago.id}`} className="px-3 py-2"><div className="flex items-start justify-between gap-2"><div><p className="text-xs font-black text-slate-900">{pago.numeroComprobante || 'Pago'} · {formatearFecha(pago.fecha || pago.fechaCreacion)}</p><p className="text-[10px] font-bold text-slate-500">{obtenerEtiquetaMetodoPago(pago.metodoPago)}</p></div><span className="text-sm font-black text-emerald-700">{formatearDinero(pago.monto || 0)}</span></div>{pago.aplicacionesComprobantes?.length ? <p className="mt-1 text-[10px] font-bold text-emerald-700">Aplicado a: {pago.aplicacionesComprobantes.map((item) => `PC-${item.pedidoCompraId || '-'} (${formatearDinero(item.montoAplicado || 0)})`).join(' · ')}</p> : pago.pedidoCompraNumero ? <p className="mt-1 text-[10px] font-bold text-emerald-700">Aplicado a: PC-{pago.pedidoCompraNumero}</p> : <p className="mt-1 text-[10px] font-bold text-amber-700">Pago sin imputación detallada</p>}</div>) : <p className="p-5 text-center text-xs font-bold text-slate-400">No hay pagos realizados.</p>}</div></div></div>; })()}
                             {movimientosProveedorFiltrados.length === 0 ? (
                               <div className="p-10 text-center text-gray-400">
                                 <FileText size={34} className="mx-auto mb-3 opacity-30" />
@@ -28970,7 +29098,7 @@ function obtenerCategoriaProducto(producto) {
                   </div>
                 </div>
                 <a
-                  href="./ofertas.html"
+                  href="./ofertas.html?v=seniorflow-flyer-gestion-20260821-05"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center justify-center gap-2 rounded-2xl border border-cyan-200 bg-white px-4 py-2.5 text-sm font-black text-cyan-700 hover:bg-cyan-50 transition-colors"
@@ -28981,8 +29109,10 @@ function obtenerCategoriaProducto(producto) {
               </div>
               <div className="h-[calc(100vh-250px)] min-h-[760px] bg-slate-950">
                 <iframe
+                  ref={flyerIframeRef}
                   title="Flyer Studio"
-                  src="./ofertas.html?v=seniorflow-react-20260622-flyer-studio-55"
+                  src="./ofertas.html?v=seniorflow-flyer-gestion-20260821-05"
+                  onLoad={enviarDatosAFlyer}
                   className="w-full h-full border-0"
                 />
               </div>
@@ -30126,7 +30256,7 @@ function obtenerCategoriaProducto(producto) {
                         <input type="checkbox" disabled={!editandoConfiguracion} checked={configuracion.notificacionesActivas !== false} onChange={(e) => setConfiguracion({ ...configuracion, notificacionesActivas: e.target.checked })} className="h-5 w-5 shrink-0 rounded border-rose-300 text-rose-600 focus:ring-rose-500" />
                       </label>
                       <div className="pt-2 border-t border-gray-200">
-                        <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">Logotipo Corporativo (PNG o JPG)</label>
+                        <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">Logotipo Corporativo (PNG o JPG)</label><p className="mb-2 text-[10px] font-bold text-slate-500">Recomendado: PNG transparente 900×300 px, logo ocupando casi todo el ancho.</p>
                         <div className="flex items-center gap-2">
                           <label className={`flex-1 ${editandoConfiguracion ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
                             <span className={`w-full flex items-center gap-2 pl-3 pr-3 py-2.5 border rounded-xl transition-colors text-sm font-bold ${editandoConfiguracion ? 'bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-700' : 'bg-slate-100 border-slate-200 text-slate-500'}`}>
@@ -30261,7 +30391,7 @@ function obtenerCategoriaProducto(producto) {
             ...prev,
             tarjetasPlanes: [...(Array.isArray(prev?.tarjetasPlanes) ? prev.tarjetasPlanes : []), {
               id: `plan-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-              tipo: 'credito', tarjeta: '', plan: '', cuotas: 1, descuentoComercio: 0, otrosCargosPorcentaje: 0, cargoFijo: 0, diasAcreditacion: 0, vigenciaActiva: false, vigenciaDesde: '', vigenciaHasta: '', activo: true
+              tipo: 'credito', tarjeta: '', color: '#6366f1', logoTarjeta: '', plan: '', cuotas: 1, descuentoComercio: 0, otrosCargosPorcentaje: 0, cargoFijo: 0, diasAcreditacion: 0, vigenciaActiva: false, vigenciaDesde: '', vigenciaHasta: '', activo: true
             }]
           }))}
           className="rounded-lg bg-indigo-600 px-3 py-2 text-[11px] font-black uppercase tracking-wider text-white disabled:cursor-not-allowed disabled:opacity-40"
@@ -30298,18 +30428,32 @@ function obtenerCategoriaProducto(producto) {
 	            const vigenciaPromoActiva = Boolean(planNormalizado.vigenciaActiva);
 	            const promoVigente = esPlanTarjetaPromoVigente(planNormalizado);
 	            const rangoVigenciaDefault = obtenerRangoVigenciaOfertaDefault();
-	            return <div key={plan.id || `plan-config-${index}`} className="rounded-xl border border-indigo-200 bg-white p-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2">
+		            return <div key={plan.id || `plan-config-${index}`} className="rounded-xl border border-indigo-200 bg-white p-3">
+	              <div className="mb-2 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-indigo-50 px-3 py-2">
+	                <div className="flex min-w-0 items-center gap-2">
+	                  {planNormalizado.logoTarjeta ? <span className="flex h-8 w-14 shrink-0 items-center justify-center rounded-md border border-white bg-white shadow-sm"><img src={planNormalizado.logoTarjeta} alt={`Logo ${planNormalizado.tarjeta}`} className="max-h-6 max-w-12 object-contain" /></span> : <span className="flex h-8 w-14 shrink-0 items-center justify-center rounded-md border border-indigo-100 bg-white text-[9px] font-black text-indigo-400">PNG</span>}
+	                  <div className="min-w-0">
+	                    <p className="truncate text-xs font-black uppercase tracking-wider text-indigo-900">{planNormalizado.tarjeta || 'Tarjeta'}</p>
+	                    <p className="text-[10px] font-bold text-indigo-600">Logo para mostrar en Flyer</p>
+	                  </div>
+	                </div>
+	                <div className="flex items-center gap-2">
+	                  <input id={`logo-tarjeta-${plan.id || index}`} type="file" accept="image/png,image/*" className="hidden" disabled={!editandoConfiguracion} onChange={(e) => procesarLogoTarjeta(e, normalizarTextoBusqueda(planNormalizado.tarjeta || 'sin tarjeta'))} />
+	                  <button type="button" disabled={!editandoConfiguracion} onClick={() => document.getElementById(`logo-tarjeta-${plan.id || index}`)?.click()} className="rounded-lg bg-white px-2.5 py-1.5 text-[10px] font-black uppercase text-indigo-700 border border-indigo-200 disabled:cursor-not-allowed disabled:opacity-40">Logo PNG 600×240</button>
+	                  {planNormalizado.logoTarjeta && <button type="button" disabled={!editandoConfiguracion} onClick={() => actualizarPlan('logoTarjeta', '')} className="rounded-lg bg-red-50 px-2 py-1.5 text-[10px] font-black uppercase text-red-600 border border-red-200 disabled:opacity-40">Quitar</button>}
+	                </div>
+	              </div>
+	              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2">
 	                <div><label className="block text-[9px] font-black uppercase text-slate-500 mb-1">Tipo</label><select disabled={!editandoConfiguracion} value={planNormalizado.tipo} onChange={(e) => actualizarPlan('tipo', e.target.value)} className="input !py-2 disabled:bg-slate-100"><option value="credito">Crédito</option><option value="debito">Débito</option></select></div>
                 <div><label className="block text-[9px] font-black uppercase text-slate-500 mb-1">Tarjeta</label><input disabled={!editandoConfiguracion} value={plan.tarjeta || ''} onChange={(e) => actualizarPlan('tarjeta', e.target.value)} placeholder="Ej: Tuya" className="input !py-2 disabled:bg-slate-100" /></div>
                 <div><label className="block text-[9px] font-black uppercase text-slate-500 mb-1">Nombre del plan</label><input disabled={!editandoConfiguracion} value={plan.plan || ''} onChange={(e) => actualizarPlan('plan', e.target.value)} placeholder="Ej: 2 cuotas" className="input !py-2 disabled:bg-slate-100" /></div>
                 <div><label className="block text-[9px] font-black uppercase text-slate-500 mb-1">Cuotas</label><input type="number" min="1" step="1" disabled={!editandoConfiguracion} value={plan.cuotas ?? 1} onChange={(e) => actualizarPlan('cuotas', e.target.value)} className="input !py-2 disabled:bg-slate-100" /></div>
-                <div><label className="block text-[9px] font-black uppercase text-slate-500 mb-1">Descuento tarjeta %</label><input type="number" min="0" max="99.99" step="0.000001" disabled={!editandoConfiguracion} value={plan.descuentoComercio ?? 0} onChange={(e) => actualizarPlan('descuentoComercio', e.target.value)} className="input !py-2 disabled:bg-slate-100" /></div>
-                <div><label className="block text-[9px] font-black uppercase text-slate-500 mb-1">Otros cargos %</label><input type="number" min="0" max="99.99" step="0.000001" disabled={!editandoConfiguracion} value={plan.otrosCargosPorcentaje ?? 0} onChange={(e) => actualizarPlan('otrosCargosPorcentaje', e.target.value)} className="input !py-2 disabled:bg-slate-100" /></div>
+                <div><label className="block text-[9px] font-black uppercase text-slate-500 mb-1">Costo financiero %</label><input type="number" min="0" max="99.99" step="0.000001" disabled={!editandoConfiguracion} value={plan.descuentoComercio ?? 0} onChange={(e) => actualizarPlan('descuentoComercio', e.target.value)} className="input !py-2 disabled:bg-slate-100" /></div>
+                <div><label className="block text-[9px] font-black uppercase text-slate-500 mb-1">Comisión comercio %</label><input type="number" min="0" max="99.99" step="0.000001" disabled={!editandoConfiguracion} value={plan.otrosCargosPorcentaje ?? 0} onChange={(e) => actualizarPlan('otrosCargosPorcentaje', e.target.value)} className="input !py-2 disabled:bg-slate-100" /></div>
                 <div><label className="block text-[9px] font-black uppercase text-slate-500 mb-1">Cargo fijo $</label><input type="number" min="0" step="0.01" disabled={!editandoConfiguracion} value={plan.cargoFijo ?? 0} onChange={(e) => actualizarPlan('cargoFijo', e.target.value)} className="input !py-2 disabled:bg-slate-100" /></div>
               </div>
               <div className="mt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2">
-                <div className="text-[11px] font-bold text-slate-600">Ejemplo sobre $100.000: <strong className="text-indigo-700">cobrar {formatearDinero(simulacion.totalPosnet)}</strong> · {simulacion.cuotas} de {formatearDinero(simulacion.cuota)} · recupero {formatearCantidad(simulacion.porcentajeRecuperacion)}%</div>
+                <div className="text-[11px] font-bold text-slate-600">Ejemplo sobre $100.000: <strong className="text-indigo-700">cobrar {formatearDinero(simulacion.totalPosnet)}</strong> · {simulacion.cuotas} de {formatearDinero(simulacion.cuota)} · suba total {formatearCantidad(simulacion.porcentajeRecuperacion)}%</div>
 	                <div className="flex flex-wrap items-center gap-3">
 	                  <label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-600">Acredita en <input type="number" min="0" step="1" disabled={!editandoConfiguracion} value={plan.diasAcreditacion ?? 0} onChange={(e) => actualizarPlan('diasAcreditacion', e.target.value)} className="w-16 rounded-md border border-slate-200 bg-white px-2 py-1 text-right disabled:bg-slate-100" /> días</label>
 	                  <label className={`flex items-center gap-2 rounded-lg border px-2 py-1 text-[10px] font-black uppercase ${promoVigente ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-white text-slate-600'}`}>
@@ -31613,6 +31757,7 @@ function obtenerCategoriaProducto(producto) {
             </div>
             <div>
               <label className="block text-[10px] font-black text-gray-600 uppercase tracking-wider mb-1">Logo (PNG/JPG)</label>
+              <p className="mb-2 text-[10px] font-bold text-slate-500">Recomendado: PNG transparente 600×240 px, sin márgenes vacíos.</p>
               <label className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-dashed border-gray-300 bg-gray-50 cursor-pointer hover:bg-gray-100 text-xs font-bold text-gray-700">
                 <ImageIcon size={14} />
                 <span>{formMarca.logo ? 'Cambiar logo' : 'Subir logo'}</span>
@@ -33000,7 +33145,7 @@ function obtenerCategoriaProducto(producto) {
                     />
                   </div>
                   {compraDirectaActiva && <>
-                    {[['IVA 21%', calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, '21'), null], ['IVA 10,5%', calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, '10.5'), null], ['Ingresos Brutos', pedidoCompraIngresosBrutos, setPedidoCompraIngresosBrutos], ['Flete', pedidoCompraFlete, setPedidoCompraFlete]].map(([label, value, setter]) => {
+                    {[['IVA 21%', compraEsFacturaA(compraDirectaTipoComprobante) ? calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, '21') : 0, null], ['IVA 10,5%', compraEsFacturaA(compraDirectaTipoComprobante) ? calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, '10.5') : 0, null], ['Ingresos Brutos', pedidoCompraIngresosBrutos, setPedidoCompraIngresosBrutos], ['Flete', pedidoCompraFlete, setPedidoCompraFlete]].map(([label, value, setter]) => {
                       const esIvaAutomatico = label.startsWith('IVA');
                       return <div key={label}>
                         <label className="block text-[9px] font-black text-emerald-700 uppercase tracking-wider mb-0.5">{label}</label>
@@ -33297,7 +33442,7 @@ function obtenerCategoriaProducto(producto) {
                     <p className="text-[10px] font-bold text-emerald-700">Se calcula automáticamente con los ítems cargados.</p>
                   </div>
                   <input
-                    value={formatearDinero(construirFilasPedidoCompra(itemsPedidoCompra || []).reduce((acc, item) => acc + Number(item.subtotal || 0), 0) + calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, '21') + calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, '10.5') + parseNumeroConSigno(pedidoCompraIngresosBrutos) + parseNumeroConSigno(pedidoCompraFlete) + parseNumeroConSigno(pedidoCompraAjusteMonto))}
+                    value={formatearDinero(construirFilasPedidoCompra(itemsPedidoCompra || []).reduce((acc, item) => acc + Number(item.subtotal || 0), 0) + (compraEsFacturaA(compraDirectaTipoComprobante) ? calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, '21') + calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, '10.5') : 0) + parseNumeroConSigno(pedidoCompraIngresosBrutos) + parseNumeroConSigno(pedidoCompraFlete) + parseNumeroConSigno(pedidoCompraAjusteMonto))}
                     readOnly
                     className="w-full h-10 min-h-10 px-3 py-0 rounded-lg border border-emerald-300 bg-white text-sm font-black text-right text-emerald-900 outline-none focus:ring-2 focus:ring-emerald-500"
                   />
@@ -33522,6 +33667,7 @@ function obtenerCategoriaProducto(producto) {
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-sm font-semibold text-gray-700">
                       Logo de marca <span className="text-gray-400 font-normal">(Opcional)</span>
+                      <span className="block text-[10px] font-bold text-gray-400">Recomendado: PNG transparente 600×240 px.</span>
                     </label>
                     {formProducto.logoMarca && (
                       <button type="button" onClick={() => setFormProducto((prev) => ({ ...prev, logoMarca: '' }))} className="text-xs font-bold text-red-600 hover:text-red-700">
@@ -33679,7 +33825,7 @@ function obtenerCategoriaProducto(producto) {
                     <input
                       type="text"
                       value={formProducto.codigoInterno || ''}
-                      onChange={(e) => setFormProducto({...formProducto, codigoInterno: e.target.value})}
+                      onChange={(e) => actualizarFormProducto({ codigoInterno: e.target.value })}
                       disabled={Boolean(formProducto.generarCodigoAutomatico)}
                       className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-600 outline-none text-sm font-bold disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
                       placeholder={formProducto.generarCodigoAutomatico ? 'Automático (numérico)' : 'Ej: 000123'}
@@ -33691,7 +33837,7 @@ function obtenerCategoriaProducto(producto) {
                       <input
                         type="text"
                         value={formProducto.codigoBarras || ''}
-                        onChange={(e) => setFormProducto({...formProducto, codigoBarras: e.target.value})}
+                        onChange={(e) => actualizarFormProducto({ codigoBarras: e.target.value })}
                         className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-600 outline-none text-sm font-bold"
                         placeholder="Escribe o escanea..."
                       />
@@ -33704,11 +33850,11 @@ function obtenerCategoriaProducto(producto) {
               </div>
               <div className="sm:col-span-1">
                 <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Stock Inicial</label>
-                <input type="text" inputMode="decimal" value={formProducto.cantidad} onChange={(e) => setFormProducto({...formProducto, cantidad: e.target.value.replace(',', '.')})} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-600 outline-none text-sm font-bold text-center" placeholder="Opcional"/>
+                <input type="text" inputMode="decimal" value={formProducto.cantidad} onChange={(e) => actualizarFormProducto({ cantidad: e.target.value.replace(',', '.') })} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-600 outline-none text-sm font-bold text-center" placeholder="Opcional"/>
               </div>
               <div className="sm:col-span-1">
                 <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Stock mínimo</label>
-                <input type="text" inputMode="decimal" value={formProducto.stockMinimo ?? ''} onChange={(e) => setFormProducto({...formProducto, stockMinimo: e.target.value.replace(',', '.')})} className="w-full px-3 py-2 bg-white border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-sm font-bold text-center" placeholder="Sin alerta"/>
+                <input type="text" inputMode="decimal" value={formProducto.stockMinimo ?? ''} onChange={(e) => actualizarFormProducto({ stockMinimo: e.target.value.replace(',', '.') })} className="w-full px-3 py-2 bg-white border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-sm font-bold text-center" placeholder="Sin alerta"/>
                 <p className="mt-1 text-[10px] font-semibold text-amber-700">Avisa cuando el stock sea igual o menor.</p>
               </div>
               <div className="sm:col-span-3">
@@ -33732,12 +33878,12 @@ function obtenerCategoriaProducto(producto) {
             
             <div className="sf-product-general">
               <h3 className="text-sm font-bold text-gray-600 mb-4 tracking-wider">INFORMACIÓN GENERAL</h3>
-              <div><label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Descripción del Producto</label><input type="text" required value={formProducto.descripcion} onChange={(e) => setFormProducto({...formProducto, descripcion: e.target.value})} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-600 outline-none text-sm font-bold" /></div>
+              <div><label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Descripción del Producto</label><input type="text" required value={formProducto.descripcion} onChange={(e) => actualizarFormProducto({ descripcion: e.target.value })} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-600 outline-none text-sm font-bold" /></div>
               <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Detalles (solo para ofertas)</label>
               <textarea
                 rows={2}
                 value={formProducto.detalles || ''}
-                onChange={(e) => setFormProducto({...formProducto, detalles: e.target.value})}
+                onChange={(e) => actualizarFormProducto({ detalles: e.target.value })}
                 className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-600 outline-none text-xs font-semibold text-gray-600 resize-none"
               />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -33747,7 +33893,7 @@ function obtenerCategoriaProducto(producto) {
                   <input
                     type="text"
                     value={formProducto.categoria}
-                    onChange={(e) => setFormProducto({...formProducto, categoria: e.target.value})}
+                    onChange={(e) => actualizarFormProducto({ categoria: e.target.value })}
                     className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-600 outline-none text-sm font-bold"
                   />
                   <button
@@ -33772,14 +33918,8 @@ function obtenerCategoriaProducto(producto) {
                     value={formProducto.marca}
                     onChange={(e) => {
                       const marca = e.target.value;
-                      setFormProducto((prev) => {
-                        const marcaSeleccionada = marcasMapPorNombre.get(normalizarTextoBusqueda(marca));
-                        return {
-                          ...prev,
-                          marca,
-                          logoMarca: marcaSeleccionada?.logo ? marcaSeleccionada.logo : prev.logoMarca
-                        };
-                      });
+                      const marcaSeleccionada = marcasMapPorNombre.get(normalizarTextoBusqueda(marca));
+                      actualizarFormProducto({ marca, ...(marcaSeleccionada?.logo ? { logoMarca: marcaSeleccionada.logo } : {}) });
                     }}
                     className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-600 outline-none text-sm font-bold"
                   />
@@ -35286,7 +35426,7 @@ function obtenerCategoriaProducto(producto) {
                 type="text"
                 required
                 value={formCliente.nombre}
-                onChange={(e) => setFormCliente({ ...formCliente, nombre: e.target.value })}
+                onChange={(e) => actualizarFormCliente({ nombre: e.target.value })}
                 className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-purple-600"
                 placeholder="Ej: Juan Pérez / Empresa XYZ"
               />
@@ -35298,7 +35438,7 @@ function obtenerCategoriaProducto(producto) {
                   <input
                     type="checkbox"
                     checked={Boolean(formCliente.esEspecial)}
-                    onChange={(e) => setFormCliente({ ...formCliente, esEspecial: e.target.checked })}
+                    onChange={(e) => actualizarFormCliente({ esEspecial: e.target.checked })}
                     className="w-4 h-4 text-amber-600 rounded border-amber-300 focus:ring-amber-500"
                   />
                   <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">
@@ -35314,7 +35454,7 @@ function obtenerCategoriaProducto(producto) {
                 <input
                   type="text"
                   value={formCliente.whatsapp}
-                  onChange={(e) => setFormCliente({ ...formCliente, whatsapp: e.target.value })}
+                  onChange={(e) => actualizarFormCliente({ whatsapp: e.target.value })}
                   className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-purple-600"
                   placeholder="Ej: +54 9 3624..."
                 />
@@ -35324,7 +35464,7 @@ function obtenerCategoriaProducto(producto) {
                 <input
                   type="text"
                   value={formCliente.documento}
-                  onChange={(e) => setFormCliente({ ...formCliente, documento: e.target.value })}
+                  onChange={(e) => actualizarFormCliente({ documento: e.target.value })}
                   className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-purple-600"
                   placeholder="Ej: 30-12345678-9"
                 />
@@ -35335,7 +35475,7 @@ function obtenerCategoriaProducto(producto) {
               <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">Condición fiscal</label>
               <select
                 value={formCliente.condicionFiscal}
-                onChange={(e) => setFormCliente({ ...formCliente, condicionFiscal: e.target.value })}
+                onChange={(e) => actualizarFormCliente({ condicionFiscal: e.target.value })}
                 className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-purple-600"
               >
                 <option value="">Sin definir</option>
@@ -35360,7 +35500,7 @@ function obtenerCategoriaProducto(producto) {
                     type="text"
                     inputMode="decimal"
                     value={formCliente.limiteCuentaCorriente}
-                    onChange={(e) => setFormCliente({ ...formCliente, limiteCuentaCorriente: e.target.value })}
+                    onChange={(e) => actualizarFormCliente({ limiteCuentaCorriente: e.target.value })}
                     className="w-full px-3 py-2 bg-white border border-purple-200 rounded-lg text-sm font-black outline-none focus:ring-2 focus:ring-purple-500"
                     placeholder="0 = sin límite"
                   />
@@ -35372,7 +35512,7 @@ function obtenerCategoriaProducto(producto) {
                     min="0"
                     step="1"
                     value={formCliente.plazoCuentaCorrienteDias}
-                    onChange={(e) => setFormCliente({ ...formCliente, plazoCuentaCorrienteDias: e.target.value })}
+                    onChange={(e) => actualizarFormCliente({ plazoCuentaCorrienteDias: e.target.value })}
                     className="w-full px-3 py-2 bg-white border border-purple-200 rounded-lg text-sm font-black outline-none focus:ring-2 focus:ring-purple-500"
                     placeholder="0 = sin vencimiento"
                   />
@@ -35387,7 +35527,7 @@ function obtenerCategoriaProducto(producto) {
                 <input
                   type="email"
                   value={formCliente.email}
-                  onChange={(e) => setFormCliente({ ...formCliente, email: e.target.value })}
+                  onChange={(e) => actualizarFormCliente({ email: e.target.value })}
                   className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-purple-600"
                   placeholder="Ej: compras@cliente.com"
                 />
@@ -35397,7 +35537,7 @@ function obtenerCategoriaProducto(producto) {
                 <input
                   type="text"
                   value={formCliente.direccion}
-                  onChange={(e) => setFormCliente({ ...formCliente, direccion: e.target.value })}
+                  onChange={(e) => actualizarFormCliente({ direccion: e.target.value })}
                   className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-purple-600"
                   placeholder="Ej: Av. Sarmiento 123"
                 />
@@ -35409,7 +35549,7 @@ function obtenerCategoriaProducto(producto) {
               <textarea
                 rows={3}
                 value={formCliente.notas}
-                onChange={(e) => setFormCliente({ ...formCliente, notas: e.target.value })}
+                onChange={(e) => actualizarFormCliente({ notas: e.target.value })}
                 className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-purple-600 resize-none"
                 placeholder="Observaciones internas del cliente (opcional)"
               />
@@ -35530,6 +35670,23 @@ function obtenerCategoriaProducto(producto) {
               </div>
             </div>
               </>
+              );
+            })()}
+
+            {(() => {
+              const remitosCuenta = (estado.cargosProcesados || []).filter((cargo) => !esRecargoMoraMovimiento(cargo));
+              const pagosCuenta = (movimientosClienteSeleccionadoVisibles || []).filter((mov) => mov.tipo === 'cobro');
+              return (
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                  <div className="rounded-2xl border border-amber-200 bg-amber-50/40 overflow-hidden">
+                    <div className="px-4 py-3 border-b border-amber-200"><h4 className="text-sm font-black uppercase tracking-wider text-amber-900">Remitos y facturas</h4><p className="text-[11px] font-bold text-amber-700">Cada comprobante, su saldo y la factura B relacionada.</p></div>
+                    <div className="max-h-72 overflow-y-auto divide-y divide-amber-100">{remitosCuenta.length ? remitosCuenta.map((cargo) => { const factura = facturasClienteSeleccionado.find((item) => item.id === cargo?.detallesPago?.facturaId || (Array.isArray(item?.remitoIds) && item.remitoIds.includes(cargo.id))); const aplicaciones = Array.isArray(cargo.pagosAplicados) ? cargo.pagosAplicados : []; return <div key={`cc-remito-resumen-${cargo.id}`} className="px-4 py-3 bg-white"><div className="flex items-start justify-between gap-2"><div><p className="text-xs font-black text-slate-900">{cargo.detallesPago?.tipoComprobante === 'factura_b' ? 'Factura B' : (cargo.detallesPago?.tipoComprobante === 'remito_r' ? 'Remito R' : 'Remito X')} · {cargo.detallesPago?.numeroComprobante || cargo.descripcion || '-'}</p><p className="text-[10px] font-bold text-slate-500">{cargo.fecha ? formatearFecha(cargo.fecha) : '-'} · Total {formatearDinero(cargo.monto || 0)}</p></div><span className={`rounded-full px-2 py-1 text-[9px] font-black uppercase ${Number(cargo.pendiente || 0) > 0.009 ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>{Number(cargo.pendiente || 0) > 0.009 ? `Debe ${formatearDinero(cargo.pendiente)}` : 'Saldado'}</span></div>{factura && <p className="mt-1 text-[10px] font-black text-blue-700">Factura B relacionada: {factura.numeroFactura || factura.numero || factura.id}</p>}{aplicaciones.length ? <p className="mt-1 text-[10px] font-bold text-emerald-700">Pagos aplicados: {aplicaciones.map((aplicacion) => `${formatearDinero(aplicacion.monto || 0)} · ${formatearFecha(aplicacion.fecha)}`).join(' | ')}</p> : <p className="mt-1 text-[10px] font-bold text-slate-400">Sin pagos aplicados</p>}</div>; }) : <p className="p-6 text-center text-xs font-bold text-slate-400">No hay remitos o facturas en cuenta corriente.</p>}</div>
+                  </div>
+                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50/40 overflow-hidden">
+                    <div className="px-4 py-3 border-b border-emerald-200"><h4 className="text-sm font-black uppercase tracking-wider text-emerald-900">Pagos recibidos</h4><p className="text-[11px] font-bold text-emerald-700">Cada cobro y a qué remito o factura se aplicó.</p></div>
+                    <div className="max-h-72 overflow-y-auto divide-y divide-emerald-100">{pagosCuenta.length ? pagosCuenta.map((pago) => { const recibo = pago.detallesPago?.recibo || {}; const itemsAplicados = Array.isArray(recibo.itemsAplicados) ? recibo.itemsAplicados : []; const facturaExterna = recibo.facturaExternaNumero || pago.detallesPago?.facturaExternaNumero || ''; return <div key={`cc-pago-resumen-${pago.id}`} className="px-4 py-3 bg-white"><div className="flex items-start justify-between gap-2"><div><p className="text-xs font-black text-slate-900">{recibo.numero || 'Recibo'} · {formatearFecha(pago.fecha)}</p><p className="text-[10px] font-bold text-slate-500">{obtenerEtiquetaMetodoPago(pago.metodoPago)}</p></div><span className="text-sm font-black text-emerald-700">{formatearDinero(pago.monto || 0)}</span></div>{itemsAplicados.length ? <p className="mt-1 text-[10px] font-bold text-emerald-700">Aplicado a: {itemsAplicados.map((item) => `${item.numeroRemito || item.descripcion || 'Remito'} (${formatearDinero(item.aplicado || 0)})`).join(' · ')}</p> : <p className="mt-1 text-[10px] font-bold text-amber-700">Pago sin imputación detallada</p>}{facturaExterna && <p className="mt-1 text-[10px] font-black text-blue-700">Factura B informada: {facturaExterna}</p>}</div>; }) : <p className="p-6 text-center text-xs font-bold text-slate-400">No hay pagos recibidos registrados.</p>}</div>
+                  </div>
+                </div>
               );
             })()}
 
