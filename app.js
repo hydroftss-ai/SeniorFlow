@@ -21870,7 +21870,7 @@ var require_html2canvas = __commonJS({
       var CJ = 31;
       var EB = 32;
       var EM = 33;
-      var H22 = 34;
+      var H2 = 34;
       var H3 = 35;
       var HL = 36;
       var ID = 37;
@@ -21890,7 +21890,7 @@ var require_html2canvas = __commonJS({
       var SPACE$1 = [SP, ZW];
       var PREFIX_POSTFIX = [PR, PO];
       var LINE_BREAKS = HARD_LINE_BREAKS.concat(SPACE$1);
-      var KOREAN_SYLLABLE_BLOCK = [JL, JV, JT, H22, H3];
+      var KOREAN_SYLLABLE_BLOCK = [JL, JV, JT, H2, H3];
       var HYPHEN = [HY, BA];
       var codePointsToCharacterClasses = function(codePoints, lineBreak2) {
         if (lineBreak2 === void 0) {
@@ -22121,7 +22121,7 @@ var require_html2canvas = __commonJS({
             }
           }
         }
-        if (JL === current && [JL, JV, H22, H3].indexOf(next) !== -1 || [JV, H22].indexOf(current) !== -1 && [JV, JT].indexOf(next) !== -1 || [JT, H3].indexOf(current) !== -1 && next === JT) {
+        if (JL === current && [JL, JV, H2, H3].indexOf(next) !== -1 || [JV, H2].indexOf(current) !== -1 && [JV, JT].indexOf(next) !== -1 || [JT, H3].indexOf(current) !== -1 && next === JT) {
           return BREAK_NOT_ALLOWED$1;
         }
         if (KOREAN_SYLLABLE_BLOCK.indexOf(current) !== -1 && [IN, PO].indexOf(next) !== -1 || KOREAN_SYLLABLE_BLOCK.indexOf(next) !== -1 && current === PR) {
@@ -22260,12 +22260,12 @@ var require_html2canvas = __commonJS({
       var e2 = 101;
       var f3 = 102;
       var u3 = 117;
-      var z3 = 122;
+      var z2 = 122;
       var A2 = 65;
       var E2 = 69;
       var F3 = 70;
       var U3 = 85;
-      var Z3 = 90;
+      var Z2 = 90;
       var isDigit = function(codePoint) {
         return codePoint >= ZERO && codePoint <= 57;
       };
@@ -22276,10 +22276,10 @@ var require_html2canvas = __commonJS({
         return isDigit(codePoint) || codePoint >= A2 && codePoint <= F3 || codePoint >= a3 && codePoint <= f3;
       };
       var isLowerCaseLetter = function(codePoint) {
-        return codePoint >= a3 && codePoint <= z3;
+        return codePoint >= a3 && codePoint <= z2;
       };
       var isUpperCaseLetter = function(codePoint) {
-        return codePoint >= A2 && codePoint <= Z3;
+        return codePoint >= A2 && codePoint <= Z2;
       };
       var isLetter = function(codePoint) {
         return isLowerCaseLetter(codePoint) || isUpperCaseLetter(codePoint);
@@ -25390,7 +25390,7 @@ var require_html2canvas = __commonJS({
       var Control = 4;
       var Extend = 5;
       var SpacingMark = 7;
-      var L3 = 8;
+      var L2 = 8;
       var V2 = 9;
       var T3 = 10;
       var LV = 11;
@@ -25468,7 +25468,7 @@ var require_html2canvas = __commonJS({
         if (next === CR || next === LF || next === Control) {
           return BREAK_ALLOWED;
         }
-        if (current === L3 && [L3, V2, LV, LVT].indexOf(next) !== -1) {
+        if (current === L2 && [L2, V2, LV, LVT].indexOf(next) !== -1) {
           return BREAK_NOT_ALLOWED;
         }
         if ((current === LV || current === V2) && (next === V2 || next === T3)) {
@@ -28422,7 +28422,7 @@ var require_html2canvas = __commonJS({
           };
           CanvasRenderer2.prototype.renderStackContent = function(stack) {
             return __awaiter(this, void 0, void 0, function() {
-              var _i, _a3, child2, _b2, _c, child2, _d, _e3, child2, _f, _g, child2, _h, _j, child2, _k, _l, child2, _m, _o, child2;
+              var _i, _a3, child2, _b2, _c, child2, _d, _e2, child2, _f, _g, child2, _h, _j, child2, _k, _l, child2, _m, _o, child2;
               return __generator(this, function(_p) {
                 switch (_p.label) {
                   case 0:
@@ -28465,11 +28465,11 @@ var require_html2canvas = __commonJS({
                     _b2++;
                     return [3, 7];
                   case 10:
-                    _d = 0, _e3 = stack.nonPositionedFloats;
+                    _d = 0, _e2 = stack.nonPositionedFloats;
                     _p.label = 11;
                   case 11:
-                    if (!(_d < _e3.length)) return [3, 14];
-                    child2 = _e3[_d];
+                    if (!(_d < _e2.length)) return [3, 14];
+                    child2 = _e2[_d];
                     return [4, this.renderStack(child2)];
                   case 12:
                     _p.sent();
@@ -28595,7 +28595,7 @@ var require_html2canvas = __commonJS({
                   case 0:
                     index2 = container.styles.backgroundImage.length - 1;
                     _loop_1 = function(backgroundImage3) {
-                      var image2, url, _c, path, x4, y3, width, height, pattern, _d, path, x4, y3, width, height, _e3, lineLength, x0, x1, y0, y1, canvas, ctx, gradient_1, pattern, _f, path, left, top_1, width, height, position2, x4, y3, _g, rx, ry, radialGradient_1, midX, midY, f4, invF;
+                      var image2, url, _c, path, x4, y3, width, height, pattern, _d, path, x4, y3, width, height, _e2, lineLength, x0, x1, y0, y1, canvas, ctx, gradient_1, pattern, _f, path, left, top_1, width, height, position2, x4, y3, _g, rx, ry, radialGradient_1, midX, midY, f4, invF;
                       return __generator(this, function(_h) {
                         switch (_h.label) {
                           case 0:
@@ -28627,7 +28627,7 @@ var require_html2canvas = __commonJS({
                           case 5:
                             if (isLinearGradient(backgroundImage3)) {
                               _d = calculateBackgroundRendering(container, index2, [null, null, null]), path = _d[0], x4 = _d[1], y3 = _d[2], width = _d[3], height = _d[4];
-                              _e3 = calculateGradientDirection(backgroundImage3.angle, width, height), lineLength = _e3[0], x0 = _e3[1], x1 = _e3[2], y0 = _e3[3], y1 = _e3[4];
+                              _e2 = calculateGradientDirection(backgroundImage3.angle, width, height), lineLength = _e2[0], x0 = _e2[1], x1 = _e2[2], y0 = _e2[3], y1 = _e2[4];
                               canvas = document.createElement("canvas");
                               canvas.width = width;
                               canvas.height = height;
@@ -29163,7 +29163,7 @@ var require_html2canvas = __commonJS({
       var renderElement = function(element, opts) {
         return __awaiter(void 0, void 0, void 0, function() {
           var ownerDocument, defaultView, resourceOptions, contextOptions, windowOptions, windowBounds, context, foreignObjectRendering, cloneOptions, documentCloner, clonedElement, container, _a3, width, height, left, top, backgroundColor2, renderOptions, canvas, renderer, root, renderer;
-          var _b2, _c, _d, _e3, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t3;
+          var _b2, _c, _d, _e2, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t3;
           return __generator(this, function(_u) {
             switch (_u.label) {
               case 0:
@@ -29184,7 +29184,7 @@ var require_html2canvas = __commonJS({
                   proxy: opts.proxy,
                   useCORS: (_d = opts.useCORS) !== null && _d !== void 0 ? _d : false
                 };
-                contextOptions = __assign({ logging: (_e3 = opts.logging) !== null && _e3 !== void 0 ? _e3 : true, cache: opts.cache }, resourceOptions);
+                contextOptions = __assign({ logging: (_e2 = opts.logging) !== null && _e2 !== void 0 ? _e2 : true, cache: opts.cache }, resourceOptions);
                 windowOptions = {
                   windowWidth: (_f = opts.windowWidth) !== null && _f !== void 0 ? _f : defaultView.innerWidth,
                   windowHeight: (_g = opts.windowHeight) !== null && _g !== void 0 ? _g : defaultView.innerHeight,
@@ -33333,17 +33333,17 @@ var require_regexp_sticky_helpers = __commonJS({
     var globalThis2 = require_global_this();
     var $RegExp = globalThis2.RegExp;
     var UNSUPPORTED_Y = fails(function() {
-      var re3 = $RegExp("a", "y");
-      re3.lastIndex = 2;
-      return re3.exec("abcd") !== null;
+      var re2 = $RegExp("a", "y");
+      re2.lastIndex = 2;
+      return re2.exec("abcd") !== null;
     });
     var MISSED_STICKY = UNSUPPORTED_Y || fails(function() {
       return !$RegExp("a", "y").sticky;
     });
     var BROKEN_CARET = UNSUPPORTED_Y || fails(function() {
-      var re3 = $RegExp("^r", "gy");
-      re3.lastIndex = 2;
-      return re3.exec("str") !== null;
+      var re2 = $RegExp("^r", "gy");
+      re2.lastIndex = 2;
+      return re2.exec("str") !== null;
     });
     module.exports = {
       BROKEN_CARET,
@@ -33462,8 +33462,8 @@ var require_regexp_unsupported_dot_all = __commonJS({
     var globalThis2 = require_global_this();
     var $RegExp = globalThis2.RegExp;
     module.exports = fails(function() {
-      var re3 = $RegExp(".", "s");
-      return !(re3.dotAll && re3.test("\n") && re3.flags === "s");
+      var re2 = $RegExp(".", "s");
+      return !(re2.dotAll && re2.test("\n") && re2.flags === "s");
     });
   }
 });
@@ -33476,8 +33476,8 @@ var require_regexp_unsupported_ncg = __commonJS({
     var globalThis2 = require_global_this();
     var $RegExp = globalThis2.RegExp;
     module.exports = fails(function() {
-      var re3 = $RegExp("(?<a>b)", "g");
-      return re3.exec("b").groups.a !== "b" || "b".replace(re3, "$<a>c") !== "bc";
+      var re2 = $RegExp("(?<a>b)", "g");
+      return re2.exec("b").groups.a !== "b" || "b".replace(re2, "$<a>c") !== "bc";
     });
   }
 });
@@ -33505,39 +33505,39 @@ var require_regexp_exec = __commonJS({
     var stringSlice = uncurryThis("".slice);
     var UPDATES_LAST_INDEX_WRONG = (function() {
       var re1 = /a/;
-      var re22 = /b*/g;
+      var re2 = /b*/g;
       call(nativeExec, re1, "a");
-      call(nativeExec, re22, "a");
-      return re1.lastIndex !== 0 || re22.lastIndex !== 0;
+      call(nativeExec, re2, "a");
+      return re1.lastIndex !== 0 || re2.lastIndex !== 0;
     })();
     var UNSUPPORTED_Y = stickyHelpers.BROKEN_CARET;
     var NPCG_INCLUDED = /()??/.exec("")[1] !== void 0;
     var PATCH = UPDATES_LAST_INDEX_WRONG || NPCG_INCLUDED || UNSUPPORTED_Y || UNSUPPORTED_DOT_ALL || UNSUPPORTED_NCG;
-    var setGroups = function(re3, groups) {
-      var object = re3.groups = create2(null);
+    var setGroups = function(re2, groups) {
+      var object = re2.groups = create2(null);
       for (var i4 = 0; i4 < groups.length; i4++) {
         var group = groups[i4];
-        object[group[0]] = re3[group[1]];
+        object[group[0]] = re2[group[1]];
       }
     };
     if (PATCH) {
       patchedExec = function exec(string) {
-        var re3 = this;
-        var state = getInternalState(re3);
+        var re2 = this;
+        var state = getInternalState(re2);
         var str = toString2(string);
         var raw = state.raw;
         var result, reCopy, lastIndex;
         if (raw) {
-          raw.lastIndex = re3.lastIndex;
+          raw.lastIndex = re2.lastIndex;
           result = call(patchedExec, raw, str);
-          re3.lastIndex = raw.lastIndex;
+          re2.lastIndex = raw.lastIndex;
           if (result && state.groups) setGroups(result, state.groups);
           return result;
         }
         var groups = state.groups;
-        var sticky = UNSUPPORTED_Y && re3.sticky;
-        var flags = call(regexpFlags, re3);
-        var source = re3.source;
+        var sticky = UNSUPPORTED_Y && re2.sticky;
+        var flags = call(regexpFlags, re2);
+        var source = re2.source;
         var charsAdded = 0;
         var strCopy = str;
         if (sticky) {
@@ -33545,9 +33545,9 @@ var require_regexp_exec = __commonJS({
           if (indexOf(flags, "g") === -1) {
             flags += "g";
           }
-          strCopy = stringSlice(str, re3.lastIndex);
-          var prevChar = re3.lastIndex > 0 && charAt(str, re3.lastIndex - 1);
-          if (re3.lastIndex > 0 && (!re3.multiline || re3.multiline && prevChar !== "\n" && prevChar !== "\r" && prevChar !== "\u2028" && prevChar !== "\u2029")) {
+          strCopy = stringSlice(str, re2.lastIndex);
+          var prevChar = re2.lastIndex > 0 && charAt(str, re2.lastIndex - 1);
+          if (re2.lastIndex > 0 && (!re2.multiline || re2.multiline && prevChar !== "\n" && prevChar !== "\r" && prevChar !== "\u2028" && prevChar !== "\u2029")) {
             source = "(?: (?:" + source + "))";
             strCopy = " " + strCopy;
             charsAdded++;
@@ -33557,17 +33557,17 @@ var require_regexp_exec = __commonJS({
         if (NPCG_INCLUDED) {
           reCopy = new RegExp("^" + source + "$(?!\\s)", flags);
         }
-        if (UPDATES_LAST_INDEX_WRONG) lastIndex = re3.lastIndex;
-        var match = call(nativeExec, sticky ? reCopy : re3, strCopy);
+        if (UPDATES_LAST_INDEX_WRONG) lastIndex = re2.lastIndex;
+        var match = call(nativeExec, sticky ? reCopy : re2, strCopy);
         if (sticky) {
           if (match) {
             match.input = str;
             match[0] = stringSlice(match[0], charsAdded);
-            match.index = re3.lastIndex;
-            re3.lastIndex += match[0].length;
-          } else re3.lastIndex = 0;
+            match.index = re2.lastIndex;
+            re2.lastIndex += match[0].length;
+          } else re2.lastIndex = 0;
         } else if (UPDATES_LAST_INDEX_WRONG && match) {
-          re3.lastIndex = re3.global ? match.index + match[0].length : lastIndex;
+          re2.lastIndex = re2.global ? match.index + match[0].length : lastIndex;
         }
         if (NPCG_INCLUDED && match && match.length > 1) {
           call(nativeReplace, match[0], reCopy, function() {
@@ -33620,20 +33620,20 @@ var require_fix_regexp_well_known_symbol_logic = __commonJS({
       });
       var DELEGATES_TO_EXEC = DELEGATES_TO_SYMBOL && !fails(function() {
         var execCalled = false;
-        var re3 = /a/;
+        var re2 = /a/;
         if (KEY === "split") {
           var constructor = {};
           constructor[SPECIES] = function() {
-            return re3;
+            return re2;
           };
-          re3 = { constructor, flags: "" };
-          re3[SYMBOL] = /./[SYMBOL];
+          re2 = { constructor, flags: "" };
+          re2[SYMBOL] = /./[SYMBOL];
         }
-        re3.exec = function() {
+        re2.exec = function() {
           execCalled = true;
           return null;
         };
-        re3[SYMBOL]("");
+        re2[SYMBOL]("");
         return !execCalled;
       });
       if (!DELEGATES_TO_SYMBOL || !DELEGATES_TO_EXEC || FORCED) {
@@ -33926,13 +33926,13 @@ var require_es_string_replace = __commonJS({
       return false;
     })();
     var REPLACE_SUPPORTS_NAMED_GROUPS = !fails(function() {
-      var re3 = /./;
-      re3.exec = function() {
+      var re2 = /./;
+      re2.exec = function() {
         var result = [];
         result.groups = { a: "7" };
         return result;
       };
-      return "".replace(re3, "$<a>") !== "7";
+      return "".replace(re2, "$<a>") !== "7";
     });
     fixRegExpWellKnownSymbolLogic("replace", function(_3, nativeReplace, maybeCallNative) {
       var UNSAFE_SUBSTITUTE = REGEXP_REPLACE_SUBSTITUTES_UNDEFINED_CAPTURE ? "$" : "$0";
@@ -34653,12 +34653,12 @@ var require_es_string_split = __commonJS({
     var stringSlice = uncurryThis("".slice);
     var stringIndexOf2 = uncurryThis("".indexOf);
     var SPLIT_WORKS_WITH_OVERWRITTEN_EXEC = !fails(function() {
-      var re3 = /(?:)/;
-      var originalExec = re3.exec;
-      re3.exec = function() {
+      var re2 = /(?:)/;
+      var originalExec = re2.exec;
+      re2.exec = function() {
         return originalExec.apply(this, arguments);
       };
-      var result = "ab".split(re3);
+      var result = "ab".split(re2);
       return result.length !== 2 || result[0] !== "a" || result[1] !== "b";
     });
     var BUGGY = "abbc".split(/(b)*/)[1] === "c" || // eslint-disable-next-line regexp/no-empty-group -- required for testing
@@ -34703,15 +34703,15 @@ var require_es_string_split = __commonJS({
           var A2 = [];
           while (q3 < S3.length) {
             splitter.lastIndex = UNSUPPORTED_Y ? 0 : q3;
-            var z3 = regExpExec(splitter, UNSUPPORTED_Y ? stringSlice(S3, q3) : S3);
+            var z2 = regExpExec(splitter, UNSUPPORTED_Y ? stringSlice(S3, q3) : S3);
             var e2;
-            if (z3 === null || (e2 = min(toLength(splitter.lastIndex + (UNSUPPORTED_Y ? q3 : 0)), S3.length)) === p3) {
+            if (z2 === null || (e2 = min(toLength(splitter.lastIndex + (UNSUPPORTED_Y ? q3 : 0)), S3.length)) === p3) {
               q3 = advanceStringIndex(S3, q3, unicodeMatching);
             } else {
               push(A2, stringSlice(S3, p3, q3));
               if (A2.length === lim) return A2;
-              for (var i4 = 1; i4 <= z3.length - 1; i4++) {
-                push(A2, z3[i4]);
+              for (var i4 = 1; i4 <= z2.length - 1; i4++) {
+                push(A2, z2[i4]);
                 if (A2.length === lim) return A2;
               }
               q3 = p3 = e2;
@@ -35111,9 +35111,9 @@ var require_rgbcolor = __commonJS({
         }
       ];
       for (var i4 = 0; i4 < color_defs.length; i4++) {
-        var re3 = color_defs[i4].re;
+        var re2 = color_defs[i4].re;
         var processor = color_defs[i4].process;
-        var bits = re3.exec(color_string);
+        var bits = re2.exec(color_string);
         if (bits) {
           var channels = processor(bits);
           this.r = channels[0];
@@ -35380,8 +35380,8 @@ var init_SVGPathData_module = __esm({
           var T3 = t4 * i4 - r3 * e3;
           if (void 0 !== a3.xRot && (1 !== t4 || 0 !== r3 || 0 !== e3 || 1 !== i4)) if (0 === T3) delete a3.rX, delete a3.rY, delete a3.xRot, delete a3.lArcFlag, delete a3.sweepFlag, a3.type = _.LINE_TO;
           else {
-            var v4 = a3.xRot * Math.PI / 180, f3 = Math.sin(v4), N4 = Math.cos(v4), x4 = 1 / l4(a3.rX), d2 = 1 / l4(a3.rY), E2 = l4(N4) * x4 + l4(f3) * d2, A2 = 2 * f3 * N4 * (x4 - d2), C3 = l4(f3) * x4 + l4(N4) * d2, M3 = E2 * i4 * i4 - A2 * r3 * i4 + C3 * r3 * r3, R2 = A2 * (t4 * i4 + r3 * e3) - 2 * (E2 * e3 * i4 + C3 * t4 * r3), g2 = E2 * e3 * e3 - A2 * t4 * e3 + C3 * t4 * t4, I2 = (Math.atan2(R2, M3 - g2) + Math.PI) % Math.PI / 2, S3 = Math.sin(I2), L3 = Math.cos(I2);
-            a3.rX = Math.abs(T3) / Math.sqrt(M3 * l4(L3) + R2 * S3 * L3 + g2 * l4(S3)), a3.rY = Math.abs(T3) / Math.sqrt(M3 * l4(S3) - R2 * S3 * L3 + g2 * l4(L3)), a3.xRot = 180 * I2 / Math.PI;
+            var v4 = a3.xRot * Math.PI / 180, f3 = Math.sin(v4), N4 = Math.cos(v4), x4 = 1 / l4(a3.rX), d2 = 1 / l4(a3.rY), E2 = l4(N4) * x4 + l4(f3) * d2, A2 = 2 * f3 * N4 * (x4 - d2), C3 = l4(f3) * x4 + l4(N4) * d2, M3 = E2 * i4 * i4 - A2 * r3 * i4 + C3 * r3 * r3, R2 = A2 * (t4 * i4 + r3 * e3) - 2 * (E2 * e3 * i4 + C3 * t4 * r3), g2 = E2 * e3 * e3 - A2 * t4 * e3 + C3 * t4 * t4, I2 = (Math.atan2(R2, M3 - g2) + Math.PI) % Math.PI / 2, S3 = Math.sin(I2), L2 = Math.cos(I2);
+            a3.rX = Math.abs(T3) / Math.sqrt(M3 * l4(L2) + R2 * S3 * L2 + g2 * l4(S3)), a3.rY = Math.abs(T3) / Math.sqrt(M3 * l4(S3) - R2 * S3 * L2 + g2 * l4(L2)), a3.xRot = 180 * I2 / Math.PI;
           }
           return void 0 !== a3.sweepFlag && 0 > T3 && (a3.sweepFlag = +!a3.sweepFlag), a3;
         }));
@@ -35444,13 +35444,13 @@ var init_SVGPathData_module = __esm({
             var a3, n3, s3, u4;
             t5.cX || o(t5, r4, e4);
             for (var y3 = Math.min(t5.phi1, t5.phi2), p3 = Math.max(t5.phi1, t5.phi2) - y3, m4 = Math.ceil(p3 / 90), O5 = new Array(m4), l4 = r4, T3 = e4, v4 = 0; v4 < m4; v4++) {
-              var f3 = c(t5.phi1, t5.phi2, v4 / m4), N4 = c(t5.phi1, t5.phi2, (v4 + 1) / m4), x4 = N4 - f3, d2 = 4 / 3 * Math.tan(x4 * h / 4), E2 = [Math.cos(f3 * h) - d2 * Math.sin(f3 * h), Math.sin(f3 * h) + d2 * Math.cos(f3 * h)], A2 = E2[0], C3 = E2[1], M3 = [Math.cos(N4 * h), Math.sin(N4 * h)], R2 = M3[0], g2 = M3[1], I2 = [R2 + d2 * Math.sin(N4 * h), g2 - d2 * Math.cos(N4 * h)], S3 = I2[0], L3 = I2[1];
+              var f3 = c(t5.phi1, t5.phi2, v4 / m4), N4 = c(t5.phi1, t5.phi2, (v4 + 1) / m4), x4 = N4 - f3, d2 = 4 / 3 * Math.tan(x4 * h / 4), E2 = [Math.cos(f3 * h) - d2 * Math.sin(f3 * h), Math.sin(f3 * h) + d2 * Math.cos(f3 * h)], A2 = E2[0], C3 = E2[1], M3 = [Math.cos(N4 * h), Math.sin(N4 * h)], R2 = M3[0], g2 = M3[1], I2 = [R2 + d2 * Math.sin(N4 * h), g2 - d2 * Math.cos(N4 * h)], S3 = I2[0], L2 = I2[1];
               O5[v4] = { relative: t5.relative, type: _.CURVE_TO };
-              var H3 = function(r5, e5) {
+              var H2 = function(r5, e5) {
                 var a4 = i2([r5 * t5.rX, e5 * t5.rY], t5.xRot), n4 = a4[0], o3 = a4[1];
                 return [t5.cX + n4, t5.cY + o3];
               };
-              a3 = H3(A2, C3), O5[v4].x1 = a3[0], O5[v4].y1 = a3[1], n3 = H3(S3, L3), O5[v4].x2 = n3[0], O5[v4].y2 = n3[1], s3 = H3(R2, g2), O5[v4].x = s3[0], O5[v4].y = s3[1], t5.relative && (O5[v4].x1 -= l4, O5[v4].y1 -= T3, O5[v4].x2 -= l4, O5[v4].y2 -= T3, O5[v4].x -= l4, O5[v4].y -= T3), l4 = (u4 = [O5[v4].x, O5[v4].y])[0], T3 = u4[1];
+              a3 = H2(A2, C3), O5[v4].x1 = a3[0], O5[v4].y1 = a3[1], n3 = H2(S3, L2), O5[v4].x2 = n3[0], O5[v4].y2 = n3[1], s3 = H2(R2, g2), O5[v4].x = s3[0], O5[v4].y = s3[1], t5.relative && (O5[v4].x1 -= l4, O5[v4].y1 -= T3, O5[v4].x2 -= l4, O5[v4].y2 -= T3, O5[v4].x -= l4, O5[v4].y -= T3), l4 = (u4 = [O5[v4].x, O5[v4].y])[0], T3 = u4[1];
             }
             return O5;
           })(t4, t4.relative ? 0 : r3, t4.relative ? 0 : e3) : t4;
@@ -35486,12 +35486,12 @@ var init_SVGPathData_module = __esm({
             for (var x4 = u4.xRot / 180 * Math.PI, d2 = Math.cos(x4) * u4.rX, E2 = Math.sin(x4) * u4.rX, A2 = -Math.sin(x4) * u4.rY, C3 = Math.cos(x4) * u4.rY, M3 = u4.phi1 < u4.phi2 ? [u4.phi1, u4.phi2] : -180 > u4.phi2 ? [u4.phi2 + 360, u4.phi1 + 360] : [u4.phi2, u4.phi1], R2 = M3[0], g2 = M3[1], I2 = function(t5) {
               var r4 = t5[0], e4 = t5[1], i5 = 180 * Math.atan2(e4, r4) / Math.PI;
               return i5 < R2 ? i5 + 360 : i5;
-            }, S3 = 0, L3 = s(A2, -d2, 0).map(I2); S3 < L3.length; S3++) {
-              (w2 = L3[S3]) > R2 && w2 < g2 && O5(y(u4.cX, d2, A2, w2));
+            }, S3 = 0, L2 = s(A2, -d2, 0).map(I2); S3 < L2.length; S3++) {
+              (w2 = L2[S3]) > R2 && w2 < g2 && O5(y(u4.cX, d2, A2, w2));
             }
-            for (var H3 = 0, U3 = s(C3, -E2, 0).map(I2); H3 < U3.length; H3++) {
+            for (var H2 = 0, U3 = s(C3, -E2, 0).map(I2); H2 < U3.length; H2++) {
               var w2;
-              (w2 = U3[H3]) > R2 && w2 < g2 && l4(y(u4.cY, E2, C3, w2));
+              (w2 = U3[H2]) > R2 && w2 < g2 && l4(y(u4.cY, E2, C3, w2));
             }
           }
           return r3;
@@ -40257,14 +40257,14 @@ var init_index_es = __esm({
           run *= -1;
         }
         var rise = m4 * run;
-        var pt3 = null;
+        var pt2 = null;
         if (p2x === p1x) {
-          pt3 = {
+          pt2 = {
             x: fromX,
             y: fromY + rise
           };
         } else if ((fromY - p1y) / (fromX - p1x + PSEUDO_ZERO) === m4) {
-          pt3 = {
+          pt2 = {
             x: fromX + run,
             y: fromY + rise
           };
@@ -40286,12 +40286,12 @@ var init_index_es = __esm({
             run *= -1;
           }
           rise = m4 * run;
-          pt3 = {
+          pt2 = {
             x: ix + run,
             y: iy + rise
           };
         }
-        return pt3;
+        return pt2;
       }
       getPointOnPath(distance) {
         var fullLen = this.getPathLength();
@@ -40375,13 +40375,13 @@ var init_index_es = __esm({
       getPointOnEllipticalArc(cx, cy, rx, ry, theta, psi) {
         var cosPsi = Math.cos(psi);
         var sinPsi = Math.sin(psi);
-        var pt3 = {
+        var pt2 = {
           x: rx * Math.cos(theta),
           y: ry * Math.sin(theta)
         };
         return {
-          x: cx + (pt3.x * cosPsi - pt3.y * sinPsi),
-          y: cy + (pt3.x * sinPsi + pt3.y * cosPsi)
+          x: cx + (pt2.x * cosPsi - pt2.y * sinPsi),
+          y: cy + (pt2.x * sinPsi + pt2.y * cosPsi)
         };
       }
       // TODO need some optimisations. possibly build cache only for curved segments?
@@ -41410,8 +41410,8 @@ var require_react_jsx_runtime_development = __commonJS({
           else validateChildKeys(children);
         if (hasOwnProperty.call(config, "key")) {
           children = getComponentNameFromType(type);
-          var keys = Object.keys(config).filter(function(k3) {
-            return "key" !== k3;
+          var keys = Object.keys(config).filter(function(k2) {
+            return "key" !== k2;
           });
           isStaticChildren = 0 < keys.length ? "{key: someKey, " + keys.join(": ..., ") + ": ...}" : "{key: someKey}";
           didWarnAboutKeySpread[children + isStaticChildren] || (keys = 0 < keys.length ? "{" + keys.join(": ..., ") + ": ...}" : "{}", console.error(
@@ -42067,8 +42067,17 @@ var __iconNode44 = [
 ];
 var Printer = createLucideIcon("printer", __iconNode44);
 
-// node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/save.mjs
+// node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/refresh-cw.mjs
 var __iconNode45 = [
+  ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
+  ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
+  ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
+  ["path", { d: "M8 16H3v5", key: "1cv678" }]
+];
+var RefreshCw = createLucideIcon("refresh-cw", __iconNode45);
+
+// node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/save.mjs
+var __iconNode46 = [
   [
     "path",
     {
@@ -42079,10 +42088,10 @@ var __iconNode45 = [
   ["path", { d: "M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7", key: "1ydtos" }],
   ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
 ];
-var Save = createLucideIcon("save", __iconNode45);
+var Save = createLucideIcon("save", __iconNode46);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/scan-barcode.mjs
-var __iconNode46 = [
+var __iconNode47 = [
   ["path", { d: "M3 7V5a2 2 0 0 1 2-2h2", key: "aa7l1z" }],
   ["path", { d: "M17 3h2a2 2 0 0 1 2 2v2", key: "4qcy5o" }],
   ["path", { d: "M21 17v2a2 2 0 0 1-2 2h-2", key: "6vwrx8" }],
@@ -42091,17 +42100,17 @@ var __iconNode46 = [
   ["path", { d: "M12 7v10", key: "jspqdw" }],
   ["path", { d: "M17 7v10", key: "578dap" }]
 ];
-var ScanBarcode = createLucideIcon("scan-barcode", __iconNode46);
+var ScanBarcode = createLucideIcon("scan-barcode", __iconNode47);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/search.mjs
-var __iconNode47 = [
+var __iconNode48 = [
   ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
 ];
-var Search = createLucideIcon("search", __iconNode47);
+var Search = createLucideIcon("search", __iconNode48);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/send.mjs
-var __iconNode48 = [
+var __iconNode49 = [
   [
     "path",
     {
@@ -42111,10 +42120,10 @@ var __iconNode48 = [
   ],
   ["path", { d: "m21.854 2.147-10.94 10.939", key: "12cjpa" }]
 ];
-var Send = createLucideIcon("send", __iconNode48);
+var Send = createLucideIcon("send", __iconNode49);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/settings.mjs
-var __iconNode49 = [
+var __iconNode50 = [
   [
     "path",
     {
@@ -42124,10 +42133,10 @@ var __iconNode49 = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-var Settings = createLucideIcon("settings", __iconNode49);
+var Settings = createLucideIcon("settings", __iconNode50);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/shield-check.mjs
-var __iconNode50 = [
+var __iconNode51 = [
   [
     "path",
     {
@@ -42137,10 +42146,10 @@ var __iconNode50 = [
   ],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-var ShieldCheck = createLucideIcon("shield-check", __iconNode50);
+var ShieldCheck = createLucideIcon("shield-check", __iconNode51);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/shopping-cart.mjs
-var __iconNode51 = [
+var __iconNode52 = [
   ["circle", { cx: "8", cy: "21", r: "1", key: "jimo8o" }],
   ["circle", { cx: "19", cy: "21", r: "1", key: "13723u" }],
   [
@@ -42151,10 +42160,10 @@ var __iconNode51 = [
     }
   ]
 ];
-var ShoppingCart = createLucideIcon("shopping-cart", __iconNode51);
+var ShoppingCart = createLucideIcon("shopping-cart", __iconNode52);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/store.mjs
-var __iconNode52 = [
+var __iconNode53 = [
   ["path", { d: "M15 21v-5a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v5", key: "slp6dd" }],
   [
     "path",
@@ -42165,34 +42174,34 @@ var __iconNode52 = [
   ],
   ["path", { d: "M4 10.95V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.05", key: "wn3emo" }]
 ];
-var Store = createLucideIcon("store", __iconNode52);
+var Store = createLucideIcon("store", __iconNode53);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/trash-2.mjs
-var __iconNode53 = [
+var __iconNode54 = [
   ["path", { d: "M10 11v6", key: "nco0om" }],
   ["path", { d: "M14 11v6", key: "outv1u" }],
   ["path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6", key: "miytrc" }],
   ["path", { d: "M3 6h18", key: "d0wm0j" }],
   ["path", { d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2", key: "e791ji" }]
 ];
-var Trash2 = createLucideIcon("trash-2", __iconNode53);
+var Trash2 = createLucideIcon("trash-2", __iconNode54);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/trending-down.mjs
-var __iconNode54 = [
+var __iconNode55 = [
   ["path", { d: "M16 17h6v-6", key: "t6n2it" }],
   ["path", { d: "m22 17-8.5-8.5-5 5L2 7", key: "x473p" }]
 ];
-var TrendingDown = createLucideIcon("trending-down", __iconNode54);
+var TrendingDown = createLucideIcon("trending-down", __iconNode55);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/trending-up.mjs
-var __iconNode55 = [
+var __iconNode56 = [
   ["path", { d: "M16 7h6v6", key: "box55l" }],
   ["path", { d: "m22 7-8.5 8.5-5-5L2 17", key: "1t1m79" }]
 ];
-var TrendingUp = createLucideIcon("trending-up", __iconNode55);
+var TrendingUp = createLucideIcon("trending-up", __iconNode56);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/truck.mjs
-var __iconNode56 = [
+var __iconNode57 = [
   ["path", { d: "M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2", key: "wrbu53" }],
   ["path", { d: "M15 18H9", key: "1lyqi6" }],
   [
@@ -42205,25 +42214,25 @@ var __iconNode56 = [
   ["circle", { cx: "17", cy: "18", r: "2", key: "332jqn" }],
   ["circle", { cx: "7", cy: "18", r: "2", key: "19iecd" }]
 ];
-var Truck = createLucideIcon("truck", __iconNode56);
+var Truck = createLucideIcon("truck", __iconNode57);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/undo-2.mjs
-var __iconNode57 = [
+var __iconNode58 = [
   ["path", { d: "M9 14 4 9l5-5", key: "102s5s" }],
   ["path", { d: "M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11", key: "f3b9sd" }]
 ];
-var Undo2 = createLucideIcon("undo-2", __iconNode57);
+var Undo2 = createLucideIcon("undo-2", __iconNode58);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/upload.mjs
-var __iconNode58 = [
+var __iconNode59 = [
   ["path", { d: "M12 3v12", key: "1x0j5s" }],
   ["path", { d: "m17 8-5-5-5 5", key: "7q97r8" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }]
 ];
-var Upload = createLucideIcon("upload", __iconNode58);
+var Upload = createLucideIcon("upload", __iconNode59);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/user-cog.mjs
-var __iconNode59 = [
+var __iconNode60 = [
   ["path", { d: "M10 15H6a4 4 0 0 0-4 4v2", key: "1nfge6" }],
   ["path", { d: "m14.305 16.53.923-.382", key: "1itpsq" }],
   ["path", { d: "m15.228 13.852-.923-.383", key: "eplpkm" }],
@@ -42236,35 +42245,35 @@ var __iconNode59 = [
   ["circle", { cx: "18", cy: "15", r: "3", key: "gjjjvw" }],
   ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]
 ];
-var UserCog = createLucideIcon("user-cog", __iconNode59);
+var UserCog = createLucideIcon("user-cog", __iconNode60);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/user-plus.mjs
-var __iconNode60 = [
+var __iconNode61 = [
   ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }],
   ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }],
   ["line", { x1: "19", x2: "19", y1: "8", y2: "14", key: "1bvyxn" }],
   ["line", { x1: "22", x2: "16", y1: "11", y2: "11", key: "1shjgl" }]
 ];
-var UserPlus = createLucideIcon("user-plus", __iconNode60);
+var UserPlus = createLucideIcon("user-plus", __iconNode61);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/user.mjs
-var __iconNode61 = [
+var __iconNode62 = [
   ["path", { d: "M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2", key: "975kel" }],
   ["circle", { cx: "12", cy: "7", r: "4", key: "17ys0d" }]
 ];
-var User = createLucideIcon("user", __iconNode61);
+var User = createLucideIcon("user", __iconNode62);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/users.mjs
-var __iconNode62 = [
+var __iconNode63 = [
   ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }],
   ["path", { d: "M16 3.128a4 4 0 0 1 0 7.744", key: "16gr8j" }],
   ["path", { d: "M22 21v-2a4 4 0 0 0-3-3.87", key: "kshegd" }],
   ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]
 ];
-var Users = createLucideIcon("users", __iconNode62);
+var Users = createLucideIcon("users", __iconNode63);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/wallet.mjs
-var __iconNode63 = [
+var __iconNode64 = [
   [
     "path",
     {
@@ -42274,14 +42283,14 @@ var __iconNode63 = [
   ],
   ["path", { d: "M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4", key: "xoc0q4" }]
 ];
-var Wallet = createLucideIcon("wallet", __iconNode63);
+var Wallet = createLucideIcon("wallet", __iconNode64);
 
 // node_modules/.pnpm/lucide-react@1.21.0_react@19.2.7/node_modules/lucide-react/dist/esm/icons/x.mjs
-var __iconNode64 = [
+var __iconNode65 = [
   ["path", { d: "M18 6 6 18", key: "1bl5f8" }],
   ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
 ];
-var X = createLucideIcon("x", __iconNode64);
+var X = createLucideIcon("x", __iconNode65);
 
 // node_modules/.pnpm/jspdf@4.2.1/node_modules/jspdf/dist/jspdf.es.min.js
 init_typeof();
@@ -42602,7 +42611,7 @@ var wblk = function(dat, out, final, syms, lf, df, eb, li, bs, bl, p3) {
     ++lcfreq[lclt[i4] & 31];
   for (var i4 = 0; i4 < lcdt.length; ++i4)
     ++lcfreq[lcdt[i4] & 31];
-  var _e3 = hTree(lcfreq, 7), lct = _e3.t, mlcb = _e3.l;
+  var _e2 = hTree(lcfreq, 7), lct = _e2.t, mlcb = _e2.l;
   var nlcc = 19;
   for (; nlcc > 4 && !lct[clim[nlcc - 1]]; --nlcc)
     ;
@@ -43789,9 +43798,9 @@ var smaller = (tree, n2, m4, depth) => {
   const _m2 = m4 * 2;
   return tree[_n2] < tree[_m2] || tree[_n2] === tree[_m2] && depth[n2] <= depth[m4];
 };
-var pqdownheap = (s3, tree, k3) => {
-  const v4 = s3.heap[k3];
-  let j3 = k3 << 1;
+var pqdownheap = (s3, tree, k2) => {
+  const v4 = s3.heap[k2];
+  let j3 = k2 << 1;
   while (j3 <= s3.heap_len) {
     if (j3 < s3.heap_len && smaller(tree, s3.heap[j3 + 1], s3.heap[j3], s3.depth)) {
       j3++;
@@ -43799,11 +43808,11 @@ var pqdownheap = (s3, tree, k3) => {
     if (smaller(tree, v4, s3.heap[j3], s3.depth)) {
       break;
     }
-    s3.heap[k3] = s3.heap[j3];
-    k3 = j3;
+    s3.heap[k2] = s3.heap[j3];
+    k2 = j3;
     j3 <<= 1;
   }
-  s3.heap[k3] = v4;
+  s3.heap[k2] = v4;
 };
 var compress_block = (s3, ltree, dtree) => {
   let dist;
@@ -44154,7 +44163,7 @@ var makeTable = () => {
   let c4, table = [];
   for (var n2 = 0; n2 < 256; n2++) {
     c4 = n2;
-    for (var k3 = 0; k3 < 8; k3++) {
+    for (var k2 = 0; k2 < 8; k2++) {
       c4 = c4 & 1 ? 3988292384 ^ c4 >>> 1 : c4 >>> 1;
     }
     table[n2] = c4;
@@ -47675,7 +47684,7 @@ var inflate_1 = inflate;
 var crcTable2 = [];
 for (let n2 = 0; n2 < 256; n2++) {
   let c4 = n2;
-  for (let k3 = 0; k3 < 8; k3++) {
+  for (let k2 = 0; k2 < 8; k2++) {
     if (c4 & 1) {
       c4 = 3988292384 ^ c4 >>> 1;
     } else {
@@ -47856,8 +47865,8 @@ function decodeInterlaceAdam7(params) {
   if (depth === 16) {
     const uint16Data = new Uint16Array(resultData.buffer);
     if (osIsLittleEndian) {
-      for (let k3 = 0; k3 < uint16Data.length; k3++) {
-        uint16Data[k3] = swap16(uint16Data[k3]);
+      for (let k2 = 0; k2 < uint16Data.length; k2++) {
+        uint16Data[k2] = swap16(uint16Data[k2]);
       }
     }
     return uint16Data;
@@ -47911,8 +47920,8 @@ function decodeInterlaceNull(params) {
   if (depth === 16) {
     const uint16Data = new Uint16Array(newData.buffer);
     if (osIsLittleEndian2) {
-      for (let k3 = 0; k3 < uint16Data.length; k3++) {
-        uint16Data[k3] = swap162(uint16Data[k3]);
+      for (let k2 = 0; k2 < uint16Data.length; k2++) {
+        uint16Data[k2] = swap162(uint16Data[k2]);
       }
     }
     return uint16Data;
@@ -48735,19 +48744,19 @@ function E(e2) {
   y3.__private__.setPdfVersion = function(t3) {
     w2 = t3;
   };
-  var L3 = { a0: [2383.94, 3370.39], a1: [1683.78, 2383.94], a2: [1190.55, 1683.78], a3: [841.89, 1190.55], a4: [595.28, 841.89], a5: [419.53, 595.28], a6: [297.64, 419.53], a7: [209.76, 297.64], a8: [147.4, 209.76], a9: [104.88, 147.4], a10: [73.7, 104.88], b0: [2834.65, 4008.19], b1: [2004.09, 2834.65], b2: [1417.32, 2004.09], b3: [1000.63, 1417.32], b4: [708.66, 1000.63], b5: [498.9, 708.66], b6: [354.33, 498.9], b7: [249.45, 354.33], b8: [175.75, 249.45], b9: [124.72, 175.75], b10: [87.87, 124.72], c0: [2599.37, 3676.54], c1: [1836.85, 2599.37], c2: [1298.27, 1836.85], c3: [918.43, 1298.27], c4: [649.13, 918.43], c5: [459.21, 649.13], c6: [323.15, 459.21], c7: [229.61, 323.15], c8: [161.57, 229.61], c9: [113.39, 161.57], c10: [79.37, 113.39], dl: [311.81, 623.62], letter: [612, 792], "government-letter": [576, 756], legal: [612, 1008], "junior-legal": [576, 360], ledger: [1224, 792], tabloid: [792, 1224], "credit-card": [153, 243] };
+  var L2 = { a0: [2383.94, 3370.39], a1: [1683.78, 2383.94], a2: [1190.55, 1683.78], a3: [841.89, 1190.55], a4: [595.28, 841.89], a5: [419.53, 595.28], a6: [297.64, 419.53], a7: [209.76, 297.64], a8: [147.4, 209.76], a9: [104.88, 147.4], a10: [73.7, 104.88], b0: [2834.65, 4008.19], b1: [2004.09, 2834.65], b2: [1417.32, 2004.09], b3: [1000.63, 1417.32], b4: [708.66, 1000.63], b5: [498.9, 708.66], b6: [354.33, 498.9], b7: [249.45, 354.33], b8: [175.75, 249.45], b9: [124.72, 175.75], b10: [87.87, 124.72], c0: [2599.37, 3676.54], c1: [1836.85, 2599.37], c2: [1298.27, 1836.85], c3: [918.43, 1298.27], c4: [649.13, 918.43], c5: [459.21, 649.13], c6: [323.15, 459.21], c7: [229.61, 323.15], c8: [161.57, 229.61], c9: [113.39, 161.57], c10: [79.37, 113.39], dl: [311.81, 623.62], letter: [612, 792], "government-letter": [576, 756], legal: [612, 1008], "junior-legal": [576, 360], ledger: [1224, 792], tabloid: [792, 1224], "credit-card": [153, 243] };
   y3.__private__.getPageFormats = function() {
-    return L3;
+    return L2;
   };
   var x4 = y3.__private__.getPageFormat = function(t3) {
-    return L3[t3];
+    return L2[t3];
   };
   s3 = s3 || "a4";
   var A2 = "compat", S3 = "advanced", _3 = A2;
   function P2() {
     this.saveGraphicsState(), lt3(new Wt3(St3, 0, 0, -St3, 0, Pr() * St3).toString() + " cm"), this.setFontSize(this.getFontSize() / St3), g2 = "n", _3 = S3;
   }
-  function k3() {
+  function k2() {
     this.restoreGraphicsState(), g2 = "S", _3 = A2;
   }
   var F3 = y3.__private__.combineFontStyleAndFontWeight = function(t3, e3) {
@@ -48756,10 +48765,10 @@ function E(e2) {
   };
   y3.advancedAPI = function(t3) {
     var e3 = _3 === A2;
-    return e3 && P2.call(this), "function" != typeof t3 || (t3(this), e3 && k3.call(this)), this;
+    return e3 && P2.call(this), "function" != typeof t3 || (t3(this), e3 && k2.call(this)), this;
   }, y3.compatAPI = function(t3) {
     var e3 = _3 === S3;
-    return e3 && k3.call(this), "function" != typeof t3 || (t3(this), e3 && P2.call(this)), this;
+    return e3 && k2.call(this), "function" != typeof t3 || (t3(this), e3 && P2.call(this)), this;
   }, y3.isAdvancedAPI = function() {
     return _3 === S3;
   };
@@ -48783,13 +48792,13 @@ function E(e2) {
   var T3 = y3.f2 = y3.__private__.f2 = function(t3) {
     if (isNaN(t3)) throw new Error("Invalid argument passed to jsPDF.f2");
     return D3(t3, 2);
-  }, z3 = y3.__private__.f3 = function(t3) {
+  }, z2 = y3.__private__.f3 = function(t3) {
     if (isNaN(t3)) throw new Error("Invalid argument passed to jsPDF.f3");
     return D3(t3, 3);
   }, U3 = y3.scale = y3.__private__.scale = function(t3) {
     if (isNaN(t3)) throw new Error("Invalid argument passed to jsPDF.scale");
     return _3 === A2 ? t3 * St3 : _3 === S3 ? t3 : void 0;
-  }, H3 = function(t3) {
+  }, H2 = function(t3) {
     return U3((function(t4) {
       return _3 === A2 ? Pr() - t4 : _3 === S3 ? t4 : void 0;
     })(t3));
@@ -48802,37 +48811,37 @@ function E(e2) {
   }, Y3 = y3.__private__.setFileId = function(t3) {
     return V2 = void 0 !== t3 && /^[a-fA-F0-9]{32}$/.test(t3) ? t3.toUpperCase() : V2.split("").map(function() {
       return "ABCDEF0123456789".charAt(Math.floor(16 * Math.random()));
-    }).join(""), null !== m4 && (Oe2 = new I(m4.userPermissions, m4.userPassword, m4.ownerPassword, V2)), V2;
+    }).join(""), null !== m4 && (Oe = new I(m4.userPermissions, m4.userPassword, m4.ownerPassword, V2)), V2;
   };
   y3.setFileId = function(t3) {
     return Y3(t3), this;
   }, y3.getFileId = function() {
     return G3();
   };
-  var J3 = y3.__private__.convertDateToPDFDate = function(t3) {
-    var e3 = t3.getTimezoneOffset(), r3 = e3 < 0 ? "+" : "-", n3 = Math.floor(Math.abs(e3 / 60)), i4 = Math.abs(e3 % 60), a4 = [r3, Q3(n3), "'", Q3(i4), "'"].join("");
-    return ["D:", t3.getFullYear(), Q3(t3.getMonth() + 1), Q3(t3.getDate()), Q3(t3.getHours()), Q3(t3.getMinutes()), Q3(t3.getSeconds()), a4].join("");
-  }, X4 = y3.__private__.convertPDFDateToDate = function(t3) {
+  var J2 = y3.__private__.convertDateToPDFDate = function(t3) {
+    var e3 = t3.getTimezoneOffset(), r3 = e3 < 0 ? "+" : "-", n3 = Math.floor(Math.abs(e3 / 60)), i4 = Math.abs(e3 % 60), a4 = [r3, Q2(n3), "'", Q2(i4), "'"].join("");
+    return ["D:", t3.getFullYear(), Q2(t3.getMonth() + 1), Q2(t3.getDate()), Q2(t3.getHours()), Q2(t3.getMinutes()), Q2(t3.getSeconds()), a4].join("");
+  }, X3 = y3.__private__.convertPDFDateToDate = function(t3) {
     var e3 = parseInt(t3.substr(2, 4), 10), r3 = parseInt(t3.substr(6, 2), 10) - 1, n3 = parseInt(t3.substr(8, 2), 10), i4 = parseInt(t3.substr(10, 2), 10), a4 = parseInt(t3.substr(12, 2), 10), o3 = parseInt(t3.substr(14, 2), 10);
     return new Date(e3, r3, n3, i4, a4, o3, 0);
-  }, K3 = y3.__private__.setCreationDate = function(t3) {
+  }, K2 = y3.__private__.setCreationDate = function(t3) {
     var e3;
-    if (void 0 === t3 && (t3 = /* @__PURE__ */ new Date()), t3 instanceof Date) e3 = J3(t3);
+    if (void 0 === t3 && (t3 = /* @__PURE__ */ new Date()), t3 instanceof Date) e3 = J2(t3);
     else {
       if (!/^D:(20[0-2][0-9]|203[0-7]|19[7-9][0-9])(0[0-9]|1[0-2])([0-2][0-9]|3[0-1])(0[0-9]|1[0-9]|2[0-3])(0[0-9]|[1-5][0-9])(0[0-9]|[1-5][0-9])(\+0[0-9]|\+1[0-4]|-0[0-9]|-1[0-1])'(0[0-9]|[1-5][0-9])'?$/.test(t3)) throw new Error("Invalid argument passed to jsPDF.setCreationDate");
       e3 = t3;
     }
     return W3 = e3;
-  }, Z3 = y3.__private__.getCreationDate = function(t3) {
+  }, Z2 = y3.__private__.getCreationDate = function(t3) {
     var e3 = W3;
-    return "jsDate" === t3 && (e3 = X4(W3)), e3;
+    return "jsDate" === t3 && (e3 = X3(W3)), e3;
   };
   y3.setCreationDate = function(t3) {
-    return K3(t3), this;
+    return K2(t3), this;
   }, y3.getCreationDate = function(t3) {
-    return Z3(t3);
+    return Z2(t3);
   };
-  var $3, Q3 = y3.__private__.padd2 = function(t3) {
+  var $3, Q2 = y3.__private__.padd2 = function(t3) {
     return ("0" + parseInt(t3)).slice(-2);
   }, tt3 = y3.__private__.padd2Hex = function(t3) {
     return ("00" + (t3 = t3.toString())).substr(t3.length);
@@ -48840,7 +48849,7 @@ function E(e2) {
   y3.__private__.setCustomOutputDestination = function(t3) {
     st3 = true, ut3 = t3;
   };
-  var ct3 = function(t3) {
+  var ct2 = function(t3) {
     st3 || (ut3 = t3);
   };
   y3.__private__.resetCustomOutputDestination = function() {
@@ -48857,19 +48866,19 @@ function E(e2) {
   y3.__private__.getStandardFonts = function() {
     return dt3;
   };
-  var pt3 = e2.fontSize || 16;
+  var pt2 = e2.fontSize || 16;
   y3.__private__.setFontSize = y3.setFontSize = function(t3) {
-    return pt3 = _3 === S3 ? t3 / St3 : t3, this;
+    return pt2 = _3 === S3 ? t3 / St3 : t3, this;
   };
   var gt3, mt3 = y3.__private__.getFontSize = y3.getFontSize = function() {
-    return _3 === A2 ? pt3 : pt3 * St3;
-  }, vt3 = e2.R2L || false;
+    return _3 === A2 ? pt2 : pt2 * St3;
+  }, vt2 = e2.R2L || false;
   y3.__private__.setR2L = y3.setR2L = function(t3) {
-    return vt3 = t3, this;
+    return vt2 = t3, this;
   }, y3.__private__.getR2L = y3.getR2L = function() {
-    return vt3;
+    return vt2;
   };
-  var bt3, yt3 = y3.__private__.setZoomMode = function(t3) {
+  var bt3, yt2 = y3.__private__.setZoomMode = function(t3) {
     if (/^(?:\d+\.\d*|\d*\.\d+|\d+)%$/.test(t3)) gt3 = t3;
     else if (isNaN(t3)) {
       if (-1 === [void 0, null, "fullwidth", "fullheight", "fullpage", "original"].indexOf(t3)) throw new Error('zoom must be Integer (e.g. 2), a percentage Value (e.g. 300%) or fullwidth, fullheight, fullpage, original. "' + t3 + '" is not recognized.');
@@ -48886,29 +48895,29 @@ function E(e2) {
   y3.__private__.getPageMode = function() {
     return bt3;
   };
-  var Lt3 = y3.__private__.setLayoutMode = function(t3) {
+  var Lt2 = y3.__private__.setLayoutMode = function(t3) {
     if (-1 == [void 0, null, "continuous", "single", "twoleft", "tworight", "two"].indexOf(t3)) throw new Error('Layout mode must be one of continuous, single, twoleft, tworight. "' + t3 + '" is not recognized.');
     wt3 = t3;
   };
   y3.__private__.getLayoutMode = function() {
     return wt3;
   }, y3.__private__.setDisplayMode = y3.setDisplayMode = function(t3, e3, r3) {
-    return yt3(t3), Lt3(e3), Nt3(r3), this;
+    return yt2(t3), Lt2(e3), Nt3(r3), this;
   };
-  var xt3 = { title: "", subject: "", author: "", keywords: "", creator: "" };
+  var xt2 = { title: "", subject: "", author: "", keywords: "", creator: "" };
   y3.__private__.getDocumentProperty = function(t3) {
-    if (-1 === Object.keys(xt3).indexOf(t3)) throw new Error("Invalid argument passed to jsPDF.getDocumentProperty");
-    return xt3[t3];
+    if (-1 === Object.keys(xt2).indexOf(t3)) throw new Error("Invalid argument passed to jsPDF.getDocumentProperty");
+    return xt2[t3];
   }, y3.__private__.getDocumentProperties = function() {
-    return xt3;
+    return xt2;
   }, y3.__private__.setDocumentProperties = y3.setProperties = y3.setDocumentProperties = function(t3) {
-    for (var e3 in xt3) xt3.hasOwnProperty(e3) && t3[e3] && (xt3[e3] = t3[e3]);
+    for (var e3 in xt2) xt2.hasOwnProperty(e3) && t3[e3] && (xt2[e3] = t3[e3]);
     return this;
   }, y3.__private__.setDocumentProperty = function(t3, e3) {
-    if (-1 === Object.keys(xt3).indexOf(t3)) throw new Error("Invalid arguments passed to jsPDF.setDocumentProperty");
-    return xt3[t3] = e3;
+    if (-1 === Object.keys(xt2).indexOf(t3)) throw new Error("Invalid arguments passed to jsPDF.setDocumentProperty");
+    return xt2[t3] = e3;
   };
-  var At3, St3, _t3, Pt3, kt3, Ft3 = {}, It3 = {}, Ct3 = [], jt3 = {}, Ot3 = {}, Bt3 = {}, Mt3 = {}, qt3 = null, Et3 = 0, Rt3 = [], Dt3 = new j(y3), Tt3 = e2.hotfixes || [], zt3 = {}, Ut4 = {}, Ht4 = [], Wt3 = function t3(e3, r3, n3, i4, a4, o3) {
+  var At3, St3, _t3, Pt3, kt2, Ft2 = {}, It3 = {}, Ct3 = [], jt3 = {}, Ot2 = {}, Bt3 = {}, Mt2 = {}, qt2 = null, Et3 = 0, Rt3 = [], Dt3 = new j(y3), Tt3 = e2.hotfixes || [], zt3 = {}, Ut4 = {}, Ht4 = [], Wt3 = function t3(e3, r3, n3, i4, a4, o3) {
     if (!(this instanceof t3)) return new t3(e3, r3, n3, i4, a4, o3);
     isNaN(e3) && (e3 = 1), isNaN(r3) && (r3 = 0), isNaN(n3) && (n3 = 0), isNaN(i4) && (i4 = 1), isNaN(a4) && (a4 = 0), isNaN(o3) && (o3 = 0), this._matrix = [e3, r3, n3, i4, a4, o3];
   };
@@ -48998,9 +49007,9 @@ function E(e2) {
   }, Gt3 = new Wt3(1, 0, 0, 1, 0, 0);
   y3.unitMatrix = y3.identityMatrix = Gt3;
   var Yt3 = function(t3, e3) {
-    if (!Ot3[t3]) {
+    if (!Ot2[t3]) {
       var r3 = (e3 instanceof M ? "Sh" : "P") + (Object.keys(jt3).length + 1).toString(10);
-      e3.id = r3, Ot3[t3] = r3, jt3[r3] = e3, Dt3.publish("addPattern", e3);
+      e3.id = r3, Ot2[t3] = r3, jt3[r3] = e3, Dt3.publish("addPattern", e3);
     }
   };
   y3.ShadingPattern = M, y3.TilingPattern = q, y3.addShadingPattern = function(t3, e3) {
@@ -49011,18 +49020,18 @@ function E(e2) {
     R2("endTilingPattern()"), e3.stream = ot3[$3].join("\n"), Yt3(t3, e3), Dt3.publish("endTilingPattern", e3), Ht4.pop().restore();
   };
   var Jt3, Xt3 = y3.__private__.newObject = function() {
-    var t3 = Kt3();
+    var t3 = Kt2();
     return Zt3(t3, true), t3;
-  }, Kt3 = y3.__private__.newObjectDeferred = function() {
+  }, Kt2 = y3.__private__.newObjectDeferred = function() {
     return et4++, rt3[et4] = function() {
       return it3;
     }, et4;
   }, Zt3 = function(t3, e3) {
     return e3 = "boolean" == typeof e3 && e3, rt3[t3] = it3, e3 && lt3(t3 + " 0 obj"), t3;
   }, $t3 = y3.__private__.newAdditionalObject = function() {
-    var t3 = { objId: Kt3(), content: "" };
+    var t3 = { objId: Kt2(), content: "" };
     return at3.push(t3), t3;
-  }, Qt3 = Kt3(), te3 = Kt3(), ee3 = y3.__private__.decodeColorString = function(t3) {
+  }, Qt3 = Kt2(), te2 = Kt2(), ee3 = y3.__private__.decodeColorString = function(t3) {
     var e3 = t3.split(" ");
     if (2 !== e3.length || "g" !== e3[1] && "G" !== e3[1]) 5 !== e3.length || "k" !== e3[4] && "K" !== e3[4] || (e3 = [(1 - e3[0]) * (1 - e3[3]), (1 - e3[1]) * (1 - e3[3]), (1 - e3[2]) * (1 - e3[3]), "r"]);
     else {
@@ -49031,7 +49040,7 @@ function E(e2) {
     }
     for (var n3 = "#", i4 = 0; i4 < 3; i4++) n3 += ("0" + Math.floor(255 * parseFloat(e3[i4])).toString(16)).slice(-2);
     return n3;
-  }, re3 = y3.__private__.encodeColorString = function(e3) {
+  }, re2 = y3.__private__.encodeColorString = function(e3) {
     var r3;
     "string" == typeof e3 && (e3 = { ch1: e3 });
     var n3 = e3.ch1, i4 = e3.ch2, a4 = e3.ch3, o3 = e3.ch4, s4 = "draw" === e3.pdfColorType ? ["G", "RG", "K"] : ["g", "rg", "k"];
@@ -49044,20 +49053,20 @@ function E(e2) {
       var c5 = parseInt(n3.substr(1), 16);
       n3 = c5 >> 16 & 255, i4 = c5 >> 8 & 255, a4 = 255 & c5;
     }
-    if (void 0 === i4 || void 0 === o3 && n3 === i4 && i4 === a4) r3 = "string" == typeof n3 ? n3 + " " + s4[0] : 2 === e3.precision ? T3(n3 / 255) + " " + s4[0] : z3(n3 / 255) + " " + s4[0];
+    if (void 0 === i4 || void 0 === o3 && n3 === i4 && i4 === a4) r3 = "string" == typeof n3 ? n3 + " " + s4[0] : 2 === e3.precision ? T3(n3 / 255) + " " + s4[0] : z2(n3 / 255) + " " + s4[0];
     else if (void 0 === o3 || "object" === _typeof(o3)) {
       if (o3 && !isNaN(o3.a) && 0 === o3.a) return ["1.", "1.", "1.", s4[1]].join(" ");
-      r3 = "string" == typeof n3 ? [n3, i4, a4, s4[1]].join(" ") : 2 === e3.precision ? [T3(n3 / 255), T3(i4 / 255), T3(a4 / 255), s4[1]].join(" ") : [z3(n3 / 255), z3(i4 / 255), z3(a4 / 255), s4[1]].join(" ");
-    } else r3 = "string" == typeof n3 ? [n3, i4, a4, o3, s4[2]].join(" ") : 2 === e3.precision ? [T3(n3), T3(i4), T3(a4), T3(o3), s4[2]].join(" ") : [z3(n3), z3(i4), z3(a4), z3(o3), s4[2]].join(" ");
+      r3 = "string" == typeof n3 ? [n3, i4, a4, s4[1]].join(" ") : 2 === e3.precision ? [T3(n3 / 255), T3(i4 / 255), T3(a4 / 255), s4[1]].join(" ") : [z2(n3 / 255), z2(i4 / 255), z2(a4 / 255), s4[1]].join(" ");
+    } else r3 = "string" == typeof n3 ? [n3, i4, a4, o3, s4[2]].join(" ") : 2 === e3.precision ? [T3(n3), T3(i4), T3(a4), T3(o3), s4[2]].join(" ") : [z2(n3), z2(i4), z2(a4), z2(o3), s4[2]].join(" ");
     return r3;
-  }, ne3 = y3.__private__.getFilters = function() {
+  }, ne2 = y3.__private__.getFilters = function() {
     return c4;
-  }, ie3 = y3.__private__.putStream = function(t3) {
-    var e3 = (t3 = t3 || {}).data || "", r3 = t3.filters || ne3(), n3 = t3.alreadyAppliedFilters || [], i4 = t3.addLength1 || false, a4 = e3.length, o3 = t3.objectId, s4 = function(t4) {
+  }, ie2 = y3.__private__.putStream = function(t3) {
+    var e3 = (t3 = t3 || {}).data || "", r3 = t3.filters || ne2(), n3 = t3.alreadyAppliedFilters || [], i4 = t3.addLength1 || false, a4 = e3.length, o3 = t3.objectId, s4 = function(t4) {
       return t4;
     };
     if (null !== m4 && void 0 === o3) throw new Error("ObjectId must be passed to putStream for file encryption");
-    null !== m4 && (s4 = Oe2.encryptor(o3, 0));
+    null !== m4 && (s4 = Oe.encryptor(o3, 0));
     var u4 = {};
     true === r3 && (r3 = ["FlateEncode"]);
     var c5 = t3.additionalKeyValues || [], l3 = (u4 = void 0 !== E.API.processDataByFilters ? E.API.processDataByFilters(e3, r3) : { data: e3, reverseChain: [] }).reverseChain + (Array.isArray(n3) ? n3.join(" ") : n3.toString());
@@ -49076,24 +49085,24 @@ function E(e2) {
     var e3 = t3.number, r3 = t3.data, n3 = t3.objId, i4 = t3.contentsObjId;
     Zt3(n3, true), lt3("<</Type /Page"), lt3("/Parent " + t3.rootDictionaryObjId + " 0 R"), lt3("/Resources " + t3.resourceDictionaryObjId + " 0 R"), lt3("/MediaBox [" + parseFloat(B3(t3.mediaBox.bottomLeftX)) + " " + parseFloat(B3(t3.mediaBox.bottomLeftY)) + " " + B3(t3.mediaBox.topRightX) + " " + B3(t3.mediaBox.topRightY) + "]"), null !== t3.cropBox && lt3("/CropBox [" + B3(t3.cropBox.bottomLeftX) + " " + B3(t3.cropBox.bottomLeftY) + " " + B3(t3.cropBox.topRightX) + " " + B3(t3.cropBox.topRightY) + "]"), null !== t3.bleedBox && lt3("/BleedBox [" + B3(t3.bleedBox.bottomLeftX) + " " + B3(t3.bleedBox.bottomLeftY) + " " + B3(t3.bleedBox.topRightX) + " " + B3(t3.bleedBox.topRightY) + "]"), null !== t3.trimBox && lt3("/TrimBox [" + B3(t3.trimBox.bottomLeftX) + " " + B3(t3.trimBox.bottomLeftY) + " " + B3(t3.trimBox.topRightX) + " " + B3(t3.trimBox.topRightY) + "]"), null !== t3.artBox && lt3("/ArtBox [" + B3(t3.artBox.bottomLeftX) + " " + B3(t3.artBox.bottomLeftY) + " " + B3(t3.artBox.topRightX) + " " + B3(t3.artBox.topRightY) + "]"), "number" == typeof t3.userUnit && 1 !== t3.userUnit && lt3("/UserUnit " + t3.userUnit), Dt3.publish("putPage", { objId: n3, pageContext: Rt3[e3], pageNumber: e3, page: r3 }), lt3("/Contents " + i4 + " 0 R"), lt3(">>"), lt3("endobj");
     var a4 = r3.join("\n");
-    return _3 === S3 && (a4 += "\nQ"), Zt3(i4, true), ie3({ data: a4, filters: ne3(), objectId: i4 }), lt3("endobj"), n3;
+    return _3 === S3 && (a4 += "\nQ"), Zt3(i4, true), ie2({ data: a4, filters: ne2(), objectId: i4 }), lt3("endobj"), n3;
   }, oe3 = y3.__private__.putPages = function() {
     var t3, e3, r3 = [];
-    for (t3 = 1; t3 <= Et3; t3++) Rt3[t3].objId = Kt3(), Rt3[t3].contentsObjId = Kt3();
-    for (t3 = 1; t3 <= Et3; t3++) r3.push(ae3({ number: t3, data: ot3[t3], objId: Rt3[t3].objId, contentsObjId: Rt3[t3].contentsObjId, mediaBox: Rt3[t3].mediaBox, cropBox: Rt3[t3].cropBox, bleedBox: Rt3[t3].bleedBox, trimBox: Rt3[t3].trimBox, artBox: Rt3[t3].artBox, userUnit: Rt3[t3].userUnit, rootDictionaryObjId: Qt3, resourceDictionaryObjId: te3 }));
+    for (t3 = 1; t3 <= Et3; t3++) Rt3[t3].objId = Kt2(), Rt3[t3].contentsObjId = Kt2();
+    for (t3 = 1; t3 <= Et3; t3++) r3.push(ae3({ number: t3, data: ot3[t3], objId: Rt3[t3].objId, contentsObjId: Rt3[t3].contentsObjId, mediaBox: Rt3[t3].mediaBox, cropBox: Rt3[t3].cropBox, bleedBox: Rt3[t3].bleedBox, trimBox: Rt3[t3].trimBox, artBox: Rt3[t3].artBox, userUnit: Rt3[t3].userUnit, rootDictionaryObjId: Qt3, resourceDictionaryObjId: te2 }));
     Zt3(Qt3, true), lt3("<</Type /Pages");
     var n3 = "/Kids [";
     for (e3 = 0; e3 < Et3; e3++) n3 += r3[e3] + " 0 R ";
     lt3(n3 + "]"), lt3("/Count " + Et3), lt3(">>"), lt3("endobj"), Dt3.publish("postPutPages");
-  }, se3 = function(t3) {
-    Dt3.publish("putFont", { font: t3, out: lt3, newObject: Xt3, putStream: ie3 }), true !== t3.isAlreadyPutted && (t3.objectNumber = Xt3(), lt3("<<"), lt3("/Type /Font"), lt3("/BaseFont /" + C(t3.postScriptName)), lt3("/Subtype /Type1"), "string" == typeof t3.encoding && lt3("/Encoding /" + t3.encoding), lt3("/FirstChar 32"), lt3("/LastChar 255"), lt3(">>"), lt3("endobj"));
-  }, ue3 = function(t3) {
+  }, se2 = function(t3) {
+    Dt3.publish("putFont", { font: t3, out: lt3, newObject: Xt3, putStream: ie2 }), true !== t3.isAlreadyPutted && (t3.objectNumber = Xt3(), lt3("<<"), lt3("/Type /Font"), lt3("/BaseFont /" + C(t3.postScriptName)), lt3("/Subtype /Type1"), "string" == typeof t3.encoding && lt3("/Encoding /" + t3.encoding), lt3("/FirstChar 32"), lt3("/LastChar 255"), lt3(">>"), lt3("endobj"));
+  }, ue2 = function(t3) {
     t3.objectNumber = Xt3();
     var e3 = [];
     e3.push({ key: "Type", value: "/XObject" }), e3.push({ key: "Subtype", value: "/Form" }), e3.push({ key: "BBox", value: "[" + [B3(t3.x), B3(t3.y), B3(t3.x + t3.width), B3(t3.y + t3.height)].join(" ") + "]" }), e3.push({ key: "Matrix", value: "[" + t3.matrix.toString() + "]" });
     var r3 = t3.pages[1].join("\n");
-    ie3({ data: r3, additionalKeyValues: e3, objectId: t3.objectNumber }), lt3("endobj");
-  }, ce3 = function(t3, e3) {
+    ie2({ data: r3, additionalKeyValues: e3, objectId: t3.objectNumber }), lt3("endobj");
+  }, ce2 = function(t3, e3) {
     e3 || (e3 = 21);
     var r3 = Xt3(), n3 = (function(t4, e4) {
       var r4, n4 = [], i5 = 1 / (e4 - 1);
@@ -49113,15 +49122,15 @@ function E(e2) {
       }
       return s4.trim();
     })(t3.colors, e3), i4 = [];
-    i4.push({ key: "FunctionType", value: "0" }), i4.push({ key: "Domain", value: "[0.0 1.0]" }), i4.push({ key: "Size", value: "[" + e3 + "]" }), i4.push({ key: "BitsPerSample", value: "8" }), i4.push({ key: "Range", value: "[0.0 1.0 0.0 1.0 0.0 1.0]" }), i4.push({ key: "Decode", value: "[0.0 1.0 0.0 1.0 0.0 1.0]" }), ie3({ data: n3, additionalKeyValues: i4, alreadyAppliedFilters: ["/ASCIIHexDecode"], objectId: r3 }), lt3("endobj"), t3.objectNumber = Xt3(), lt3("<< /ShadingType " + t3.type), lt3("/ColorSpace /DeviceRGB");
+    i4.push({ key: "FunctionType", value: "0" }), i4.push({ key: "Domain", value: "[0.0 1.0]" }), i4.push({ key: "Size", value: "[" + e3 + "]" }), i4.push({ key: "BitsPerSample", value: "8" }), i4.push({ key: "Range", value: "[0.0 1.0 0.0 1.0 0.0 1.0]" }), i4.push({ key: "Decode", value: "[0.0 1.0 0.0 1.0 0.0 1.0]" }), ie2({ data: n3, additionalKeyValues: i4, alreadyAppliedFilters: ["/ASCIIHexDecode"], objectId: r3 }), lt3("endobj"), t3.objectNumber = Xt3(), lt3("<< /ShadingType " + t3.type), lt3("/ColorSpace /DeviceRGB");
     var a4 = "/Coords [" + B3(parseFloat(t3.coords[0])) + " " + B3(parseFloat(t3.coords[1])) + " ";
     2 === t3.type ? a4 += B3(parseFloat(t3.coords[2])) + " " + B3(parseFloat(t3.coords[3])) : a4 += B3(parseFloat(t3.coords[2])) + " " + B3(parseFloat(t3.coords[3])) + " " + B3(parseFloat(t3.coords[4])) + " " + B3(parseFloat(t3.coords[5])), lt3(a4 += "]"), t3.matrix && lt3("/Matrix [" + t3.matrix.toString() + "]"), lt3("/Function " + r3 + " 0 R"), lt3("/Extend [true true]"), lt3(">>"), lt3("endobj");
   }, le3 = function(t3, e3) {
-    var r3 = Kt3(), n3 = Xt3();
+    var r3 = Kt2(), n3 = Xt3();
     e3.push({ resourcesOid: r3, objectOid: n3 }), t3.objectNumber = n3;
     var i4 = [];
-    i4.push({ key: "Type", value: "/Pattern" }), i4.push({ key: "PatternType", value: "1" }), i4.push({ key: "PaintType", value: "1" }), i4.push({ key: "TilingType", value: "1" }), i4.push({ key: "BBox", value: "[" + t3.boundingBox.map(B3).join(" ") + "]" }), i4.push({ key: "XStep", value: B3(t3.xStep) }), i4.push({ key: "YStep", value: B3(t3.yStep) }), i4.push({ key: "Resources", value: r3 + " 0 R" }), t3.matrix && i4.push({ key: "Matrix", value: "[" + t3.matrix.toString() + "]" }), ie3({ data: t3.stream, additionalKeyValues: i4, objectId: t3.objectNumber }), lt3("endobj");
-  }, he3 = function(t3) {
+    i4.push({ key: "Type", value: "/Pattern" }), i4.push({ key: "PatternType", value: "1" }), i4.push({ key: "PaintType", value: "1" }), i4.push({ key: "TilingType", value: "1" }), i4.push({ key: "BBox", value: "[" + t3.boundingBox.map(B3).join(" ") + "]" }), i4.push({ key: "XStep", value: B3(t3.xStep) }), i4.push({ key: "YStep", value: B3(t3.yStep) }), i4.push({ key: "Resources", value: r3 + " 0 R" }), t3.matrix && i4.push({ key: "Matrix", value: "[" + t3.matrix.toString() + "]" }), ie2({ data: t3.stream, additionalKeyValues: i4, objectId: t3.objectNumber }), lt3("endobj");
+  }, he2 = function(t3) {
     for (var e3 in t3.objectNumber = Xt3(), lt3("<<"), t3) switch (e3) {
       case "opacity":
         lt3("/ca " + T3(t3[e3]));
@@ -49130,9 +49139,9 @@ function E(e2) {
         lt3("/CA " + T3(t3[e3]));
     }
     lt3(">>"), lt3("endobj");
-  }, fe3 = function(t3) {
+  }, fe2 = function(t3) {
     Zt3(t3.resourcesOid, true), lt3("<<"), lt3("/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]"), (function() {
-      for (var t4 in lt3("/Font <<"), Ft3) Ft3.hasOwnProperty(t4) && (false === v4 || true === v4 && b3.hasOwnProperty(t4)) && lt3("/" + t4 + " " + Ft3[t4].objectNumber + " 0 R");
+      for (var t4 in lt3("/Font <<"), Ft2) Ft2.hasOwnProperty(t4) && (false === v4 || true === v4 && b3.hasOwnProperty(t4)) && lt3("/" + t4 + " " + Ft2[t4].objectNumber + " 0 R");
       lt3(">>");
     })(), (function() {
       if (Object.keys(jt3).length > 0) {
@@ -49154,15 +49163,15 @@ function E(e2) {
       for (var t4 in lt3("/XObject <<"), zt3) zt3.hasOwnProperty(t4) && zt3[t4].objectNumber >= 0 && lt3("/" + t4 + " " + zt3[t4].objectNumber + " 0 R");
       Dt3.publish("putXobjectDict"), lt3(">>");
     })(), lt3(">>"), lt3("endobj");
-  }, de3 = function(t3) {
+  }, de2 = function(t3) {
     It3[t3.fontName] = It3[t3.fontName] || {}, It3[t3.fontName][t3.fontStyle] = t3.id;
-  }, pe3 = function(t3, e3, r3, n3, i4) {
-    var a4 = { id: "F" + (Object.keys(Ft3).length + 1).toString(10), postScriptName: t3, fontName: e3, fontStyle: r3, encoding: n3, isStandardFont: i4 || false, metadata: {} };
-    return Dt3.publish("addFont", { font: a4, instance: this }), Ft3[a4.id] = a4, de3(a4), a4.id;
+  }, pe2 = function(t3, e3, r3, n3, i4) {
+    var a4 = { id: "F" + (Object.keys(Ft2).length + 1).toString(10), postScriptName: t3, fontName: e3, fontStyle: r3, encoding: n3, isStandardFont: i4 || false, metadata: {} };
+    return Dt3.publish("addFont", { font: a4, instance: this }), Ft2[a4.id] = a4, de2(a4), a4.id;
   }, ge3 = y3.__private__.pdfEscape = y3.pdfEscape = function(t3, e3) {
     return (function(t4, e4) {
       var r3, n3, i4, a4, o3, s4, u4, c5, l3;
-      if (i4 = (e4 = e4 || {}).sourceEncoding || "Unicode", o3 = e4.outputEncoding, (e4.autoencode || o3) && Ft3[At3].metadata && Ft3[At3].metadata[i4] && Ft3[At3].metadata[i4].encoding && (a4 = Ft3[At3].metadata[i4].encoding, !o3 && Ft3[At3].encoding && (o3 = Ft3[At3].encoding), !o3 && a4.codePages && (o3 = a4.codePages[0]), "string" == typeof o3 && (o3 = a4[o3]), o3)) {
+      if (i4 = (e4 = e4 || {}).sourceEncoding || "Unicode", o3 = e4.outputEncoding, (e4.autoencode || o3) && Ft2[At3].metadata && Ft2[At3].metadata[i4] && Ft2[At3].metadata[i4].encoding && (a4 = Ft2[At3].metadata[i4].encoding, !o3 && Ft2[At3].encoding && (o3 = Ft2[At3].encoding), !o3 && a4.codePages && (o3 = a4.codePages[0]), "string" == typeof o3 && (o3 = a4[o3]), o3)) {
         for (u4 = false, s4 = [], r3 = 0, n3 = t4.length; r3 < n3; r3++) (c5 = o3[t4.charCodeAt(r3)]) ? s4.push(String.fromCharCode(c5)) : s4.push(t4[r3]), s4[r3].charCodeAt(0) >> 8 && (u4 = true);
         t4 = s4.join("");
       }
@@ -49175,8 +49184,8 @@ function E(e2) {
       return String.fromCharCode.apply(void 0, s4);
     })(t3, e3).replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
   }, me3 = y3.__private__.beginPage = function(t3) {
-    ot3[++Et3] = [], Rt3[Et3] = { objId: 0, contentsObjId: 0, userUnit: Number(f3), artBox: null, bleedBox: null, cropBox: null, trimBox: null, mediaBox: { bottomLeftX: 0, bottomLeftY: 0, topRightX: Number(t3[0]), topRightY: Number(t3[1]) } }, ye3(Et3), ct3(ot3[$3]);
-  }, ve3 = function(t3, e3) {
+    ot3[++Et3] = [], Rt3[Et3] = { objId: 0, contentsObjId: 0, userUnit: Number(f3), artBox: null, bleedBox: null, cropBox: null, trimBox: null, mediaBox: { bottomLeftX: 0, bottomLeftY: 0, topRightX: Number(t3[0]), topRightY: Number(t3[1]) } }, ye3(Et3), ct2(ot3[$3]);
+  }, ve2 = function(t3, e3) {
     var r3, i4, a4;
     switch (n2 = e3 || n2, "string" == typeof t3 && (r3 = x4(t3.toLowerCase()), Array.isArray(r3) && (i4 = r3[0], a4 = r3[1])), Array.isArray(t3) && (i4 = t3[0] * St3, a4 = t3[1] * St3), isNaN(i4) && (i4 = s3[0], a4 = s3[1]), (i4 > 14400 || a4 > 14400) && (o2.warn("A page in a PDF can not be wider or taller than 14400 userUnit. jsPDF limits the width/height to 14400"), i4 = Math.min(14400, i4), a4 = Math.min(14400, a4)), s3 = [i4, a4], n2.substr(0, 1)) {
       case "l":
@@ -49186,22 +49195,22 @@ function E(e2) {
         i4 > a4 && (s3 = [a4, i4]);
     }
     me3(s3), Qe2(Ze2), lt3(sr), 0 !== dr && lt3(dr + " J"), 0 !== pr && lt3(pr + " j"), Dt3.publish("addPage", { pageNumber: Et3 });
-  }, be3 = function(t3) {
+  }, be2 = function(t3) {
     t3 > 0 && t3 <= Et3 && (ot3.splice(t3, 1), Rt3.splice(t3, 1), Et3--, $3 > Et3 && ($3 = Et3), this.setPage($3));
   }, ye3 = function(t3) {
     t3 > 0 && t3 <= Et3 && ($3 = t3);
-  }, we3 = y3.__private__.getNumberOfPages = y3.getNumberOfPages = function() {
+  }, we2 = y3.__private__.getNumberOfPages = y3.getNumberOfPages = function() {
     return ot3.length - 1;
-  }, Ne3 = function(t3, e3, r3) {
+  }, Ne2 = function(t3, e3, r3) {
     var n3, i4 = void 0;
-    return r3 = r3 || {}, t3 = void 0 !== t3 ? t3 : Ft3[At3].fontName, e3 = void 0 !== e3 ? e3 : Ft3[At3].fontStyle, n3 = t3.toLowerCase(), void 0 !== It3[n3] && void 0 !== It3[n3][e3] ? i4 = It3[n3][e3] : void 0 !== It3[t3] && void 0 !== It3[t3][e3] ? i4 = It3[t3][e3] : false === r3.disableWarning && o2.warn("Unable to look up font label for font '" + t3 + "', '" + e3 + "'. Refer to getFontList() for available fonts."), i4 || r3.noFallback || null == (i4 = It3.times[e3]) && (i4 = It3.times.normal), i4;
-  }, Le3 = y3.__private__.putInfo = function() {
+    return r3 = r3 || {}, t3 = void 0 !== t3 ? t3 : Ft2[At3].fontName, e3 = void 0 !== e3 ? e3 : Ft2[At3].fontStyle, n3 = t3.toLowerCase(), void 0 !== It3[n3] && void 0 !== It3[n3][e3] ? i4 = It3[n3][e3] : void 0 !== It3[t3] && void 0 !== It3[t3][e3] ? i4 = It3[t3][e3] : false === r3.disableWarning && o2.warn("Unable to look up font label for font '" + t3 + "', '" + e3 + "'. Refer to getFontList() for available fonts."), i4 || r3.noFallback || null == (i4 = It3.times[e3]) && (i4 = It3.times.normal), i4;
+  }, Le2 = y3.__private__.putInfo = function() {
     var t3 = Xt3(), e3 = function(t4) {
       return t4;
     };
-    for (var r3 in null !== m4 && (e3 = Oe2.encryptor(t3, 0)), lt3("<<"), lt3("/Producer (" + ge3(e3("jsPDF " + E.version)) + ")"), xt3) xt3.hasOwnProperty(r3) && xt3[r3] && lt3("/" + r3.substr(0, 1).toUpperCase() + r3.substr(1) + " (" + ge3(e3(xt3[r3])) + ")");
+    for (var r3 in null !== m4 && (e3 = Oe.encryptor(t3, 0)), lt3("<<"), lt3("/Producer (" + ge3(e3("jsPDF " + E.version)) + ")"), xt2) xt2.hasOwnProperty(r3) && xt2[r3] && lt3("/" + r3.substr(0, 1).toUpperCase() + r3.substr(1) + " (" + ge3(e3(xt2[r3])) + ")");
     lt3("/CreationDate (" + ge3(e3(W3)) + ")"), lt3(">>"), lt3("endobj");
-  }, xe3 = y3.__private__.putCatalog = function(t3) {
+  }, xe2 = y3.__private__.putCatalog = function(t3) {
     var e3 = (t3 = t3 || {}).rootDictionaryObjId || Qt3;
     switch (Xt3(), lt3("<<"), lt3("/Type /Catalog"), lt3("/Pages " + e3 + " 0 R"), gt3 || (gt3 = "fullwidth"), gt3) {
       case "fullwidth":
@@ -49235,17 +49244,17 @@ function E(e2) {
         lt3("/PageLayout /TwoColumnRight");
     }
     bt3 && lt3("/PageMode /" + bt3), Dt3.publish("putCatalog"), lt3(">>"), lt3("endobj");
-  }, Ae3 = y3.__private__.putTrailer = function() {
-    lt3("trailer"), lt3("<<"), lt3("/Size " + (et4 + 1)), lt3("/Root " + et4 + " 0 R"), lt3("/Info " + (et4 - 1) + " 0 R"), null !== m4 && lt3("/Encrypt " + Oe2.oid + " 0 R"), lt3("/ID [ <" + V2 + "> <" + V2 + "> ]"), lt3(">>");
-  }, Se3 = y3.__private__.putHeader = function() {
+  }, Ae2 = y3.__private__.putTrailer = function() {
+    lt3("trailer"), lt3("<<"), lt3("/Size " + (et4 + 1)), lt3("/Root " + et4 + " 0 R"), lt3("/Info " + (et4 - 1) + " 0 R"), null !== m4 && lt3("/Encrypt " + Oe.oid + " 0 R"), lt3("/ID [ <" + V2 + "> <" + V2 + "> ]"), lt3(">>");
+  }, Se2 = y3.__private__.putHeader = function() {
     lt3("%PDF-" + w2), lt3("%\xBA\xDF\xAC\xE0");
-  }, _e3 = y3.__private__.putXRef = function() {
+  }, _e2 = y3.__private__.putXRef = function() {
     var t3 = "0000000000";
     lt3("xref"), lt3("0 " + (et4 + 1)), lt3("0000000000 65535 f ");
     for (var e3 = 1; e3 <= et4; e3++) "function" == typeof rt3[e3] ? lt3((t3 + rt3[e3]()).slice(-10) + " 00000 n ") : void 0 !== rt3[e3] ? lt3((t3 + rt3[e3]).slice(-10) + " 00000 n ") : lt3("0000000000 00000 n ");
-  }, Pe3 = y3.__private__.buildDocument = function() {
+  }, Pe2 = y3.__private__.buildDocument = function() {
     var t3;
-    et4 = 0, it3 = 0, nt3 = [], rt3 = [], at3 = [], Qt3 = Kt3(), te3 = Kt3(), ct3(nt3), Dt3.publish("buildDocument"), Se3(), oe3(), (function() {
+    et4 = 0, it3 = 0, nt3 = [], rt3 = [], at3 = [], Qt3 = Kt2(), te2 = Kt2(), ct2(nt3), Dt3.publish("buildDocument"), Se2(), oe3(), (function() {
       Dt3.publish("putAdditionalObjects");
       for (var t4 = 0; t4 < at3.length; t4++) {
         var e4 = at3[t4];
@@ -49253,47 +49262,47 @@ function E(e2) {
       }
       Dt3.publish("postPutAdditionalObjects");
     })(), t3 = [], (function() {
-      for (var t4 in Ft3) Ft3.hasOwnProperty(t4) && (false === v4 || true === v4 && b3.hasOwnProperty(t4)) && se3(Ft3[t4]);
+      for (var t4 in Ft2) Ft2.hasOwnProperty(t4) && (false === v4 || true === v4 && b3.hasOwnProperty(t4)) && se2(Ft2[t4]);
     })(), (function() {
       var t4;
-      for (t4 in Bt3) Bt3.hasOwnProperty(t4) && he3(Bt3[t4]);
+      for (t4 in Bt3) Bt3.hasOwnProperty(t4) && he2(Bt3[t4]);
     })(), (function() {
-      for (var t4 in zt3) zt3.hasOwnProperty(t4) && ue3(zt3[t4]);
+      for (var t4 in zt3) zt3.hasOwnProperty(t4) && ue2(zt3[t4]);
     })(), (function(t4) {
       var e4;
-      for (e4 in jt3) jt3.hasOwnProperty(e4) && (jt3[e4] instanceof M ? ce3(jt3[e4]) : jt3[e4] instanceof q && le3(jt3[e4], t4));
-    })(t3), Dt3.publish("putResources"), t3.forEach(fe3), fe3({ resourcesOid: te3, objectOid: Number.MAX_SAFE_INTEGER }), Dt3.publish("postPutResources"), null !== m4 && (Oe2.oid = Xt3(), lt3("<<"), lt3("/Filter /Standard"), lt3("/V " + Oe2.v), lt3("/R " + Oe2.r), lt3("/U <" + Oe2.toHexString(Oe2.U) + ">"), lt3("/O <" + Oe2.toHexString(Oe2.O) + ">"), lt3("/P " + Oe2.P), lt3(">>"), lt3("endobj")), Le3(), xe3();
+      for (e4 in jt3) jt3.hasOwnProperty(e4) && (jt3[e4] instanceof M ? ce2(jt3[e4]) : jt3[e4] instanceof q && le3(jt3[e4], t4));
+    })(t3), Dt3.publish("putResources"), t3.forEach(fe2), fe2({ resourcesOid: te2, objectOid: Number.MAX_SAFE_INTEGER }), Dt3.publish("postPutResources"), null !== m4 && (Oe.oid = Xt3(), lt3("<<"), lt3("/Filter /Standard"), lt3("/V " + Oe.v), lt3("/R " + Oe.r), lt3("/U <" + Oe.toHexString(Oe.U) + ">"), lt3("/O <" + Oe.toHexString(Oe.O) + ">"), lt3("/P " + Oe.P), lt3(">>"), lt3("endobj")), Le2(), xe2();
     var e3 = it3;
-    return _e3(), Ae3(), lt3("startxref"), lt3("" + e3), lt3("%%EOF"), ct3(ot3[$3]), nt3.join("\n");
-  }, ke3 = y3.__private__.getBlob = function(t3) {
+    return _e2(), Ae2(), lt3("startxref"), lt3("" + e3), lt3("%%EOF"), ct2(ot3[$3]), nt3.join("\n");
+  }, ke2 = y3.__private__.getBlob = function(t3) {
     return new Blob([ft3(t3)], { type: "application/pdf" });
-  }, Fe3 = function(t3) {
+  }, Fe2 = function(t3) {
     for (; t3.firstChild; ) t3.removeChild(t3.firstChild);
-  }, Ie3 = function(t3) {
+  }, Ie2 = function(t3) {
     var e3, r3 = t3.document, n3 = r3.documentElement, i4 = r3.head, a4 = r3.body;
-    return i4 || (i4 = r3.createElement("head"), n3.appendChild(i4)), a4 || (a4 = r3.createElement("body"), n3.appendChild(a4)), Fe3(i4), Fe3(a4), (e3 = r3.createElement("style")).appendChild(r3.createTextNode("html, body { padding: 0; margin: 0; } iframe { width: 100%; height: 100%; border: 0;}")), i4.appendChild(e3), { document: r3, body: a4 };
-  }, Ce3 = y3.output = y3.__private__.output = (Jt3 = function(t3, e3) {
+    return i4 || (i4 = r3.createElement("head"), n3.appendChild(i4)), a4 || (a4 = r3.createElement("body"), n3.appendChild(a4)), Fe2(i4), Fe2(a4), (e3 = r3.createElement("style")).appendChild(r3.createTextNode("html, body { padding: 0; margin: 0; } iframe { width: 100%; height: 100%; border: 0;}")), i4.appendChild(e3), { document: r3, body: a4 };
+  }, Ce2 = y3.output = y3.__private__.output = (Jt3 = function(t3, e3) {
     switch ("string" == typeof (e3 = e3 || {}) ? e3 = { filename: e3 } : e3.filename = e3.filename || "generated.pdf", t3) {
       case void 0:
-        return Pe3();
+        return Pe2();
       case "save":
         y3.save(e3.filename);
         break;
       case "arraybuffer":
-        return ft3(Pe3());
+        return ft3(Pe2());
       case "blob":
-        return ke3(Pe3());
+        return ke2(Pe2());
       case "bloburi":
       case "bloburl":
-        if (void 0 !== i3.URL && "function" == typeof i3.URL.createObjectURL) return i3.URL && i3.URL.createObjectURL(ke3(Pe3())) || void 0;
+        if (void 0 !== i3.URL && "function" == typeof i3.URL.createObjectURL) return i3.URL && i3.URL.createObjectURL(ke2(Pe2())) || void 0;
         o2.warn("bloburl is not supported by your system, because URL.createObjectURL is not supported by your browser.");
         break;
       case "datauristring":
       case "dataurlstring":
-        var r3 = "", n3 = Pe3();
+        var r3 = "", n3 = Pe2();
         try {
           r3 = d(n3);
-        } catch (L4) {
+        } catch (L3) {
           r3 = d(unescape(encodeURIComponent(n3)));
         }
         return "data:application/pdf;filename=" + encodeURIComponent(e3.filename) + ";base64," + r3;
@@ -49303,7 +49312,7 @@ function E(e2) {
           s4 || (a4 = e3.pdfObjectUrl);
           var u4 = i3.open();
           if (null !== u4) {
-            var c5 = Ie3(u4), l3 = c5.document.createElement("script"), h3 = this;
+            var c5 = Ie2(u4), l3 = c5.document.createElement("script"), h3 = this;
             l3.src = a4, s4 && (l3.integrity = "sha512-4ze/a9/4jqu+tX9dfOqJYSvyYd5M6qum/3HpCLr+/Jqf0whc37VUbkpNGHR7/8pSnCFw47T1fmIpwBV7UySh3g==", l3.crossOrigin = "anonymous"), l3.onload = function() {
               u4.PDFObject.embed(h3.output("dataurlstring"), e3);
             }, c5.body.appendChild(l3);
@@ -49315,7 +49324,7 @@ function E(e2) {
         if ("[object Window]" === Object.prototype.toString.call(i3)) {
           var f4 = e3.pdfJsUrl || "examples/PDF.js/web/viewer.html", p4 = i3.open();
           if (null !== p4) {
-            var g3 = Ie3(p4), m5 = g3.document.createElement("iframe"), v5 = -1 === f4.indexOf("?") ? "?" : "&";
+            var g3 = Ie2(p4), m5 = g3.document.createElement("iframe"), v5 = -1 === f4.indexOf("?") ? "?" : "&";
             h3 = this, m5.id = "pdfViewer", m5.width = "500px", m5.height = "400px", m5.src = f4 + v5 + "file=&downloadName=" + encodeURIComponent(e3.filename), m5.onload = function() {
               p4.document.title = e3.filename, m5.contentWindow.PDFViewerApplication.open(h3.output("bloburl"));
             }, g3.body.appendChild(m5);
@@ -49327,7 +49336,7 @@ function E(e2) {
         if ("[object Window]" !== Object.prototype.toString.call(i3)) throw new Error("The option dataurlnewwindow just works in a browser-environment.");
         var b4 = i3.open();
         if (null !== b4) {
-          var w3 = Ie3(b4), N5 = w3.document.createElement("iframe");
+          var w3 = Ie2(b4), N5 = w3.document.createElement("iframe");
           N5.src = this.output("datauristring", e3), w3.body.appendChild(N5), b4.document.title = e3.filename;
         }
         if (b4 || "undefined" == typeof safari) return b4;
@@ -49378,8 +49387,8 @@ function E(e2) {
       if ("number" != typeof a3) throw new Error("Invalid unit: " + a3);
       St3 = a3;
   }
-  var Oe2 = null;
-  K3(), Y3();
+  var Oe = null;
+  K2(), Y3();
   var Be2 = y3.__private__.getPageInfo = y3.getPageInfo = function(t3) {
     if (isNaN(t3) || t3 % 1 != 0) throw new Error("Invalid argument passed to jsPDF.getPageInfo");
     return { objId: Rt3[t3].objId, pageNumber: t3, pageContext: Rt3[t3] };
@@ -49387,13 +49396,13 @@ function E(e2) {
     if (isNaN(t3) || t3 % 1 != 0) throw new Error("Invalid argument passed to jsPDF.getPageInfoByObjId");
     for (var e3 in Rt3) if (Rt3[e3].objId === t3) break;
     return Be2(e3);
-  }, qe2 = y3.__private__.getCurrentPageInfo = y3.getCurrentPageInfo = function() {
+  }, qe = y3.__private__.getCurrentPageInfo = y3.getCurrentPageInfo = function() {
     return { objId: Rt3[$3].objId, pageNumber: $3, pageContext: Rt3[$3] };
   };
   y3.addPage = function() {
-    return ve3.apply(this, arguments), this;
+    return ve2.apply(this, arguments), this;
   }, y3.setPage = function() {
-    return ye3.apply(this, arguments), ct3.call(this, ot3[$3]), this;
+    return ye3.apply(this, arguments), ct2.call(this, ot3[$3]), this;
   }, y3.insertPage = function(t3) {
     return this.addPage(), this.movePage($3, t3), this;
   }, y3.movePage = function(t3, e3) {
@@ -49409,7 +49418,7 @@ function E(e2) {
     }
     return this;
   }, y3.deletePage = function() {
-    return be3.apply(this, arguments), this;
+    return be2.apply(this, arguments), this;
   }, y3.__private__.text = y3.text = function(e3, r3, n3, i4, a4) {
     var o3, s4, u4, c5, l3, h3, f4, d2, p4, g3 = (i4 = i4 || {}).scope || this;
     if ("number" == typeof e3 && "number" == typeof r3 && ("string" == typeof n3 || Array.isArray(n3))) {
@@ -49418,8 +49427,8 @@ function E(e2) {
     }
     if (arguments[3] instanceof Wt3 == 0 ? (u4 = arguments[4], c5 = arguments[5], "object" === _typeof(f4 = arguments[3]) && null !== f4 || ("string" == typeof u4 && (c5 = u4, u4 = null), "string" == typeof f4 && (c5 = f4, f4 = null), "number" == typeof f4 && (u4 = f4, f4 = null), i4 = { flags: f4, angle: u4, align: c5 })) : (R2("The transform parameter of text() with a Matrix value"), p4 = a4), isNaN(r3) || isNaN(n3) || null == e3) throw new Error("Invalid arguments passed to jsPDF.text");
     if (0 === e3.length) return g3;
-    var v5, y4 = "", w3 = "number" == typeof i4.lineHeightFactor ? i4.lineHeightFactor : Ke2, N5 = g3.internal.scaleFactor;
-    function L4(t3) {
+    var v5, y4 = "", w3 = "number" == typeof i4.lineHeightFactor ? i4.lineHeightFactor : Ke, N5 = g3.internal.scaleFactor;
+    function L3(t3) {
       return t3 = t3.split("	").join(Array(i4.TabLen || 9).join(" ")), ge3(t3, f4);
     }
     function x5(t3) {
@@ -49435,17 +49444,17 @@ function E(e2) {
       }
       return r4;
     }
-    var P3 = false, k4 = true;
+    var P3 = false, k3 = true;
     if ("string" == typeof e3) P3 = true;
     else if (Array.isArray(e3)) {
       var F4 = e3.concat();
       s4 = [];
-      for (var I2, C3 = F4.length; C3--; ) ("string" != typeof (I2 = F4.shift()) || Array.isArray(I2) && "string" != typeof I2[0]) && (k4 = false);
-      P3 = k4;
+      for (var I2, C3 = F4.length; C3--; ) ("string" != typeof (I2 = F4.shift()) || Array.isArray(I2) && "string" != typeof I2[0]) && (k3 = false);
+      P3 = k3;
     }
     if (false === P3) throw new Error('Type of text must be string or Array. "' + e3 + '" is not recognized.');
     "string" == typeof e3 && (e3 = e3.match(/[\r?\n]/) ? e3.split(/\r\n|\r|\n/g) : [e3]);
-    var j3 = pt3 / g3.internal.scaleFactor, O4 = j3 * (w3 - 1);
+    var j3 = pt2 / g3.internal.scaleFactor, O4 = j3 * (w3 - 1);
     switch (i4.baseline) {
       case "bottom":
         n3 -= O4;
@@ -49461,7 +49470,7 @@ function E(e2) {
     }
     if ((h3 = i4.maxWidth || 0) > 0 && ("string" == typeof e3 ? e3 = g3.splitTextToSize(e3, h3) : "[object Array]" === Object.prototype.toString.call(e3) && (e3 = e3.reduce(function(t3, e4) {
       return t3.concat(g3.splitTextToSize(e4, h3));
-    }, []))), o3 = { text: e3, x: r3, y: n3, options: i4, mutex: { pdfEscape: ge3, activeFontKey: At3, fonts: Ft3, activeFontSize: pt3 } }, Dt3.publish("preProcessText", o3), e3 = o3.text, u4 = (i4 = o3.options).angle, p4 instanceof Wt3 == 0 && u4 && "number" == typeof u4) {
+    }, []))), o3 = { text: e3, x: r3, y: n3, options: i4, mutex: { pdfEscape: ge3, activeFontKey: At3, fonts: Ft2, activeFontSize: pt2 } }, Dt3.publish("preProcessText", o3), e3 = o3.text, u4 = (i4 = o3.options).angle, p4 instanceof Wt3 == 0 && u4 && "number" == typeof u4) {
       u4 *= Math.PI / 180, 0 === i4.rotationDirection && (u4 = -u4), _3 === S3 && (u4 = -u4);
       var M3 = Math.cos(u4), q3 = Math.sin(u4);
       p4 = new Wt3(M3, q3, -q3, M3, 0, 0);
@@ -49503,69 +49512,69 @@ function E(e2) {
       case "addToPathForClipping":
         E2 = 7;
     }
-    var z4 = void 0 !== T4.usedRenderingMode ? T4.usedRenderingMode : -1;
-    -1 !== E2 ? y4 += E2 + " Tr\n" : -1 !== z4 && (y4 += "0 Tr\n"), -1 !== E2 && (T4.usedRenderingMode = E2), c5 = i4.align || "left";
-    var H4, W4 = pt3 * w3, V3 = g3.internal.pageSize.getWidth(), G4 = Ft3[At3];
+    var z3 = void 0 !== T4.usedRenderingMode ? T4.usedRenderingMode : -1;
+    -1 !== E2 ? y4 += E2 + " Tr\n" : -1 !== z3 && (y4 += "0 Tr\n"), -1 !== E2 && (T4.usedRenderingMode = E2), c5 = i4.align || "left";
+    var H3, W4 = pt2 * w3, V3 = g3.internal.pageSize.getWidth(), G4 = Ft2[At3];
     l3 = i4.charSpace || hr, h3 = i4.maxWidth || 0, f4 = Object.assign({ autoencode: true, noBOM: true }, i4.flags);
-    var Y4 = [], J4 = function(t3) {
-      return g3.getStringUnitWidth(t3, { font: G4, charSpace: l3, fontSize: pt3, doKerning: false }) * pt3 / N5;
+    var Y4 = [], J3 = function(t3) {
+      return g3.getStringUnitWidth(t3, { font: G4, charSpace: l3, fontSize: pt2, doKerning: false }) * pt2 / N5;
     };
     if ("[object Array]" === Object.prototype.toString.call(e3)) {
-      var X5;
-      s4 = x5(e3), "left" !== c5 && (H4 = s4.map(J4));
-      var K4, Z4 = 0;
+      var X4;
+      s4 = x5(e3), "left" !== c5 && (H3 = s4.map(J3));
+      var K3, Z3 = 0;
       if ("right" === c5) {
-        r3 -= H4[0], e3 = [], C3 = s4.length;
-        for (var $4 = 0; $4 < C3; $4++) 0 === $4 ? (K4 = nr(r3), X5 = ir(n3)) : (K4 = U3(Z4 - H4[$4]), X5 = -W4), e3.push([s4[$4], K4, X5]), Z4 = H4[$4];
+        r3 -= H3[0], e3 = [], C3 = s4.length;
+        for (var $4 = 0; $4 < C3; $4++) 0 === $4 ? (K3 = nr(r3), X4 = ir(n3)) : (K3 = U3(Z3 - H3[$4]), X4 = -W4), e3.push([s4[$4], K3, X4]), Z3 = H3[$4];
       } else if ("center" === c5) {
-        r3 -= H4[0] / 2, e3 = [], C3 = s4.length;
-        for (var Q4 = 0; Q4 < C3; Q4++) 0 === Q4 ? (K4 = nr(r3), X5 = ir(n3)) : (K4 = U3((Z4 - H4[Q4]) / 2), X5 = -W4), e3.push([s4[Q4], K4, X5]), Z4 = H4[Q4];
+        r3 -= H3[0] / 2, e3 = [], C3 = s4.length;
+        for (var Q3 = 0; Q3 < C3; Q3++) 0 === Q3 ? (K3 = nr(r3), X4 = ir(n3)) : (K3 = U3((Z3 - H3[Q3]) / 2), X4 = -W4), e3.push([s4[Q3], K3, X4]), Z3 = H3[Q3];
       } else if ("left" === c5) {
         e3 = [], C3 = s4.length;
         for (var tt4 = 0; tt4 < C3; tt4++) e3.push(s4[tt4]);
       } else if ("justify" === c5 && "Identity-H" === G4.encoding) {
         e3 = [], C3 = s4.length, h3 = 0 !== h3 ? h3 : V3;
-        for (var et5 = 0, rt4 = 0; rt4 < C3; rt4++) if (X5 = 0 === rt4 ? ir(n3) : -W4, K4 = 0 === rt4 ? nr(r3) : et5, rt4 < C3 - 1) {
-          var nt4 = U3((h3 - H4[rt4]) / (s4[rt4].split(" ").length - 1)), it4 = s4[rt4].split(" ");
-          e3.push([it4[0] + " ", K4, X5]), et5 = 0;
+        for (var et5 = 0, rt4 = 0; rt4 < C3; rt4++) if (X4 = 0 === rt4 ? ir(n3) : -W4, K3 = 0 === rt4 ? nr(r3) : et5, rt4 < C3 - 1) {
+          var nt4 = U3((h3 - H3[rt4]) / (s4[rt4].split(" ").length - 1)), it4 = s4[rt4].split(" ");
+          e3.push([it4[0] + " ", K3, X4]), et5 = 0;
           for (var at4 = 1; at4 < it4.length; at4++) {
-            var ot4 = (J4(it4[at4 - 1] + " " + it4[at4]) - J4(it4[at4])) * N5 + nt4;
+            var ot4 = (J3(it4[at4 - 1] + " " + it4[at4]) - J3(it4[at4])) * N5 + nt4;
             at4 == it4.length - 1 ? e3.push([it4[at4], ot4, 0]) : e3.push([it4[at4] + " ", ot4, 0]), et5 -= ot4;
           }
-        } else e3.push([s4[rt4], K4, X5]);
+        } else e3.push([s4[rt4], K3, X4]);
         e3.push(["", et5, 0]);
       } else {
         if ("justify" !== c5) throw new Error('Unrecognized alignment option, use "left", "center", "right" or "justify".');
         for (e3 = [], C3 = s4.length, h3 = 0 !== h3 ? h3 : V3, rt4 = 0; rt4 < C3; rt4++) {
-          X5 = 0 === rt4 ? ir(n3) : -W4, K4 = 0 === rt4 ? nr(r3) : 0;
-          var st4 = s4[rt4].split(" ").length - 1, ut4 = st4 > 0 ? (h3 - H4[rt4]) / st4 : 0;
-          rt4 < C3 - 1 ? Y4.push(B3(U3(ut4))) : Y4.push(0), e3.push([s4[rt4], K4, X5]);
+          X4 = 0 === rt4 ? ir(n3) : -W4, K3 = 0 === rt4 ? nr(r3) : 0;
+          var st4 = s4[rt4].split(" ").length - 1, ut4 = st4 > 0 ? (h3 - H3[rt4]) / st4 : 0;
+          rt4 < C3 - 1 ? Y4.push(B3(U3(ut4))) : Y4.push(0), e3.push([s4[rt4], K3, X4]);
         }
       }
     }
-    true === ("boolean" == typeof i4.R2L ? i4.R2L : vt3) && (e3 = A3(e3, function(t3, e4, r4) {
+    true === ("boolean" == typeof i4.R2L ? i4.R2L : vt2) && (e3 = A3(e3, function(t3, e4, r4) {
       return [t3.split("").reverse().join(""), e4, r4];
-    })), o3 = { text: e3, x: r3, y: n3, options: i4, mutex: { pdfEscape: ge3, activeFontKey: At3, fonts: Ft3, activeFontSize: pt3 } }, Dt3.publish("postProcessText", o3), e3 = o3.text, v5 = o3.mutex.isHex || false;
-    var ct4 = Ft3[At3].encoding;
-    "WinAnsiEncoding" !== ct4 && "StandardEncoding" !== ct4 || (e3 = A3(e3, function(t3, e4, r4) {
-      return [L4(t3), e4, r4];
+    })), o3 = { text: e3, x: r3, y: n3, options: i4, mutex: { pdfEscape: ge3, activeFontKey: At3, fonts: Ft2, activeFontSize: pt2 } }, Dt3.publish("postProcessText", o3), e3 = o3.text, v5 = o3.mutex.isHex || false;
+    var ct3 = Ft2[At3].encoding;
+    "WinAnsiEncoding" !== ct3 && "StandardEncoding" !== ct3 || (e3 = A3(e3, function(t3, e4, r4) {
+      return [L3(t3), e4, r4];
     })), s4 = x5(e3), e3 = [];
     for (var ht4, ft4, dt4, gt4 = Array.isArray(s4[0]) ? 1 : 0, mt4 = "", bt4 = function(t3, e4, r4) {
       var n4 = "";
       return r4 instanceof Wt3 ? (r4 = "number" == typeof i4.angle ? Vt3(r4, new Wt3(1, 0, 0, 1, t3, e4)) : Vt3(new Wt3(1, 0, 0, 1, t3, e4), r4), _3 === S3 && (r4 = Vt3(new Wt3(1, 0, 0, -1, 0, 0), r4)), n4 = r4.join(" ") + " Tm\n") : n4 = B3(t3) + " " + B3(e4) + " Td\n", n4;
-    }, yt4 = 0; yt4 < s4.length; yt4++) {
+    }, yt3 = 0; yt3 < s4.length; yt3++) {
       switch (mt4 = "", gt4) {
         case 1:
-          dt4 = (v5 ? "<" : "(") + s4[yt4][0] + (v5 ? ">" : ")"), ht4 = parseFloat(s4[yt4][1]), ft4 = parseFloat(s4[yt4][2]);
+          dt4 = (v5 ? "<" : "(") + s4[yt3][0] + (v5 ? ">" : ")"), ht4 = parseFloat(s4[yt3][1]), ft4 = parseFloat(s4[yt3][2]);
           break;
         case 0:
-          dt4 = (v5 ? "<" : "(") + s4[yt4] + (v5 ? ">" : ")"), ht4 = nr(r3), ft4 = ir(n3);
+          dt4 = (v5 ? "<" : "(") + s4[yt3] + (v5 ? ">" : ")"), ht4 = nr(r3), ft4 = ir(n3);
       }
-      void 0 !== Y4 && void 0 !== Y4[yt4] && (mt4 = Y4[yt4] + " Tw\n"), 0 === yt4 ? e3.push(mt4 + bt4(ht4, ft4, p4) + dt4) : 0 === gt4 ? e3.push(mt4 + dt4) : 1 === gt4 && e3.push(mt4 + bt4(ht4, ft4, p4) + dt4);
+      void 0 !== Y4 && void 0 !== Y4[yt3] && (mt4 = Y4[yt3] + " Tw\n"), 0 === yt3 ? e3.push(mt4 + bt4(ht4, ft4, p4) + dt4) : 0 === gt4 ? e3.push(mt4 + dt4) : 1 === gt4 && e3.push(mt4 + bt4(ht4, ft4, p4) + dt4);
     }
     e3 = 0 === gt4 ? e3.join(" Tj\nT* ") : e3.join(" Tj\n"), e3 += " Tj\n";
     var wt4 = "BT\n/";
-    return wt4 += At3 + " " + pt3 + " Tf\n", wt4 += B3(pt3 * w3) + " TL\n", wt4 += cr + "\n", wt4 += y4, wt4 += e3, lt3(wt4 += "ET"), b3[At3] = true, g3;
+    return wt4 += At3 + " " + pt2 + " Tf\n", wt4 += B3(pt2 * w3) + " TL\n", wt4 += cr + "\n", wt4 += y4, wt4 += e3, lt3(wt4 += "ET"), b3[At3] = true, g3;
   };
   var Ee2 = y3.__private__.clip = y3.clip = function(t3) {
     return lt3("evenodd" === t3 ? "W*" : "W"), this;
@@ -49603,7 +49612,7 @@ function E(e2) {
         e3 = t3;
     }
     return e3;
-  }, Te2 = y3.close = function() {
+  }, Te = y3.close = function() {
     return lt3("h"), this;
   };
   y3.stroke = function() {
@@ -49618,8 +49627,8 @@ function E(e2) {
     return ze2("B*", t3), this;
   };
   var ze2 = function(e3, r3) {
-    "object" === _typeof(r3) ? We2(r3, e3) : lt3(e3);
-  }, Ue2 = function(t3) {
+    "object" === _typeof(r3) ? We(r3, e3) : lt3(e3);
+  }, Ue = function(t3) {
     null === t3 || _3 === S3 && void 0 === t3 || (t3 = De2(t3), lt3(t3));
   };
   function He2(t3, e3, r3, n3, i4) {
@@ -49628,8 +49637,8 @@ function E(e2) {
     var o3 = t3 + "$$" + this.cloneIndex++ + "$$";
     return Yt3(o3, a4), a4;
   }
-  var We2 = function(t3, e3) {
-    var r3 = Ot3[t3.key], n3 = jt3[r3];
+  var We = function(t3, e3) {
+    var r3 = Ot2[t3.key], n3 = jt3[r3];
     if (n3 instanceof M) lt3("q"), lt3(Ve2(e3)), n3.gState && y3.setGState(n3.gState), lt3(t3.matrix.toString() + " cm"), lt3("/" + r3 + " sh"), lt3("Q");
     else if (n3 instanceof q) {
       var i4 = new Wt3(1, 0, 0, -1, 0, Pr());
@@ -49650,11 +49659,11 @@ function E(e2) {
         return "W* S";
     }
   }, Ge2 = y3.moveTo = function(t3, e3) {
-    return lt3(B3(U3(t3)) + " " + B3(H3(e3)) + " m"), this;
+    return lt3(B3(U3(t3)) + " " + B3(H2(e3)) + " m"), this;
   }, Ye2 = y3.lineTo = function(t3, e3) {
-    return lt3(B3(U3(t3)) + " " + B3(H3(e3)) + " l"), this;
-  }, Je2 = y3.curveTo = function(t3, e3, r3, n3, i4, a4) {
-    return lt3([B3(U3(t3)), B3(H3(e3)), B3(U3(r3)), B3(H3(n3)), B3(U3(i4)), B3(H3(a4)), "c"].join(" ")), this;
+    return lt3(B3(U3(t3)) + " " + B3(H2(e3)) + " l"), this;
+  }, Je = y3.curveTo = function(t3, e3, r3, n3, i4, a4) {
+    return lt3([B3(U3(t3)), B3(H2(e3)), B3(U3(r3)), B3(H2(n3)), B3(U3(i4)), B3(H2(a4)), "c"].join(" ")), this;
   };
   y3.__private__.line = y3.line = function(t3, e3, r3, n3, i4) {
     if (isNaN(t3) || isNaN(e3) || isNaN(r3) || isNaN(n3) || !Re2(i4)) throw new Error("Invalid arguments passed to jsPDF.line");
@@ -49662,8 +49671,8 @@ function E(e2) {
   }, y3.__private__.lines = y3.lines = function(t3, e3, r3, n3, i4, a4) {
     var o3, s4, u4, c5, l3, h3, f4, d2, p4, g3, m5, v5;
     if ("number" == typeof t3 && (v5 = r3, r3 = e3, e3 = t3, t3 = v5), n3 = n3 || [1, 1], a4 = a4 || false, isNaN(e3) || isNaN(r3) || !Array.isArray(t3) || !Array.isArray(n3) || !Re2(i4) || "boolean" != typeof a4) throw new Error("Invalid arguments passed to jsPDF.lines");
-    for (Ge2(e3, r3), o3 = n3[0], s4 = n3[1], c5 = t3.length, g3 = e3, m5 = r3, u4 = 0; u4 < c5; u4++) 2 === (l3 = t3[u4]).length ? (g3 = l3[0] * o3 + g3, m5 = l3[1] * s4 + m5, Ye2(g3, m5)) : (h3 = l3[0] * o3 + g3, f4 = l3[1] * s4 + m5, d2 = l3[2] * o3 + g3, p4 = l3[3] * s4 + m5, g3 = l3[4] * o3 + g3, m5 = l3[5] * s4 + m5, Je2(h3, f4, d2, p4, g3, m5));
-    return a4 && Te2(), Ue2(i4), this;
+    for (Ge2(e3, r3), o3 = n3[0], s4 = n3[1], c5 = t3.length, g3 = e3, m5 = r3, u4 = 0; u4 < c5; u4++) 2 === (l3 = t3[u4]).length ? (g3 = l3[0] * o3 + g3, m5 = l3[1] * s4 + m5, Ye2(g3, m5)) : (h3 = l3[0] * o3 + g3, f4 = l3[1] * s4 + m5, d2 = l3[2] * o3 + g3, p4 = l3[3] * s4 + m5, g3 = l3[4] * o3 + g3, m5 = l3[5] * s4 + m5, Je(h3, f4, d2, p4, g3, m5));
+    return a4 && Te(), Ue(i4), this;
   }, y3.path = function(t3) {
     for (var e3 = 0; e3 < t3.length; e3++) {
       var r3 = t3[e3], n3 = r3.c;
@@ -49675,16 +49684,16 @@ function E(e2) {
           Ye2(n3[0], n3[1]);
           break;
         case "c":
-          Je2.apply(this, n3);
+          Je.apply(this, n3);
           break;
         case "h":
-          Te2();
+          Te();
       }
     }
     return this;
   }, y3.__private__.rect = y3.rect = function(t3, e3, r3, n3, i4) {
     if (isNaN(t3) || isNaN(e3) || isNaN(r3) || isNaN(n3) || !Re2(i4)) throw new Error("Invalid arguments passed to jsPDF.rect");
-    return _3 === A2 && (n3 = -n3), lt3([B3(U3(t3)), B3(H3(e3)), B3(U3(r3)), B3(U3(n3)), "re"].join(" ")), Ue2(i4), this;
+    return _3 === A2 && (n3 = -n3), lt3([B3(U3(t3)), B3(H2(e3)), B3(U3(r3)), B3(U3(n3)), "re"].join(" ")), Ue(i4), this;
   }, y3.__private__.triangle = y3.triangle = function(t3, e3, r3, n3, i4, a4, o3) {
     if (isNaN(t3) || isNaN(e3) || isNaN(r3) || isNaN(n3) || isNaN(i4) || isNaN(a4) || !Re2(o3)) throw new Error("Invalid arguments passed to jsPDF.triangle");
     return this.lines([[r3 - t3, n3 - e3], [i4 - r3, a4 - n3], [t3 - i4, e3 - a4]], t3, e3, [1, 1], o3, true), this;
@@ -49695,15 +49704,15 @@ function E(e2) {
   }, y3.__private__.ellipse = y3.ellipse = function(t3, e3, r3, n3, i4) {
     if (isNaN(t3) || isNaN(e3) || isNaN(r3) || isNaN(n3) || !Re2(i4)) throw new Error("Invalid arguments passed to jsPDF.ellipse");
     var a4 = 4 / 3 * (Math.SQRT2 - 1) * r3, o3 = 4 / 3 * (Math.SQRT2 - 1) * n3;
-    return Ge2(t3 + r3, e3), Je2(t3 + r3, e3 - o3, t3 + a4, e3 - n3, t3, e3 - n3), Je2(t3 - a4, e3 - n3, t3 - r3, e3 - o3, t3 - r3, e3), Je2(t3 - r3, e3 + o3, t3 - a4, e3 + n3, t3, e3 + n3), Je2(t3 + a4, e3 + n3, t3 + r3, e3 + o3, t3 + r3, e3), Ue2(i4), this;
+    return Ge2(t3 + r3, e3), Je(t3 + r3, e3 - o3, t3 + a4, e3 - n3, t3, e3 - n3), Je(t3 - a4, e3 - n3, t3 - r3, e3 - o3, t3 - r3, e3), Je(t3 - r3, e3 + o3, t3 - a4, e3 + n3, t3, e3 + n3), Je(t3 + a4, e3 + n3, t3 + r3, e3 + o3, t3 + r3, e3), Ue(i4), this;
   }, y3.__private__.circle = y3.circle = function(t3, e3, r3, n3) {
     if (isNaN(t3) || isNaN(e3) || isNaN(r3) || !Re2(n3)) throw new Error("Invalid arguments passed to jsPDF.circle");
     return this.ellipse(t3, e3, r3, r3, n3);
   }, y3.setFont = function(t3, e3, r3) {
-    return r3 && (e3 = F3(e3, r3)), At3 = Ne3(t3, e3, { disableWarning: false }), this;
+    return r3 && (e3 = F3(e3, r3)), At3 = Ne2(t3, e3, { disableWarning: false }), this;
   };
-  var Xe2 = y3.__private__.getFont = y3.getFont = function() {
-    return Ft3[Ne3.apply(y3, arguments)];
+  var Xe = y3.__private__.getFont = y3.getFont = function() {
+    return Ft2[Ne2.apply(y3, arguments)];
   };
   y3.__private__.getFontList = y3.getFontList = function() {
     var t3, e3, r3 = {};
@@ -49711,9 +49720,9 @@ function E(e2) {
     return r3;
   }, y3.addFont = function(t3, e3, r3, n3, i4) {
     var a4 = ["StandardEncoding", "MacRomanEncoding", "Identity-H", "WinAnsiEncoding"];
-    return arguments[3] && -1 !== a4.indexOf(arguments[3]) ? i4 = arguments[3] : arguments[3] && -1 == a4.indexOf(arguments[3]) && (r3 = F3(r3, n3)), pe3.call(this, t3, e3, r3, i4 = i4 || "Identity-H");
+    return arguments[3] && -1 !== a4.indexOf(arguments[3]) ? i4 = arguments[3] : arguments[3] && -1 == a4.indexOf(arguments[3]) && (r3 = F3(r3, n3)), pe2.call(this, t3, e3, r3, i4 = i4 || "Identity-H");
   };
-  var Ke2, Ze2 = e2.lineWidth || 0.200025, $e2 = y3.__private__.getLineWidth = y3.getLineWidth = function() {
+  var Ke, Ze2 = e2.lineWidth || 0.200025, $e2 = y3.__private__.getLineWidth = y3.getLineWidth = function() {
     return Ze2;
   }, Qe2 = y3.__private__.setLineWidth = y3.setLineWidth = function(t3) {
     return Ze2 = t3, lt3(B3(U3(t3)) + " w"), this;
@@ -49725,15 +49734,15 @@ function E(e2) {
     }).join(" "), e3 = B3(U3(e3)), lt3("[" + t3 + "] " + e3 + " d"), this;
   };
   var tr = y3.__private__.getLineHeight = y3.getLineHeight = function() {
-    return pt3 * Ke2;
+    return pt2 * Ke;
   };
   y3.__private__.getLineHeight = y3.getLineHeight = function() {
-    return pt3 * Ke2;
+    return pt2 * Ke;
   };
   var er = y3.__private__.setLineHeightFactor = y3.setLineHeightFactor = function(t3) {
-    return "number" == typeof (t3 = t3 || 1.15) && (Ke2 = t3), this;
+    return "number" == typeof (t3 = t3 || 1.15) && (Ke = t3), this;
   }, rr = y3.__private__.getLineHeightFactor = y3.getLineHeightFactor = function() {
-    return Ke2;
+    return Ke;
   };
   er(e2.lineHeight);
   var nr = y3.__private__.getHorizontalCoordinate = function(t3) {
@@ -49748,19 +49757,19 @@ function E(e2) {
   y3.__private__.getStrokeColor = y3.getDrawColor = function() {
     return ee3(sr);
   }, y3.__private__.setStrokeColor = y3.setDrawColor = function(t3, e3, r3, n3) {
-    return sr = re3({ ch1: t3, ch2: e3, ch3: r3, ch4: n3, pdfColorType: "draw", precision: 2 }), lt3(sr), this;
+    return sr = re2({ ch1: t3, ch2: e3, ch3: r3, ch4: n3, pdfColorType: "draw", precision: 2 }), lt3(sr), this;
   };
   var ur = e2.fillColor || "0 g";
   y3.__private__.getFillColor = y3.getFillColor = function() {
     return ee3(ur);
   }, y3.__private__.setFillColor = y3.setFillColor = function(t3, e3, r3, n3) {
-    return ur = re3({ ch1: t3, ch2: e3, ch3: r3, ch4: n3, pdfColorType: "fill", precision: 2 }), lt3(ur), this;
+    return ur = re2({ ch1: t3, ch2: e3, ch3: r3, ch4: n3, pdfColorType: "fill", precision: 2 }), lt3(ur), this;
   };
   var cr = e2.textColor || "0 g", lr = y3.__private__.getTextColor = y3.getTextColor = function() {
     return ee3(cr);
   };
   y3.__private__.setTextColor = y3.setTextColor = function(t3, e3, r3, n3) {
-    return cr = re3({ ch1: t3, ch2: e3, ch3: r3, ch4: n3, pdfColorType: "text", precision: 3 }), this;
+    return cr = re2({ ch1: t3, ch2: e3, ch3: r3, ch4: n3, pdfColorType: "text", precision: 3 }), this;
   };
   var hr = e2.charSpace, fr = y3.__private__.getCharSpace = y3.getCharSpace = function() {
     return parseFloat(hr || 0);
@@ -49784,10 +49793,10 @@ function E(e2) {
     if (t3 = t3 || 0, isNaN(t3)) throw new Error("Invalid argument passed to jsPDF.setLineMiterLimit");
     return lt3(B3(U3(t3)) + " M"), this;
   }, y3.GState = O2, y3.setGState = function(t3) {
-    (t3 = "string" == typeof t3 ? Bt3[Mt3[t3]] : gr(null, t3)).equals(qt3) || (lt3("/" + t3.id + " gs"), qt3 = t3);
+    (t3 = "string" == typeof t3 ? Bt3[Mt2[t3]] : gr(null, t3)).equals(qt2) || (lt3("/" + t3.id + " gs"), qt2 = t3);
   };
   var gr = function(t3, e3) {
-    if (!t3 || !Mt3[t3]) {
+    if (!t3 || !Mt2[t3]) {
       var r3 = false;
       for (var n3 in Bt3) if (Bt3.hasOwnProperty(n3) && Bt3[n3].equals(e3)) {
         r3 = true;
@@ -49798,17 +49807,17 @@ function E(e2) {
         var i4 = "GS" + (Object.keys(Bt3).length + 1).toString(10);
         Bt3[i4] = e3, e3.id = i4;
       }
-      return t3 && (Mt3[t3] = e3.id), Dt3.publish("addGState", e3), e3;
+      return t3 && (Mt2[t3] = e3.id), Dt3.publish("addGState", e3), e3;
     }
   };
   y3.addGState = function(t3, e3) {
     return gr(t3, e3), this;
   }, y3.saveGraphicsState = function() {
-    return lt3("q"), Ct3.push({ key: At3, size: pt3, color: cr }), this;
+    return lt3("q"), Ct3.push({ key: At3, size: pt2, color: cr }), this;
   }, y3.restoreGraphicsState = function() {
     lt3("Q");
     var t3 = Ct3.pop();
-    return At3 = t3.key, pt3 = t3.size, cr = t3.color, qt3 = null, this;
+    return At3 = t3.key, pt2 = t3.size, cr = t3.color, qt2 = null, this;
   }, y3.setCurrentTransformationMatrix = function(t3) {
     return lt3(t3.toString() + " cm"), this;
   }, y3.comment = function(t3) {
@@ -49848,13 +49857,13 @@ function E(e2) {
       isNaN(t4) || (a4 = parseFloat(t4));
     } }), this;
   }, br = function() {
-    this.page = Et3, this.currentPage = $3, this.pages = ot3.slice(0), this.pagesContext = Rt3.slice(0), this.x = _t3, this.y = Pt3, this.matrix = kt3, this.width = Nr($3), this.height = xr($3), this.outputDestination = ut3, this.id = "", this.objectNumber = -1;
+    this.page = Et3, this.currentPage = $3, this.pages = ot3.slice(0), this.pagesContext = Rt3.slice(0), this.x = _t3, this.y = Pt3, this.matrix = kt2, this.width = Nr($3), this.height = xr($3), this.outputDestination = ut3, this.id = "", this.objectNumber = -1;
   };
   br.prototype.restore = function() {
-    Et3 = this.page, $3 = this.currentPage, Rt3 = this.pagesContext, ot3 = this.pages, _t3 = this.x, Pt3 = this.y, kt3 = this.matrix, Lr($3, this.width), Ar($3, this.height), ut3 = this.outputDestination;
+    Et3 = this.page, $3 = this.currentPage, Rt3 = this.pagesContext, ot3 = this.pages, _t3 = this.x, Pt3 = this.y, kt2 = this.matrix, Lr($3, this.width), Ar($3, this.height), ut3 = this.outputDestination;
   };
   var yr = function(t3, e3, r3, n3, i4) {
-    Ht4.push(new br()), Et3 = $3 = 0, ot3 = [], _t3 = t3, Pt3 = e3, kt3 = i4, me3([r3, n3]);
+    Ht4.push(new br()), Et3 = $3 = 0, ot3 = [], _t3 = t3, Pt3 = e3, kt2 = i4, me3([r3, n3]);
   };
   for (var wr in y3.beginFormObject = function(t3, e3, r3, n3, i4) {
     return yr(t3, e3, r3, n3, i4), this;
@@ -49873,9 +49882,9 @@ function E(e2) {
     var e3 = zt3[Ut4[t3]];
     return { x: e3.x, y: e3.y, width: e3.width, height: e3.height, matrix: e3.matrix };
   }, y3.save = function(t3, e3) {
-    return t3 = t3 || "generated.pdf", (e3 = e3 || {}).returnPromise = e3.returnPromise || false, false === e3.returnPromise ? (l2(ke3(Pe3()), t3), "function" == typeof l2.unload && i3.setTimeout && setTimeout(l2.unload, 911), this) : new Promise(function(e4, r3) {
+    return t3 = t3 || "generated.pdf", (e3 = e3 || {}).returnPromise = e3.returnPromise || false, false === e3.returnPromise ? (l2(ke2(Pe2()), t3), "function" == typeof l2.unload && i3.setTimeout && setTimeout(l2.unload, 911), this) : new Promise(function(e4, r3) {
       try {
-        var n3 = l2(ke3(Pe3()), t3);
+        var n3 = l2(ke2(Pe2()), t3);
         "function" == typeof l2.unload && i3.setTimeout && setTimeout(l2.unload, 911), e4(n3);
       } catch (a4) {
         r3(a4.message);
@@ -49906,7 +49915,7 @@ function E(e2) {
   }, kr = y3.setPageHeight = function(t3, e3) {
     Ar(t3, e3 * St3);
   };
-  return y3.internal = { pdfEscape: ge3, getStyle: De2, getFont: Xe2, getFontSize: mt3, getCharSpace: fr, getTextColor: lr, getLineHeight: tr, getLineHeightFactor: rr, getLineWidth: $e2, write: ht3, getHorizontalCoordinate: nr, getVerticalCoordinate: ir, getCoordinateString: ar, getVerticalCoordinateString: or, collections: {}, newObject: Xt3, newAdditionalObject: $t3, newObjectDeferred: Kt3, newObjectDeferredBegin: Zt3, getFilters: ne3, putStream: ie3, events: Dt3, scaleFactor: St3, pageSize: { getWidth: function() {
+  return y3.internal = { pdfEscape: ge3, getStyle: De2, getFont: Xe, getFontSize: mt3, getCharSpace: fr, getTextColor: lr, getLineHeight: tr, getLineHeightFactor: rr, getLineWidth: $e2, write: ht3, getHorizontalCoordinate: nr, getVerticalCoordinate: ir, getCoordinateString: ar, getVerticalCoordinateString: or, collections: {}, newObject: Xt3, newAdditionalObject: $t3, newObjectDeferred: Kt2, newObjectDeferredBegin: Zt3, getFilters: ne2, putStream: ie2, events: Dt3, scaleFactor: St3, pageSize: { getWidth: function() {
     return Sr($3);
   }, setWidth: function(t3) {
     _r($3, t3);
@@ -49914,13 +49923,13 @@ function E(e2) {
     return Pr($3);
   }, setHeight: function(t3) {
     kr($3, t3);
-  } }, encryptionOptions: m4, encryption: Oe2, getEncryptor: function(t3) {
-    return null !== m4 ? Oe2.encryptor(t3, 0) : function(t4) {
+  } }, encryptionOptions: m4, encryption: Oe, getEncryptor: function(t3) {
+    return null !== m4 ? Oe.encryptor(t3, 0) : function(t4) {
       return t4;
     };
-  }, output: Ce3, getNumberOfPages: we3, get pages() {
+  }, output: Ce2, getNumberOfPages: we2, get pages() {
     return ot3;
-  }, out: lt3, f2: T3, f3: z3, getPageInfo: Be2, getPageInfoByObjId: Me2, getCurrentPageInfo: qe2, getPDFVersion: N4, Point: mr, Rectangle: vr, Matrix: Wt3, hasHotfix: je2 }, Object.defineProperty(y3.internal.pageSize, "width", { get: function() {
+  }, out: lt3, f2: T3, f3: z2, getPageInfo: Be2, getPageInfoByObjId: Me2, getCurrentPageInfo: qe, getPDFVersion: N4, Point: mr, Rectangle: vr, Matrix: Wt3, hasHotfix: je2 }, Object.defineProperty(y3.internal.pageSize, "width", { get: function() {
     return Sr($3);
   }, set: function(t3) {
     _r($3, t3);
@@ -49930,13 +49939,13 @@ function E(e2) {
     kr($3, t3);
   }, enumerable: true, configurable: true }), function(t3) {
     for (var e3 = 0, r3 = dt3.length; e3 < r3; e3++) {
-      var n3 = pe3.call(this, t3[e3][0], t3[e3][1], t3[e3][2], dt3[e3][3], true);
+      var n3 = pe2.call(this, t3[e3][0], t3[e3][1], t3[e3][2], dt3[e3][3], true);
       false === v4 && (b3[n3] = true);
       var i4 = t3[e3][0].split("-");
-      de3({ id: n3, fontName: i4[0], fontStyle: i4[1] || "" });
+      de2({ id: n3, fontName: i4[0], fontStyle: i4[1] || "" });
     }
-    Dt3.publish("addFonts", { fonts: Ft3, dictionary: It3 });
-  }.call(y3, dt3), At3 = "F1", ve3(s3, n2), Dt3.publish("initialized"), y3;
+    Dt3.publish("addFonts", { fonts: Ft2, dictionary: It3 });
+  }.call(y3, dt3), At3 = "F1", ve2(s3, n2), Dt3.publish("initialized"), y3;
 }
 I.prototype.lsbFirstWord = function(t3) {
   return String.fromCharCode(255 & t3, t3 >> 8 & 255, t3 >> 16 & 255, t3 >> 24 & 255);
@@ -50067,12 +50076,12 @@ var rt = function(t3, e2) {
         v4 += i4[y3][m4], w2 = true, g2 = y3, y3--;
       } else {
         v4 = " " == (v4 += i4[y3][m4] + " ").substr(v4.length - 1) ? v4.substr(0, v4.length - 1) : v4;
-        var N4 = parseInt(y3), L3 = u3(N4, v4, a3), x4 = y3 >= i4.length - 1;
-        if (L3 && !x4) {
+        var N4 = parseInt(y3), L2 = u3(N4, v4, a3), x4 = y3 >= i4.length - 1;
+        if (L2 && !x4) {
           v4 += " ", m4 = 0;
           continue;
         }
-        if (L3 || x4) {
+        if (L2 || x4) {
           if (x4) g2 = N4;
           else if (t3.multiline && (h3 + 2) * (b3 + 2) + 2 > o3) continue t;
         } else {
@@ -50884,7 +50893,7 @@ function Pt(t3) {
     if ("string" == typeof t3) for (r3 = t3.length, e3 = 0; e3 < r3; e3++) n3 = (n3 << 5) - n3 + t3.charCodeAt(e3), n3 |= 0;
     else if (A2(t3)) for (r3 = t3.byteLength / 2, e3 = 0; e3 < r3; e3++) n3 = (n3 << 5) - n3 + t3[e3], n3 |= 0;
     return n3;
-  }, L3 = e2.__addimage__.validateStringAsBase64 = function(t3) {
+  }, L2 = e2.__addimage__.validateStringAsBase64 = function(t3) {
     (t3 = t3 || "").toString().trim();
     var e3 = true;
     return 0 === t3.length && (e3 = false), t3.length % 4 != 0 && (e3 = false), false === /^[A-Za-z0-9+/]+$/.test(t3.substr(0, t3.length - 2)) && (e3 = false), false === /^[A-Za-z0-9/][A-Za-z0-9+/]|[A-Za-z0-9+/]=|==$/.test(t3.substr(-2)) && (e3 = false), e3;
@@ -50922,7 +50931,7 @@ function Pt(t3) {
     var s4, u4, c5;
     if ("string" == typeof t3 && a3(t3) === n2) {
       t3 = unescape(t3);
-      var l4 = k3(t3, false);
+      var l4 = k2(t3, false);
       ("" !== l4 || void 0 !== (l4 = e2.loadFile(t3, true))) && (t3 = l4);
     }
     if (p3(t3) && (t3 = g2(t3, r3)), r3 = a3(t3, r3), !d2(r3)) throw new Error("addImage does not support files of type '" + r3 + "', please ensure that a plugin for '" + r3 + "' support is added.");
@@ -50932,7 +50941,7 @@ function Pt(t3) {
       return t4 && "string" == typeof t4 && (t4 = t4.toUpperCase()), t4 in e2.image_compression ? t4 : w2.NONE;
     })(o4), u4)), !s4) throw new Error("An unknown error occurred whilst processing the image.");
     return s4;
-  }, k3 = e2.__addimage__.convertBase64ToBinaryString = function(t3, e3) {
+  }, k2 = e2.__addimage__.convertBase64ToBinaryString = function(t3, e3) {
     e3 = "boolean" != typeof e3 || e3;
     var r3, n3 = "";
     if ("string" == typeof t3) {
@@ -50941,14 +50950,14 @@ function Pt(t3) {
       try {
         n3 = f2(r3);
       } catch (a4) {
-        if (e3) throw L3(r3) ? new Error("atob-Error in jsPDF.convertBase64ToBinaryString " + a4.message) : new Error("Supplied Data is not a valid base64-String jsPDF.convertBase64ToBinaryString ");
+        if (e3) throw L2(r3) ? new Error("atob-Error in jsPDF.convertBase64ToBinaryString " + a4.message) : new Error("Supplied Data is not a valid base64-String jsPDF.convertBase64ToBinaryString ");
       }
     }
     return n3;
   };
   e2.getImageProperties = function(t3) {
     var r3, i5, o4 = "";
-    if (p3(t3) && (t3 = g2(t3)), "string" == typeof t3 && a3(t3) === n2 && ("" === (o4 = k3(t3, false)) && (o4 = e2.loadFile(t3) || ""), t3 = o4), i5 = a3(t3), !d2(i5)) throw new Error("addImage does not support files of type '" + i5 + "', please ensure that a plugin for '" + i5 + "' support is added.");
+    if (p3(t3) && (t3 = g2(t3)), "string" == typeof t3 && a3(t3) === n2 && ("" === (o4 = k2(t3, false)) && (o4 = e2.loadFile(t3) || ""), t3 = o4), i5 = a3(t3), !d2(i5)) throw new Error("addImage does not support files of type '" + i5 + "', please ensure that a plugin for '" + i5 + "' support is added.");
     if (t3 instanceof Uint8Array || (t3 = S3(t3)), !(r3 = this["process" + i5.toUpperCase()](t3))) throw new Error("An unknown error occurred whilst processing the image");
     return r3.fileType = i5, r3;
   };
@@ -51240,8 +51249,8 @@ function Pt(t3) {
   };
   e2.table = function(e3, n3, c4, l3, h3) {
     if (i4.call(this), !c4) throw new Error("No data for PDF table.");
-    var f3, d2, p3, g2, m4 = [], v4 = [], b3 = [], y3 = {}, w2 = {}, N4 = [], L3 = [], x4 = (h3 = h3 || {}).autoSize || false, A2 = false !== h3.printHeaders, S3 = h3.css && void 0 !== h3.css["font-size"] ? 16 * h3.css["font-size"] : h3.fontSize || 12, _3 = h3.margins || Object.assign({ width: this.getPageWidth() }, r2), P2 = "number" == typeof h3.padding ? h3.padding : 3, k3 = h3.headerBackgroundColor || "#c8c8c8", F3 = h3.headerTextColor || "#000";
-    if (a3.call(this), this.internal.__cell__.printHeaders = A2, this.internal.__cell__.margins = _3, this.internal.__cell__.table_font_size = S3, this.internal.__cell__.padding = P2, this.internal.__cell__.headerBackgroundColor = k3, this.internal.__cell__.headerTextColor = F3, this.setFontSize(S3), null == l3) v4 = m4 = Object.keys(c4[0]), b3 = m4.map(function() {
+    var f3, d2, p3, g2, m4 = [], v4 = [], b3 = [], y3 = {}, w2 = {}, N4 = [], L2 = [], x4 = (h3 = h3 || {}).autoSize || false, A2 = false !== h3.printHeaders, S3 = h3.css && void 0 !== h3.css["font-size"] ? 16 * h3.css["font-size"] : h3.fontSize || 12, _3 = h3.margins || Object.assign({ width: this.getPageWidth() }, r2), P2 = "number" == typeof h3.padding ? h3.padding : 3, k2 = h3.headerBackgroundColor || "#c8c8c8", F3 = h3.headerTextColor || "#000";
+    if (a3.call(this), this.internal.__cell__.printHeaders = A2, this.internal.__cell__.margins = _3, this.internal.__cell__.table_font_size = S3, this.internal.__cell__.padding = P2, this.internal.__cell__.headerBackgroundColor = k2, this.internal.__cell__.headerTextColor = F3, this.setFontSize(S3), null == l3) v4 = m4 = Object.keys(c4[0]), b3 = m4.map(function() {
       return "left";
     });
     else if (Array.isArray(l3) && "object" === _typeof(l3[0])) for (m4 = l3.map(function(t3) {
@@ -51264,9 +51273,9 @@ function Pt(t3) {
       var I2 = {};
       for (f3 = 0; f3 < m4.length; f3 += 1) I2[m4[f3]] = {}, I2[m4[f3]].text = v4[f3], I2[m4[f3]].align = b3[f3];
       var C3 = u3.call(this, I2, w2);
-      L3 = m4.map(function(t3) {
+      L2 = m4.map(function(t3) {
         return new o3(e3, n3, w2[t3], C3, I2[t3].text, void 0, I2[t3].align);
-      }), this.setTableHeaderRow(L3), this.printHeaderRow(1, false);
+      }), this.setTableHeaderRow(L2), this.printHeaderRow(1, false);
     }
     var j3 = l3.reduce(function(t3, e4) {
       return t3[e4.name] = e4.align, t3;
@@ -51489,8 +51498,8 @@ function ie(t3) {
       }
       break;
     case 44:
-      var m4 = t3[e2++] | t3[e2++] << 8, v4 = t3[e2++] | t3[e2++] << 8, b3 = t3[e2++] | t3[e2++] << 8, y3 = t3[e2++] | t3[e2++] << 8, w2 = t3[e2++], N4 = w2 >> 6 & 1, L3 = 1 << 1 + (7 & w2), x4 = s3, A2 = u3, S3 = false;
-      w2 >> 7 && (S3 = true, x4 = e2, A2 = L3, e2 += 3 * L3);
+      var m4 = t3[e2++] | t3[e2++] << 8, v4 = t3[e2++] | t3[e2++] << 8, b3 = t3[e2++] | t3[e2++] << 8, y3 = t3[e2++] | t3[e2++] << 8, w2 = t3[e2++], N4 = w2 >> 6 & 1, L2 = 1 << 1 + (7 & w2), x4 = s3, A2 = u3, S3 = false;
+      w2 >> 7 && (S3 = true, x4 = e2, A2 = L2, e2 += 3 * L2);
       var _3 = e2;
       for (e2++; ; ) {
         var P2;
@@ -51526,8 +51535,8 @@ function ie(t3) {
       var y4 = o4[v5];
       if (0 === h4 && (h4 = c5, (p4 += g3) >= d3 && (g3 = 4 * l4 + 4 * r2 * (m5 - 1), p4 = f4 + (c5 + l4) * (m5 << 1), m5 >>= 1)), y4 === u4) p4 += 4;
       else {
-        var w3 = t3[s4 + 3 * y4], N5 = t3[s4 + 3 * y4 + 1], L4 = t3[s4 + 3 * y4 + 2];
-        n3[p4++] = L4, n3[p4++] = N5, n3[p4++] = w3, n3[p4++] = 255;
+        var w3 = t3[s4 + 3 * y4], N5 = t3[s4 + 3 * y4 + 1], L3 = t3[s4 + 3 * y4 + 2];
+        n3[p4++] = L3, n3[p4++] = N5, n3[p4++] = w3, n3[p4++] = 255;
       }
       --h4;
     }
@@ -51544,8 +51553,8 @@ function ie(t3) {
       var y4 = o4[v5];
       if (0 === h4 && (h4 = c5, (p4 += g3) >= d3 && (g3 = 4 * l4 + 4 * r2 * (m5 - 1), p4 = f4 + (c5 + l4) * (m5 << 1), m5 >>= 1)), y4 === u4) p4 += 4;
       else {
-        var w3 = t3[s4 + 3 * y4], N5 = t3[s4 + 3 * y4 + 1], L4 = t3[s4 + 3 * y4 + 2];
-        n3[p4++] = w3, n3[p4++] = N5, n3[p4++] = L4, n3[p4++] = 255;
+        var w3 = t3[s4 + 3 * y4], N5 = t3[s4 + 3 * y4 + 1], L3 = t3[s4 + 3 * y4 + 2];
+        n3[p4++] = w3, n3[p4++] = N5, n3[p4++] = L3, n3[p4++] = 255;
       }
       --h4;
     }
@@ -51562,15 +51571,15 @@ function ae(t3, e2, r2, n2) {
       var N4 = w2;
       if (d2 + y3 + (b3 !== v4 ? 1 : 0) > n2) return void o2.log("Warning, gif stream longer than expected.");
       r2[d2++] = N4;
-      var L3 = d2 += y3;
-      for (b3 !== v4 && (r2[d2++] = N4), w2 = b3; y3--; ) w2 = g2[w2], r2[--L3] = 255 & w2, w2 >>= 8;
+      var L2 = d2 += y3;
+      for (b3 !== v4 && (r2[d2++] = N4), w2 = b3; y3--; ) w2 = g2[w2], r2[--L2] = 255 & w2, w2 >>= 8;
       null !== m4 && u3 < 4096 && (g2[u3++] = m4 << 8 | N4, u3 >= l3 + 1 && c4 < 12 && (++c4, l3 = l3 << 1 | 1)), m4 = v4;
     } else u3 = s3 + 1, l3 = (1 << (c4 = i4 + 1)) - 1, m4 = null;
   }
   return d2 !== n2 && o2.log("Warning, gif stream shorter than expected."), r2;
 }
 function oe(t3) {
-  var e2, r2, n2, i4, a3, o3 = Math.floor, s3 = new Array(64), u3 = new Array(64), c4 = new Array(64), l3 = new Array(64), h3 = new Array(65535), f3 = new Array(65535), d2 = new Array(64), p3 = new Array(64), g2 = [], m4 = 0, v4 = 7, b3 = new Array(64), y3 = new Array(64), w2 = new Array(64), N4 = new Array(256), L3 = new Array(2048), x4 = [0, 1, 5, 6, 14, 15, 27, 28, 2, 4, 7, 13, 16, 26, 29, 42, 3, 8, 12, 17, 25, 30, 41, 43, 9, 11, 18, 24, 31, 40, 44, 53, 10, 19, 23, 32, 39, 45, 52, 54, 20, 22, 33, 38, 46, 51, 55, 60, 21, 34, 37, 47, 50, 56, 59, 61, 35, 36, 48, 49, 57, 58, 62, 63], A2 = [0, 0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], S3 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], _3 = [0, 0, 2, 1, 3, 3, 2, 4, 3, 5, 5, 4, 4, 0, 0, 1, 125], P2 = [1, 2, 3, 0, 4, 17, 5, 18, 33, 49, 65, 6, 19, 81, 97, 7, 34, 113, 20, 50, 129, 145, 161, 8, 35, 66, 177, 193, 21, 82, 209, 240, 36, 51, 98, 114, 130, 9, 10, 22, 23, 24, 25, 26, 37, 38, 39, 40, 41, 42, 52, 53, 54, 55, 56, 57, 58, 67, 68, 69, 70, 71, 72, 73, 74, 83, 84, 85, 86, 87, 88, 89, 90, 99, 100, 101, 102, 103, 104, 105, 106, 115, 116, 117, 118, 119, 120, 121, 122, 131, 132, 133, 134, 135, 136, 137, 138, 146, 147, 148, 149, 150, 151, 152, 153, 154, 162, 163, 164, 165, 166, 167, 168, 169, 170, 178, 179, 180, 181, 182, 183, 184, 185, 186, 194, 195, 196, 197, 198, 199, 200, 201, 202, 210, 211, 212, 213, 214, 215, 216, 217, 218, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250], k3 = [0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0], F3 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], I2 = [0, 0, 2, 1, 2, 4, 4, 3, 4, 7, 5, 4, 4, 0, 1, 2, 119], C3 = [0, 1, 2, 3, 17, 4, 5, 33, 49, 6, 18, 65, 81, 7, 97, 113, 19, 34, 50, 129, 8, 20, 66, 145, 161, 177, 193, 9, 35, 51, 82, 240, 21, 98, 114, 209, 10, 22, 36, 52, 225, 37, 241, 23, 24, 25, 26, 38, 39, 40, 41, 42, 53, 54, 55, 56, 57, 58, 67, 68, 69, 70, 71, 72, 73, 74, 83, 84, 85, 86, 87, 88, 89, 90, 99, 100, 101, 102, 103, 104, 105, 106, 115, 116, 117, 118, 119, 120, 121, 122, 130, 131, 132, 133, 134, 135, 136, 137, 138, 146, 147, 148, 149, 150, 151, 152, 153, 154, 162, 163, 164, 165, 166, 167, 168, 169, 170, 178, 179, 180, 181, 182, 183, 184, 185, 186, 194, 195, 196, 197, 198, 199, 200, 201, 202, 210, 211, 212, 213, 214, 215, 216, 217, 218, 226, 227, 228, 229, 230, 231, 232, 233, 234, 242, 243, 244, 245, 246, 247, 248, 249, 250];
+  var e2, r2, n2, i4, a3, o3 = Math.floor, s3 = new Array(64), u3 = new Array(64), c4 = new Array(64), l3 = new Array(64), h3 = new Array(65535), f3 = new Array(65535), d2 = new Array(64), p3 = new Array(64), g2 = [], m4 = 0, v4 = 7, b3 = new Array(64), y3 = new Array(64), w2 = new Array(64), N4 = new Array(256), L2 = new Array(2048), x4 = [0, 1, 5, 6, 14, 15, 27, 28, 2, 4, 7, 13, 16, 26, 29, 42, 3, 8, 12, 17, 25, 30, 41, 43, 9, 11, 18, 24, 31, 40, 44, 53, 10, 19, 23, 32, 39, 45, 52, 54, 20, 22, 33, 38, 46, 51, 55, 60, 21, 34, 37, 47, 50, 56, 59, 61, 35, 36, 48, 49, 57, 58, 62, 63], A2 = [0, 0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], S3 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], _3 = [0, 0, 2, 1, 3, 3, 2, 4, 3, 5, 5, 4, 4, 0, 0, 1, 125], P2 = [1, 2, 3, 0, 4, 17, 5, 18, 33, 49, 65, 6, 19, 81, 97, 7, 34, 113, 20, 50, 129, 145, 161, 8, 35, 66, 177, 193, 21, 82, 209, 240, 36, 51, 98, 114, 130, 9, 10, 22, 23, 24, 25, 26, 37, 38, 39, 40, 41, 42, 52, 53, 54, 55, 56, 57, 58, 67, 68, 69, 70, 71, 72, 73, 74, 83, 84, 85, 86, 87, 88, 89, 90, 99, 100, 101, 102, 103, 104, 105, 106, 115, 116, 117, 118, 119, 120, 121, 122, 131, 132, 133, 134, 135, 136, 137, 138, 146, 147, 148, 149, 150, 151, 152, 153, 154, 162, 163, 164, 165, 166, 167, 168, 169, 170, 178, 179, 180, 181, 182, 183, 184, 185, 186, 194, 195, 196, 197, 198, 199, 200, 201, 202, 210, 211, 212, 213, 214, 215, 216, 217, 218, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250], k2 = [0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0], F3 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], I2 = [0, 0, 2, 1, 2, 4, 4, 3, 4, 7, 5, 4, 4, 0, 1, 2, 119], C3 = [0, 1, 2, 3, 17, 4, 5, 33, 49, 6, 18, 65, 81, 7, 97, 113, 19, 34, 50, 129, 8, 20, 66, 145, 161, 177, 193, 9, 35, 51, 82, 240, 21, 98, 114, 209, 10, 22, 36, 52, 225, 37, 241, 23, 24, 25, 26, 38, 39, 40, 41, 42, 53, 54, 55, 56, 57, 58, 67, 68, 69, 70, 71, 72, 73, 74, 83, 84, 85, 86, 87, 88, 89, 90, 99, 100, 101, 102, 103, 104, 105, 106, 115, 116, 117, 118, 119, 120, 121, 122, 130, 131, 132, 133, 134, 135, 136, 137, 138, 146, 147, 148, 149, 150, 151, 152, 153, 154, 162, 163, 164, 165, 166, 167, 168, 169, 170, 178, 179, 180, 181, 182, 183, 184, 185, 186, 194, 195, 196, 197, 198, 199, 200, 201, 202, 210, 211, 212, 213, 214, 215, 216, 217, 218, 226, 227, 228, 229, 230, 231, 232, 233, 234, 242, 243, 244, 245, 246, 247, 248, 249, 250];
   function j3(t4, e3) {
     for (var r3 = 0, n3 = 0, i5 = new Array(), a4 = 1; a4 <= 16; a4++) {
       for (var o4 = 1; o4 <= t4[a4]; o4++) i5[e3[n3]] = [], i5[e3[n3]][0] = r3, i5[e3[n3]][1] = a4, n3++, r3++;
@@ -51592,21 +51601,21 @@ function oe(t3) {
       var r4, n4, i6, a5, o5, s5, u5, c6, l5, h4, f4 = 0;
       for (l5 = 0; l5 < 8; ++l5) {
         r4 = t5[f4], n4 = t5[f4 + 1], i6 = t5[f4 + 2], a5 = t5[f4 + 3], o5 = t5[f4 + 4], s5 = t5[f4 + 5], u5 = t5[f4 + 6];
-        var p4 = r4 + (c6 = t5[f4 + 7]), g4 = r4 - c6, m6 = n4 + u5, v6 = n4 - u5, b5 = i6 + s5, y5 = i6 - s5, w4 = a5 + o5, N5 = a5 - o5, L4 = p4 + w4, x5 = p4 - w4, A3 = m6 + b5, S4 = m6 - b5;
-        t5[f4] = L4 + A3, t5[f4 + 4] = L4 - A3;
+        var p4 = r4 + (c6 = t5[f4 + 7]), g4 = r4 - c6, m6 = n4 + u5, v6 = n4 - u5, b5 = i6 + s5, y5 = i6 - s5, w4 = a5 + o5, N5 = a5 - o5, L3 = p4 + w4, x5 = p4 - w4, A3 = m6 + b5, S4 = m6 - b5;
+        t5[f4] = L3 + A3, t5[f4 + 4] = L3 - A3;
         var _4 = 0.707106781 * (S4 + x5);
         t5[f4 + 2] = x5 + _4, t5[f4 + 6] = x5 - _4;
-        var P3 = 0.382683433 * ((L4 = N5 + y5) - (S4 = v6 + g4)), k4 = 0.5411961 * L4 + P3, F4 = 1.306562965 * S4 + P3, I3 = 0.707106781 * (A3 = y5 + v6), C4 = g4 + I3, j4 = g4 - I3;
-        t5[f4 + 5] = j4 + k4, t5[f4 + 3] = j4 - k4, t5[f4 + 1] = C4 + F4, t5[f4 + 7] = C4 - F4, f4 += 8;
+        var P3 = 0.382683433 * ((L3 = N5 + y5) - (S4 = v6 + g4)), k3 = 0.5411961 * L3 + P3, F4 = 1.306562965 * S4 + P3, I3 = 0.707106781 * (A3 = y5 + v6), C4 = g4 + I3, j4 = g4 - I3;
+        t5[f4 + 5] = j4 + k3, t5[f4 + 3] = j4 - k3, t5[f4 + 1] = C4 + F4, t5[f4 + 7] = C4 - F4, f4 += 8;
       }
       for (f4 = 0, l5 = 0; l5 < 8; ++l5) {
         r4 = t5[f4], n4 = t5[f4 + 8], i6 = t5[f4 + 16], a5 = t5[f4 + 24], o5 = t5[f4 + 32], s5 = t5[f4 + 40], u5 = t5[f4 + 48];
-        var O5 = r4 + (c6 = t5[f4 + 56]), B4 = r4 - c6, M4 = n4 + u5, q4 = n4 - u5, E3 = i6 + s5, R2 = i6 - s5, D3 = a5 + o5, T3 = a5 - o5, z3 = O5 + D3, U3 = O5 - D3, H3 = M4 + E3, W3 = M4 - E3;
-        t5[f4] = z3 + H3, t5[f4 + 32] = z3 - H3;
+        var O5 = r4 + (c6 = t5[f4 + 56]), B4 = r4 - c6, M4 = n4 + u5, q4 = n4 - u5, E3 = i6 + s5, R2 = i6 - s5, D3 = a5 + o5, T3 = a5 - o5, z2 = O5 + D3, U3 = O5 - D3, H2 = M4 + E3, W3 = M4 - E3;
+        t5[f4] = z2 + H2, t5[f4 + 32] = z2 - H2;
         var V2 = 0.707106781 * (W3 + U3);
         t5[f4 + 16] = U3 + V2, t5[f4 + 48] = U3 - V2;
-        var G3 = 0.382683433 * ((z3 = T3 + R2) - (W3 = q4 + B4)), Y3 = 0.5411961 * z3 + G3, J3 = 1.306562965 * W3 + G3, X4 = 0.707106781 * (H3 = R2 + q4), K3 = B4 + X4, Z3 = B4 - X4;
-        t5[f4 + 40] = Z3 + Y3, t5[f4 + 24] = Z3 - Y3, t5[f4 + 8] = K3 + J3, t5[f4 + 56] = K3 - J3, f4++;
+        var G3 = 0.382683433 * ((z2 = T3 + R2) - (W3 = q4 + B4)), Y3 = 0.5411961 * z2 + G3, J2 = 1.306562965 * W3 + G3, X3 = 0.707106781 * (H2 = R2 + q4), K2 = B4 + X3, Z2 = B4 - X3;
+        t5[f4 + 40] = Z2 + Y3, t5[f4 + 24] = Z2 - Y3, t5[f4 + 8] = K2 + J2, t5[f4 + 56] = K2 - J2, f4++;
       }
       for (l5 = 0; l5 < 64; ++l5) h4 = t5[l5] * e4[l5], d2[l5] = h4 > 0 ? h4 + 0.5 | 0 : h4 - 0.5 | 0;
       return d2;
@@ -51656,7 +51665,7 @@ function oe(t3) {
       for (var r3 = 0; r3 < 16; r3++) B3(_3[r3 + 1]);
       for (var n3 = 0; n3 <= 161; n3++) B3(P2[n3]);
       B3(1);
-      for (var i5 = 0; i5 < 16; i5++) B3(k3[i5 + 1]);
+      for (var i5 = 0; i5 < 16; i5++) B3(k2[i5 + 1]);
       for (var a5 = 0; a5 <= 11; a5++) B3(F3[a5]);
       B3(17);
       for (var o5 = 0; o5 < 16; o5++) B3(I2[o5 + 1]);
@@ -51664,9 +51673,9 @@ function oe(t3) {
     })(), M3(65498), M3(12), B3(3), B3(1), B3(0), B3(2), B3(17), B3(3), B3(17), B3(0), B3(63), B3(0);
     var o4 = 0, h4 = 0, f4 = 0;
     m4 = 0, v4 = 7, this.encode.displayName = "_encode_";
-    for (var d3, p4, N5, x5, j4, R2, D3, T3, z3, U3 = t4.data, H3 = t4.width, W3 = t4.height, V2 = 4 * H3, G3 = 0; G3 < W3; ) {
+    for (var d3, p4, N5, x5, j4, R2, D3, T3, z2, U3 = t4.data, H2 = t4.width, W3 = t4.height, V2 = 4 * H2, G3 = 0; G3 < W3; ) {
       for (d3 = 0; d3 < V2; ) {
-        for (j4 = V2 * G3 + d3, D3 = -1, T3 = 0, z3 = 0; z3 < 64; z3++) R2 = j4 + (T3 = z3 >> 3) * V2 + (D3 = 4 * (7 & z3)), G3 + T3 >= W3 && (R2 -= V2 * (G3 + 1 + T3 - W3)), d3 + D3 >= V2 && (R2 -= d3 + D3 - V2 + 4), p4 = U3[R2++], N5 = U3[R2++], x5 = U3[R2++], b3[z3] = (L3[p4] + L3[N5 + 256 | 0] + L3[x5 + 512 | 0] >> 16) - 128, y3[z3] = (L3[p4 + 768 | 0] + L3[N5 + 1024 | 0] + L3[x5 + 1280 | 0] >> 16) - 128, w2[z3] = (L3[p4 + 1280 | 0] + L3[N5 + 1536 | 0] + L3[x5 + 1792 | 0] >> 16) - 128;
+        for (j4 = V2 * G3 + d3, D3 = -1, T3 = 0, z2 = 0; z2 < 64; z2++) R2 = j4 + (T3 = z2 >> 3) * V2 + (D3 = 4 * (7 & z2)), G3 + T3 >= W3 && (R2 -= V2 * (G3 + 1 + T3 - W3)), d3 + D3 >= V2 && (R2 -= d3 + D3 - V2 + 4), p4 = U3[R2++], N5 = U3[R2++], x5 = U3[R2++], b3[z2] = (L2[p4] + L2[N5 + 256 | 0] + L2[x5 + 512 | 0] >> 16) - 128, y3[z2] = (L2[p4 + 768 | 0] + L2[N5 + 1024 | 0] + L2[x5 + 1280 | 0] >> 16) - 128, w2[z2] = (L2[p4 + 1280 | 0] + L2[N5 + 1536 | 0] + L2[x5 + 1792 | 0] >> 16) - 128;
         o4 = q3(b3, c4, o4, e2, n2), h4 = q3(y3, l3, h4, r2, i4), f4 = q3(w2, l3, f4, r2, i4), d3 += 32;
       }
       G3 += 8;
@@ -51678,14 +51687,14 @@ function oe(t3) {
     return M3(65497), new Uint8Array(g2);
   }, t3 = t3 || 50, (function() {
     for (var t4 = String.fromCharCode, e3 = 0; e3 < 256; e3++) N4[e3] = t4(e3);
-  })(), e2 = j3(A2, S3), r2 = j3(k3, F3), n2 = j3(_3, P2), i4 = j3(I2, C3), (function() {
+  })(), e2 = j3(A2, S3), r2 = j3(k2, F3), n2 = j3(_3, P2), i4 = j3(I2, C3), (function() {
     for (var t4 = 1, e3 = 2, r3 = 1; r3 <= 15; r3++) {
       for (var n3 = t4; n3 < e3; n3++) f3[32767 + n3] = r3, h3[32767 + n3] = [], h3[32767 + n3][1] = r3, h3[32767 + n3][0] = n3;
       for (var i5 = -(e3 - 1); i5 <= -t4; i5++) f3[32767 + i5] = r3, h3[32767 + i5] = [], h3[32767 + i5][1] = r3, h3[32767 + i5][0] = e3 - 1 + i5;
       t4 <<= 1, e3 <<= 1;
     }
   })(), (function() {
-    for (var t4 = 0; t4 < 256; t4++) L3[t4] = 19595 * t4, L3[t4 + 256 | 0] = 38470 * t4, L3[t4 + 512 | 0] = 7471 * t4 + 32768, L3[t4 + 768 | 0] = -11059 * t4, L3[t4 + 1024 | 0] = -21709 * t4, L3[t4 + 1280 | 0] = 32768 * t4 + 8421375, L3[t4 + 1536 | 0] = -27439 * t4, L3[t4 + 1792 | 0] = -5329 * t4;
+    for (var t4 = 0; t4 < 256; t4++) L2[t4] = 19595 * t4, L2[t4 + 256 | 0] = 38470 * t4, L2[t4 + 512 | 0] = 7471 * t4 + 32768, L2[t4 + 768 | 0] = -11059 * t4, L2[t4 + 1024 | 0] = -21709 * t4, L2[t4 + 1280 | 0] = 32768 * t4 + 8421375, L2[t4 + 1536 | 0] = -27439 * t4, L2[t4 + 1792 | 0] = -5329 * t4;
   })(), E2(t3);
 }
 function se(t3, e2) {
@@ -51747,13 +51756,13 @@ function ue(t3) {
         }
         for (f5 = 0; f5 < o5; ++f5) l5 = i6[f5], 0 < i6[f5] && (s5[m6[l5]++] = f5);
         if (1 == m6[15]) return (i6 = new h4()).g = 0, i6.value = s5[0], c5(t6, d4, 1, p5, i6), p5;
-        var v6, b5 = -1, y5 = p5 - 1, w4 = 0, N6 = 1, L5 = 1, x6 = 1 << n4;
+        var v6, b5 = -1, y5 = p5 - 1, w4 = 0, N6 = 1, L4 = 1, x6 = 1 << n4;
         for (f5 = 0, l5 = 1, o5 = 2; l5 <= n4; ++l5, o5 <<= 1) {
-          if (N6 += L5 <<= 1, 0 > (L5 -= g4[l5])) return 0;
+          if (N6 += L4 <<= 1, 0 > (L4 -= g4[l5])) return 0;
           for (; 0 < g4[l5]; --g4[l5]) (i6 = new h4()).g = l5, i6.value = s5[f5++], c5(t6, d4 + w4, o5, x6, i6), w4 = u4(w4, l5);
         }
         for (l5 = n4 + 1, o5 = 2; 15 >= l5; ++l5, o5 <<= 1) {
-          if (N6 += L5 <<= 1, 0 > (L5 -= g4[l5])) return 0;
+          if (N6 += L4 <<= 1, 0 > (L4 -= g4[l5])) return 0;
           for (; 0 < g4[l5]; --g4[l5]) {
             if (i6 = new h4(), (w4 & y5) != b5) {
               for (d4 += x6, v6 = 1 << (b5 = l5) - n4; 15 > b5 && !(0 >= (v6 -= g4[b5])); ) ++b5, v6 <<= 1;
@@ -51778,7 +51787,7 @@ function ue(t3) {
       e2(null != t5), e2(null != r3), e2(2147483648 > i5), t5.Ca = 254, t5.I = 0, t5.b = -8, t5.Ka = 0, t5.oa = r3, t5.pa = n3, t5.Jd = r3, t5.Yc = n3 + i5, t5.Zc = 4 <= i5 ? n3 + i5 - 4 + 1 : n3, _3(t5);
     }
     function g3(t5, e3) {
-      for (var r3 = 0; 0 < e3--; ) r3 |= k3(t5, 128) << e3;
+      for (var r3 = 0; 0 < e3--; ) r3 |= k2(t5, 128) << e3;
       return r3;
     }
     function m5(t5, e3) {
@@ -51796,7 +51805,7 @@ function ue(t3) {
     }
     function y4(t5, r3) {
       if (e2(0 <= r3), !t5.h && r3 <= Dr) {
-        var n3 = L4(t5) & Rr[r3];
+        var n3 = L3(t5) & Rr[r3];
         return t5.u += r3, b4(t5), n3;
       }
       return t5.h = 1, t5.u = 0;
@@ -51807,7 +51816,7 @@ function ue(t3) {
     function N5() {
       this.Ra = 0, this.oa = [], this.h = this.u = this.bb = this.Sb = this.pa = 0;
     }
-    function L4(t5) {
+    function L3(t5) {
       return t5.Ra >>> (t5.u & Tr - 1) >>> 0;
     }
     function x5(t5) {
@@ -51825,7 +51834,7 @@ function ue(t3) {
     function P2(t5) {
       return g3(t5, 1);
     }
-    function k3(t5, e3) {
+    function k2(t5, e3) {
       var r3 = t5.Ca;
       0 > t5.b && _3(t5);
       var n3 = t5.b, i5 = r3 * e3 >>> 8, a4 = (t5.I >>> n3 > i5) + 0;
@@ -51877,13 +51886,13 @@ function ue(t3) {
     function T3() {
       this.ud = this.hd = this.jd = 0;
     }
-    function z3(t5, e3) {
+    function z2(t5, e3) {
       return ((4278124286 & (t5 ^ e3)) >>> 1) + (t5 & e3) >>> 0;
     }
     function U3(t5) {
       return 0 <= t5 && 256 > t5 ? t5 : 0 > t5 ? 0 : 255 < t5 ? 255 : void 0;
     }
-    function H3(t5, e3) {
+    function H2(t5, e3) {
       return U3(t5 + (t5 - e3 + 0.5 >> 1));
     }
     function W3(t5, e3, r3) {
@@ -51902,14 +51911,14 @@ function ue(t3) {
     function Y3(t5, e3) {
       e3.jd = 255 & t5, e3.hd = t5 >> 8 & 255, e3.ud = t5 >> 16 & 255;
     }
-    function J3(t5, e3, r3, n3, i5, a4) {
+    function J2(t5, e3, r3, n3, i5, a4) {
       var o4;
       for (o4 = 0; o4 < n3; ++o4) {
         var s4 = e3[r3 + o4], u5 = s4 >>> 8, c6 = s4, l5 = 255 & (l5 = (l5 = s4 >>> 16) + ((t5.jd << 24 >> 24) * (u5 << 24 >> 24) >>> 5));
         c6 = 255 & (c6 = (c6 += (t5.hd << 24 >> 24) * (u5 << 24 >> 24) >>> 5) + ((t5.ud << 24 >> 24) * (l5 << 24 >> 24) >>> 5)), i5[a4 + o4] = (4278255360 & s4) + (l5 << 16) + c6;
       }
     }
-    function X4(e3, r3, n3, i5, a4) {
+    function X3(e3, r3, n3, i5, a4) {
       t4[r3] = function(t5, e4, r4, n4, o4, s4, u5, c6, l5) {
         for (n4 = u5; n4 < c6; ++n4) for (u5 = 0; u5 < l5; ++u5) o4[s4++] = a4(r4[i5(t5[e4++])]);
       }, t4[e3] = function(e4, r4, o4, s4, u5, c6, l5) {
@@ -51921,13 +51930,13 @@ function ue(t3) {
         else t4["VP8LMapColor" + n3](s4, u5, d4, p5, c6, l5, r4, o4, f5);
       };
     }
-    function K3(t5, e3, r3, n3, i5) {
+    function K2(t5, e3, r3, n3, i5) {
       for (r3 = e3 + r3; e3 < r3; ) {
         var a4 = t5[e3++];
         n3[i5++] = a4 >> 16 & 255, n3[i5++] = a4 >> 8 & 255, n3[i5++] = 255 & a4;
       }
     }
-    function Z3(t5, e3, r3, n3, i5) {
+    function Z2(t5, e3, r3, n3, i5) {
       for (r3 = e3 + r3; e3 < r3; ) {
         var a4 = t5[e3++];
         n3[i5++] = a4 >> 16 & 255, n3[i5++] = a4 >> 8 & 255, n3[i5++] = 255 & a4, n3[i5++] = a4 >> 24 & 255;
@@ -51939,7 +51948,7 @@ function ue(t3) {
         n3[i5++] = a4, n3[i5++] = o4;
       }
     }
-    function Q3(t5, e3, r3, n3, i5) {
+    function Q2(t5, e3, r3, n3, i5) {
       for (r3 = e3 + r3; e3 < r3; ) {
         var a4 = (o4 = t5[e3++]) >> 16 & 248 | o4 >> 13 & 7, o4 = o4 >> 5 & 224 | o4 >> 3 & 31;
         n3[i5++] = a4, n3[i5++] = o4;
@@ -51976,7 +51985,7 @@ function ue(t3) {
     function ut3() {
       this.Id = this.fd = this.Md = this.hb = this.ib = this.da = this.bd = this.cd = this.j = this.v = this.Da = this.Sd = this.ob = 0;
     }
-    function ct3(t5) {
+    function ct2(t5) {
       return alert("todo:WebPSamplerProcessPlane"), t5.T;
     }
     function lt3(t5, e3) {
@@ -52002,7 +52011,7 @@ function ue(t3) {
       if (i5 && nt3(r3) && vr(), t5.da) alert("todo:use_scaling");
       else {
         if (n3) {
-          if (e3.Ib = ct3, t5.Kb) {
+          if (e3.Ib = ct2, t5.Kb) {
             if (r3 = t5.U + 1 >> 1, e3.memory = a3(t5.U + 2 * r3), null == e3.memory) return 0;
             e3.ec = e3.memory, e3.fc = 0, e3.cc = e3.ec, e3.dc = e3.fc + t5.U, e3.Mc = e3.cc, e3.Nc = e3.dc + r3, e3.Ib = lt3, vr();
           }
@@ -52020,7 +52029,7 @@ function ue(t3) {
       var r3 = t5.ma, n3 = t5.U, i5 = t5.T;
       return e2(!(1 & t5.ka)), 0 >= n3 || 0 >= i5 ? 0 : (n3 = r3.Ib(t5, r3), null != r3.Jb && r3.Jb(t5, r3, n3), r3.Dc += n3, 1);
     }
-    function pt3(t5) {
+    function pt2(t5) {
       t5.ma.memory = null;
     }
     function gt3(t5, e3, r3, n3) {
@@ -52031,15 +52040,15 @@ function ue(t3) {
       var r3 = t5 - 2 >> 1;
       return (2 + (1 & t5) << r3) + y4(e3, r3) + 1;
     }
-    function vt3(t5, e3) {
+    function vt2(t5, e3) {
       return 120 < e3 ? e3 - 120 : 1 <= (r3 = ((r3 = Zn[e3 - 1]) >> 4) * t5 + (8 - (15 & r3))) ? r3 : 1;
       var r3;
     }
     function bt3(t5, e3, r3) {
-      var n3 = L4(r3), i5 = t5[e3 += 255 & n3].g - 8;
-      return 0 < i5 && (A3(r3, r3.u + 8), n3 = L4(r3), e3 += t5[e3].value, e3 += n3 & (1 << i5) - 1), A3(r3, r3.u + t5[e3].g), t5[e3].value;
+      var n3 = L3(r3), i5 = t5[e3 += 255 & n3].g - 8;
+      return 0 < i5 && (A3(r3, r3.u + 8), n3 = L3(r3), e3 += t5[e3].value, e3 += n3 & (1 << i5) - 1), A3(r3, r3.u + t5[e3].g), t5[e3].value;
     }
-    function yt3(t5, r3, n3) {
+    function yt2(t5, r3, n3) {
       return n3.g += t5.g, n3.value += t5.value << r3 >>> 0, e2(8 >= n3.g), t5.g;
     }
     function wt3(t5, r3, n3) {
@@ -52059,19 +52068,19 @@ function ue(t3) {
           case 0:
             var v6 = f5, b5 = d4, y5 = l5, w4 = c6, N6 = (_4 = h5).Ea;
             0 == v6 && (Hr(p5, g4, null, null, 1, y5, w4), V2(p5, g4 + 1, 0, 0, N6 - 1, y5, w4 + 1), g4 += N6, w4 += N6, ++v6);
-            for (var L5 = 1 << _4.b, x6 = L5 - 1, A4 = E2(N6, _4.b), S4 = _4.K, _4 = _4.w + (v6 >> _4.b) * A4; v6 < b5; ) {
-              var P3 = S4, k4 = _4, F4 = 1;
+            for (var L4 = 1 << _4.b, x6 = L4 - 1, A4 = E2(N6, _4.b), S4 = _4.K, _4 = _4.w + (v6 >> _4.b) * A4; v6 < b5; ) {
+              var P3 = S4, k3 = _4, F4 = 1;
               for (Wr(p5, g4, y5, w4 - N6, 1, y5, w4); F4 < N6; ) {
-                var I3 = (F4 & ~x6) + L5;
-                I3 > N6 && (I3 = N6), (0, Kr[P3[k4++] >> 8 & 15])(p5, g4 + +F4, y5, w4 + F4 - N6, I3 - F4, y5, w4 + F4), F4 = I3;
+                var I3 = (F4 & ~x6) + L4;
+                I3 > N6 && (I3 = N6), (0, Kr[P3[k3++] >> 8 & 15])(p5, g4 + +F4, y5, w4 + F4 - N6, I3 - F4, y5, w4 + F4), F4 = I3;
               }
               g4 += N6, w4 += N6, ++v6 & x6 || (_4 += A4);
             }
             d4 != h5.nc && n2(l5, c6 - m6, l5, c6 + (d4 - f5 - 1) * m6, m6);
             break;
           case 1:
-            for (m6 = p5, b5 = g4, N6 = (p5 = h5.Ea) - (w4 = p5 & ~(y5 = (g4 = 1 << h5.b) - 1)), v6 = E2(p5, h5.b), L5 = h5.K, h5 = h5.w + (f5 >> h5.b) * v6; f5 < d4; ) {
-              for (x6 = L5, A4 = h5, S4 = new T3(), _4 = b5 + w4, P3 = b5 + p5; b5 < _4; ) Y3(x6[A4++], S4), Zr(S4, m6, b5, g4, l5, c6), b5 += g4, c6 += g4;
+            for (m6 = p5, b5 = g4, N6 = (p5 = h5.Ea) - (w4 = p5 & ~(y5 = (g4 = 1 << h5.b) - 1)), v6 = E2(p5, h5.b), L4 = h5.K, h5 = h5.w + (f5 >> h5.b) * v6; f5 < d4; ) {
+              for (x6 = L4, A4 = h5, S4 = new T3(), _4 = b5 + w4, P3 = b5 + p5; b5 < _4; ) Y3(x6[A4++], S4), Zr(S4, m6, b5, g4, l5, c6), b5 += g4, c6 += g4;
               b5 < P3 && (Y3(x6[A4++], S4), Zr(S4, m6, b5, N6, l5, c6), b5 += N6, c6 += N6), ++f5 & y5 || (h5 += v6);
             }
             break;
@@ -52086,7 +52095,7 @@ function ue(t3) {
       }
       l5 != i5 && n2(a4, i5, c6, l5, s4);
     }
-    function Lt3(t5, r3) {
+    function Lt2(t5, r3) {
       var n3 = t5.V, i5 = t5.Ba + t5.c * t5.C, a4 = r3 - t5.C;
       if (e2(r3 <= t5.l.o), e2(16 >= a4), 0 < a4) {
         var o4 = t5.l, s4 = t5.Ta, u5 = t5.Ua, c6 = o4.width;
@@ -52145,7 +52154,7 @@ function ue(t3) {
       }
       t5.C = r3, e2(t5.C <= t5.i);
     }
-    function xt3(t5) {
+    function xt2(t5) {
       var e3;
       if (0 < t5.ua) return 0;
       for (e3 = 0; e3 < t5.Wb; ++e3) {
@@ -52184,8 +52193,8 @@ function ue(t3) {
           }
           if (c6 & b5 || (y5 = wt3(h5, c6, u5)), e2(null != y5), y5.Qb && (r3[f5] = y5.qb, w4 = true), !w4) if (S3(l5), y5.jc) {
             N6 = l5, _4 = r3;
-            var P3 = f5, k4 = y5.pd[L4(N6) & Er - 1];
-            e2(y5.jc), 256 > k4.g ? (A3(N6, N6.u + k4.g), _4[P3] = k4.value, N6 = 0) : (A3(N6, N6.u + k4.g - 256), e2(256 <= k4.value), N6 = k4.value), 0 == N6 && (w4 = true);
+            var P3 = f5, k3 = y5.pd[L3(N6) & Er - 1];
+            e2(y5.jc), 256 > k3.g ? (A3(N6, N6.u + k3.g), _4[P3] = k3.value, N6 = 0) : (A3(N6, N6.u + k3.g - 256), e2(256 <= k3.value), N6 = k3.value), 0 == N6 && (w4 = true);
           } else N6 = bt3(y5.G[0], y5.H[0], l5);
           if (l5.h) break;
           if (w4 || 256 > N6) {
@@ -52196,7 +52205,7 @@ function ue(t3) {
             }
             if (w4 = false, ++f5, ++c6 >= i5 && (c6 = 0, ++u5, null != s4 && u5 <= o4 && !(u5 % 16) && s4(t5, u5), null != v6)) for (; d4 < f5; ) N6 = r3[d4++], v6.X[(506832829 * N6 & 4294967295) >>> v6.Mb] = N6;
           } else if (280 > N6) {
-            if (N6 = mt3(N6 - 256, l5), _4 = bt3(y5.G[4], y5.H[4], l5), S3(l5), _4 = vt3(i5, _4 = mt3(_4, l5)), l5.h) break;
+            if (N6 = mt3(N6 - 256, l5), _4 = bt3(y5.G[4], y5.H[4], l5), S3(l5), _4 = vt2(i5, _4 = mt3(_4, l5)), l5.h) break;
             if (f5 - n3 < _4 || a4 - f5 < N6) break t;
             for (P3 = 0; P3 < N6; ++P3) r3[f5 + P3] = r3[f5 + P3 - _4];
             for (f5 += N6, c6 += N6; c6 >= i5; ) c6 -= i5, ++u5, null != s4 && u5 <= o4 && !(u5 % 16) && s4(t5, u5);
@@ -52222,30 +52231,30 @@ function ue(t3) {
       var r3 = t5.Wa;
       null != r3 && (r3.X = null), t5.vb = null, e2(null != t5);
     }
-    function kt3() {
+    function kt2() {
       var e3 = new ar();
-      return null == e3 ? null : (e3.a = 0, e3.xb = pi, rt3("Predictor", "VP8LPredictors"), rt3("Predictor", "VP8LPredictors_C"), rt3("PredictorAdd", "VP8LPredictorsAdd"), rt3("PredictorAdd", "VP8LPredictorsAdd_C"), Vr = G3, Zr = J3, $r = K3, Qr = Z3, tn2 = $3, en2 = Q3, rn2 = tt3, t4.VP8LMapColor32b = Yr, t4.VP8LMapColor8b = Xr, e3);
+      return null == e3 ? null : (e3.a = 0, e3.xb = pi, rt3("Predictor", "VP8LPredictors"), rt3("Predictor", "VP8LPredictors_C"), rt3("PredictorAdd", "VP8LPredictorsAdd"), rt3("PredictorAdd", "VP8LPredictorsAdd_C"), Vr = G3, Zr = J2, $r = K2, Qr = Z2, tn2 = $3, en2 = Q2, rn2 = tt3, t4.VP8LMapColor32b = Yr, t4.VP8LMapColor8b = Xr, e3);
     }
-    function Ft3(t5, r3, n3, s4, u5) {
+    function Ft2(t5, r3, n3, s4, u5) {
       var c6 = 1, f5 = [t5], p5 = [r3], g4 = s4.m, m6 = s4.s, v6 = null, b5 = 0;
       t: for (; ; ) {
         if (n3) for (; c6 && y4(g4, 1); ) {
-          var w4 = f5, N6 = p5, x6 = s4, _4 = 1, P3 = x6.m, k4 = x6.gc[x6.ab], F4 = y4(P3, 2);
+          var w4 = f5, N6 = p5, x6 = s4, _4 = 1, P3 = x6.m, k3 = x6.gc[x6.ab], F4 = y4(P3, 2);
           if (x6.Oc & 1 << F4) c6 = 0;
           else {
-            switch (x6.Oc |= 1 << F4, k4.hc = F4, k4.Ea = w4[0], k4.nc = N6[0], k4.K = [null], ++x6.ab, e2(4 >= x6.ab), F4) {
+            switch (x6.Oc |= 1 << F4, k3.hc = F4, k3.Ea = w4[0], k3.nc = N6[0], k3.K = [null], ++x6.ab, e2(4 >= x6.ab), F4) {
               case 0:
               case 1:
-                k4.b = y4(P3, 3) + 2, _4 = Ft3(E2(k4.Ea, k4.b), E2(k4.nc, k4.b), 0, x6, k4.K), k4.K = k4.K[0];
+                k3.b = y4(P3, 3) + 2, _4 = Ft2(E2(k3.Ea, k3.b), E2(k3.nc, k3.b), 0, x6, k3.K), k3.K = k3.K[0];
                 break;
               case 3:
                 var I3, C4 = y4(P3, 8) + 1, j4 = 16 < C4 ? 0 : 4 < C4 ? 1 : 2 < C4 ? 2 : 3;
-                if (w4[0] = E2(k4.Ea, j4), k4.b = j4, I3 = _4 = Ft3(C4, 1, 0, x6, k4.K)) {
-                  var B4, M4 = C4, q4 = k4, D4 = 1 << (8 >> q4.b), T4 = a3(D4);
+                if (w4[0] = E2(k3.Ea, j4), k3.b = j4, I3 = _4 = Ft2(C4, 1, 0, x6, k3.K)) {
+                  var B4, M4 = C4, q4 = k3, D4 = 1 << (8 >> q4.b), T4 = a3(D4);
                   if (null == T4) I3 = 0;
                   else {
-                    var z4 = q4.K[0], U4 = q4.w;
-                    for (T4[0] = q4.K[0][0], B4 = 1; B4 < 1 * M4; ++B4) T4[B4] = R2(z4[U4 + B4], T4[B4 - 1]);
+                    var z3 = q4.K[0], U4 = q4.w;
+                    for (T4[0] = q4.K[0][0], B4 = 1; B4 < 1 * M4; ++B4) T4[B4] = R2(z3[U4 + B4], T4[B4 - 1]);
                     for (; B4 < 4 * D4; ++B4) T4[B4] = 0;
                     q4.K[0] = null, q4.K[0] = T4, I3 = 1;
                   }
@@ -52264,51 +52273,51 @@ function ue(t3) {
           s4.a = 3;
           break t;
         }
-        var H4;
-        if (H4 = c6) e: {
-          var W4, V3, G4, Y4 = s4, J4 = f5, X5 = p5, K4 = b5, Z4 = n3, $4 = Y4.m, Q4 = Y4.s, tt4 = [null], et5 = 1, rt4 = 0, nt4 = $n[K4];
+        var H3;
+        if (H3 = c6) e: {
+          var W4, V3, G4, Y4 = s4, J3 = f5, X4 = p5, K3 = b5, Z3 = n3, $4 = Y4.m, Q3 = Y4.s, tt4 = [null], et5 = 1, rt4 = 0, nt4 = $n[K3];
           r: for (; ; ) {
-            if (Z4 && y4($4, 1)) {
-              var it4 = y4($4, 3) + 2, at4 = E2(J4, it4), ot4 = E2(X5, it4), st4 = at4 * ot4;
-              if (!Ft3(at4, ot4, 0, Y4, tt4)) break r;
-              for (tt4 = tt4[0], Q4.xc = it4, W4 = 0; W4 < st4; ++W4) {
+            if (Z3 && y4($4, 1)) {
+              var it4 = y4($4, 3) + 2, at4 = E2(J3, it4), ot4 = E2(X4, it4), st4 = at4 * ot4;
+              if (!Ft2(at4, ot4, 0, Y4, tt4)) break r;
+              for (tt4 = tt4[0], Q3.xc = it4, W4 = 0; W4 < st4; ++W4) {
                 var ut4 = tt4[W4] >> 8 & 65535;
                 tt4[W4] = ut4, ut4 >= et5 && (et5 = ut4 + 1);
               }
             }
             if ($4.h) break r;
             for (V3 = 0; 5 > V3; ++V3) {
-              var ct4 = Jn[V3];
-              !V3 && 0 < K4 && (ct4 += 1 << K4), rt4 < ct4 && (rt4 = ct4);
+              var ct3 = Jn[V3];
+              !V3 && 0 < K3 && (ct3 += 1 << K3), rt4 < ct3 && (rt4 = ct3);
             }
             var lt4 = o3(et5 * nt4, h4), ht4 = et5, ft4 = o3(ht4, d3);
             if (null == ft4) var dt4 = null;
             else e2(65536 >= ht4), dt4 = ft4;
-            var pt4 = a3(rt4);
-            if (null == dt4 || null == pt4 || null == lt4) {
+            var pt3 = a3(rt4);
+            if (null == dt4 || null == pt3 || null == lt4) {
               Y4.a = 1;
               break r;
             }
             var gt4 = lt4;
             for (W4 = G4 = 0; W4 < et5; ++W4) {
-              var mt4 = dt4[W4], vt4 = mt4.G, bt4 = mt4.H, wt4 = 0, Nt4 = 1, Lt4 = 0;
+              var mt4 = dt4[W4], vt3 = mt4.G, bt4 = mt4.H, wt4 = 0, Nt4 = 1, Lt3 = 0;
               for (V3 = 0; 5 > V3; ++V3) {
-                ct4 = Jn[V3], vt4[V3] = gt4, bt4[V3] = G4, !V3 && 0 < K4 && (ct4 += 1 << K4);
+                ct3 = Jn[V3], vt3[V3] = gt4, bt4[V3] = G4, !V3 && 0 < K3 && (ct3 += 1 << K3);
                 n: {
-                  var xt4, At4 = ct4, St4 = Y4, kt4 = pt4, It4 = gt4, Ct4 = G4, jt4 = 0, Ot4 = St4.m, Bt4 = y4(Ot4, 1);
-                  if (i4(kt4, 0, 0, At4), Bt4) {
-                    var Mt4 = y4(Ot4, 1) + 1, qt4 = y4(Ot4, 1), Et4 = y4(Ot4, 0 == qt4 ? 1 : 8);
-                    kt4[Et4] = 1, 2 == Mt4 && (kt4[Et4 = y4(Ot4, 8)] = 1);
+                  var xt3, At4 = ct3, St4 = Y4, kt3 = pt3, It4 = gt4, Ct4 = G4, jt4 = 0, Ot3 = St4.m, Bt4 = y4(Ot3, 1);
+                  if (i4(kt3, 0, 0, At4), Bt4) {
+                    var Mt3 = y4(Ot3, 1) + 1, qt3 = y4(Ot3, 1), Et4 = y4(Ot3, 0 == qt3 ? 1 : 8);
+                    kt3[Et4] = 1, 2 == Mt3 && (kt3[Et4 = y4(Ot3, 8)] = 1);
                     var Rt4 = 1;
                   } else {
-                    var Dt4 = a3(19), Tt4 = y4(Ot4, 4) + 4;
+                    var Dt4 = a3(19), Tt4 = y4(Ot3, 4) + 4;
                     if (19 < Tt4) {
                       St4.a = 3;
                       var zt4 = 0;
                       break n;
                     }
-                    for (xt4 = 0; xt4 < Tt4; ++xt4) Dt4[Kn[xt4]] = y4(Ot4, 3);
-                    var Ut5 = void 0, Ht5 = void 0, Wt4 = St4, Vt4 = Dt4, Gt4 = At4, Yt4 = kt4, Jt4 = 0, Xt4 = Wt4.m, Kt4 = 8, Zt4 = o3(128, h4);
+                    for (xt3 = 0; xt3 < Tt4; ++xt3) Dt4[Kn[xt3]] = y4(Ot3, 3);
+                    var Ut5 = void 0, Ht5 = void 0, Wt4 = St4, Vt4 = Dt4, Gt4 = At4, Yt4 = kt3, Jt4 = 0, Xt4 = Wt4.m, Kt3 = 8, Zt4 = o3(128, h4);
                     i: for (; l4(Zt4, 0, 7, Vt4, 19); ) {
                       if (y4(Xt4, 1)) {
                         var $t4 = 2 + 2 * y4(Xt4, 3);
@@ -52316,14 +52325,14 @@ function ue(t3) {
                       } else Ut5 = Gt4;
                       for (Ht5 = 0; Ht5 < Gt4 && Ut5--; ) {
                         S3(Xt4);
-                        var Qt4 = Zt4[0 + (127 & L4(Xt4))];
+                        var Qt4 = Zt4[0 + (127 & L3(Xt4))];
                         A3(Xt4, Xt4.u + Qt4.g);
-                        var te4 = Qt4.value;
-                        if (16 > te4) Yt4[Ht5++] = te4, 0 != te4 && (Kt4 = te4);
+                        var te3 = Qt4.value;
+                        if (16 > te3) Yt4[Ht5++] = te3, 0 != te3 && (Kt3 = te3);
                         else {
-                          var ee4 = 16 == te4, re4 = te4 - 16, ne4 = Yn[re4], ie4 = y4(Xt4, Gn[re4]) + ne4;
-                          if (Ht5 + ie4 > Gt4) break i;
-                          for (var ae4 = ee4 ? Kt4 : 0; 0 < ie4--; ) Yt4[Ht5++] = ae4;
+                          var ee4 = 16 == te3, re3 = te3 - 16, ne3 = Yn[re3], ie3 = y4(Xt4, Gn[re3]) + ne3;
+                          if (Ht5 + ie3 > Gt4) break i;
+                          for (var ae4 = ee4 ? Kt3 : 0; 0 < ie3--; ) Yt4[Ht5++] = ae4;
                         }
                       }
                       Jt4 = 1;
@@ -52331,29 +52340,29 @@ function ue(t3) {
                     }
                     Jt4 || (Wt4.a = 3), Rt4 = Jt4;
                   }
-                  (Rt4 = Rt4 && !Ot4.h) && (jt4 = l4(It4, Ct4, 8, kt4, At4)), Rt4 && 0 != jt4 ? zt4 = jt4 : (St4.a = 3, zt4 = 0);
+                  (Rt4 = Rt4 && !Ot3.h) && (jt4 = l4(It4, Ct4, 8, kt3, At4)), Rt4 && 0 != jt4 ? zt4 = jt4 : (St4.a = 3, zt4 = 0);
                 }
                 if (0 == zt4) break r;
                 if (Nt4 && 1 == Xn[V3] && (Nt4 = 0 == gt4[G4].g), wt4 += gt4[G4].g, G4 += zt4, 3 >= V3) {
-                  var oe4, se4 = pt4[0];
-                  for (oe4 = 1; oe4 < ct4; ++oe4) pt4[oe4] > se4 && (se4 = pt4[oe4]);
-                  Lt4 += se4;
+                  var oe4, se3 = pt3[0];
+                  for (oe4 = 1; oe4 < ct3; ++oe4) pt3[oe4] > se3 && (se3 = pt3[oe4]);
+                  Lt3 += se3;
                 }
               }
-              if (mt4.nd = Nt4, mt4.Qb = 0, Nt4 && (mt4.qb = (vt4[3][bt4[3] + 0].value << 24 | vt4[1][bt4[1] + 0].value << 16 | vt4[2][bt4[2] + 0].value) >>> 0, 0 == wt4 && 256 > vt4[0][bt4[0] + 0].value && (mt4.Qb = 1, mt4.qb += vt4[0][bt4[0] + 0].value << 8)), mt4.jc = !mt4.Qb && 6 > Lt4, mt4.jc) {
-                var ue4, ce4 = mt4;
-                for (ue4 = 0; ue4 < Er; ++ue4) {
-                  var le4 = ue4, he4 = ce4.pd[le4], fe4 = ce4.G[0][ce4.H[0] + le4];
-                  256 <= fe4.value ? (he4.g = fe4.g + 256, he4.value = fe4.value) : (he4.g = 0, he4.value = 0, le4 >>= yt3(fe4, 8, he4), le4 >>= yt3(ce4.G[1][ce4.H[1] + le4], 16, he4), le4 >>= yt3(ce4.G[2][ce4.H[2] + le4], 0, he4), yt3(ce4.G[3][ce4.H[3] + le4], 24, he4));
+              if (mt4.nd = Nt4, mt4.Qb = 0, Nt4 && (mt4.qb = (vt3[3][bt4[3] + 0].value << 24 | vt3[1][bt4[1] + 0].value << 16 | vt3[2][bt4[2] + 0].value) >>> 0, 0 == wt4 && 256 > vt3[0][bt4[0] + 0].value && (mt4.Qb = 1, mt4.qb += vt3[0][bt4[0] + 0].value << 8)), mt4.jc = !mt4.Qb && 6 > Lt3, mt4.jc) {
+                var ue3, ce3 = mt4;
+                for (ue3 = 0; ue3 < Er; ++ue3) {
+                  var le4 = ue3, he3 = ce3.pd[le4], fe3 = ce3.G[0][ce3.H[0] + le4];
+                  256 <= fe3.value ? (he3.g = fe3.g + 256, he3.value = fe3.value) : (he3.g = 0, he3.value = 0, le4 >>= yt2(fe3, 8, he3), le4 >>= yt2(ce3.G[1][ce3.H[1] + le4], 16, he3), le4 >>= yt2(ce3.G[2][ce3.H[2] + le4], 0, he3), yt2(ce3.G[3][ce3.H[3] + le4], 24, he3));
                 }
               }
             }
-            Q4.vc = tt4, Q4.Wb = et5, Q4.Ya = dt4, Q4.yc = lt4, H4 = 1;
+            Q3.vc = tt4, Q3.Wb = et5, Q3.Ya = dt4, Q3.yc = lt4, H3 = 1;
             break e;
           }
-          H4 = 0;
+          H3 = 0;
         }
-        if (!(c6 = H4)) {
+        if (!(c6 = H3)) {
           s4.a = 3;
           break t;
         }
@@ -52363,8 +52372,8 @@ function ue(t3) {
             break t;
           }
         } else m6.ua = 0;
-        var de4 = s4, pe4 = f5, ge4 = p5, me4 = de4.s, ve4 = me4.xc;
-        if (de4.c = pe4, de4.i = ge4, me4.md = E2(pe4, ve4), me4.wc = 0 == ve4 ? -1 : (1 << ve4) - 1, n3) {
+        var de3 = s4, pe3 = f5, ge4 = p5, me4 = de3.s, ve3 = me4.xc;
+        if (de3.c = pe3, de3.i = ge4, me4.md = E2(pe3, ve3), me4.wc = 0 == ve3 ? -1 : (1 << ve3) - 1, n3) {
           s4.xb = di;
           break t;
         }
@@ -52392,13 +52401,13 @@ function ue(t3) {
     function jt3() {
       this.ub = this.yd = this.td = this.Rb = 0;
     }
-    function Ot3() {
+    function Ot2() {
       this.Kd = this.Ld = this.Ud = this.Td = this.i = this.c = 0;
     }
     function Bt3() {
       this.Fb = this.Bb = this.Cb = 0, this.Zb = a3(4), this.Lb = a3(4);
     }
-    function Mt3() {
+    function Mt2() {
       this.Yb = (function() {
         var t5 = [];
         return (function t6(e3, r3, n3) {
@@ -52406,8 +52415,8 @@ function ue(t3) {
         })(t5, 0, [3, 11]), t5;
       })();
     }
-    function qt3() {
-      this.jb = a3(3), this.Wc = s3([4, 8], Mt3), this.Xc = s3([4, 17], Mt3);
+    function qt2() {
+      this.jb = a3(3), this.Wc = s3([4, 8], Mt2), this.Xc = s3([4, 17], Mt2);
     }
     function Et3() {
       this.Pc = this.wb = this.Tb = this.zd = 0, this.vd = new a3(4), this.od = new a3(4);
@@ -52431,7 +52440,7 @@ function ue(t3) {
       this.y = a3(16), this.f = a3(8), this.ea = a3(8);
     }
     function Wt3() {
-      this.cb = this.a = 0, this.sc = "", this.m = new w3(), this.Od = new jt3(), this.Kc = new Ot3(), this.ed = new Et3(), this.Qa = new Bt3(), this.Ic = this.$c = this.Aa = 0, this.D = new Ut4(), this.Xb = this.Va = this.Hb = this.zb = this.yb = this.Ub = this.za = 0, this.Jc = o3(8, w3), this.ia = 0, this.pb = o3(4, Tt3), this.Pa = new qt3(), this.Bd = this.kc = 0, this.Ac = [], this.Bc = 0, this.zc = [0, 0, 0, 0], this.Gd = Array(new Ht4()), this.Hd = 0, this.rb = Array(new Dt3()), this.sb = 0, this.wa = Array(new Rt3()), this.Y = 0, this.oc = [], this.pc = 0, this.sa = [], this.ta = 0, this.qa = [], this.ra = 0, this.Ha = [], this.B = this.R = this.Ia = 0, this.Ec = [], this.M = this.ja = this.Vb = this.Fc = 0, this.ya = Array(new zt3()), this.L = this.aa = 0, this.gd = s3([4, 2], Rt3), this.ga = null, this.Fa = [], this.Cc = this.qc = this.P = 0, this.Gb = [], this.Uc = 0, this.mb = [], this.nb = 0, this.rc = [], this.Ga = this.Vc = 0;
+      this.cb = this.a = 0, this.sc = "", this.m = new w3(), this.Od = new jt3(), this.Kc = new Ot2(), this.ed = new Et3(), this.Qa = new Bt3(), this.Ic = this.$c = this.Aa = 0, this.D = new Ut4(), this.Xb = this.Va = this.Hb = this.zb = this.yb = this.Ub = this.za = 0, this.Jc = o3(8, w3), this.ia = 0, this.pb = o3(4, Tt3), this.Pa = new qt2(), this.Bd = this.kc = 0, this.Ac = [], this.Bc = 0, this.zc = [0, 0, 0, 0], this.Gd = Array(new Ht4()), this.Hd = 0, this.rb = Array(new Dt3()), this.sb = 0, this.wa = Array(new Rt3()), this.Y = 0, this.oc = [], this.pc = 0, this.sa = [], this.ta = 0, this.qa = [], this.ra = 0, this.Ha = [], this.B = this.R = this.Ia = 0, this.Ec = [], this.M = this.ja = this.Vb = this.Fc = 0, this.ya = Array(new zt3()), this.L = this.aa = 0, this.gd = s3([4, 2], Rt3), this.ga = null, this.Fa = [], this.Cc = this.qc = this.P = 0, this.Gb = [], this.Uc = 0, this.mb = [], this.nb = 0, this.rc = [], this.Ga = this.Vc = 0;
     }
     function Vt3(t5, e3) {
       return 0 > t5 ? 0 : t5 > e3 ? e3 : t5;
@@ -52449,7 +52458,7 @@ function ue(t3) {
     function Xt3(t5, e3, r3) {
       return 3 <= r3 && 157 == t5[e3 + 0] && 1 == t5[e3 + 1] && 42 == t5[e3 + 2];
     }
-    function Kt3(t5, r3) {
+    function Kt2(t5, r3) {
       if (null == t5) return 0;
       if (t5.a = 0, t5.sc = "OK", null == r3) return Jt3(t5, 2, "null VP8Io passed to VP8GetHeaders()");
       var n3 = r3.data, a4 = r3.w, o4 = r3.ha;
@@ -52506,7 +52515,7 @@ function ue(t3) {
       }
       if (!u5.Rb) return Jt3(t5, 4, "Not a key frame.");
       for (P2(s4), u5 = t5.Pa, n3 = 0; 4 > n3; ++n3) {
-        for (o4 = 0; 8 > o4; ++o4) for (a4 = 0; 3 > a4; ++a4) for (c6 = 0; 11 > c6; ++c6) h5 = k3(s4, ui[n3][o4][a4][c6]) ? g3(s4, 8) : oi[n3][o4][a4][c6], u5.Wc[n3][o4].Yb[a4][c6] = h5;
+        for (o4 = 0; 8 > o4; ++o4) for (a4 = 0; 3 > a4; ++a4) for (c6 = 0; 11 > c6; ++c6) h5 = k2(s4, ui[n3][o4][a4][c6]) ? g3(s4, 8) : oi[n3][o4][a4][c6], u5.Wc[n3][o4].Yb[a4][c6] = h5;
         for (o4 = 0; 17 > o4; ++o4) u5.Xc[n3][o4] = u5.Wc[n3][ci[o4]];
       }
       return t5.kc = P2(s4), t5.kc && (t5.Bd = g3(s4, 8)), t5.cb = 1;
@@ -52514,16 +52523,16 @@ function ue(t3) {
     function Zt3(t5, e3, r3, n3, i5, a4, o4) {
       var s4 = e3[i5].Yb[r3];
       for (r3 = 0; 16 > i5; ++i5) {
-        if (!k3(t5, s4[r3 + 0])) return i5;
-        for (; !k3(t5, s4[r3 + 1]); ) if (s4 = e3[++i5].Yb[0], r3 = 0, 16 == i5) return 16;
+        if (!k2(t5, s4[r3 + 0])) return i5;
+        for (; !k2(t5, s4[r3 + 1]); ) if (s4 = e3[++i5].Yb[0], r3 = 0, 16 == i5) return 16;
         var u5 = e3[i5 + 1].Yb;
-        if (k3(t5, s4[r3 + 2])) {
+        if (k2(t5, s4[r3 + 2])) {
           var c6 = t5, l5 = 0;
-          if (k3(c6, (f5 = s4)[(h5 = r3) + 3])) if (k3(c6, f5[h5 + 6])) {
-            for (s4 = 0, h5 = 2 * (l5 = k3(c6, f5[h5 + 8])) + (f5 = k3(c6, f5[h5 + 9 + l5])), l5 = 0, f5 = ni[h5]; f5[s4]; ++s4) l5 += l5 + k3(c6, f5[s4]);
+          if (k2(c6, (f5 = s4)[(h5 = r3) + 3])) if (k2(c6, f5[h5 + 6])) {
+            for (s4 = 0, h5 = 2 * (l5 = k2(c6, f5[h5 + 8])) + (f5 = k2(c6, f5[h5 + 9 + l5])), l5 = 0, f5 = ni[h5]; f5[s4]; ++s4) l5 += l5 + k2(c6, f5[s4]);
             l5 += 3 + (8 << h5);
-          } else k3(c6, f5[h5 + 7]) ? (l5 = 7 + 2 * k3(c6, 165), l5 += k3(c6, 145)) : l5 = 5 + k3(c6, 159);
-          else l5 = k3(c6, f5[h5 + 4]) ? 3 + k3(c6, f5[h5 + 5]) : 2;
+          } else k2(c6, f5[h5 + 7]) ? (l5 = 7 + 2 * k2(c6, 165), l5 += k2(c6, 145)) : l5 = 5 + k2(c6, 159);
+          else l5 = k2(c6, f5[h5 + 4]) ? 3 + k2(c6, f5[h5 + 5]) : 2;
           s4 = u5[2];
         } else l5 = 1, s4 = u5[1];
         u5 = o4 + ii[i5], 0 > (c6 = t5).b && _3(c6);
@@ -52539,13 +52548,13 @@ function ue(t3) {
     function Qt3(t5, e3, r3, n3, i5) {
       i5 = t5[e3 + r3 + 32 * n3] + (i5 >> 3), t5[e3 + r3 + 32 * n3] = -256 & i5 ? 0 > i5 ? 0 : 255 : i5;
     }
-    function te3(t5, e3, r3, n3, i5, a4) {
+    function te2(t5, e3, r3, n3, i5, a4) {
       Qt3(t5, e3, 0, r3, n3 + i5), Qt3(t5, e3, 1, r3, n3 + a4), Qt3(t5, e3, 2, r3, n3 - a4), Qt3(t5, e3, 3, r3, n3 - i5);
     }
     function ee3(t5) {
       return (20091 * t5 >> 16) + t5;
     }
-    function re3(t5, e3, r3, n3) {
+    function re2(t5, e3, r3, n3) {
       var i5, o4 = 0, s4 = a3(16);
       for (i5 = 0; 4 > i5; ++i5) {
         var u5 = t5[e3 + 0] + t5[e3 + 8], c6 = t5[e3 + 0] - t5[e3 + 8], l5 = (35468 * t5[e3 + 4] >> 16) - ee3(t5[e3 + 12]), h5 = ee3(t5[e3 + 4]) + (35468 * t5[e3 + 12] >> 16);
@@ -52553,12 +52562,12 @@ function ue(t3) {
       }
       for (i5 = o4 = 0; 4 > i5; ++i5) u5 = (t5 = s4[o4 + 0] + 4) + s4[o4 + 8], c6 = t5 - s4[o4 + 8], l5 = (35468 * s4[o4 + 4] >> 16) - ee3(s4[o4 + 12]), Qt3(r3, n3, 0, 0, u5 + (h5 = ee3(s4[o4 + 4]) + (35468 * s4[o4 + 12] >> 16))), Qt3(r3, n3, 1, 0, c6 + l5), Qt3(r3, n3, 2, 0, c6 - l5), Qt3(r3, n3, 3, 0, u5 - h5), o4++, n3 += 32;
     }
-    function ne3(t5, e3, r3, n3) {
+    function ne2(t5, e3, r3, n3) {
       var i5 = t5[e3 + 0] + 4, a4 = 35468 * t5[e3 + 4] >> 16, o4 = ee3(t5[e3 + 4]), s4 = 35468 * t5[e3 + 1] >> 16;
-      te3(r3, n3, 0, i5 + o4, t5 = ee3(t5[e3 + 1]), s4), te3(r3, n3, 1, i5 + a4, t5, s4), te3(r3, n3, 2, i5 - a4, t5, s4), te3(r3, n3, 3, i5 - o4, t5, s4);
+      te2(r3, n3, 0, i5 + o4, t5 = ee3(t5[e3 + 1]), s4), te2(r3, n3, 1, i5 + a4, t5, s4), te2(r3, n3, 2, i5 - a4, t5, s4), te2(r3, n3, 3, i5 - o4, t5, s4);
     }
-    function ie3(t5, e3, r3, n3, i5) {
-      re3(t5, e3, r3, n3), i5 && re3(t5, e3 + 16, r3, n3 + 4);
+    function ie2(t5, e3, r3, n3, i5) {
+      re2(t5, e3, r3, n3), i5 && re2(t5, e3 + 16, r3, n3 + 4);
     }
     function ae3(t5, e3, r3, n3) {
       an(t5, e3 + 0, r3, n3, 1), an(t5, e3 + 32, r3, n3 + 128, 1);
@@ -52567,10 +52576,10 @@ function ue(t3) {
       var i5;
       for (t5 = t5[e3 + 0] + 4, i5 = 0; 4 > i5; ++i5) for (e3 = 0; 4 > e3; ++e3) Qt3(r3, n3, e3, i5, t5);
     }
-    function se3(t5, e3, r3, n3) {
+    function se2(t5, e3, r3, n3) {
       t5[e3 + 0] && un(t5, e3 + 0, r3, n3), t5[e3 + 16] && un(t5, e3 + 16, r3, n3 + 4), t5[e3 + 32] && un(t5, e3 + 32, r3, n3 + 128), t5[e3 + 48] && un(t5, e3 + 48, r3, n3 + 128 + 4);
     }
-    function ue3(t5, e3, r3, n3) {
+    function ue2(t5, e3, r3, n3) {
       var i5, o4 = a3(16);
       for (i5 = 0; 4 > i5; ++i5) {
         var s4 = t5[e3 + 0 + i5] + t5[e3 + 12 + i5], u5 = t5[e3 + 4 + i5] + t5[e3 + 8 + i5], c6 = t5[e3 + 4 + i5] - t5[e3 + 8 + i5], l5 = t5[e3 + 0 + i5] - t5[e3 + 12 + i5];
@@ -52578,7 +52587,7 @@ function ue(t3) {
       }
       for (i5 = 0; 4 > i5; ++i5) s4 = (t5 = o4[0 + 4 * i5] + 3) + o4[3 + 4 * i5], u5 = o4[1 + 4 * i5] + o4[2 + 4 * i5], c6 = o4[1 + 4 * i5] - o4[2 + 4 * i5], l5 = t5 - o4[3 + 4 * i5], r3[n3 + 0] = s4 + u5 >> 3, r3[n3 + 16] = l5 + c6 >> 3, r3[n3 + 32] = s4 - u5 >> 3, r3[n3 + 48] = l5 - c6 >> 3, n3 += 64;
     }
-    function ce3(t5, e3, r3) {
+    function ce2(t5, e3, r3) {
       var n3, i5 = e3 - 32, a4 = On, o4 = 255 - t5[i5 - 1];
       for (n3 = 0; n3 < r3; ++n3) {
         var s4, u5 = a4, c6 = o4 + t5[e3 - 1];
@@ -52587,19 +52596,19 @@ function ue(t3) {
       }
     }
     function le3(t5, e3) {
-      ce3(t5, e3, 4);
+      ce2(t5, e3, 4);
     }
-    function he3(t5, e3) {
-      ce3(t5, e3, 8);
+    function he2(t5, e3) {
+      ce2(t5, e3, 8);
     }
-    function fe3(t5, e3) {
-      ce3(t5, e3, 16);
+    function fe2(t5, e3) {
+      ce2(t5, e3, 16);
     }
-    function de3(t5, e3) {
+    function de2(t5, e3) {
       var r3;
       for (r3 = 0; 16 > r3; ++r3) n2(t5, e3 + 32 * r3, t5, e3 - 32, 16);
     }
-    function pe3(t5, e3) {
+    function pe2(t5, e3) {
       var r3;
       for (r3 = 16; 0 < r3; --r3) i4(t5, e3, t5[e3 - 1], 16), e3 += 32;
     }
@@ -52612,12 +52621,12 @@ function ue(t3) {
       for (r3 = 0; 16 > r3; ++r3) n3 += t5[e3 - 1 + 32 * r3] + t5[e3 + r3 - 32];
       ge3(n3 >> 5, t5, e3);
     }
-    function ve3(t5, e3) {
+    function ve2(t5, e3) {
       var r3, n3 = 8;
       for (r3 = 0; 16 > r3; ++r3) n3 += t5[e3 - 1 + 32 * r3];
       ge3(n3 >> 4, t5, e3);
     }
-    function be3(t5, e3) {
+    function be2(t5, e3) {
       var r3, n3 = 8;
       for (r3 = 0; 16 > r3; ++r3) n3 += t5[e3 + r3 - 32];
       ge3(n3 >> 4, t5, e3);
@@ -52625,51 +52634,51 @@ function ue(t3) {
     function ye3(t5, e3) {
       ge3(128, t5, e3);
     }
-    function we3(t5, e3, r3) {
+    function we2(t5, e3, r3) {
       return t5 + 2 * e3 + r3 + 2 >> 2;
     }
-    function Ne3(t5, e3) {
+    function Ne2(t5, e3) {
       var r3, i5 = e3 - 32;
-      for (i5 = new Uint8Array([we3(t5[i5 - 1], t5[i5 + 0], t5[i5 + 1]), we3(t5[i5 + 0], t5[i5 + 1], t5[i5 + 2]), we3(t5[i5 + 1], t5[i5 + 2], t5[i5 + 3]), we3(t5[i5 + 2], t5[i5 + 3], t5[i5 + 4])]), r3 = 0; 4 > r3; ++r3) n2(t5, e3 + 32 * r3, i5, 0, i5.length);
+      for (i5 = new Uint8Array([we2(t5[i5 - 1], t5[i5 + 0], t5[i5 + 1]), we2(t5[i5 + 0], t5[i5 + 1], t5[i5 + 2]), we2(t5[i5 + 1], t5[i5 + 2], t5[i5 + 3]), we2(t5[i5 + 2], t5[i5 + 3], t5[i5 + 4])]), r3 = 0; 4 > r3; ++r3) n2(t5, e3 + 32 * r3, i5, 0, i5.length);
     }
-    function Le3(t5, e3) {
+    function Le2(t5, e3) {
       var r3 = t5[e3 - 1], n3 = t5[e3 - 1 + 32], i5 = t5[e3 - 1 + 64], a4 = t5[e3 - 1 + 96];
-      F3(t5, e3 + 0, 16843009 * we3(t5[e3 - 1 - 32], r3, n3)), F3(t5, e3 + 32, 16843009 * we3(r3, n3, i5)), F3(t5, e3 + 64, 16843009 * we3(n3, i5, a4)), F3(t5, e3 + 96, 16843009 * we3(i5, a4, a4));
+      F3(t5, e3 + 0, 16843009 * we2(t5[e3 - 1 - 32], r3, n3)), F3(t5, e3 + 32, 16843009 * we2(r3, n3, i5)), F3(t5, e3 + 64, 16843009 * we2(n3, i5, a4)), F3(t5, e3 + 96, 16843009 * we2(i5, a4, a4));
     }
-    function xe3(t5, e3) {
+    function xe2(t5, e3) {
       var r3, n3 = 4;
       for (r3 = 0; 4 > r3; ++r3) n3 += t5[e3 + r3 - 32] + t5[e3 - 1 + 32 * r3];
       for (n3 >>= 3, r3 = 0; 4 > r3; ++r3) i4(t5, e3 + 32 * r3, n3, 4);
     }
-    function Ae3(t5, e3) {
+    function Ae2(t5, e3) {
       var r3 = t5[e3 - 1 + 0], n3 = t5[e3 - 1 + 32], i5 = t5[e3 - 1 + 64], a4 = t5[e3 - 1 - 32], o4 = t5[e3 + 0 - 32], s4 = t5[e3 + 1 - 32], u5 = t5[e3 + 2 - 32], c6 = t5[e3 + 3 - 32];
-      t5[e3 + 0 + 96] = we3(n3, i5, t5[e3 - 1 + 96]), t5[e3 + 1 + 96] = t5[e3 + 0 + 64] = we3(r3, n3, i5), t5[e3 + 2 + 96] = t5[e3 + 1 + 64] = t5[e3 + 0 + 32] = we3(a4, r3, n3), t5[e3 + 3 + 96] = t5[e3 + 2 + 64] = t5[e3 + 1 + 32] = t5[e3 + 0 + 0] = we3(o4, a4, r3), t5[e3 + 3 + 64] = t5[e3 + 2 + 32] = t5[e3 + 1 + 0] = we3(s4, o4, a4), t5[e3 + 3 + 32] = t5[e3 + 2 + 0] = we3(u5, s4, o4), t5[e3 + 3 + 0] = we3(c6, u5, s4);
+      t5[e3 + 0 + 96] = we2(n3, i5, t5[e3 - 1 + 96]), t5[e3 + 1 + 96] = t5[e3 + 0 + 64] = we2(r3, n3, i5), t5[e3 + 2 + 96] = t5[e3 + 1 + 64] = t5[e3 + 0 + 32] = we2(a4, r3, n3), t5[e3 + 3 + 96] = t5[e3 + 2 + 64] = t5[e3 + 1 + 32] = t5[e3 + 0 + 0] = we2(o4, a4, r3), t5[e3 + 3 + 64] = t5[e3 + 2 + 32] = t5[e3 + 1 + 0] = we2(s4, o4, a4), t5[e3 + 3 + 32] = t5[e3 + 2 + 0] = we2(u5, s4, o4), t5[e3 + 3 + 0] = we2(c6, u5, s4);
     }
-    function Se3(t5, e3) {
+    function Se2(t5, e3) {
       var r3 = t5[e3 + 1 - 32], n3 = t5[e3 + 2 - 32], i5 = t5[e3 + 3 - 32], a4 = t5[e3 + 4 - 32], o4 = t5[e3 + 5 - 32], s4 = t5[e3 + 6 - 32], u5 = t5[e3 + 7 - 32];
-      t5[e3 + 0 + 0] = we3(t5[e3 + 0 - 32], r3, n3), t5[e3 + 1 + 0] = t5[e3 + 0 + 32] = we3(r3, n3, i5), t5[e3 + 2 + 0] = t5[e3 + 1 + 32] = t5[e3 + 0 + 64] = we3(n3, i5, a4), t5[e3 + 3 + 0] = t5[e3 + 2 + 32] = t5[e3 + 1 + 64] = t5[e3 + 0 + 96] = we3(i5, a4, o4), t5[e3 + 3 + 32] = t5[e3 + 2 + 64] = t5[e3 + 1 + 96] = we3(a4, o4, s4), t5[e3 + 3 + 64] = t5[e3 + 2 + 96] = we3(o4, s4, u5), t5[e3 + 3 + 96] = we3(s4, u5, u5);
+      t5[e3 + 0 + 0] = we2(t5[e3 + 0 - 32], r3, n3), t5[e3 + 1 + 0] = t5[e3 + 0 + 32] = we2(r3, n3, i5), t5[e3 + 2 + 0] = t5[e3 + 1 + 32] = t5[e3 + 0 + 64] = we2(n3, i5, a4), t5[e3 + 3 + 0] = t5[e3 + 2 + 32] = t5[e3 + 1 + 64] = t5[e3 + 0 + 96] = we2(i5, a4, o4), t5[e3 + 3 + 32] = t5[e3 + 2 + 64] = t5[e3 + 1 + 96] = we2(a4, o4, s4), t5[e3 + 3 + 64] = t5[e3 + 2 + 96] = we2(o4, s4, u5), t5[e3 + 3 + 96] = we2(s4, u5, u5);
     }
-    function _e3(t5, e3) {
+    function _e2(t5, e3) {
       var r3 = t5[e3 - 1 + 0], n3 = t5[e3 - 1 + 32], i5 = t5[e3 - 1 + 64], a4 = t5[e3 - 1 - 32], o4 = t5[e3 + 0 - 32], s4 = t5[e3 + 1 - 32], u5 = t5[e3 + 2 - 32], c6 = t5[e3 + 3 - 32];
-      t5[e3 + 0 + 0] = t5[e3 + 1 + 64] = a4 + o4 + 1 >> 1, t5[e3 + 1 + 0] = t5[e3 + 2 + 64] = o4 + s4 + 1 >> 1, t5[e3 + 2 + 0] = t5[e3 + 3 + 64] = s4 + u5 + 1 >> 1, t5[e3 + 3 + 0] = u5 + c6 + 1 >> 1, t5[e3 + 0 + 96] = we3(i5, n3, r3), t5[e3 + 0 + 64] = we3(n3, r3, a4), t5[e3 + 0 + 32] = t5[e3 + 1 + 96] = we3(r3, a4, o4), t5[e3 + 1 + 32] = t5[e3 + 2 + 96] = we3(a4, o4, s4), t5[e3 + 2 + 32] = t5[e3 + 3 + 96] = we3(o4, s4, u5), t5[e3 + 3 + 32] = we3(s4, u5, c6);
+      t5[e3 + 0 + 0] = t5[e3 + 1 + 64] = a4 + o4 + 1 >> 1, t5[e3 + 1 + 0] = t5[e3 + 2 + 64] = o4 + s4 + 1 >> 1, t5[e3 + 2 + 0] = t5[e3 + 3 + 64] = s4 + u5 + 1 >> 1, t5[e3 + 3 + 0] = u5 + c6 + 1 >> 1, t5[e3 + 0 + 96] = we2(i5, n3, r3), t5[e3 + 0 + 64] = we2(n3, r3, a4), t5[e3 + 0 + 32] = t5[e3 + 1 + 96] = we2(r3, a4, o4), t5[e3 + 1 + 32] = t5[e3 + 2 + 96] = we2(a4, o4, s4), t5[e3 + 2 + 32] = t5[e3 + 3 + 96] = we2(o4, s4, u5), t5[e3 + 3 + 32] = we2(s4, u5, c6);
     }
-    function Pe3(t5, e3) {
+    function Pe2(t5, e3) {
       var r3 = t5[e3 + 0 - 32], n3 = t5[e3 + 1 - 32], i5 = t5[e3 + 2 - 32], a4 = t5[e3 + 3 - 32], o4 = t5[e3 + 4 - 32], s4 = t5[e3 + 5 - 32], u5 = t5[e3 + 6 - 32], c6 = t5[e3 + 7 - 32];
-      t5[e3 + 0 + 0] = r3 + n3 + 1 >> 1, t5[e3 + 1 + 0] = t5[e3 + 0 + 64] = n3 + i5 + 1 >> 1, t5[e3 + 2 + 0] = t5[e3 + 1 + 64] = i5 + a4 + 1 >> 1, t5[e3 + 3 + 0] = t5[e3 + 2 + 64] = a4 + o4 + 1 >> 1, t5[e3 + 0 + 32] = we3(r3, n3, i5), t5[e3 + 1 + 32] = t5[e3 + 0 + 96] = we3(n3, i5, a4), t5[e3 + 2 + 32] = t5[e3 + 1 + 96] = we3(i5, a4, o4), t5[e3 + 3 + 32] = t5[e3 + 2 + 96] = we3(a4, o4, s4), t5[e3 + 3 + 64] = we3(o4, s4, u5), t5[e3 + 3 + 96] = we3(s4, u5, c6);
+      t5[e3 + 0 + 0] = r3 + n3 + 1 >> 1, t5[e3 + 1 + 0] = t5[e3 + 0 + 64] = n3 + i5 + 1 >> 1, t5[e3 + 2 + 0] = t5[e3 + 1 + 64] = i5 + a4 + 1 >> 1, t5[e3 + 3 + 0] = t5[e3 + 2 + 64] = a4 + o4 + 1 >> 1, t5[e3 + 0 + 32] = we2(r3, n3, i5), t5[e3 + 1 + 32] = t5[e3 + 0 + 96] = we2(n3, i5, a4), t5[e3 + 2 + 32] = t5[e3 + 1 + 96] = we2(i5, a4, o4), t5[e3 + 3 + 32] = t5[e3 + 2 + 96] = we2(a4, o4, s4), t5[e3 + 3 + 64] = we2(o4, s4, u5), t5[e3 + 3 + 96] = we2(s4, u5, c6);
     }
-    function ke3(t5, e3) {
+    function ke2(t5, e3) {
       var r3 = t5[e3 - 1 + 0], n3 = t5[e3 - 1 + 32], i5 = t5[e3 - 1 + 64], a4 = t5[e3 - 1 + 96];
-      t5[e3 + 0 + 0] = r3 + n3 + 1 >> 1, t5[e3 + 2 + 0] = t5[e3 + 0 + 32] = n3 + i5 + 1 >> 1, t5[e3 + 2 + 32] = t5[e3 + 0 + 64] = i5 + a4 + 1 >> 1, t5[e3 + 1 + 0] = we3(r3, n3, i5), t5[e3 + 3 + 0] = t5[e3 + 1 + 32] = we3(n3, i5, a4), t5[e3 + 3 + 32] = t5[e3 + 1 + 64] = we3(i5, a4, a4), t5[e3 + 3 + 64] = t5[e3 + 2 + 64] = t5[e3 + 0 + 96] = t5[e3 + 1 + 96] = t5[e3 + 2 + 96] = t5[e3 + 3 + 96] = a4;
+      t5[e3 + 0 + 0] = r3 + n3 + 1 >> 1, t5[e3 + 2 + 0] = t5[e3 + 0 + 32] = n3 + i5 + 1 >> 1, t5[e3 + 2 + 32] = t5[e3 + 0 + 64] = i5 + a4 + 1 >> 1, t5[e3 + 1 + 0] = we2(r3, n3, i5), t5[e3 + 3 + 0] = t5[e3 + 1 + 32] = we2(n3, i5, a4), t5[e3 + 3 + 32] = t5[e3 + 1 + 64] = we2(i5, a4, a4), t5[e3 + 3 + 64] = t5[e3 + 2 + 64] = t5[e3 + 0 + 96] = t5[e3 + 1 + 96] = t5[e3 + 2 + 96] = t5[e3 + 3 + 96] = a4;
     }
-    function Fe3(t5, e3) {
+    function Fe2(t5, e3) {
       var r3 = t5[e3 - 1 + 0], n3 = t5[e3 - 1 + 32], i5 = t5[e3 - 1 + 64], a4 = t5[e3 - 1 + 96], o4 = t5[e3 - 1 - 32], s4 = t5[e3 + 0 - 32], u5 = t5[e3 + 1 - 32], c6 = t5[e3 + 2 - 32];
-      t5[e3 + 0 + 0] = t5[e3 + 2 + 32] = r3 + o4 + 1 >> 1, t5[e3 + 0 + 32] = t5[e3 + 2 + 64] = n3 + r3 + 1 >> 1, t5[e3 + 0 + 64] = t5[e3 + 2 + 96] = i5 + n3 + 1 >> 1, t5[e3 + 0 + 96] = a4 + i5 + 1 >> 1, t5[e3 + 3 + 0] = we3(s4, u5, c6), t5[e3 + 2 + 0] = we3(o4, s4, u5), t5[e3 + 1 + 0] = t5[e3 + 3 + 32] = we3(r3, o4, s4), t5[e3 + 1 + 32] = t5[e3 + 3 + 64] = we3(n3, r3, o4), t5[e3 + 1 + 64] = t5[e3 + 3 + 96] = we3(i5, n3, r3), t5[e3 + 1 + 96] = we3(a4, i5, n3);
+      t5[e3 + 0 + 0] = t5[e3 + 2 + 32] = r3 + o4 + 1 >> 1, t5[e3 + 0 + 32] = t5[e3 + 2 + 64] = n3 + r3 + 1 >> 1, t5[e3 + 0 + 64] = t5[e3 + 2 + 96] = i5 + n3 + 1 >> 1, t5[e3 + 0 + 96] = a4 + i5 + 1 >> 1, t5[e3 + 3 + 0] = we2(s4, u5, c6), t5[e3 + 2 + 0] = we2(o4, s4, u5), t5[e3 + 1 + 0] = t5[e3 + 3 + 32] = we2(r3, o4, s4), t5[e3 + 1 + 32] = t5[e3 + 3 + 64] = we2(n3, r3, o4), t5[e3 + 1 + 64] = t5[e3 + 3 + 96] = we2(i5, n3, r3), t5[e3 + 1 + 96] = we2(a4, i5, n3);
     }
-    function Ie3(t5, e3) {
+    function Ie2(t5, e3) {
       var r3;
       for (r3 = 0; 8 > r3; ++r3) n2(t5, e3 + 32 * r3, t5, e3 - 32, 8);
     }
-    function Ce3(t5, e3) {
+    function Ce2(t5, e3) {
       var r3;
       for (r3 = 0; 8 > r3; ++r3) i4(t5, e3, t5[e3 - 1], 8), e3 += 32;
     }
@@ -52677,7 +52686,7 @@ function ue(t3) {
       var n3;
       for (n3 = 0; 8 > n3; ++n3) i4(e3, r3 + 32 * n3, t5, 8);
     }
-    function Oe2(t5, e3) {
+    function Oe(t5, e3) {
       var r3, n3 = 8;
       for (r3 = 0; 8 > r3; ++r3) n3 += t5[e3 + r3 - 32] + t5[e3 - 1 + 32 * r3];
       je2(n3 >> 4, t5, e3);
@@ -52692,7 +52701,7 @@ function ue(t3) {
       for (r3 = 0; 8 > r3; ++r3) n3 += t5[e3 - 1 + 32 * r3];
       je2(n3 >> 3, t5, e3);
     }
-    function qe2(t5, e3) {
+    function qe(t5, e3) {
       je2(128, t5, e3);
     }
     function Ee2(t5, e3, r3) {
@@ -52706,7 +52715,7 @@ function ue(t3) {
     function De2(t5, e3, r3, n3) {
       return 4 * Bn[255 + t5[e3 - r3] - t5[e3 + 0]] + Bn[255 + t5[e3 - 2 * r3] - t5[e3 + r3]] <= n3;
     }
-    function Te2(t5, e3, r3, n3, i5) {
+    function Te(t5, e3, r3, n3, i5) {
       var a4 = t5[e3 - 3 * r3], o4 = t5[e3 - 2 * r3], s4 = t5[e3 - r3], u5 = t5[e3 + 0], c6 = t5[e3 + r3], l5 = t5[e3 + 2 * r3], h5 = t5[e3 + 3 * r3];
       return 4 * Bn[255 + s4 - u5] + Bn[255 + o4 - c6] > n3 ? 0 : Bn[255 + t5[e3 - 4 * r3] - a4] <= i5 && Bn[255 + a4 - o4] <= i5 && Bn[255 + o4 - s4] <= i5 && Bn[255 + h5 - l5] <= i5 && Bn[255 + l5 - c6] <= i5 && Bn[255 + c6 - u5] <= i5;
     }
@@ -52714,7 +52723,7 @@ function ue(t3) {
       var i5 = 2 * n3 + 1;
       for (n3 = 0; 16 > n3; ++n3) De2(t5, e3 + n3, r3, i5) && Ee2(t5, e3 + n3, r3);
     }
-    function Ue2(t5, e3, r3, n3) {
+    function Ue(t5, e3, r3, n3) {
       var i5 = 2 * n3 + 1;
       for (n3 = 0; 16 > n3; ++n3) De2(t5, e3 + n3 * r3, 1, i5) && Ee2(t5, e3 + n3 * r3, 1);
     }
@@ -52722,13 +52731,13 @@ function ue(t3) {
       var i5;
       for (i5 = 3; 0 < i5; --i5) ze2(t5, e3 += 4 * r3, r3, n3);
     }
-    function We2(t5, e3, r3, n3) {
+    function We(t5, e3, r3, n3) {
       var i5;
-      for (i5 = 3; 0 < i5; --i5) Ue2(t5, e3 += 4, r3, n3);
+      for (i5 = 3; 0 < i5; --i5) Ue(t5, e3 += 4, r3, n3);
     }
     function Ve2(t5, e3, r3, n3, i5, a4, o4, s4) {
       for (a4 = 2 * a4 + 1; 0 < i5--; ) {
-        if (Te2(t5, e3, r3, a4, o4)) if (Re2(t5, e3, r3, s4)) Ee2(t5, e3, r3);
+        if (Te(t5, e3, r3, a4, o4)) if (Re2(t5, e3, r3, s4)) Ee2(t5, e3, r3);
         else {
           var u5 = t5, c6 = e3, l5 = r3, h5 = u5[c6 - 2 * l5], f5 = u5[c6 - l5], d4 = u5[c6 + 0], p5 = u5[c6 + l5], g4 = u5[c6 + 2 * l5], m6 = 27 * (b5 = Cn[1020 + 3 * (d4 - f5) + Cn[1020 + h5 - p5]]) + 63 >> 7, v6 = 18 * b5 + 63 >> 7, b5 = 9 * b5 + 63 >> 7;
           u5[c6 - 3 * l5] = On[255 + u5[c6 - 3 * l5] + b5], u5[c6 - 2 * l5] = On[255 + h5 + v6], u5[c6 - l5] = On[255 + f5 + m6], u5[c6 + 0] = On[255 + d4 - m6], u5[c6 + l5] = On[255 + p5 - v6], u5[c6 + 2 * l5] = On[255 + g4 - b5];
@@ -52738,7 +52747,7 @@ function ue(t3) {
     }
     function Ge2(t5, e3, r3, n3, i5, a4, o4, s4) {
       for (a4 = 2 * a4 + 1; 0 < i5--; ) {
-        if (Te2(t5, e3, r3, a4, o4)) if (Re2(t5, e3, r3, s4)) Ee2(t5, e3, r3);
+        if (Te(t5, e3, r3, a4, o4)) if (Re2(t5, e3, r3, s4)) Ee2(t5, e3, r3);
         else {
           var u5 = t5, c6 = e3, l5 = r3, h5 = u5[c6 - l5], f5 = u5[c6 + 0], d4 = u5[c6 + l5], p5 = jn[112 + (4 + (g4 = 3 * (f5 - h5)) >> 3)], g4 = jn[112 + (g4 + 3 >> 3)], m6 = p5 + 1 >> 1;
           u5[c6 - 2 * l5] = On[255 + u5[c6 - 2 * l5] + m6], u5[c6 - l5] = On[255 + h5 + g4], u5[c6 + 0] = On[255 + f5 - p5], u5[c6 + l5] = On[255 + d4 - m6];
@@ -52749,14 +52758,14 @@ function ue(t3) {
     function Ye2(t5, e3, r3, n3, i5, a4) {
       Ve2(t5, e3, r3, 1, 16, n3, i5, a4);
     }
-    function Je2(t5, e3, r3, n3, i5, a4) {
+    function Je(t5, e3, r3, n3, i5, a4) {
       Ve2(t5, e3, 1, r3, 16, n3, i5, a4);
     }
-    function Xe2(t5, e3, r3, n3, i5, a4) {
+    function Xe(t5, e3, r3, n3, i5, a4) {
       var o4;
       for (o4 = 3; 0 < o4; --o4) Ge2(t5, e3 += 4 * r3, r3, 1, 16, n3, i5, a4);
     }
-    function Ke2(t5, e3, r3, n3, i5, a4) {
+    function Ke(t5, e3, r3, n3, i5, a4) {
       var o4;
       for (o4 = 3; 0 < o4; --o4) Ge2(t5, e3 += 4, 1, r3, 16, n3, i5, a4);
     }
@@ -52816,15 +52825,15 @@ function ue(t3) {
             var l5 = t5.Fa, h5 = t5.P, f5 = t5.qc, d4 = t5.mb, p5 = t5.nb, g4 = h5 + 1, m6 = f5 - 1, b5 = c6.l;
             if (e2(null != l5 && null != d4 && null != r3), gi[0] = null, gi[1] = sr, gi[2] = ur, gi[3] = cr, c6.ca = d4, c6.tb = p5, c6.c = r3.width, c6.i = r3.height, e2(0 < c6.c && 0 < c6.i), 1 >= f5) r3 = 0;
             else if (c6.$a = 3 & l5[h5 + 0], c6.Z = l5[h5 + 0] >> 2 & 3, c6.Lc = l5[h5 + 0] >> 4 & 3, h5 = l5[h5 + 0] >> 6 & 3, 0 > c6.$a || 1 < c6.$a || 4 <= c6.Z || 1 < c6.Lc || h5) r3 = 0;
-            else if (b5.put = dt3, b5.ac = ft3, b5.bc = pt3, b5.ma = c6, b5.width = r3.width, b5.height = r3.height, b5.Da = r3.Da, b5.v = r3.v, b5.va = r3.va, b5.j = r3.j, b5.o = r3.o, c6.$a) t: {
-              e2(1 == c6.$a), r3 = kt3();
+            else if (b5.put = dt3, b5.ac = ft3, b5.bc = pt2, b5.ma = c6, b5.width = r3.width, b5.height = r3.height, b5.Da = r3.Da, b5.v = r3.v, b5.va = r3.va, b5.j = r3.j, b5.o = r3.o, c6.$a) t: {
+              e2(1 == c6.$a), r3 = kt2();
               e: for (; ; ) {
                 if (null == r3) {
                   r3 = 0;
                   break t;
                 }
-                if (e2(null != c6), c6.mc = r3, r3.c = c6.c, r3.i = c6.i, r3.l = c6.l, r3.l.ma = c6, r3.l.width = c6.c, r3.l.height = c6.i, r3.a = 0, v5(r3.m, l5, g4, m6), !Ft3(c6.c, c6.i, 1, r3, null)) break e;
-                if (1 == r3.ab && 3 == r3.gc[0].hc && xt3(r3.s) ? (c6.ic = 1, l5 = r3.c * r3.i, r3.Ta = null, r3.Ua = 0, r3.V = a3(l5), r3.Ba = 0, null == r3.V ? (r3.a = 1, r3 = 0) : r3 = 1) : (c6.ic = 0, r3 = It3(r3, c6.c)), !r3) break e;
+                if (e2(null != c6), c6.mc = r3, r3.c = c6.c, r3.i = c6.i, r3.l = c6.l, r3.l.ma = c6, r3.l.width = c6.c, r3.l.height = c6.i, r3.a = 0, v5(r3.m, l5, g4, m6), !Ft2(c6.c, c6.i, 1, r3, null)) break e;
+                if (1 == r3.ab && 3 == r3.gc[0].hc && xt2(r3.s) ? (c6.ic = 1, l5 = r3.c * r3.i, r3.Ta = null, r3.Ua = 0, r3.V = a3(l5), r3.Ba = 0, null == r3.V ? (r3.a = 1, r3 = 0) : r3 = 1) : (c6.ic = 0, r3 = It3(r3, c6.c)), !r3) break e;
                 r3 = 1;
                 break t;
               }
@@ -52846,10 +52855,10 @@ function ue(t3) {
             if (e2(null != l5.mc), r3 = i5 + o4, e2(null != (c6 = l5.mc)), e2(r3 <= c6.i), c6.C >= r3) r3 = 1;
             else if (l5.ic || gr(), l5.ic) {
               l5 = c6.V, g4 = c6.Ba, m6 = c6.c;
-              var y5 = c6.i, w4 = (b5 = 1, h5 = c6.$ / m6, f5 = c6.$ % m6, d4 = c6.m, p5 = c6.s, c6.$), N6 = m6 * y5, L5 = m6 * r3, A4 = p5.wc, _4 = w4 < L5 ? wt3(p5, f5, h5) : null;
-              e2(w4 <= N6), e2(r3 <= y5), e2(xt3(p5));
+              var y5 = c6.i, w4 = (b5 = 1, h5 = c6.$ / m6, f5 = c6.$ % m6, d4 = c6.m, p5 = c6.s, c6.$), N6 = m6 * y5, L4 = m6 * r3, A4 = p5.wc, _4 = w4 < L4 ? wt3(p5, f5, h5) : null;
+              e2(w4 <= N6), e2(r3 <= y5), e2(xt2(p5));
               e: for (; ; ) {
-                for (; !d4.h && w4 < L5; ) {
+                for (; !d4.h && w4 < L4; ) {
                   if (f5 & A4 || (_4 = wt3(p5, f5, h5)), e2(null != _4), S3(d4), 256 > (y5 = bt3(_4.G[0], _4.H[0], d4))) l5[g4 + w4] = y5, ++w4, ++f5 >= m6 && (f5 = 0, ++h5 <= r3 && !(h5 % 16) && St3(c6, h5));
                   else {
                     if (!(280 > y5)) {
@@ -52857,14 +52866,14 @@ function ue(t3) {
                       break e;
                     }
                     y5 = mt3(y5 - 256, d4);
-                    var P3, k4 = bt3(_4.G[4], _4.H[4], d4);
-                    if (S3(d4), !(w4 >= (k4 = vt3(m6, k4 = mt3(k4, d4))) && N6 - w4 >= y5)) {
+                    var P3, k3 = bt3(_4.G[4], _4.H[4], d4);
+                    if (S3(d4), !(w4 >= (k3 = vt2(m6, k3 = mt3(k3, d4))) && N6 - w4 >= y5)) {
                       b5 = 0;
                       break e;
                     }
-                    for (P3 = 0; P3 < y5; ++P3) l5[g4 + w4 + P3] = l5[g4 + w4 + P3 - k4];
+                    for (P3 = 0; P3 < y5; ++P3) l5[g4 + w4 + P3] = l5[g4 + w4 + P3 - k3];
                     for (w4 += y5, f5 += y5; f5 >= m6; ) f5 -= m6, ++h5 <= r3 && !(h5 % 16) && St3(c6, h5);
-                    w4 < L5 && f5 & A4 && (_4 = wt3(p5, f5, h5));
+                    w4 < L4 && f5 & A4 && (_4 = wt3(p5, f5, h5));
                   }
                   e2(d4.h == x5(d4));
                 }
@@ -52925,14 +52934,14 @@ function ue(t3) {
     }
     function mr(r3, n3, i5) {
       t4[r3] = function(t5, r4, a4, o4, s4, u5, c6, l5, h5, f5, d4, p5, g4, m6, v6, b5, y5) {
-        var w4, N6 = y5 - 1 >> 1, L5 = s4[u5 + 0] | c6[l5 + 0] << 16, x6 = h5[f5 + 0] | d4[p5 + 0] << 16;
+        var w4, N6 = y5 - 1 >> 1, L4 = s4[u5 + 0] | c6[l5 + 0] << 16, x6 = h5[f5 + 0] | d4[p5 + 0] << 16;
         e2(null != t5);
-        var A4 = 3 * L5 + x6 + 131074 >> 2;
-        for (n3(t5[r4 + 0], 255 & A4, A4 >> 16, g4, m6), null != a4 && (A4 = 3 * x6 + L5 + 131074 >> 2, n3(a4[o4 + 0], 255 & A4, A4 >> 16, v6, b5)), w4 = 1; w4 <= N6; ++w4) {
-          var S4 = s4[u5 + w4] | c6[l5 + w4] << 16, _4 = h5[f5 + w4] | d4[p5 + w4] << 16, P3 = L5 + S4 + x6 + _4 + 524296, k4 = P3 + 2 * (S4 + x6) >> 3;
-          A4 = k4 + L5 >> 1, L5 = (P3 = P3 + 2 * (L5 + _4) >> 3) + S4 >> 1, n3(t5[r4 + 2 * w4 - 1], 255 & A4, A4 >> 16, g4, m6 + (2 * w4 - 1) * i5), n3(t5[r4 + 2 * w4 - 0], 255 & L5, L5 >> 16, g4, m6 + (2 * w4 - 0) * i5), null != a4 && (A4 = P3 + x6 >> 1, L5 = k4 + _4 >> 1, n3(a4[o4 + 2 * w4 - 1], 255 & A4, A4 >> 16, v6, b5 + (2 * w4 - 1) * i5), n3(a4[o4 + 2 * w4 + 0], 255 & L5, L5 >> 16, v6, b5 + (2 * w4 + 0) * i5)), L5 = S4, x6 = _4;
+        var A4 = 3 * L4 + x6 + 131074 >> 2;
+        for (n3(t5[r4 + 0], 255 & A4, A4 >> 16, g4, m6), null != a4 && (A4 = 3 * x6 + L4 + 131074 >> 2, n3(a4[o4 + 0], 255 & A4, A4 >> 16, v6, b5)), w4 = 1; w4 <= N6; ++w4) {
+          var S4 = s4[u5 + w4] | c6[l5 + w4] << 16, _4 = h5[f5 + w4] | d4[p5 + w4] << 16, P3 = L4 + S4 + x6 + _4 + 524296, k3 = P3 + 2 * (S4 + x6) >> 3;
+          A4 = k3 + L4 >> 1, L4 = (P3 = P3 + 2 * (L4 + _4) >> 3) + S4 >> 1, n3(t5[r4 + 2 * w4 - 1], 255 & A4, A4 >> 16, g4, m6 + (2 * w4 - 1) * i5), n3(t5[r4 + 2 * w4 - 0], 255 & L4, L4 >> 16, g4, m6 + (2 * w4 - 0) * i5), null != a4 && (A4 = P3 + x6 >> 1, L4 = k3 + _4 >> 1, n3(a4[o4 + 2 * w4 - 1], 255 & A4, A4 >> 16, v6, b5 + (2 * w4 - 1) * i5), n3(a4[o4 + 2 * w4 + 0], 255 & L4, L4 >> 16, v6, b5 + (2 * w4 + 0) * i5)), L4 = S4, x6 = _4;
         }
-        1 & y5 || (A4 = 3 * L5 + x6 + 131074 >> 2, n3(t5[r4 + y5 - 1], 255 & A4, A4 >> 16, g4, m6 + (y5 - 1) * i5), null != a4 && (A4 = 3 * x6 + L5 + 131074 >> 2, n3(a4[o4 + y5 - 1], 255 & A4, A4 >> 16, v6, b5 + (y5 - 1) * i5)));
+        1 & y5 || (A4 = 3 * L4 + x6 + 131074 >> 2, n3(t5[r4 + y5 - 1], 255 & A4, A4 >> 16, g4, m6 + (y5 - 1) * i5), null != a4 && (A4 = 3 * x6 + L4 + 131074 >> 2, n3(a4[o4 + y5 - 1], 255 & A4, A4 >> 16, v6, b5 + (y5 - 1) * i5)));
       };
     }
     function vr() {
@@ -53041,13 +53050,13 @@ function ue(t3) {
       if (0 != y5) return y5;
       for (w4 = 0 < g4.gb[0], i5 = i5[0]; ; ) {
         t: {
-          var L5 = t5;
+          var L4 = t5;
           b5 = n3, y5 = i5;
           var x6 = h5, A4 = f5, S4 = m6 = [0];
-          if ((k4 = d4 = [d4])[0] = 0, 8 > y5[0]) y5 = 7;
+          if ((k3 = d4 = [d4])[0] = 0, 8 > y5[0]) y5 = 7;
           else {
-            if (!r2(L5, b5[0], "VP8X")) {
-              if (10 != j3(L5, b5[0] + 4)) {
+            if (!r2(L4, b5[0], "VP8X")) {
+              if (10 != j3(L4, b5[0] + 4)) {
                 y5 = 3;
                 break t;
               }
@@ -53055,12 +53064,12 @@ function ue(t3) {
                 y5 = 7;
                 break t;
               }
-              var _4 = j3(L5, b5[0] + 8), P3 = 1 + C3(L5, b5[0] + 12);
-              if (2147483648 <= P3 * (L5 = 1 + C3(L5, b5[0] + 15))) {
+              var _4 = j3(L4, b5[0] + 8), P3 = 1 + C3(L4, b5[0] + 12);
+              if (2147483648 <= P3 * (L4 = 1 + C3(L4, b5[0] + 15))) {
                 y5 = 3;
                 break t;
               }
-              null != S4 && (S4[0] = _4), null != x6 && (x6[0] = P3), null != A4 && (A4[0] = L5), b5[0] += 18, y5[0] -= 18, k4[0] = 1;
+              null != S4 && (S4[0] = _4), null != x6 && (x6[0] = P3), null != A4 && (A4[0] = L4), b5[0] += 18, y5[0] -= 18, k3[0] = 1;
             }
             y5 = 0;
           }
@@ -53079,25 +53088,25 @@ function ue(t3) {
           i5 = [i5], g4.na = [g4.na], g4.P = [g4.P], g4.Sa = [g4.Sa];
           t: {
             _4 = t5, y5 = n3, w4 = i5;
-            var k4 = g4.gb;
-            x6 = g4.na, A4 = g4.P, S4 = g4.Sa, P3 = 22, e2(null != _4), e2(null != w4), L5 = y5[0];
+            var k3 = g4.gb;
+            x6 = g4.na, A4 = g4.P, S4 = g4.Sa, P3 = 22, e2(null != _4), e2(null != w4), L4 = y5[0];
             var F4 = w4[0];
             for (e2(null != x6), e2(null != S4), x6[0] = null, A4[0] = null, S4[0] = 0; ; ) {
-              if (y5[0] = L5, w4[0] = F4, 8 > F4) {
+              if (y5[0] = L4, w4[0] = F4, 8 > F4) {
                 y5 = 7;
                 break t;
               }
-              var I3 = j3(_4, L5 + 4);
+              var I3 = j3(_4, L4 + 4);
               if (4294967286 < I3) {
                 y5 = 3;
                 break t;
               }
               var O5 = 8 + I3 + 1 & -2;
-              if (P3 += O5, 0 < k4 && P3 > k4) {
+              if (P3 += O5, 0 < k3 && P3 > k3) {
                 y5 = 3;
                 break t;
               }
-              if (!r2(_4, L5, "VP8 ") || !r2(_4, L5, "VP8L")) {
+              if (!r2(_4, L4, "VP8 ") || !r2(_4, L4, "VP8L")) {
                 y5 = 0;
                 break t;
               }
@@ -53105,25 +53114,25 @@ function ue(t3) {
                 y5 = 7;
                 break t;
               }
-              r2(_4, L5, "ALPH") || (x6[0] = _4, A4[0] = L5 + 8, S4[0] = I3), L5 += O5, F4 -= O5;
+              r2(_4, L4, "ALPH") || (x6[0] = _4, A4[0] = L4 + 8, S4[0] = I3), L4 += O5, F4 -= O5;
             }
           }
           if (i5 = i5[0], g4.na = g4.na[0], g4.P = g4.P[0], g4.Sa = g4.Sa[0], 0 != y5) break;
         }
         i5 = [i5], g4.Ja = [g4.Ja], g4.xa = [g4.xa];
-        t: if (k4 = t5, y5 = n3, w4 = i5, x6 = g4.gb[0], A4 = g4.Ja, S4 = g4.xa, _4 = y5[0], L5 = !r2(k4, _4, "VP8 "), P3 = !r2(k4, _4, "VP8L"), e2(null != k4), e2(null != w4), e2(null != A4), e2(null != S4), 8 > w4[0]) y5 = 7;
+        t: if (k3 = t5, y5 = n3, w4 = i5, x6 = g4.gb[0], A4 = g4.Ja, S4 = g4.xa, _4 = y5[0], L4 = !r2(k3, _4, "VP8 "), P3 = !r2(k3, _4, "VP8L"), e2(null != k3), e2(null != w4), e2(null != A4), e2(null != S4), 8 > w4[0]) y5 = 7;
         else {
-          if (L5 || P3) {
-            if (k4 = j3(k4, _4 + 4), 12 <= x6 && k4 > x6 - 12) {
+          if (L4 || P3) {
+            if (k3 = j3(k3, _4 + 4), 12 <= x6 && k3 > x6 - 12) {
               y5 = 3;
               break t;
             }
-            if (p5 && k4 > w4[0] - 8) {
+            if (p5 && k3 > w4[0] - 8) {
               y5 = 7;
               break t;
             }
-            A4[0] = k4, y5[0] += 8, w4[0] -= 8, S4[0] = P3;
-          } else S4[0] = 5 <= w4[0] && 47 == k4[_4 + 0] && !(k4[_4 + 4] >> 5), A4[0] = w4[0];
+            A4[0] = k3, y5[0] += 8, w4[0] -= 8, S4[0] = P3;
+          } else S4[0] = 5 <= w4[0] && 47 == k3[_4 + 0] && !(k3[_4 + 4] >> 5), A4[0] = w4[0];
           y5 = 0;
         }
         if (i5 = i5[0], g4.Ja = g4.Ja[0], g4.xa = g4.xa[0], n3 = n3[0], 0 != y5) break;
@@ -53133,7 +53142,7 @@ function ue(t3) {
             y5 = 7;
             break;
           }
-          c6 = u5, p5 = m6, b5 = s4, null == t5 || 5 > i5 ? t5 = 0 : 5 <= i5 && 47 == t5[n3 + 0] && !(t5[n3 + 4] >> 5) ? (w4 = [0], k4 = [0], x6 = [0], v5(A4 = new N5(), t5, n3, i5), gt3(A4, w4, k4, x6) ? (null != c6 && (c6[0] = w4[0]), null != p5 && (p5[0] = k4[0]), null != b5 && (b5[0] = x6[0]), t5 = 1) : t5 = 0) : t5 = 0;
+          c6 = u5, p5 = m6, b5 = s4, null == t5 || 5 > i5 ? t5 = 0 : 5 <= i5 && 47 == t5[n3 + 0] && !(t5[n3 + 4] >> 5) ? (w4 = [0], k3 = [0], x6 = [0], v5(A4 = new N5(), t5, n3, i5), gt3(A4, w4, k3, x6) ? (null != c6 && (c6[0] = w4[0]), null != p5 && (p5[0] = k3[0]), null != b5 && (b5[0] = x6[0]), t5 = 1) : t5 = 0) : t5 = 0;
         } else {
           if (10 > i5) {
             y5 = 7;
@@ -53216,17 +53225,17 @@ function ue(t3) {
     }, t4.Predictor4 = function(t5, e3, r3) {
       return e3[r3 - 1];
     }, t4.Predictor5 = function(t5, e3, r3) {
-      return z3(z3(t5, e3[r3 + 1]), e3[r3 + 0]);
+      return z2(z2(t5, e3[r3 + 1]), e3[r3 + 0]);
     }, t4.Predictor6 = function(t5, e3, r3) {
-      return z3(t5, e3[r3 - 1]);
+      return z2(t5, e3[r3 - 1]);
     }, t4.Predictor7 = function(t5, e3, r3) {
-      return z3(t5, e3[r3 + 0]);
+      return z2(t5, e3[r3 + 0]);
     }, t4.Predictor8 = function(t5, e3, r3) {
-      return z3(e3[r3 - 1], e3[r3 + 0]);
+      return z2(e3[r3 - 1], e3[r3 + 0]);
     }, t4.Predictor9 = function(t5, e3, r3) {
-      return z3(e3[r3 + 0], e3[r3 + 1]);
+      return z2(e3[r3 + 0], e3[r3 + 1]);
     }, t4.Predictor10 = function(t5, e3, r3) {
-      return z3(z3(t5, e3[r3 - 1]), z3(e3[r3 + 0], e3[r3 + 1]));
+      return z2(z2(t5, e3[r3 - 1]), z2(e3[r3 + 0], e3[r3 + 1]));
     }, t4.Predictor11 = function(t5, e3, r3) {
       var n3 = e3[r3 + 0];
       return 0 >= W3(n3 >> 24 & 255, t5 >> 24 & 255, (e3 = e3[r3 - 1]) >> 24 & 255) + W3(n3 >> 16 & 255, t5 >> 16 & 255, e3 >> 16 & 255) + W3(n3 >> 8 & 255, t5 >> 8 & 255, e3 >> 8 & 255) + W3(255 & n3, 255 & t5, 255 & e3) ? n3 : t5;
@@ -53235,16 +53244,16 @@ function ue(t3) {
       return (U3((t5 >> 24 & 255) + (n3 >> 24 & 255) - ((e3 = e3[r3 - 1]) >> 24 & 255)) << 24 | U3((t5 >> 16 & 255) + (n3 >> 16 & 255) - (e3 >> 16 & 255)) << 16 | U3((t5 >> 8 & 255) + (n3 >> 8 & 255) - (e3 >> 8 & 255)) << 8 | U3((255 & t5) + (255 & n3) - (255 & e3))) >>> 0;
     }, t4.Predictor13 = function(t5, e3, r3) {
       var n3 = e3[r3 - 1];
-      return (H3((t5 = z3(t5, e3[r3 + 0])) >> 24 & 255, n3 >> 24 & 255) << 24 | H3(t5 >> 16 & 255, n3 >> 16 & 255) << 16 | H3(t5 >> 8 & 255, n3 >> 8 & 255) << 8 | H3(255 & t5, 255 & n3)) >>> 0;
+      return (H2((t5 = z2(t5, e3[r3 + 0])) >> 24 & 255, n3 >> 24 & 255) << 24 | H2(t5 >> 16 & 255, n3 >> 16 & 255) << 16 | H2(t5 >> 8 & 255, n3 >> 8 & 255) << 8 | H2(255 & t5, 255 & n3)) >>> 0;
     };
     var Hr = t4.PredictorAdd0;
     t4.PredictorAdd1 = V2, D3("Predictor2", "PredictorAdd2"), D3("Predictor3", "PredictorAdd3"), D3("Predictor4", "PredictorAdd4"), D3("Predictor5", "PredictorAdd5"), D3("Predictor6", "PredictorAdd6"), D3("Predictor7", "PredictorAdd7"), D3("Predictor8", "PredictorAdd8"), D3("Predictor9", "PredictorAdd9"), D3("Predictor10", "PredictorAdd10"), D3("Predictor11", "PredictorAdd11"), D3("Predictor12", "PredictorAdd12"), D3("Predictor13", "PredictorAdd13");
     var Wr = t4.PredictorAdd2;
-    X4("ColorIndexInverseTransform", "MapARGB", "32b", function(t5) {
+    X3("ColorIndexInverseTransform", "MapARGB", "32b", function(t5) {
       return t5 >> 8 & 255;
     }, function(t5) {
       return t5;
-    }), X4("VP8LColorIndexInverseTransformAlpha", "MapAlpha", "8b", function(t5) {
+    }), X3("VP8LColorIndexInverseTransformAlpha", "MapAlpha", "8b", function(t5) {
       return t5;
     }, function(t5) {
       return t5 >> 8 & 255;
@@ -53266,8 +53275,8 @@ function ue(t3) {
         f5.width = f5.width[0], f5.height = f5.height[0], null != u5 && (u5[0] = f5.width), null != c6 && (c6[0] = f5.height);
         t: {
           if (u5 = new Gt3(), (c6 = new rr()).data = t5, c6.w = r3, c6.ha = s4, c6.kd = 1, r3 = [0], e2(null != c6), (0 == (t5 = Or(c6.data, c6.w, c6.ha, null, null, null, r3, null, c6)) || 7 == t5) && r3[0] && (t5 = 4), 0 == (r3 = t5)) {
-            if (e2(null != h5), u5.data = c6.data, u5.w = c6.w + c6.offset, u5.ha = c6.ha - c6.offset, u5.put = dt3, u5.ac = ft3, u5.bc = pt3, u5.ma = h5, c6.xa) {
-              if (null == (t5 = kt3())) {
+            if (e2(null != h5), u5.data = c6.data, u5.w = c6.w + c6.offset, u5.ha = c6.ha - c6.offset, u5.put = dt3, u5.ac = ft3, u5.bc = pt2, u5.ma = h5, c6.xa) {
+              if (null == (t5 = kt2())) {
                 h5 = 1;
                 break t;
               }
@@ -53280,7 +53289,7 @@ function ue(t3) {
                     t6.a = 3;
                     break e;
                   }
-                  if (t6.xb = pi, r4.width = n3[0], r4.height = i5[0], !Ft3(n3[0], i5[0], 1, t6, null)) break e;
+                  if (t6.xb = pi, r4.width = n3[0], r4.height = i5[0], !Ft2(n3[0], i5[0], 1, t6, null)) break e;
                   return 1;
                 }
                 return e2(0 != t6.a), 0;
@@ -53306,7 +53315,7 @@ function ue(t3) {
                         }
                         u5.xb = 0;
                       }
-                      if (!_t3(u5, u5.V, u5.Ba, u5.c, u5.i, s4.o, Lt3)) break r;
+                      if (!_t3(u5, u5.V, u5.Ba, u5.c, u5.i, s4.o, Lt2)) break r;
                       c6.Dc = u5.Ma, u5 = 1;
                       break e;
                     }
@@ -53321,7 +53330,7 @@ function ue(t3) {
                 h5 = 1;
                 break t;
               }
-              if (t5.Fa = c6.na, t5.P = c6.P, t5.qc = c6.Sa, Kt3(t5, u5)) {
+              if (t5.Fa = c6.na, t5.P = c6.P, t5.qc = c6.Sa, Kt2(t5, u5)) {
                 if (0 == (r3 = qr(u5.width, u5.height, h5.Oa, h5.ba))) {
                   if (t5.Aa = 0, s4 = h5.Oa, e2(null != (c6 = t5)), null != s4) {
                     if (0 < (d4 = 0 > (d4 = s4.Md) ? 0 : 100 < d4 ? 255 : 255 * d4 / 100)) {
@@ -53333,7 +53342,7 @@ function ue(t3) {
                   (function(t6, r4) {
                     if (null == t6) return 0;
                     if (null == r4) return Jt3(t6, 2, "NULL VP8Io parameter in VP8Decode().");
-                    if (!t6.cb && !Kt3(t6, r4)) return 0;
+                    if (!t6.cb && !Kt2(t6, r4)) return 0;
                     if (e2(t6.cb), null == r4.ac || r4.ac(r4)) {
                       r4.ob && (t6.L = 0);
                       var s5 = Ri[t6.L];
@@ -53383,7 +53392,7 @@ function ue(t3) {
                             for (s5 = -255; 510 >= s5; ++s5) Fn[255 + s5] = 0 > s5 ? 0 : 255 < s5 ? 255 : s5;
                             In = 1;
                           }
-                          nn2 = ue3, an = ie3, sn2 = ae3, un = oe3, cn = se3, on2 = ne3, ln2 = Ye2, hn = Je2, fn = Ze2, dn = $e2, pn = Xe2, gn = Ke2, mn = Qe2, vn = tr, bn = ze2, yn = Ue2, wn = He2, Nn = We2, hi[0] = xe3, hi[1] = le3, hi[2] = Ne3, hi[3] = Le3, hi[4] = Ae3, hi[5] = _e3, hi[6] = Se3, hi[7] = Pe3, hi[8] = Fe3, hi[9] = ke3, li[0] = me3, li[1] = fe3, li[2] = de3, li[3] = pe3, li[4] = ve3, li[5] = be3, li[6] = ye3, fi[0] = Oe2, fi[1] = he3, fi[2] = Ie3, fi[3] = Ce3, fi[4] = Me2, fi[5] = Be2, fi[6] = qe2, s5 = 1;
+                          nn2 = ue2, an = ie2, sn2 = ae3, un = oe3, cn = se2, on2 = ne2, ln2 = Ye2, hn = Je, fn = Ze2, dn = $e2, pn = Xe, gn = Ke, mn = Qe2, vn = tr, bn = ze2, yn = Ue, wn = He2, Nn = We, hi[0] = xe2, hi[1] = le3, hi[2] = Ne2, hi[3] = Le2, hi[4] = Ae2, hi[5] = _e2, hi[6] = Se2, hi[7] = Pe2, hi[8] = Fe2, hi[9] = ke2, li[0] = me3, li[1] = fe2, li[2] = de2, li[3] = pe2, li[4] = ve2, li[5] = be2, li[6] = ye3, fi[0] = Oe, fi[1] = he2, fi[2] = Ie2, fi[3] = Ce2, fi[4] = Me2, fi[5] = Be2, fi[6] = qe, s5 = 1;
                         } else s5 = 0;
                       }
                       s5 && (s5 = (function(t7, r5) {
@@ -53391,25 +53400,25 @@ function ue(t3) {
                           var o4, s6 = t7.Jc[t7.M & t7.Xb], u7 = t7.m, c8 = t7;
                           for (o4 = 0; o4 < c8.za; ++o4) {
                             var l7 = u7, h7 = c8, f7 = h7.Ac, d6 = h7.Bc + 4 * o4, p7 = h7.zc, g6 = h7.ya[h7.aa + o4];
-                            if (h7.Qa.Bb ? g6.$b = k3(l7, h7.Pa.jb[0]) ? 2 + k3(l7, h7.Pa.jb[2]) : k3(l7, h7.Pa.jb[1]) : g6.$b = 0, h7.kc && (g6.Ad = k3(l7, h7.Bd)), g6.Za = !k3(l7, 145) + 0, g6.Za) {
+                            if (h7.Qa.Bb ? g6.$b = k2(l7, h7.Pa.jb[0]) ? 2 + k2(l7, h7.Pa.jb[2]) : k2(l7, h7.Pa.jb[1]) : g6.$b = 0, h7.kc && (g6.Ad = k2(l7, h7.Bd)), g6.Za = !k2(l7, 145) + 0, g6.Za) {
                               var m8 = g6.Ob, v7 = 0;
                               for (h7 = 0; 4 > h7; ++h7) {
                                 var b5, y5 = p7[0 + h7];
                                 for (b5 = 0; 4 > b5; ++b5) {
                                   y5 = si[f7[d6 + b5]][y5];
-                                  for (var w4 = ai[k3(l7, y5[0])]; 0 < w4; ) w4 = ai[2 * w4 + k3(l7, y5[w4])];
+                                  for (var w4 = ai[k2(l7, y5[0])]; 0 < w4; ) w4 = ai[2 * w4 + k2(l7, y5[w4])];
                                   y5 = -w4, f7[d6 + b5] = y5;
                                 }
                                 n2(m8, v7, f7, d6, 4), v7 += 4, p7[0 + h7] = y5;
                               }
-                            } else y5 = k3(l7, 156) ? k3(l7, 128) ? 1 : 3 : k3(l7, 163) ? 2 : 0, g6.Ob[0] = y5, i4(f7, d6, y5, 4), i4(p7, 0, y5, 4);
-                            g6.Dd = k3(l7, 142) ? k3(l7, 114) ? k3(l7, 183) ? 1 : 3 : 2 : 0;
+                            } else y5 = k2(l7, 156) ? k2(l7, 128) ? 1 : 3 : k2(l7, 163) ? 2 : 0, g6.Ob[0] = y5, i4(f7, d6, y5, 4), i4(p7, 0, y5, 4);
+                            g6.Dd = k2(l7, 142) ? k2(l7, 114) ? k2(l7, 183) ? 1 : 3 : 2 : 0;
                           }
                           if (c8.m.Ka) return Jt3(t7, 7, "Premature end-of-partition0 encountered.");
                           for (; t7.ja < t7.za; ++t7.ja) {
                             if (c8 = s6, l7 = (u7 = t7).rb[u7.sb - 1], f7 = u7.rb[u7.sb + u7.ja], o4 = u7.ya[u7.aa + u7.ja], d6 = u7.kc ? o4.Ad : 0) l7.la = f7.la = 0, o4.Za || (l7.Na = f7.Na = 0), o4.Hc = 0, o4.Gc = 0, o4.ia = 0;
                             else {
-                              var N6, L5;
+                              var N6, L4;
                               if (l7 = f7, f7 = c8, d6 = u7.Pa.Xc, p7 = u7.ya[u7.aa + u7.ja], g6 = u7.pb[p7.$b], h7 = p7.ad, m8 = 0, v7 = u7.rb[u7.sb - 1], y5 = b5 = 0, i4(h7, m8, 0, 384), p7.Za) var x6 = 0, A4 = d6[3];
                               else {
                                 w4 = a3(16);
@@ -53424,38 +53433,38 @@ function ue(t3) {
                               var P3 = 15 & l7.la, F4 = 15 & v7.la;
                               for (w4 = 0; 4 > w4; ++w4) {
                                 var I3 = 1 & F4;
-                                for (_4 = L5 = 0; 4 > _4; ++_4) P3 = P3 >> 1 | (I3 = (S4 = ri(f7, A4, S4 = I3 + (1 & P3), g6.Sc, x6, h7, m8)) > x6) << 7, L5 = L5 << 2 | (3 < S4 ? 3 : 1 < S4 ? 2 : 0 != h7[m8 + 0]), m8 += 16;
-                                P3 >>= 4, F4 = F4 >> 1 | I3 << 7, b5 = (b5 << 8 | L5) >>> 0;
+                                for (_4 = L4 = 0; 4 > _4; ++_4) P3 = P3 >> 1 | (I3 = (S4 = ri(f7, A4, S4 = I3 + (1 & P3), g6.Sc, x6, h7, m8)) > x6) << 7, L4 = L4 << 2 | (3 < S4 ? 3 : 1 < S4 ? 2 : 0 != h7[m8 + 0]), m8 += 16;
+                                P3 >>= 4, F4 = F4 >> 1 | I3 << 7, b5 = (b5 << 8 | L4) >>> 0;
                               }
                               for (A4 = P3, x6 = F4 >> 4, N6 = 0; 4 > N6; N6 += 2) {
-                                for (L5 = 0, P3 = l7.la >> 4 + N6, F4 = v7.la >> 4 + N6, w4 = 0; 2 > w4; ++w4) {
-                                  for (I3 = 1 & F4, _4 = 0; 2 > _4; ++_4) S4 = I3 + (1 & P3), P3 = P3 >> 1 | (I3 = 0 < (S4 = ri(f7, d6[2], S4, g6.Qc, 0, h7, m8))) << 3, L5 = L5 << 2 | (3 < S4 ? 3 : 1 < S4 ? 2 : 0 != h7[m8 + 0]), m8 += 16;
+                                for (L4 = 0, P3 = l7.la >> 4 + N6, F4 = v7.la >> 4 + N6, w4 = 0; 2 > w4; ++w4) {
+                                  for (I3 = 1 & F4, _4 = 0; 2 > _4; ++_4) S4 = I3 + (1 & P3), P3 = P3 >> 1 | (I3 = 0 < (S4 = ri(f7, d6[2], S4, g6.Qc, 0, h7, m8))) << 3, L4 = L4 << 2 | (3 < S4 ? 3 : 1 < S4 ? 2 : 0 != h7[m8 + 0]), m8 += 16;
                                   P3 >>= 2, F4 = F4 >> 1 | I3 << 5;
                                 }
-                                y5 |= L5 << 4 * N6, A4 |= P3 << 4 << N6, x6 |= (240 & F4) << N6;
+                                y5 |= L4 << 4 * N6, A4 |= P3 << 4 << N6, x6 |= (240 & F4) << N6;
                               }
                               l7.la = A4, v7.la = x6, p7.Hc = b5, p7.Gc = y5, p7.ia = 43690 & y5 ? 0 : g6.ia, d6 = !(b5 | y5);
                             }
                             if (0 < u7.L && (u7.wa[u7.Y + u7.ja] = u7.gd[o4.$b][o4.Za], u7.wa[u7.Y + u7.ja].La |= !d6), c8.Ka) return Jt3(t7, 7, "Premature end-of-file encountered.");
                           }
                           if ($t3(t7), u7 = r5, c8 = 1, o4 = (s6 = t7).D, l7 = 0 < s6.L && s6.M >= s6.zb && s6.M <= s6.Va, 0 == s6.Aa) e: {
-                            if (o4.M = s6.M, o4.uc = l7, jr(s6, o4), c8 = 1, o4 = (L5 = s6.D).Nb, l7 = (y5 = Ri[s6.L]) * s6.R, f7 = y5 / 2 * s6.B, w4 = 16 * o4 * s6.R, _4 = 8 * o4 * s6.B, d6 = s6.sa, p7 = s6.ta - l7 + w4, g6 = s6.qa, h7 = s6.ra - f7 + _4, m8 = s6.Ha, v7 = s6.Ia - f7 + _4, F4 = 0 == (P3 = L5.M), b5 = P3 >= s6.Va - 1, 2 == s6.Aa && jr(s6, L5), L5.uc) for (I3 = (S4 = s6).D.M, e2(S4.D.uc), L5 = S4.yb; L5 < S4.Hb; ++L5) {
-                              x6 = L5, A4 = I3;
-                              var C4 = (j4 = (z4 = S4).D).Nb;
-                              N6 = z4.R;
-                              var j4 = j4.wa[j4.Y + x6], O5 = z4.sa, B4 = z4.ta + 16 * C4 * N6 + 16 * x6, M4 = j4.dd, q4 = j4.tc;
-                              if (0 != q4) if (e2(3 <= q4), 1 == z4.L) 0 < x6 && yn(O5, B4, N6, q4 + 4), j4.La && Nn(O5, B4, N6, q4), 0 < A4 && bn(O5, B4, N6, q4 + 4), j4.La && wn(O5, B4, N6, q4);
+                            if (o4.M = s6.M, o4.uc = l7, jr(s6, o4), c8 = 1, o4 = (L4 = s6.D).Nb, l7 = (y5 = Ri[s6.L]) * s6.R, f7 = y5 / 2 * s6.B, w4 = 16 * o4 * s6.R, _4 = 8 * o4 * s6.B, d6 = s6.sa, p7 = s6.ta - l7 + w4, g6 = s6.qa, h7 = s6.ra - f7 + _4, m8 = s6.Ha, v7 = s6.Ia - f7 + _4, F4 = 0 == (P3 = L4.M), b5 = P3 >= s6.Va - 1, 2 == s6.Aa && jr(s6, L4), L4.uc) for (I3 = (S4 = s6).D.M, e2(S4.D.uc), L4 = S4.yb; L4 < S4.Hb; ++L4) {
+                              x6 = L4, A4 = I3;
+                              var C4 = (j4 = (z3 = S4).D).Nb;
+                              N6 = z3.R;
+                              var j4 = j4.wa[j4.Y + x6], O5 = z3.sa, B4 = z3.ta + 16 * C4 * N6 + 16 * x6, M4 = j4.dd, q4 = j4.tc;
+                              if (0 != q4) if (e2(3 <= q4), 1 == z3.L) 0 < x6 && yn(O5, B4, N6, q4 + 4), j4.La && Nn(O5, B4, N6, q4), 0 < A4 && bn(O5, B4, N6, q4 + 4), j4.La && wn(O5, B4, N6, q4);
                               else {
-                                var E3 = z4.B, R3 = z4.qa, D4 = z4.ra + 8 * C4 * E3 + 8 * x6, T4 = z4.Ha, z4 = z4.Ia + 8 * C4 * E3 + 8 * x6;
-                                C4 = j4.ld, 0 < x6 && (hn(O5, B4, N6, q4 + 4, M4, C4), dn(R3, D4, T4, z4, E3, q4 + 4, M4, C4)), j4.La && (gn(O5, B4, N6, q4, M4, C4), vn(R3, D4, T4, z4, E3, q4, M4, C4)), 0 < A4 && (ln2(O5, B4, N6, q4 + 4, M4, C4), fn(R3, D4, T4, z4, E3, q4 + 4, M4, C4)), j4.La && (pn(O5, B4, N6, q4, M4, C4), mn(R3, D4, T4, z4, E3, q4, M4, C4));
+                                var E3 = z3.B, R3 = z3.qa, D4 = z3.ra + 8 * C4 * E3 + 8 * x6, T4 = z3.Ha, z3 = z3.Ia + 8 * C4 * E3 + 8 * x6;
+                                C4 = j4.ld, 0 < x6 && (hn(O5, B4, N6, q4 + 4, M4, C4), dn(R3, D4, T4, z3, E3, q4 + 4, M4, C4)), j4.La && (gn(O5, B4, N6, q4, M4, C4), vn(R3, D4, T4, z3, E3, q4, M4, C4)), 0 < A4 && (ln2(O5, B4, N6, q4 + 4, M4, C4), fn(R3, D4, T4, z3, E3, q4 + 4, M4, C4)), j4.La && (pn(O5, B4, N6, q4, M4, C4), mn(R3, D4, T4, z3, E3, q4, M4, C4));
                               }
                             }
                             if (s6.ia && alert("todo:DitherRow"), null != u7.put) {
-                              if (L5 = 16 * P3, P3 = 16 * (P3 + 1), F4 ? (u7.y = s6.sa, u7.O = s6.ta + w4, u7.f = s6.qa, u7.N = s6.ra + _4, u7.ea = s6.Ha, u7.W = s6.Ia + _4) : (L5 -= y5, u7.y = d6, u7.O = p7, u7.f = g6, u7.N = h7, u7.ea = m8, u7.W = v7), b5 || (P3 -= y5), P3 > u7.o && (P3 = u7.o), u7.F = null, u7.J = null, null != s6.Fa && 0 < s6.Fa.length && L5 < P3 && (u7.J = lr(s6, u7, L5, P3 - L5), u7.F = s6.mb, null == u7.F && 0 == u7.F.length)) {
+                              if (L4 = 16 * P3, P3 = 16 * (P3 + 1), F4 ? (u7.y = s6.sa, u7.O = s6.ta + w4, u7.f = s6.qa, u7.N = s6.ra + _4, u7.ea = s6.Ha, u7.W = s6.Ia + _4) : (L4 -= y5, u7.y = d6, u7.O = p7, u7.f = g6, u7.N = h7, u7.ea = m8, u7.W = v7), b5 || (P3 -= y5), P3 > u7.o && (P3 = u7.o), u7.F = null, u7.J = null, null != s6.Fa && 0 < s6.Fa.length && L4 < P3 && (u7.J = lr(s6, u7, L4, P3 - L4), u7.F = s6.mb, null == u7.F && 0 == u7.F.length)) {
                                 c8 = Jt3(s6, 3, "Could not decode alpha data.");
                                 break e;
                               }
-                              L5 < u7.j && (y5 = u7.j - L5, L5 = u7.j, e2(!(1 & y5)), u7.O += s6.R * y5, u7.N += s6.B * (y5 >> 1), u7.W += s6.B * (y5 >> 1), null != u7.F && (u7.J += u7.width * y5)), L5 < P3 && (u7.O += u7.v, u7.N += u7.v >> 1, u7.W += u7.v >> 1, null != u7.F && (u7.J += u7.v), u7.ka = L5 - u7.j, u7.U = u7.va - u7.v, u7.T = P3 - L5, c8 = u7.put(u7));
+                              L4 < u7.j && (y5 = u7.j - L4, L4 = u7.j, e2(!(1 & y5)), u7.O += s6.R * y5, u7.N += s6.B * (y5 >> 1), u7.W += s6.B * (y5 >> 1), null != u7.F && (u7.J += u7.width * y5)), L4 < P3 && (u7.O += u7.v, u7.N += u7.v >> 1, u7.W += u7.v >> 1, null != u7.F && (u7.J += u7.v), u7.ka = L4 - u7.j, u7.U = u7.va - u7.v, u7.T = P3 - L4, c8 = u7.put(u7));
                             }
                             o4 + 1 != s6.Ic || b5 || (n2(s6.sa, s6.ta - l7, d6, p7 + 16 * s6.R, l7), n2(s6.qa, s6.ra - f7, g6, h7 + 8 * s6.B, f7), n2(s6.Ha, s6.Ia - f7, m8, v7 + 8 * s6.B, f7));
                           }
@@ -53542,8 +53551,8 @@ function ue(t3) {
     y3.loop_counter = y3.loop_count, d2 = [y3.canvas_height], p3 = [y3.canvas_width];
     for (var N4 = 0; N4 < w2.length && 0 != w2[N4].blend; N4++) ;
   }
-  var L3 = w2[0], x4 = m4.WebPDecodeRGBA(v4, L3.src_off, L3.src_size, p3, d2);
-  L3.rgba = x4, L3.imgwidth = p3[0], L3.imgheight = d2[0];
+  var L2 = w2[0], x4 = m4.WebPDecodeRGBA(v4, L2.src_off, L2.src_size, p3, d2);
+  L2.rgba = x4, L2.imgwidth = p3[0], L2.imgheight = d2[0];
   for (var A2 = 0; A2 < p3[0] * d2[0] * 4; A2++) g2[A2] = x4[A2];
   return this.width = p3, this.height = d2, this.data = g2, this;
 }
@@ -53956,8 +53965,8 @@ function le() {
     void 0 !== n3 && void 0 !== s4 && (p4 = s4 / n3, g3 = u4 / i5, f4 = h3.width / n3 * s4 / n3, d3 = h3.height / i5 * u4 / i5), void 0 === a4 && (a4 = e3, o3 = r3, e3 = 0, r3 = 0), void 0 !== n3 && void 0 === s4 && (s4 = n3, u4 = i5), void 0 === n3 && void 0 === s4 && (s4 = h3.width, u4 = h3.height);
     var m5 = this.ctx.transform.decompose(), v5 = E2(m5.rotate.shx), w3 = new l3(), x5 = (w3 = (w3 = (w3 = w3.multiply(m5.translate)).multiply(m5.skew)).multiply(m5.scale)).applyToRectangle(new c4(a4 - e3 * p4, o3 - r3 * g3, n3 * f4, i5 * d3));
     if (this.autoPaging) {
-      for (var S4, _4 = y3.call(this, x5), P3 = [], k4 = 0; k4 < _4.length; k4 += 1) -1 === P3.indexOf(_4[k4]) && P3.push(_4[k4]);
-      L3(P3);
+      for (var S4, _4 = y3.call(this, x5), P3 = [], k3 = 0; k3 < _4.length; k3 += 1) -1 === P3.indexOf(_4[k3]) && P3.push(_4[k3]);
+      L2(P3);
       for (var F4 = P3[0], I3 = P3[P3.length - 1], C4 = F4; C4 < I3 + 1; C4++) {
         this.pdf.setPage(C4);
         var j4 = this.pdf.internal.pageSize.width - this.margin[3] - this.margin[1], O5 = 1 === C4 ? this.posY + this.margin[0] : this.margin[0], B4 = this.pdf.internal.pageSize.height - this.posY - this.margin[0] - this.margin[2], M4 = this.pdf.internal.pageSize.height - this.margin[0] - this.margin[2], q4 = 1 === C4 ? 0 : B4 + (C4 - 2) * M4;
@@ -54011,7 +54020,7 @@ function le() {
         t3[n3].x += e3, t3[n3].y += r3;
     }
     return t3;
-  }, L3 = function(t3) {
+  }, L2 = function(t3) {
     return t3.sort(function(t4, e3) {
       return t4 - e3;
     });
@@ -54020,10 +54029,10 @@ function le() {
     if (this.autoPaging) {
       for (var u4, c5, l4 = JSON.parse(JSON.stringify(this.path)), h3 = JSON.parse(JSON.stringify(this.path)), f4 = [], d3 = 0; d3 < h3.length; d3++) if (void 0 !== h3[d3].x) for (var p4 = y3.call(this, h3[d3]), g3 = 0; g3 < p4.length; g3 += 1) -1 === f4.indexOf(p4[g3]) && f4.push(p4[g3]);
       for (var m5 = 0; m5 < f4.length; m5++) for (; this.pdf.internal.getNumberOfPages() < f4[m5]; ) w2.call(this);
-      L3(f4);
+      L2(f4);
       for (var v5 = f4[0], x5 = f4[f4.length - 1], S4 = v5; S4 < x5 + 1; S4++) {
         this.pdf.setPage(S4), this.fillStyle = r3, this.strokeStyle = n3, this.lineCap = i5, this.lineWidth = o3, this.lineJoin = s4;
-        var _4 = this.pdf.internal.pageSize.width - this.margin[3] - this.margin[1], P3 = 1 === S4 ? this.posY + this.margin[0] : this.margin[0], k4 = this.pdf.internal.pageSize.height - this.posY - this.margin[0] - this.margin[2], F4 = this.pdf.internal.pageSize.height - this.margin[0] - this.margin[2], I3 = 1 === S4 ? 0 : k4 + (S4 - 2) * F4;
+        var _4 = this.pdf.internal.pageSize.width - this.margin[3] - this.margin[1], P3 = 1 === S4 ? this.posY + this.margin[0] : this.margin[0], k3 = this.pdf.internal.pageSize.height - this.posY - this.margin[0] - this.margin[2], F4 = this.pdf.internal.pageSize.height - this.margin[0] - this.margin[2], I3 = 1 === S4 ? 0 : k3 + (S4 - 2) * F4;
         if (0 !== this.ctx.clip_path.length) {
           var C4 = this.path;
           u4 = JSON.parse(JSON.stringify(this.ctx.clip_path)), this.path = N4(u4, this.posX + this.margin[3], -I3 + P3 + this.ctx.prevPageLastElemOffset), A2.call(this, t3, true), this.path = C4;
@@ -54077,10 +54086,10 @@ function le() {
       }
       else if (true === i5[b4].close) this.pdf.internal.out("h"), g3 = false;
       else if (true !== i5[b4].begin) {
-        var L4 = i5[b4].start.x, x5 = i5[b4].start.y;
-        O4.call(this, i5[b4].deltas, L4, x5), g3 = true;
+        var L3 = i5[b4].start.x, x5 = i5[b4].start.y;
+        O4.call(this, i5[b4].deltas, L3, x5), g3 = true;
       }
-      n3 && k3.call(this, n3), e3 && F3.call(this);
+      n3 && k2.call(this, n3), e3 && F3.call(this);
     }
   }, S3 = function(t3) {
     var e3 = this.pdf.internal.getFontSize() / this.pdf.internal.scaleFactor, r3 = e3 * (this.pdf.internal.getLineHeightFactor() - 1);
@@ -54117,8 +54126,8 @@ function le() {
       var h3 = c5[l4];
       0 === l4 && (u4 ? I2.call(this, h3.x1 + t3, h3.y1 + e3) : j3.call(this, h3.x1 + t3, h3.y1 + e3)), B3.call(this, t3, e3, h3.x2, h3.y2, h3.x3, h3.y3, h3.x4, h3.y4);
     }
-    s4 ? F3.call(this) : k3.call(this, o3);
-  }, k3 = function(t3) {
+    s4 ? F3.call(this) : k2.call(this, o3);
+  }, k2 = function(t3) {
     switch (t3) {
       case "stroke":
         this.pdf.internal.out("S");
@@ -54148,10 +54157,10 @@ function le() {
       var f4 = this.ctx.transform.decompose(), d3 = new l3();
       d3 = (d3 = (d3 = d3.multiply(f4.translate)).multiply(f4.skew)).multiply(f4.scale);
       for (var p4 = this.ctx.transform.applyToRectangle(new c4(t3.x, o3, a4.w, a4.h)), g3 = d3.applyToRectangle(new c4(t3.x, s4, a4.w, a4.h)), m5 = y3.call(this, g3), v5 = [], w3 = 0; w3 < m5.length; w3 += 1) -1 === v5.indexOf(m5[w3]) && v5.push(m5[w3]);
-      L3(v5);
-      for (var x5 = v5[0], P3 = v5[v5.length - 1], k4 = x5; k4 < P3 + 1; k4++) {
-        this.pdf.setPage(k4);
-        var F4 = 1 === k4 ? this.posY + this.margin[0] : this.margin[0], I3 = this.pdf.internal.pageSize.height - this.posY - this.margin[0] - this.margin[2], C4 = this.pdf.internal.pageSize.height - this.margin[2], j4 = C4 - this.margin[0], O5 = this.pdf.internal.pageSize.width - this.margin[1], B4 = O5 - this.margin[3], M4 = 1 === k4 ? 0 : I3 + (k4 - 2) * j4;
+      L2(v5);
+      for (var x5 = v5[0], P3 = v5[v5.length - 1], k3 = x5; k3 < P3 + 1; k3++) {
+        this.pdf.setPage(k3);
+        var F4 = 1 === k3 ? this.posY + this.margin[0] : this.margin[0], I3 = this.pdf.internal.pageSize.height - this.posY - this.margin[0] - this.margin[2], C4 = this.pdf.internal.pageSize.height - this.margin[2], j4 = C4 - this.margin[0], O5 = this.pdf.internal.pageSize.width - this.margin[1], B4 = O5 - this.margin[3], M4 = 1 === k3 ? 0 : I3 + (k3 - 2) * j4;
         if (0 !== this.ctx.clip_path.length) {
           var q4 = this.path;
           r3 = JSON.parse(JSON.stringify(this.ctx.clip_path)), this.path = N4(r3, this.posX + this.margin[3], -1 * M4 + F4), A2.call(this, "fill", true), this.path = q4;
@@ -54161,8 +54170,8 @@ function le() {
         var R3 = "text" !== this.autoPaging;
         if (R3 || E3.y + E3.h <= C4) {
           if (R3 || E3.y >= F4 && E3.x <= O5) {
-            var D4 = R3 ? t3.text : this.pdf.splitTextToSize(t3.text, t3.maxWidth || O5 - E3.x)[0], T4 = N4([JSON.parse(JSON.stringify(p4))], this.posX + this.margin[3], -M4 + F4 + this.ctx.prevPageLastElemOffset)[0], z3 = R3 && (k4 > x5 || k4 < P3) && b3.call(this);
-            z3 && (this.pdf.saveGraphicsState(), this.pdf.rect(this.margin[3], this.margin[0], B4, j4, null).clip().discardPath()), this.pdf.text(D4, T4.x, T4.y, { angle: t3.angle, align: e3, renderingMode: t3.renderingMode }), z3 && this.pdf.restoreGraphicsState();
+            var D4 = R3 ? t3.text : this.pdf.splitTextToSize(t3.text, t3.maxWidth || O5 - E3.x)[0], T4 = N4([JSON.parse(JSON.stringify(p4))], this.posX + this.margin[3], -M4 + F4 + this.ctx.prevPageLastElemOffset)[0], z2 = R3 && (k3 > x5 || k3 < P3) && b3.call(this);
+            z2 && (this.pdf.saveGraphicsState(), this.pdf.rect(this.margin[3], this.margin[0], B4, j4, null).clip().discardPath()), this.pdf.text(D4, T4.x, T4.y, { angle: t3.angle, align: e3, renderingMode: t3.renderingMode }), z2 && this.pdf.restoreGraphicsState();
           }
         } else E3.y < C4 && (this.ctx.prevPageLastElemOffset += C4 - E3.y);
         t3.scale >= 0.01 && (this.pdf.setFontSize(n3), this.lineWidth = i5);
@@ -54192,9 +54201,9 @@ function le() {
     var o3 = t3 + 0.5 * (r3 - t3), s4 = e3 + 0.5 * (n3 - e3), u4 = i5 + 0.5 * (r3 - i5), l4 = a4 + 0.5 * (n3 - a4), h3 = Math.min(t3, i5, o3, u4), f4 = Math.max(t3, i5, o3, u4), d3 = Math.min(e3, a4, s4, l4), p4 = Math.max(e3, a4, s4, l4);
     return new c4(h3, d3, f4 - h3, p4 - d3);
   }, D3 = function(t3, e3, r3, n3, i5, a4, o3, s4) {
-    var u4, l4, h3, f4, d3, p4, g3, m5, v5, b4, y4, w3, N5, L4, x5 = r3 - t3, A3 = n3 - e3, S4 = i5 - r3, _4 = a4 - n3, P3 = o3 - i5, k4 = s4 - a4;
-    for (l4 = 0; l4 < 41; l4++) v5 = (g3 = (h3 = t3 + (u4 = l4 / 40) * x5) + u4 * ((d3 = r3 + u4 * S4) - h3)) + u4 * (d3 + u4 * (i5 + u4 * P3 - d3) - g3), b4 = (m5 = (f4 = e3 + u4 * A3) + u4 * ((p4 = n3 + u4 * _4) - f4)) + u4 * (p4 + u4 * (a4 + u4 * k4 - p4) - m5), 0 == l4 ? (y4 = v5, w3 = b4, N5 = v5, L4 = b4) : (y4 = Math.min(y4, v5), w3 = Math.min(w3, b4), N5 = Math.max(N5, v5), L4 = Math.max(L4, b4));
-    return new c4(Math.round(y4), Math.round(w3), Math.round(N5 - y4), Math.round(L4 - w3));
+    var u4, l4, h3, f4, d3, p4, g3, m5, v5, b4, y4, w3, N5, L3, x5 = r3 - t3, A3 = n3 - e3, S4 = i5 - r3, _4 = a4 - n3, P3 = o3 - i5, k3 = s4 - a4;
+    for (l4 = 0; l4 < 41; l4++) v5 = (g3 = (h3 = t3 + (u4 = l4 / 40) * x5) + u4 * ((d3 = r3 + u4 * S4) - h3)) + u4 * (d3 + u4 * (i5 + u4 * P3 - d3) - g3), b4 = (m5 = (f4 = e3 + u4 * A3) + u4 * ((p4 = n3 + u4 * _4) - f4)) + u4 * (p4 + u4 * (a4 + u4 * k3 - p4) - m5), 0 == l4 ? (y4 = v5, w3 = b4, N5 = v5, L3 = b4) : (y4 = Math.min(y4, v5), w3 = Math.min(w3, b4), N5 = Math.max(N5, v5), L3 = Math.max(L3, b4));
+    return new c4(Math.round(y4), Math.round(w3), Math.round(N5 - y4), Math.round(L3 - w3));
   }, T3 = function() {
     if (this.prevLineDash || this.ctx.lineDash.length || this.ctx.lineDashOffset) {
       var t3, e3, r3 = (t3 = this.ctx.lineDash, e3 = this.ctx.lineDashOffset, JSON.stringify({ lineDash: t3, lineDashOffset: e3 }));
@@ -54728,14 +54737,14 @@ function le() {
         var y4 = e2 * n2;
         l4 = new Uint8Array(y4);
         for (var w3 = new DataView(i5.buffer), N5 = 0; N5 < y4; N5++) {
-          var L4 = ee(w3, N5, o4), x5 = _slicedToArray(a4[L4], 4)[3];
+          var L3 = ee(w3, N5, o4), x5 = _slicedToArray(a4[L3], 4)[3];
           l4[N5] = x5;
         }
       } else 0 === f4 && (c5 = void 0);
       return { colorSpace: "Indexed", colorsPerPixel: 1, sMaskBitsPerComponent: s4 ? 8 : void 0, colorBytes: i5, alphaBytes: l4, needSMask: s4, palette: u4, mask: c5 };
     })(u3) : 2 === h3 || 4 === h3 ? (function(t4) {
       for (var e2 = t4.data, r2 = t4.width, n2 = t4.height, i5 = t4.channels, a4 = t4.depth, o4 = 2 === i5 ? "DeviceGray" : "DeviceRGB", s4 = i5 - 1, u4 = r2 * n2, c5 = s4, l4 = u4 * c5, h4 = 1 * u4, f4 = Math.ceil(l4 * a4 / 8), d3 = Math.ceil(h4 * a4 / 8), p4 = new Uint8Array(f4), g3 = new Uint8Array(d3), m5 = new DataView(e2.buffer), v5 = new DataView(p4.buffer), b4 = new DataView(g3.buffer), y4 = false, w3 = 0; w3 < u4; w3++) {
-        for (var N5 = w3 * i5, L4 = 0; L4 < c5; L4++) re(v5, ee(m5, N5 + L4, a4), w3 * c5 + L4, a4);
+        for (var N5 = w3 * i5, L3 = 0; L3 < c5; L3++) re(v5, ee(m5, N5 + L3, a4), w3 * c5 + L3, a4);
         var x5 = ee(m5, N5 + c5, a4);
         x5 < (1 << a4) - 1 && (y4 = true), re(b4, x5, 1 * w3, a4);
       }
@@ -54747,7 +54756,7 @@ function le() {
         return r3;
       })(e2) : e2, needSMask: false };
     })(u3);
-    var p3, g2, m4, v4 = s3, b3 = v4.colorSpace, y3 = v4.colorsPerPixel, w2 = v4.sMaskBitsPerComponent, N4 = v4.colorBytes, L3 = v4.alphaBytes, x4 = v4.needSMask, A2 = v4.palette, S3 = v4.mask, _3 = null;
+    var p3, g2, m4, v4 = s3, b3 = v4.colorSpace, y3 = v4.colorsPerPixel, w2 = v4.sMaskBitsPerComponent, N4 = v4.colorBytes, L2 = v4.alphaBytes, x4 = v4.needSMask, A2 = v4.palette, S3 = v4.mask, _3 = null;
     return o3 !== E.API.image_compression.NONE && "function" == typeof zlibSync ? (_3 = (function(t4) {
       var e2;
       switch (t4) {
@@ -54764,7 +54773,7 @@ function le() {
           e2 = 12;
       }
       return e2;
-    })(o3), p3 = this.decode.FLATE_DECODE, g2 = "/Predictor ".concat(_3, " /Colors ").concat(y3, " /BitsPerComponent ").concat(d2, " /Columns ").concat(c4), t3 = Yt(N4, Math.ceil(c4 * y3 * d2 / 8), y3, d2, o3), x4 && (m4 = Yt(L3, Math.ceil(c4 * w2 / 8), 1, w2, o3))) : (p3 = void 0, g2 = void 0, t3 = N4, x4 && (m4 = L3)), (this.__addimage__.isArrayBuffer(t3) || this.__addimage__.isArrayBufferView(t3)) && (t3 = this.__addimage__.arrayBufferToBinaryString(t3)), (m4 && this.__addimage__.isArrayBuffer(m4) || this.__addimage__.isArrayBufferView(m4)) && (m4 = this.__addimage__.arrayBufferToBinaryString(m4)), { alias: a3, data: t3, index: i4, filter: p3, decodeParameters: g2, transparency: S3, palette: A2, sMask: m4, predictor: _3, width: c4, height: l3, bitsPerComponent: d2, sMaskBitsPerComponent: w2, colorSpace: b3 };
+    })(o3), p3 = this.decode.FLATE_DECODE, g2 = "/Predictor ".concat(_3, " /Colors ").concat(y3, " /BitsPerComponent ").concat(d2, " /Columns ").concat(c4), t3 = Yt(N4, Math.ceil(c4 * y3 * d2 / 8), y3, d2, o3), x4 && (m4 = Yt(L2, Math.ceil(c4 * w2 / 8), 1, w2, o3))) : (p3 = void 0, g2 = void 0, t3 = N4, x4 && (m4 = L2)), (this.__addimage__.isArrayBuffer(t3) || this.__addimage__.isArrayBufferView(t3)) && (t3 = this.__addimage__.arrayBufferToBinaryString(t3)), (m4 && this.__addimage__.isArrayBuffer(m4) || this.__addimage__.isArrayBufferView(m4)) && (m4 = this.__addimage__.arrayBufferToBinaryString(m4)), { alias: a3, data: t3, index: i4, filter: p3, decodeParameters: g2, transparency: S3, palette: A2, sMask: m4, predictor: _3, width: c4, height: l3, bitsPerComponent: d2, sMaskBitsPerComponent: w2, colorSpace: b3 };
   }
 }, (function(t3) {
   t3.processGIF89A = function(e2, r2, n2, i4) {
@@ -55223,12 +55232,12 @@ function le() {
       return f4;
     }, N4 = function(t5, e3, r4) {
       var n3 = t5.split("");
-      return r4 && L3(n3, r4, { hiLevel: v4 }), n3.reverse(), e3 && e3.reverse(), n3.join("");
-    }, L3 = function(t5, e3, i5) {
-      var a4, o4, s4, u4, c5, d3 = -1, p4 = t5.length, g3 = 0, y4 = [], N5 = v4 ? h3 : l3, L4 = [];
-      for (m4 = false, r3 = false, n2 = false, o4 = 0; o4 < p4; o4++) L4[o4] = b3(t5[o4]);
+      return r4 && L2(n3, r4, { hiLevel: v4 }), n3.reverse(), e3 && e3.reverse(), n3.join("");
+    }, L2 = function(t5, e3, i5) {
+      var a4, o4, s4, u4, c5, d3 = -1, p4 = t5.length, g3 = 0, y4 = [], N5 = v4 ? h3 : l3, L3 = [];
+      for (m4 = false, r3 = false, n2 = false, o4 = 0; o4 < p4; o4++) L3[o4] = b3(t5[o4]);
       for (s4 = 0; s4 < p4; s4++) {
-        if (c5 = g3, y4[s4] = w2(t5, L4, y4, s4), a4 = 240 & (g3 = N5[c5][f3[y4[s4]]]), g3 &= 15, e3[s4] = u4 = N5[g3][5], a4 > 0) if (16 === a4) {
+        if (c5 = g3, y4[s4] = w2(t5, L3, y4, s4), a4 = 240 & (g3 = N5[c5][f3[y4[s4]]]), g3 &= 15, e3[s4] = u4 = N5[g3][5], a4 > 0) if (16 === a4) {
           for (o4 = d3; o4 < s4; o4++) e3[o4] = 1;
           d3 = -1;
         } else d3 = -1;
@@ -55237,14 +55246,14 @@ function le() {
           for (o4 = d3; o4 < s4; o4++) e3[o4] = u4;
           d3 = -1;
         }
-        "B" === L4[s4] && (e3[s4] = 0), i5.hiLevel |= u4;
+        "B" === L3[s4] && (e3[s4] = 0), i5.hiLevel |= u4;
       }
       n2 && (function(t6, e4, r4) {
         for (var n3 = 0; n3 < r4; n3++) if ("S" === t6[n3]) {
           e4[n3] = v4;
           for (var i6 = n3 - 1; i6 >= 0 && "WS" === t6[i6]; i6--) e4[i6] = v4;
         }
-      })(L4, e3, p4);
+      })(L3, e3, p4);
     }, x4 = function(t5, e3, n3, i5, a4) {
       if (!(a4.hiLevel < t5)) {
         if (1 === t5 && 1 === v4 && !r3) return e3.reverse(), void (n3 && n3.reverse());
@@ -55259,7 +55268,7 @@ function le() {
       }
     }, A2 = function(t5, e3, r4) {
       var n3 = t5.split(""), i5 = { hiLevel: v4 };
-      return r4 || (r4 = []), L3(n3, r4, i5), (function(t6, e4, r5) {
+      return r4 || (r4 = []), L2(n3, r4, i5), (function(t6, e4, r5) {
         if (0 !== r5.hiLevel && u3) for (var n4, i6 = 0; i6 < t6.length; i6++) 1 === e4[i6] && (n4 = p3.indexOf(t6[i6])) >= 0 && (t6[i6] = p3[n4 + 1]);
       })(n3, r4, i5), x4(2, n3, e3, r4, i5), x4(1, n3, e3, r4, i5), n3.join("");
     };
@@ -55468,7 +55477,7 @@ var ve = (function() {
     t4.pos = l3;
   }
   return t3.encode = function(t4, e2) {
-    var r2, n2, i4, a3, o3, s3, u3, c4, l3, h3, f3, d2, p3, g2, m4, v4, b3, y3, w2, N4, L3, x4, A2, S3, _3, P2, k3, F3, I2, C3, j3, O4, B3, M3, q3, E2, R2, D3, T3, z3, U3, H3, W3, V2, G3, Y3;
+    var r2, n2, i4, a3, o3, s3, u3, c4, l3, h3, f3, d2, p3, g2, m4, v4, b3, y3, w2, N4, L2, x4, A2, S3, _3, P2, k2, F3, I2, C3, j3, O4, B3, M3, q3, E2, R2, D3, T3, z2, U3, H2, W3, V2, G3, Y3;
     switch (F3 = new fe(), a3 = Object.keys(t4).sort(function(t5, e3) {
       return t5 - e3;
     }), e2) {
@@ -55481,19 +55490,19 @@ var ve = (function() {
         return F3.writeUInt16(1), F3.writeUInt16(0), F3.writeUInt32(12), F3.writeUInt16(0), F3.writeUInt16(262), F3.writeUInt16(0), F3.write(g2), { charMap: i4, subtable: F3.data, maxGlyphID: p3 + 1 };
       case "unicode":
         for (P2 = [], l3 = [], b3 = 0, v4 = {}, r2 = {}, m4 = u3 = null, C3 = 0, M3 = a3.length; C3 < M3; C3++) null == v4[w2 = t4[n2 = a3[C3]]] && (v4[w2] = ++b3), r2[n2] = { old: w2, new: v4[w2] }, o3 = v4[w2] - n2, null != m4 && o3 === u3 || (m4 && l3.push(m4), P2.push(n2), u3 = o3), m4 = n2;
-        for (m4 && l3.push(m4), l3.push(65535), P2.push(65535), S3 = 2 * (A2 = P2.length), x4 = 2 * Math.pow(Math.log(A2) / Math.LN2, 2), h3 = Math.log(x4 / 2) / Math.LN2, L3 = 2 * A2 - x4, s3 = [], N4 = [], f3 = [], d2 = j3 = 0, q3 = P2.length; j3 < q3; d2 = ++j3) {
+        for (m4 && l3.push(m4), l3.push(65535), P2.push(65535), S3 = 2 * (A2 = P2.length), x4 = 2 * Math.pow(Math.log(A2) / Math.LN2, 2), h3 = Math.log(x4 / 2) / Math.LN2, L2 = 2 * A2 - x4, s3 = [], N4 = [], f3 = [], d2 = j3 = 0, q3 = P2.length; j3 < q3; d2 = ++j3) {
           if (_3 = P2[d2], c4 = l3[d2], 65535 === _3) {
             s3.push(0), N4.push(0);
             break;
           }
-          if (_3 - (k3 = r2[_3].new) >= 32768) for (s3.push(0), N4.push(2 * (f3.length + A2 - d2)), n2 = O4 = _3; _3 <= c4 ? O4 <= c4 : O4 >= c4; n2 = _3 <= c4 ? ++O4 : --O4) f3.push(r2[n2].new);
-          else s3.push(k3 - _3), N4.push(0);
+          if (_3 - (k2 = r2[_3].new) >= 32768) for (s3.push(0), N4.push(2 * (f3.length + A2 - d2)), n2 = O4 = _3; _3 <= c4 ? O4 <= c4 : O4 >= c4; n2 = _3 <= c4 ? ++O4 : --O4) f3.push(r2[n2].new);
+          else s3.push(k2 - _3), N4.push(0);
         }
-        for (F3.writeUInt16(3), F3.writeUInt16(1), F3.writeUInt32(12), F3.writeUInt16(4), F3.writeUInt16(16 + 8 * A2 + 2 * f3.length), F3.writeUInt16(0), F3.writeUInt16(S3), F3.writeUInt16(x4), F3.writeUInt16(h3), F3.writeUInt16(L3), U3 = 0, E2 = l3.length; U3 < E2; U3++) n2 = l3[U3], F3.writeUInt16(n2);
-        for (F3.writeUInt16(0), H3 = 0, R2 = P2.length; H3 < R2; H3++) n2 = P2[H3], F3.writeUInt16(n2);
+        for (F3.writeUInt16(3), F3.writeUInt16(1), F3.writeUInt32(12), F3.writeUInt16(4), F3.writeUInt16(16 + 8 * A2 + 2 * f3.length), F3.writeUInt16(0), F3.writeUInt16(S3), F3.writeUInt16(x4), F3.writeUInt16(h3), F3.writeUInt16(L2), U3 = 0, E2 = l3.length; U3 < E2; U3++) n2 = l3[U3], F3.writeUInt16(n2);
+        for (F3.writeUInt16(0), H2 = 0, R2 = P2.length; H2 < R2; H2++) n2 = P2[H2], F3.writeUInt16(n2);
         for (V2 = 0, D3 = s3.length; V2 < D3; V2++) o3 = s3[V2], F3.writeUInt16(o3);
         for (G3 = 0, T3 = N4.length; G3 < T3; G3++) y3 = N4[G3], F3.writeUInt16(y3);
-        for (Y3 = 0, z3 = f3.length; Y3 < z3; Y3++) p3 = f3[Y3], F3.writeUInt16(p3);
+        for (Y3 = 0, z2 = f3.length; Y3 < z2; Y3++) p3 = f3[Y3], F3.writeUInt16(p3);
         return { charMap: r2, subtable: F3.data, maxGlyphID: b3 + 1 };
     }
   }, t3;
@@ -55737,8 +55746,8 @@ E.API.PDFObject = (function() {
 function autoTableText(text2, x4, y3, styles, doc3) {
   styles = styles || {};
   var PHYSICAL_LINE_HEIGHT = 1.15;
-  var k3 = doc3.internal.scaleFactor;
-  var fontSize = doc3.internal.getFontSize() / k3;
+  var k2 = doc3.internal.scaleFactor;
+  var fontSize = doc3.internal.getFontSize() / k2;
   var lineHeightFactor = doc3.getLineHeightFactor ? doc3.getLineHeightFactor() : PHYSICAL_LINE_HEIGHT;
   var lineHeight = fontSize * lineHeightFactor;
   var splitRegex = /\r\n|\r|\n/g;
@@ -56379,7 +56388,7 @@ function parseHooks(global2, document2, current) {
   return result;
 }
 function parseSettings(doc3, options) {
-  var _a3, _b2, _c, _d, _e3, _f, _g, _h, _j, _k, _l, _m;
+  var _a3, _b2, _c, _d, _e2, _f, _g, _h, _j, _k, _l, _m;
   var margin = parseSpacing(options.margin, 40 / doc3.scaleFactor());
   var startY = (_a3 = getStartY(doc3, options.startY)) !== null && _a3 !== void 0 ? _a3 : margin.top;
   var showFoot;
@@ -56401,7 +56410,7 @@ function parseSettings(doc3, options) {
   var useCss = (_d = options.useCss) !== null && _d !== void 0 ? _d : false;
   var theme = options.theme || (useCss ? "plain" : "striped");
   var horizontalPageBreak = !!options.horizontalPageBreak;
-  var horizontalPageBreakRepeat = (_e3 = options.horizontalPageBreakRepeat) !== null && _e3 !== void 0 ? _e3 : null;
+  var horizontalPageBreakRepeat = (_e2 = options.horizontalPageBreakRepeat) !== null && _e2 !== void 0 ? _e2 : null;
   return {
     includeHiddenHtml: (_f = options.includeHiddenHtml) !== null && _f !== void 0 ? _f : false,
     useCss,
@@ -58069,9 +58078,6 @@ function isIE() {
 function isSafari() {
   return !isNode() && !!navigator.userAgent && navigator.userAgent.includes("Safari") && !navigator.userAgent.includes("Chrome");
 }
-function isSafariOrWebkit() {
-  return !isNode() && !!navigator.userAgent && (navigator.userAgent.includes("Safari") || navigator.userAgent.includes("WebKit")) && !navigator.userAgent.includes("Chrome");
-}
 function isIndexedDBAvailable() {
   try {
     return typeof indexedDB === "object";
@@ -58153,12 +58159,12 @@ function deepEqual(a3, b3) {
   }
   const aKeys = Object.keys(a3);
   const bKeys = Object.keys(b3);
-  for (const k3 of aKeys) {
-    if (!bKeys.includes(k3)) {
+  for (const k2 of aKeys) {
+    if (!bKeys.includes(k2)) {
       return false;
     }
-    const aProp = a3[k3];
-    const bProp = b3[k3];
+    const aProp = a3[k2];
+    const bProp = b3[k2];
     if (isObject(aProp) && isObject(bProp)) {
       if (!deepEqual(aProp, bProp)) {
         return false;
@@ -58167,8 +58173,8 @@ function deepEqual(a3, b3) {
       return false;
     }
   }
-  for (const k3 of bKeys) {
-    if (!aKeys.includes(k3)) {
+  for (const k2 of bKeys) {
+    if (!aKeys.includes(k2)) {
       return false;
     }
   }
@@ -61017,8 +61023,8 @@ function _getBrowserName(userAgent) {
   } else if (_isAndroid(ua)) {
     return "Android";
   } else {
-    const re3 = /([a-zA-Z\d\.]+)\/[a-zA-Z\d\.]*$/;
-    const matches = userAgent.match(re3);
+    const re2 = /([a-zA-Z\d\.]+)\/[a-zA-Z\d\.]*$/;
+    const matches = userAgent.match(re2);
     if (matches?.length === 2) {
       return matches[1];
     }
@@ -64819,8 +64825,8 @@ function matchDomain(expected) {
     return hostname === expected;
   }
   const escapedDomainPattern = expected.replace(/\./g, "\\.");
-  const re3 = new RegExp("^(.+\\." + escapedDomainPattern + "|" + escapedDomainPattern + ")$", "i");
-  return re3.test(hostname);
+  const re2 = new RegExp("^(.+\\." + escapedDomainPattern + "|" + escapedDomainPattern + ")$", "i");
+  return re2.test(hostname);
 }
 var NETWORK_TIMEOUT = new Delay(3e4, 6e4);
 function resetUnloadedGapiModules() {
@@ -65602,7 +65608,7 @@ var Integer;
 var Md5;
 (function() {
   var h3;
-  function k3(d2, a3) {
+  function k2(d2, a3) {
     function c4() {
     }
     c4.prototype = a3.prototype;
@@ -65625,7 +65631,7 @@ var Md5;
     this.o = this.h = 0;
     this.u();
   }
-  k3(m4, l3);
+  k2(m4, l3);
   m4.prototype.u = function() {
     this.g[0] = 1732584193;
     this.g[1] = 4023233417;
@@ -65851,7 +65857,7 @@ var Md5;
     }
     return f3;
   }
-  var w2 = u3(0), z3 = u3(1), A2 = u3(16777216);
+  var w2 = u3(0), z2 = u3(1), A2 = u3(16777216);
   h3 = t3.prototype;
   h3.m = function() {
     if (B3(this)) return -x4(this).m();
@@ -65899,7 +65905,7 @@ var Md5;
   function x4(d2) {
     const a3 = d2.g.length, c4 = [];
     for (let f3 = 0; f3 < a3; f3++) c4[f3] = ~d2.g[f3];
-    return new t3(c4, ~d2.h).add(z3);
+    return new t3(c4, ~d2.h).add(z2);
   }
   h3.abs = function() {
     return B3(this) ? x4(this) : this;
@@ -65944,28 +65950,28 @@ var Md5;
   function G3(d2, a3) {
     for (; (d2[a3] & 65535) != d2[a3]; ) d2[a3 + 1] += d2[a3] >>> 16, d2[a3] &= 65535, a3++;
   }
-  function H3(d2, a3) {
+  function H2(d2, a3) {
     this.g = d2;
     this.h = a3;
   }
   function D3(d2, a3) {
     if (C3(a3)) throw Error("division by zero");
-    if (C3(d2)) return new H3(w2, w2);
-    if (B3(d2)) return a3 = D3(x4(d2), a3), new H3(x4(a3.g), x4(a3.h));
-    if (B3(a3)) return a3 = D3(d2, x4(a3)), new H3(x4(a3.g), a3.h);
+    if (C3(d2)) return new H2(w2, w2);
+    if (B3(d2)) return a3 = D3(x4(d2), a3), new H2(x4(a3.g), x4(a3.h));
+    if (B3(a3)) return a3 = D3(d2, x4(a3)), new H2(x4(a3.g), a3.h);
     if (d2.g.length > 30) {
       if (B3(d2) || B3(a3)) throw Error("slowDivide_ only works with positive integers.");
-      for (var c4 = z3, f3 = a3; f3.l(d2) <= 0; ) c4 = I2(c4), f3 = I2(f3);
-      var e2 = J3(c4, 1), g2 = J3(f3, 1);
-      f3 = J3(f3, 2);
-      for (c4 = J3(c4, 2); !C3(f3); ) {
+      for (var c4 = z2, f3 = a3; f3.l(d2) <= 0; ) c4 = I2(c4), f3 = I2(f3);
+      var e2 = J2(c4, 1), g2 = J2(f3, 1);
+      f3 = J2(f3, 2);
+      for (c4 = J2(c4, 2); !C3(f3); ) {
         var b3 = g2.add(f3);
         b3.l(d2) <= 0 && (e2 = e2.add(c4), g2 = b3);
-        f3 = J3(f3, 1);
-        c4 = J3(c4, 1);
+        f3 = J2(f3, 1);
+        c4 = J2(c4, 1);
       }
       a3 = F3(d2, e2.j(a3));
-      return new H3(e2, a3);
+      return new H2(e2, a3);
     }
     for (e2 = w2; d2.l(a3) >= 0; ) {
       c4 = Math.max(1, Math.floor(d2.m() / a3.m()));
@@ -65973,11 +65979,11 @@ var Md5;
       f3 = f3 <= 48 ? 1 : Math.pow(2, f3 - 48);
       g2 = v4(c4);
       for (b3 = g2.j(a3); B3(b3) || b3.l(d2) > 0; ) c4 -= f3, g2 = v4(c4), b3 = g2.j(a3);
-      C3(g2) && (g2 = z3);
+      C3(g2) && (g2 = z2);
       e2 = e2.add(g2);
       d2 = F3(d2, b3);
     }
-    return new H3(e2, d2);
+    return new H2(e2, d2);
   }
   h3.B = function(d2) {
     return D3(this, d2).h;
@@ -66002,7 +66008,7 @@ var Md5;
     for (let f3 = 0; f3 < a3; f3++) c4[f3] = d2.i(f3) << 1 | d2.i(f3 - 1) >>> 31;
     return new t3(c4, d2.h);
   }
-  function J3(d2, a3) {
+  function J2(d2, a3) {
     const c4 = a3 >> 5;
     a3 %= 32;
     const f3 = d2.g.length - c4, e2 = [];
@@ -66106,7 +66112,7 @@ var createWebChannelTransport;
     a3.prototype = new c4();
     a3.prototype.constructor = a3;
     a3.Ob = function(d2, e2, f3) {
-      for (var g2 = Array(arguments.length - 2), k3 = 2; k3 < arguments.length; k3++) g2[k3 - 2] = arguments[k3];
+      for (var g2 = Array(arguments.length - 2), k2 = 2; k2 < arguments.length; k2++) g2[k2 - 2] = arguments[k2];
       return b3.prototype[e2].apply(d2, g2);
     };
   }
@@ -66240,7 +66246,7 @@ var createWebChannelTransport;
   function y3(a3) {
     return /^[\s\xa0]*$/.test(a3);
   }
-  function z3(a3, b3) {
+  function z2(a3, b3) {
     x4.call(this, a3 ? a3.type : "");
     this.relatedTarget = this.g = this.target = null;
     this.button = this.screenY = this.screenX = this.clientY = this.clientX = 0;
@@ -66252,8 +66258,8 @@ var createWebChannelTransport;
     this.i = null;
     a3 && this.init(a3, b3);
   }
-  t3(z3, x4);
-  z3.prototype.init = function(a3, b3) {
+  t3(z2, x4);
+  z2.prototype.init = function(a3, b3) {
     const c4 = this.type = a3.type, d2 = a3.changedTouches && a3.changedTouches.length ? a3.changedTouches[0] : null;
     this.target = a3.target || a3.srcElement;
     this.g = b3;
@@ -66271,10 +66277,10 @@ var createWebChannelTransport;
     this.pointerType = a3.pointerType;
     this.state = a3.state;
     this.i = a3;
-    a3.defaultPrevented && z3.Z.h.call(this);
+    a3.defaultPrevented && z2.Z.h.call(this);
   };
-  z3.prototype.h = function() {
-    z3.Z.h.call(this);
+  z2.prototype.h = function() {
+    z2.Z.h.call(this);
     const a3 = this.i;
     a3.preventDefault ? a3.preventDefault() : a3.returnValue = false;
   };
@@ -66358,9 +66364,9 @@ var createWebChannelTransport;
   function Na(a3, b3, c4, d2, e2, f3) {
     if (!b3) throw Error("Invalid event type");
     const g2 = n2(e2) ? !!e2.capture : !!e2;
-    let k3 = Oa(a3);
-    k3 || (a3[Ha] = k3 = new Ea(a3));
-    c4 = k3.add(b3, c4, d2, g2, f3);
+    let k2 = Oa(a3);
+    k2 || (a3[Ha] = k2 = new Ea(a3));
+    c4 = k2.add(b3, c4, d2, g2, f3);
     if (c4.proxy) return c4;
     d2 = Pa();
     c4.proxy = d2;
@@ -66408,7 +66414,7 @@ var createWebChannelTransport;
   function Ra(a3, b3) {
     if (a3.da) a3 = true;
     else {
-      b3 = new z3(b3, this);
+      b3 = new z2(b3, this);
       const c4 = a3.listener, d2 = a3.ha || a3.src;
       a3.fa && Ta(a3);
       a3 = c4.call(d2, b3);
@@ -66485,9 +66491,9 @@ var createWebChannelTransport;
     for (let f3 = 0; f3 < b3.length; ++f3) {
       const g2 = b3[f3];
       if (g2 && !g2.da && g2.capture == c4) {
-        const k3 = g2.listener, q3 = g2.ha || g2.src;
+        const k2 = g2.listener, q3 = g2.ha || g2.src;
         g2.fa && Ga(a3.i, g2);
-        e2 = k3.call(q3, d2) !== false && e2;
+        e2 = k2.call(q3, d2) !== false && e2;
       }
     }
     return e2 && !d2.defaultPrevented;
@@ -66558,7 +66564,7 @@ var createWebChannelTransport;
   }
   function fb() {
   }
-  var H3 = { OPEN: "a", hb: "b", ERROR: "c", tb: "d" };
+  var H2 = { OPEN: "a", hb: "b", ERROR: "c", tb: "d" };
   function gb() {
     x4.call(this, "d");
   }
@@ -66586,7 +66592,7 @@ var createWebChannelTransport;
     this.stat = b3;
   }
   t3(mb, x4);
-  function J3(a3) {
+  function J2(a3) {
     const b3 = jb();
     D3(b3, new mb(b3, a3));
   }
@@ -66612,9 +66618,9 @@ var createWebChannelTransport;
     a3.info(function() {
       if (a3.g) if (f3) {
         var g2 = "";
-        var k3 = f3.split("&");
-        for (let m4 = 0; m4 < k3.length; m4++) {
-          var q3 = k3[m4].split("=");
+        var k2 = f3.split("&");
+        for (let m4 = 0; m4 < k2.length; m4++) {
+          var q3 = k2[m4].split("=");
           if (q3.length > 1) {
             const r2 = q3[0];
             q3 = q3[1];
@@ -66632,7 +66638,7 @@ var createWebChannelTransport;
       return "XMLHTTP RESP (" + d2 + ") [ attempt " + e2 + "]: " + b3 + "\n" + c4 + "\n" + f3 + " " + g2;
     });
   }
-  function K3(a3, b3, c4, d2) {
+  function K2(a3, b3, c4, d2) {
     a3.info(function() {
       return "XMLHTTP TEXT (" + b3 + "): " + sb(a3, c4) + (d2 ? " " + d2 : "");
     });
@@ -66676,7 +66682,7 @@ var createWebChannelTransport;
     return new XMLHttpRequest();
   };
   wb = new xb();
-  function L3(a3) {
+  function L2(a3) {
     return encodeURIComponent(String(a3));
   }
   function yb(a3) {
@@ -66761,15 +66767,15 @@ var createWebChannelTransport;
   N4.prototype.Y = function(a3) {
     try {
       if (a3 == this.g) a: {
-        const k3 = P2(this.g), q3 = this.g.ya(), m4 = this.g.ca();
-        if (!(k3 < 3) && (k3 != 3 || this.g && (this.h.h || this.g.la() || Ib(this.g)))) {
-          this.K || k3 != 4 || q3 == 7 || (q3 == 8 || m4 <= 0 ? lb(3) : lb(2));
+        const k2 = P2(this.g), q3 = this.g.ya(), m4 = this.g.ca();
+        if (!(k2 < 3) && (k2 != 3 || this.g && (this.h.h || this.g.la() || Ib(this.g)))) {
+          this.K || k2 != 4 || q3 == 7 || (q3 == 8 || m4 <= 0 ? lb(3) : lb(2));
           Jb(this);
           var b3 = this.g.ca();
           this.X = b3;
           var c4 = Kb(this);
           this.o = b3 == 200;
-          rb(this.i, this.v, this.B, this.l, this.S, k3, b3);
+          rb(this.i, this.v, this.B, this.l, this.S, k2, b3);
           if (this.o) {
             if (this.U && !this.L) {
               b: {
@@ -66782,12 +66788,12 @@ var createWebChannelTransport;
                 }
                 f3 = null;
               }
-              if (a3 = f3) K3(this.i, this.l, a3, "Initial handshake response via X-HTTP-Initial-Response"), this.L = true, Lb(this, a3);
+              if (a3 = f3) K2(this.i, this.l, a3, "Initial handshake response via X-HTTP-Initial-Response"), this.L = true, Lb(this, a3);
               else {
                 this.o = false;
                 this.m = 3;
-                J3(12);
-                Q3(this);
+                J2(12);
+                Q2(this);
                 Mb(this);
                 break a;
               }
@@ -66796,37 +66802,37 @@ var createWebChannelTransport;
               a3 = true;
               let r2;
               for (; !this.K && this.C < c4.length; ) if (r2 = Nb(this, c4), r2 == Bb) {
-                k3 == 4 && (this.m = 4, J3(14), a3 = false);
-                K3(this.i, this.l, null, "[Incomplete Response]");
+                k2 == 4 && (this.m = 4, J2(14), a3 = false);
+                K2(this.i, this.l, null, "[Incomplete Response]");
                 break;
               } else if (r2 == Ab) {
                 this.m = 4;
-                J3(15);
-                K3(this.i, this.l, c4, "[Invalid Chunk]");
+                J2(15);
+                K2(this.i, this.l, c4, "[Invalid Chunk]");
                 a3 = false;
                 break;
-              } else K3(this.i, this.l, r2, null), Lb(this, r2);
+              } else K2(this.i, this.l, r2, null), Lb(this, r2);
               Ob(this) && this.C != 0 && (this.h.g = this.h.g.slice(this.C), this.C = 0);
-              k3 != 4 || c4.length != 0 || this.h.h || (this.m = 1, J3(16), a3 = false);
+              k2 != 4 || c4.length != 0 || this.h.h || (this.m = 1, J2(16), a3 = false);
               this.o = this.o && a3;
-              if (!a3) K3(
+              if (!a3) K2(
                 this.i,
                 this.l,
                 c4,
                 "[Invalid Chunked Response]"
-              ), Q3(this), Mb(this);
+              ), Q2(this), Mb(this);
               else if (c4.length > 0 && !this.W) {
                 this.W = true;
                 var g2 = this.j;
-                g2.g == this && g2.aa && !g2.P && (g2.j.info("Great, no buffering proxy detected. Bytes received: " + c4.length), Pb(g2), g2.P = true, J3(11));
+                g2.g == this && g2.aa && !g2.P && (g2.j.info("Great, no buffering proxy detected. Bytes received: " + c4.length), Pb(g2), g2.P = true, J2(11));
               }
-            } else K3(this.i, this.l, c4, null), Lb(this, c4);
-            k3 == 4 && Q3(this);
-            this.o && !this.K && (k3 == 4 ? Qb(this.j, this) : (this.o = false, Fb(this)));
-          } else Rb(this.g), b3 == 400 && c4.indexOf("Unknown SID") > 0 ? (this.m = 3, J3(12)) : (this.m = 0, J3(13)), Q3(this), Mb(this);
+            } else K2(this.i, this.l, c4, null), Lb(this, c4);
+            k2 == 4 && Q2(this);
+            this.o && !this.K && (k2 == 4 ? Qb(this.j, this) : (this.o = false, Fb(this)));
+          } else Rb(this.g), b3 == 400 && c4.indexOf("Unknown SID") > 0 ? (this.m = 3, J2(12)) : (this.m = 0, J2(13)), Q2(this), Mb(this);
         }
       }
-    } catch (k3) {
+    } catch (k2) {
     } finally {
     }
   };
@@ -66837,7 +66843,7 @@ var createWebChannelTransport;
     let c4 = "";
     const d2 = b3.length, e2 = P2(a3.g) == 4;
     if (!a3.h.i) {
-      if (typeof TextDecoder === "undefined") return Q3(a3), Mb(a3), "";
+      if (typeof TextDecoder === "undefined") return Q2(a3), Mb(a3), "";
       a3.h.i = new l3.TextDecoder();
     }
     for (let f3 = 0; f3 < d2; f3++) a3.h.h = true, c4 += a3.h.i.decode(b3[f3], { stream: !(e2 && f3 == d2 - 1) });
@@ -66862,7 +66868,7 @@ var createWebChannelTransport;
   }
   N4.prototype.cancel = function() {
     this.K = true;
-    Q3(this);
+    Q2(this);
   };
   function Fb(a3) {
     a3.T = Date.now() + a3.H;
@@ -66878,12 +66884,12 @@ var createWebChannelTransport;
   N4.prototype.aa = function() {
     this.D = null;
     const a3 = Date.now();
-    a3 - this.T >= 0 ? (tb(this.i, this.B), this.M != 2 && (lb(), J3(17)), Q3(this), this.m = 2, Mb(this)) : Sb(this, this.T - a3);
+    a3 - this.T >= 0 ? (tb(this.i, this.B), this.M != 2 && (lb(), J2(17)), Q2(this), this.m = 2, Mb(this)) : Sb(this, this.T - a3);
   };
   function Mb(a3) {
     a3.j.I == 0 || a3.K || Qb(a3.j, a3);
   }
-  function Q3(a3) {
+  function Q2(a3) {
     Jb(a3);
     var b3 = a3.O;
     b3 && typeof b3.dispose == "function" && b3.dispose();
@@ -66908,7 +66914,7 @@ var createWebChannelTransport;
                 if (c4.g) if (c4.g.F + 3e3 < a3.F) Ub(c4), Vb(c4);
                 else break a;
                 Wb(c4);
-                J3(18);
+                J2(18);
               }
             }
             else c4.xa = e2[1], 0 < c4.xa - c4.K && e2[2] < 37500 && c4.F && c4.A == 0 && !c4.C && (c4.C = ob(p3(c4.Va, c4), 6e3));
@@ -66947,9 +66953,9 @@ var createWebChannelTransport;
             d2.na = Zb(d2, d2.L ? d2.ba : null, d2.W);
             if (g2.L) {
               $b(d2.h, g2);
-              var k3 = g2, q3 = d2.O;
-              q3 && (k3.H = q3);
-              k3.D && (Jb(k3), Fb(k3));
+              var k2 = g2, q3 = d2.O;
+              q3 && (k2.H = q3);
+              k2.D && (Jb(k2), Fb(k2));
               d2.g = g2;
             } else ac(d2);
             c4.i.length > 0 && bc(c4);
@@ -67033,7 +67039,7 @@ var createWebChannelTransport;
     var b3 = this.j;
     b3 && a3.push(qc(b3, rc, true), ":");
     var c4 = this.g;
-    if (c4 || b3 == "file") a3.push("//"), (b3 = this.o) && a3.push(qc(b3, rc, true), "@"), a3.push(L3(c4).replace(/%25([0-9a-fA-F]{2})/g, "%$1")), c4 = this.u, c4 != null && a3.push(":", String(c4));
+    if (c4 || b3 == "file") a3.push("//"), (b3 = this.o) && a3.push(qc(b3, rc, true), "@"), a3.push(L2(c4).replace(/%25([0-9a-fA-F]{2})/g, "%$1")), c4 = this.u, c4 != null && a3.push(":", String(c4));
     if (c4 = this.h) this.g && c4.charAt(0) != "/" && a3.push("/"), a3.push(qc(c4, c4.charAt(0) == "/" ? sc : tc, true));
     (c4 = this.i.toString()) && a3.push("?", c4);
     (c4 = this.m) && a3.push("#", qc(c4, uc));
@@ -67060,8 +67066,8 @@ var createWebChannelTransport;
         e2 = e2.split("/");
         const f3 = [];
         for (let g2 = 0; g2 < e2.length; ) {
-          const k3 = e2[g2++];
-          k3 == "." ? d2 && g2 == e2.length && f3.push("") : k3 == ".." ? ((f3.length > 1 || f3.length == 1 && f3[0] != "") && f3.pop(), d2 && g2 == e2.length && f3.push("")) : (f3.push(k3), d2 = true);
+          const k2 = e2[g2++];
+          k2 == "." ? d2 && g2 == e2.length && f3.push("") : k2 == ".." ? ((f3.length > 1 || f3.length == 1 && f3[0] != "") && f3.pop(), d2 && g2 == e2.length && f3.push("")) : (f3.push(k2), d2 = true);
         }
         d2 = f3.join("/");
       } else d2 = e2;
@@ -67176,11 +67182,11 @@ var createWebChannelTransport;
     const a3 = [], b3 = Array.from(this.g.keys());
     for (let d2 = 0; d2 < b3.length; d2++) {
       var c4 = b3[d2];
-      const e2 = L3(c4);
+      const e2 = L2(c4);
       c4 = Ac(this, c4);
       for (let f3 = 0; f3 < c4.length; f3++) {
         let g2 = e2;
-        c4[f3] !== "" && (g2 += "=" + L3(c4[f3]));
+        c4[f3] !== "" && (g2 += "=" + L2(c4[f3]));
         a3.push(g2);
       }
     }
@@ -67370,9 +67376,9 @@ var createWebChannelTransport;
       }
       d2 = true;
     }
-    d2 || (c4 = Jc(c4), typeof a3 === "string" ? c4 != null && L3(c4) : S3(a3, b3, c4));
+    d2 || (c4 = Jc(c4), typeof a3 === "string" ? c4 != null && L2(c4) : S3(a3, b3, c4));
   }
-  function X4(a3) {
+  function X3(a3) {
     C3.call(this);
     this.headers = /* @__PURE__ */ new Map();
     this.L = a3 || null;
@@ -67386,9 +67392,9 @@ var createWebChannelTransport;
     this.F = "";
     this.H = false;
   }
-  t3(X4, C3);
+  t3(X3, C3);
   var Lc = /^https?$/i, Mc = ["POST", "PUT"];
-  h3 = X4.prototype;
+  h3 = X3.prototype;
   h3.Fa = function(a3) {
     this.H = a3;
   };
@@ -67441,7 +67447,7 @@ var createWebChannelTransport;
   };
   h3.N = function() {
     this.g && (this.h && (this.h = false, this.j = true, this.g.abort(), this.j = false), Pc(this, true));
-    X4.Z.N.call(this);
+    X3.Z.N.call(this);
   };
   h3.Ca = function() {
     this.u || (this.B || this.v || this.j ? Qc(this) : this.Xa());
@@ -67619,7 +67625,7 @@ var createWebChannelTransport;
   h3.ka = 8;
   h3.I = 1;
   h3.connect = function(a3, b3, c4, d2) {
-    J3(0);
+    J2(0);
     this.W = a3;
     this.H = b3 || {};
     c4 && d2 !== void 0 && (this.H.OSID = c4, this.H.OAID = d2);
@@ -67718,7 +67724,7 @@ var createWebChannelTransport;
         S3(c4, "CVER", 22);
         this.G && S3(c4, "X-HTTP-Session-Id", this.G);
         Uc(this, c4);
-        f3 && (this.R ? b3 = "headers=" + L3(Jc(f3)) + "&" + b3 : this.u && Kc(c4, this.u, f3));
+        f3 && (this.R ? b3 = "headers=" + L2(Jc(f3)) + "&" + b3 : this.u && Kc(c4, this.u, f3));
         Yb(this.h, e2);
         this.Ra && S3(c4, "TYPE", "init");
         this.S ? (S3(c4, "$req", b3), S3(c4, "SID", "null"), e2.U = true, Cb(e2, c4, null)) : Cb(e2, c4, b3);
@@ -67756,16 +67762,16 @@ var createWebChannelTransport;
     const d2 = a3.l ? p3(a3.l.Ka, a3.l, a3) : null;
     a: {
       var e2 = a3.i;
-      let k3 = -1;
+      let k2 = -1;
       for (; ; ) {
         const q3 = ["count=" + c4];
-        k3 == -1 ? c4 > 0 ? (k3 = e2[0].g, q3.push("ofs=" + k3)) : k3 = 0 : q3.push("ofs=" + k3);
+        k2 == -1 ? c4 > 0 ? (k2 = e2[0].g, q3.push("ofs=" + k2)) : k2 = 0 : q3.push("ofs=" + k2);
         let m4 = true;
         for (let r2 = 0; r2 < c4; r2++) {
           var f3 = e2[r2].g;
           const A2 = e2[r2].map;
-          f3 -= k3;
-          if (f3 < 0) k3 = Math.max(0, e2[r2].g - 100), m4 = false;
+          f3 -= k2;
+          if (f3 < 0) k2 = Math.max(0, e2[r2].g - 100), m4 = false;
           else try {
             f3 = "req" + f3 + "_" || "";
             try {
@@ -67820,7 +67826,7 @@ var createWebChannelTransport;
     }
   };
   h3.Wa = function() {
-    this.B && (this.B = null, this.j.info("BP detection timeout reached."), this.j.info("Buffering proxy detected and switch to long-polling!"), this.F = false, this.P = true, J3(10), Vb(this), $c(this));
+    this.B && (this.B = null, this.j.info("BP detection timeout reached."), this.j.info("Buffering proxy detected and switch to long-polling!"), this.F = false, this.P = true, J2(10), Vb(this), $c(this));
   };
   function Pb(a3) {
     a3.B != null && (l3.clearTimeout(a3.B), a3.B = null);
@@ -67848,7 +67854,7 @@ var createWebChannelTransport;
     Eb(c4, a3);
   }
   h3.Va = function() {
-    this.C != null && (this.C = null, Vb(this), Wb(this), J3(19));
+    this.C != null && (this.C = null, Vb(this), Wb(this), J2(19));
   };
   function Ub(a3) {
     a3.C != null && (l3.clearTimeout(a3.C), a3.C = null);
@@ -67900,14 +67906,14 @@ var createWebChannelTransport;
       l3.location && l3.location.protocol == "http" || kc(d2, "https");
       Db(d2);
       e2 ? Bc(d2.toString(), c4) : Cc(d2.toString(), c4);
-    } else J3(2);
+    } else J2(2);
     a3.I = 0;
     a3.l && a3.l.pa(b3);
     Vc(a3);
     Tc(a3);
   }
   h3.bb = function(a3) {
-    a3 ? (this.j.info("Successfully pinged google.com"), J3(2)) : (this.j.info("Failed to ping google.com"), J3(1));
+    a3 ? (this.j.info("Successfully pinged google.com"), J2(2)) : (this.j.info("Failed to ping google.com"), J2(1));
   };
   function Vc(a3) {
     a3.I = 0;
@@ -67942,7 +67948,7 @@ var createWebChannelTransport;
   }
   function Hb(a3, b3, c4) {
     if (b3 && !a3.L) throw Error("Can't create secondary domain capable XhrIo object.");
-    b3 = a3.Aa && !a3.ma ? new X4(new Ec({ ab: c4 })) : new X4(a3.ma);
+    b3 = a3.Aa && !a3.ma ? new X3(new Ec({ ab: c4 })) : new X3(a3.ma);
     b3.Fa(a3.L);
     return b3;
   }
@@ -67986,7 +67992,7 @@ var createWebChannelTransport;
     this.A = b3 && b3.supportsCrossDomainXhr || false;
     this.v = b3 && b3.sendRawJson || false;
     (b3 = b3 && b3.httpSessionIdParam) && !y3(b3) && (this.g.G = b3, a3 = this.h, a3 !== null && b3 in a3 && (a3 = this.h, b3 in a3 && delete a3[b3]));
-    this.j = new Z3(this);
+    this.j = new Z2(this);
   }
   t3(Y3, C3);
   Y3.prototype.m = function() {
@@ -68036,20 +68042,20 @@ var createWebChannelTransport;
     this.status = 1;
   }
   t3(dd, hb);
-  function Z3(a3) {
+  function Z2(a3) {
     this.g = a3;
   }
-  t3(Z3, ad);
-  Z3.prototype.ra = function() {
+  t3(Z2, ad);
+  Z2.prototype.ra = function() {
     D3(this.g, "a");
   };
-  Z3.prototype.qa = function(a3) {
+  Z2.prototype.qa = function(a3) {
     D3(this.g, new cd(a3));
   };
-  Z3.prototype.pa = function(a3) {
+  Z2.prototype.pa = function(a3) {
     D3(this.g, new dd());
   };
-  Z3.prototype.oa = function() {
+  Z2.prototype.oa = function() {
     D3(this.g, "b");
   };
   bd.prototype.createWebChannel = bd.prototype.g;
@@ -68070,23 +68076,23 @@ var createWebChannelTransport;
   ErrorCode = webchannel_blob_es2018.ErrorCode = ub;
   vb.COMPLETE = "complete";
   EventType = webchannel_blob_es2018.EventType = vb;
-  fb.EventType = H3;
-  H3.OPEN = "a";
-  H3.CLOSE = "b";
-  H3.ERROR = "c";
-  H3.MESSAGE = "d";
+  fb.EventType = H2;
+  H2.OPEN = "a";
+  H2.CLOSE = "b";
+  H2.ERROR = "c";
+  H2.MESSAGE = "d";
   C3.prototype.listen = C3.prototype.J;
   WebChannel = webchannel_blob_es2018.WebChannel = fb;
   FetchXmlHttpFactory = webchannel_blob_es2018.FetchXmlHttpFactory = Ec;
-  X4.prototype.listenOnce = X4.prototype.K;
-  X4.prototype.getLastError = X4.prototype.Ha;
-  X4.prototype.getLastErrorCode = X4.prototype.ya;
-  X4.prototype.getStatus = X4.prototype.ca;
-  X4.prototype.getResponseJson = X4.prototype.La;
-  X4.prototype.getResponseText = X4.prototype.la;
-  X4.prototype.send = X4.prototype.ea;
-  X4.prototype.setWithCredentials = X4.prototype.Fa;
-  XhrIo = webchannel_blob_es2018.XhrIo = X4;
+  X3.prototype.listenOnce = X3.prototype.K;
+  X3.prototype.getLastError = X3.prototype.Ha;
+  X3.prototype.getLastErrorCode = X3.prototype.ya;
+  X3.prototype.getStatus = X3.prototype.ca;
+  X3.prototype.getResponseJson = X3.prototype.La;
+  X3.prototype.getResponseText = X3.prototype.la;
+  X3.prototype.send = X3.prototype.ea;
+  X3.prototype.setWithCredentials = X3.prototype.Fa;
+  XhrIo = webchannel_blob_es2018.XhrIo = X3;
 }).apply(typeof commonjsGlobal2 !== "undefined" ? commonjsGlobal2 : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
 
 // node_modules/.pnpm/@firebase+firestore@4.13.0_@firebase+app@0.14.10/node_modules/@firebase/firestore/dist/common-edb5d170.esm.js
@@ -68525,9 +68531,6 @@ function __PRIVATE_isSurrogate(e2) {
 }
 function __PRIVATE_arrayEquals(e2, t3, n2) {
   return e2.length === t3.length && e2.every(((e3, r2) => n2(e3, t3[r2])));
-}
-function __PRIVATE_immediateSuccessor(e2) {
-  return e2 + "\0";
 }
 var F2 = "__name__";
 var BasePath = class _BasePath {
@@ -68996,27 +68999,7 @@ var FieldIndex = class {
     this.indexId = e2, this.collectionGroup = t3, this.fields = n2, this.indexState = r2;
   }
 };
-function __PRIVATE_fieldIndexGetArraySegment(e2) {
-  return e2.fields.find(((e3) => 2 === e3.kind));
-}
-function __PRIVATE_fieldIndexGetDirectionalSegments(e2) {
-  return e2.fields.filter(((e3) => 2 !== e3.kind));
-}
 FieldIndex.UNKNOWN_ID = -1;
-var IndexSegment = class {
-  constructor(e2, t3) {
-    this.fieldPath = e2, this.kind = t3;
-  }
-};
-var IndexState = class _IndexState {
-  constructor(e2, t3) {
-    this.sequenceNumber = e2, this.offset = t3;
-  }
-  /** The state of an index that has not yet been backfilled. */
-  static empty() {
-    return new _IndexState(0, IndexOffset.min());
-  }
-};
 function __PRIVATE_newIndexOffsetSuccessorFromReadTime(e2, t3) {
   const n2 = e2.toTimestamp().seconds, r2 = e2.toTimestamp().nanoseconds + 1, i4 = SnapshotVersion.fromTimestamp(1e9 === r2 ? new Timestamp(n2 + 1, 0) : new Timestamp(n2, r2));
   return new IndexOffset(i4, DocumentKey.empty(), t3);
@@ -69170,431 +69153,13 @@ var PersistencePromise = class _PersistencePromise {
     }));
   }
 };
-var L2 = "SimpleDb";
-var __PRIVATE_SimpleDbTransaction = class ___PRIVATE_SimpleDbTransaction {
-  static open(e2, t3, n2, r2) {
-    try {
-      return new ___PRIVATE_SimpleDbTransaction(t3, e2.transaction(r2, n2));
-    } catch (e3) {
-      throw new __PRIVATE_IndexedDbTransactionError(t3, e3);
-    }
-  }
-  constructor(e2, t3) {
-    this.action = e2, this.transaction = t3, this.aborted = false, /**
-     * A `Promise` that resolves with the result of the IndexedDb transaction.
-     */
-    this.S = new __PRIVATE_Deferred(), this.transaction.oncomplete = () => {
-      this.S.resolve();
-    }, this.transaction.onabort = () => {
-      t3.error ? this.S.reject(new __PRIVATE_IndexedDbTransactionError(e2, t3.error)) : this.S.resolve();
-    }, this.transaction.onerror = (t4) => {
-      const n2 = __PRIVATE_checkForAndReportiOSError(t4.target.error);
-      this.S.reject(new __PRIVATE_IndexedDbTransactionError(e2, n2));
-    };
-  }
-  get D() {
-    return this.S.promise;
-  }
-  abort(e2) {
-    e2 && this.S.reject(e2), this.aborted || (__PRIVATE_logDebug(L2, "Aborting transaction:", e2 ? e2.message : "Client-initiated abort"), this.aborted = true, this.transaction.abort());
-  }
-  C() {
-    const e2 = this.transaction;
-    this.aborted || "function" != typeof e2.commit || e2.commit();
-  }
-  /**
-   * Returns a SimpleDbStore<KeyType, ValueType> for the specified store. All
-   * operations performed on the SimpleDbStore happen within the context of this
-   * transaction and it cannot be used anymore once the transaction is
-   * completed.
-   *
-   * Note that we can't actually enforce that the KeyType and ValueType are
-   * correct, but they allow type safety through the rest of the consuming code.
-   */
-  store(e2) {
-    const t3 = this.transaction.objectStore(e2);
-    return new __PRIVATE_SimpleDbStore(t3);
-  }
-};
-var __PRIVATE_SimpleDb = class ___PRIVATE_SimpleDb {
-  /** Deletes the specified database. */
-  static delete(e2) {
-    __PRIVATE_logDebug(L2, "Removing database:", e2);
-    return __PRIVATE_wrapRequest(getGlobal3().indexedDB.deleteDatabase(e2)).toPromise();
-  }
-  /** Returns true if IndexedDB is available in the current environment. */
-  static v() {
-    if (!isIndexedDBAvailable()) return false;
-    if (___PRIVATE_SimpleDb.F()) return true;
-    const e2 = getUA(), t3 = ___PRIVATE_SimpleDb.M(e2), n2 = 0 < t3 && t3 < 10, r2 = __PRIVATE_getAndroidVersion(e2), i4 = 0 < r2 && r2 < 4.5;
-    return !(e2.indexOf("MSIE ") > 0 || e2.indexOf("Trident/") > 0 || e2.indexOf("Edge/") > 0 || n2 || i4);
-  }
-  /**
-   * Returns true if the backing IndexedDB store is the Node IndexedDBShim
-   * (see https://github.com/axemclion/IndexedDBShim).
-   */
-  static F() {
-    return "undefined" != typeof process && "YES" === process.__PRIVATE_env?.__PRIVATE_USE_MOCK_PERSISTENCE;
-  }
-  /** Helper to get a typed SimpleDbStore from a transaction. */
-  static O(e2, t3) {
-    return e2.store(t3);
-  }
-  // visible for testing
-  /** Parse User Agent to determine iOS version. Returns -1 if not found. */
-  static M(e2) {
-    const t3 = e2.match(/i(?:phone|pad|pod) os ([\d_]+)/i), n2 = t3 ? t3[1].split("_").slice(0, 2).join(".") : "-1";
-    return Number(n2);
-  }
-  /*
-   * Creates a new SimpleDb wrapper for IndexedDb database `name`.
-   *
-   * Note that `version` must not be a downgrade. IndexedDB does not support
-   * downgrading the schema version. We currently do not support any way to do
-   * versioning outside of IndexedDB's versioning mechanism, as only
-   * version-upgrade transactions are allowed to do things like create
-   * objectstores.
-   */
-  constructor(e2, t3, n2) {
-    this.name = e2, this.version = t3, this.N = n2, this.B = null;
-    12.2 === ___PRIVATE_SimpleDb.M(getUA()) && __PRIVATE_logError("Firestore persistence suffers from a bug in iOS 12.2 Safari that may cause your app to stop working. See https://stackoverflow.com/q/56496296/110915 for details and a potential workaround.");
-  }
-  /**
-   * Opens the specified database, creating or upgrading it if necessary.
-   */
-  async L(e2) {
-    return this.db || (__PRIVATE_logDebug(L2, "Opening database:", this.name), this.db = await new Promise(((t3, n2) => {
-      const r2 = indexedDB.open(this.name, this.version);
-      r2.onsuccess = (e3) => {
-        const n3 = e3.target.result;
-        t3(n3);
-      }, r2.onblocked = () => {
-        n2(new __PRIVATE_IndexedDbTransactionError(e2, "Cannot upgrade IndexedDB schema while another tab is open. Close all tabs that access Firestore and reload this page to proceed."));
-      }, r2.onerror = (t4) => {
-        const r3 = t4.target.error;
-        "VersionError" === r3.name ? n2(new FirestoreError(D2.FAILED_PRECONDITION, "A newer version of the Firestore SDK was previously used and so the persisted data is not compatible with the version of the SDK you are now using. The SDK will operate with persistence disabled. If you need persistence, please re-upgrade to a newer version of the SDK or else clear the persisted IndexedDB data for your app to start fresh.")) : "InvalidStateError" === r3.name ? n2(new FirestoreError(D2.FAILED_PRECONDITION, "Unable to open an IndexedDB connection. This could be due to running in a private browsing session on a browser whose private browsing sessions do not support IndexedDB: " + r3)) : n2(new __PRIVATE_IndexedDbTransactionError(e2, r3));
-      }, r2.onupgradeneeded = (e3) => {
-        __PRIVATE_logDebug(L2, 'Database "' + this.name + '" requires upgrade from version:', e3.oldVersion);
-        const t4 = e3.target.result;
-        this.N.k(t4, r2.transaction, e3.oldVersion, this.version).next((() => {
-          __PRIVATE_logDebug(L2, "Database upgrade to version " + this.version + " complete");
-        }));
-      };
-    }))), this.q && (this.db.onversionchange = (e3) => this.q(e3)), this.db;
-  }
-  K(e2) {
-    this.q = e2, this.db && (this.db.onversionchange = (t3) => e2(t3));
-  }
-  async runTransaction(e2, t3, n2, r2) {
-    const i4 = "readonly" === t3;
-    let s3 = 0;
-    for (; ; ) {
-      ++s3;
-      try {
-        this.db = await this.L(e2);
-        const t4 = __PRIVATE_SimpleDbTransaction.open(this.db, e2, i4 ? "readonly" : "readwrite", n2), s4 = r2(t4).next(((e3) => (t4.C(), e3))).catch(((e3) => (
-          // Abort the transaction if there was an error.
-          (t4.abort(e3), PersistencePromise.reject(e3))
-        ))).toPromise();
-        return s4.catch((() => {
-        })), // Wait for the transaction to complete (i.e. IndexedDb's onsuccess event to
-        // fire), but still return the original transactionFnResult back to the
-        // caller.
-        await t4.D, s4;
-      } catch (e3) {
-        const t4 = e3, n3 = "FirebaseError" !== t4.name && s3 < 3;
-        if (__PRIVATE_logDebug(L2, "Transaction failed with error:", t4.message, "Retrying:", n3), this.close(), !n3) return Promise.reject(t4);
-      }
-    }
-  }
-  close() {
-    this.db && this.db.close(), this.db = void 0;
-  }
-};
 function __PRIVATE_getAndroidVersion(e2) {
   const t3 = e2.match(/Android ([\d.]+)/i), n2 = t3 ? t3[1].split(".").slice(0, 2).join(".") : "-1";
   return Number(n2);
 }
-var __PRIVATE_IterationController = class {
-  constructor(e2) {
-    this.U = e2, this.$ = false, this.W = null;
-  }
-  get isDone() {
-    return this.$;
-  }
-  get G() {
-    return this.W;
-  }
-  set cursor(e2) {
-    this.U = e2;
-  }
-  /**
-   * This function can be called to stop iteration at any point.
-   */
-  done() {
-    this.$ = true;
-  }
-  /**
-   * This function can be called to skip to that next key, which could be
-   * an index or a primary key.
-   */
-  j(e2) {
-    this.W = e2;
-  }
-  /**
-   * Delete the current cursor value from the object store.
-   *
-   * NOTE: You CANNOT do this with a keysOnly query.
-   */
-  delete() {
-    return __PRIVATE_wrapRequest(this.U.delete());
-  }
-};
-var __PRIVATE_IndexedDbTransactionError = class extends FirestoreError {
-  constructor(e2, t3) {
-    super(D2.UNAVAILABLE, `IndexedDB transaction '${e2}' failed: ${t3}`), this.name = "IndexedDbTransactionError";
-  }
-};
 function __PRIVATE_isIndexedDbTransactionError(e2) {
   return "IndexedDbTransactionError" === e2.name;
 }
-var __PRIVATE_SimpleDbStore = class {
-  constructor(e2) {
-    this.store = e2;
-  }
-  put(e2, t3) {
-    let n2;
-    return void 0 !== t3 ? (__PRIVATE_logDebug(L2, "PUT", this.store.name, e2, t3), n2 = this.store.put(t3, e2)) : (__PRIVATE_logDebug(L2, "PUT", this.store.name, "<auto-key>", e2), n2 = this.store.put(e2)), __PRIVATE_wrapRequest(n2);
-  }
-  /**
-   * Adds a new value into an Object Store and returns the new key. Similar to
-   * IndexedDb's `add()`, this method will fail on primary key collisions.
-   *
-   * @param value - The object to write.
-   * @returns The key of the value to add.
-   */
-  add(e2) {
-    __PRIVATE_logDebug(L2, "ADD", this.store.name, e2, e2);
-    return __PRIVATE_wrapRequest(this.store.add(e2));
-  }
-  /**
-   * Gets the object with the specified key from the specified store, or null
-   * if no object exists with the specified key.
-   *
-   * @key The key of the object to get.
-   * @returns The object with the specified key or null if no object exists.
-   */
-  get(e2) {
-    return __PRIVATE_wrapRequest(this.store.get(e2)).next(((t3) => (
-      // Normalize nonexistence to null.
-      (void 0 === t3 && (t3 = null), __PRIVATE_logDebug(L2, "GET", this.store.name, e2, t3), t3)
-    )));
-  }
-  delete(e2) {
-    __PRIVATE_logDebug(L2, "DELETE", this.store.name, e2);
-    return __PRIVATE_wrapRequest(this.store.delete(e2));
-  }
-  /**
-   * If we ever need more of the count variants, we can add overloads. For now,
-   * all we need is to count everything in a store.
-   *
-   * Returns the number of rows in the store.
-   */
-  count() {
-    __PRIVATE_logDebug(L2, "COUNT", this.store.name);
-    return __PRIVATE_wrapRequest(this.store.count());
-  }
-  J(e2, t3) {
-    const n2 = this.options(e2, t3), r2 = n2.index ? this.store.index(n2.index) : this.store;
-    if ("function" == typeof r2.getAll) {
-      const e3 = r2.getAll(n2.range);
-      return new PersistencePromise(((t4, n3) => {
-        e3.onerror = (e4) => {
-          n3(e4.target.error);
-        }, e3.onsuccess = (e4) => {
-          t4(e4.target.result);
-        };
-      }));
-    }
-    {
-      const e3 = this.cursor(n2), t4 = [];
-      return this.H(e3, ((e4, n3) => {
-        t4.push(n3);
-      })).next((() => t4));
-    }
-  }
-  /**
-   * Loads the first `count` elements from the provided index range. Loads all
-   * elements if no limit is provided.
-   */
-  Z(e2, t3) {
-    const n2 = this.store.getAll(e2, null === t3 ? void 0 : t3);
-    return new PersistencePromise(((e3, t4) => {
-      n2.onerror = (e4) => {
-        t4(e4.target.error);
-      }, n2.onsuccess = (t5) => {
-        e3(t5.target.result);
-      };
-    }));
-  }
-  X(e2, t3) {
-    __PRIVATE_logDebug(L2, "DELETE ALL", this.store.name);
-    const n2 = this.options(e2, t3);
-    n2.Y = false;
-    const r2 = this.cursor(n2);
-    return this.H(r2, ((e3, t4, n3) => n3.delete()));
-  }
-  ee(e2, t3) {
-    let n2;
-    t3 ? n2 = e2 : (n2 = {}, t3 = e2);
-    const r2 = this.cursor(n2);
-    return this.H(r2, t3);
-  }
-  /**
-   * Iterates over a store, but waits for the given callback to complete for
-   * each entry before iterating the next entry. This allows the callback to do
-   * asynchronous work to determine if this iteration should continue.
-   *
-   * The provided callback should return `true` to continue iteration, and
-   * `false` otherwise.
-   */
-  te(e2) {
-    const t3 = this.cursor({});
-    return new PersistencePromise(((n2, r2) => {
-      t3.onerror = (e3) => {
-        const t4 = __PRIVATE_checkForAndReportiOSError(e3.target.error);
-        r2(t4);
-      }, t3.onsuccess = (t4) => {
-        const r3 = t4.target.result;
-        r3 ? e2(r3.primaryKey, r3.value).next(((e3) => {
-          e3 ? r3.continue() : n2();
-        })) : n2();
-      };
-    }));
-  }
-  H(e2, t3) {
-    const n2 = [];
-    return new PersistencePromise(((r2, i4) => {
-      e2.onerror = (e3) => {
-        i4(e3.target.error);
-      }, e2.onsuccess = (e3) => {
-        const i5 = e3.target.result;
-        if (!i5) return void r2();
-        const s3 = new __PRIVATE_IterationController(i5), o3 = t3(i5.primaryKey, i5.value, s3);
-        if (o3 instanceof PersistencePromise) {
-          const e4 = o3.catch(((e5) => (s3.done(), PersistencePromise.reject(e5))));
-          n2.push(e4);
-        }
-        s3.isDone ? r2() : null === s3.G ? i5.continue() : i5.continue(s3.G);
-      };
-    })).next((() => PersistencePromise.waitFor(n2)));
-  }
-  options(e2, t3) {
-    let n2;
-    return void 0 !== e2 && ("string" == typeof e2 ? n2 = e2 : t3 = e2), {
-      index: n2,
-      range: t3
-    };
-  }
-  cursor(e2) {
-    let t3 = "next";
-    if (e2.reverse && (t3 = "prev"), e2.index) {
-      const n2 = this.store.index(e2.index);
-      return e2.Y ? n2.openKeyCursor(e2.range, t3) : n2.openCursor(e2.range, t3);
-    }
-    return this.store.openCursor(e2.range, t3);
-  }
-};
-function __PRIVATE_wrapRequest(e2) {
-  return new PersistencePromise(((t3, n2) => {
-    e2.onsuccess = (e3) => {
-      const n3 = e3.target.result;
-      t3(n3);
-    }, e2.onerror = (e3) => {
-      const t4 = __PRIVATE_checkForAndReportiOSError(e3.target.error);
-      n2(t4);
-    };
-  }));
-}
-var k2 = false;
-function __PRIVATE_checkForAndReportiOSError(e2) {
-  const t3 = __PRIVATE_SimpleDb.M(getUA());
-  if (t3 >= 12.2 && t3 < 13) {
-    const t4 = "An internal error was encountered in the Indexed Database server";
-    if (e2.message.indexOf(t4) >= 0) {
-      const e3 = new FirestoreError("internal", `IOS_INDEXEDDB_BUG1: IndexedDb has thrown '${t4}'. This is likely due to an unavoidable bug in iOS. See https://stackoverflow.com/q/56496296/110915 for details and a potential workaround.`);
-      return k2 || (k2 = true, // Throw a global exception outside of this promise chain, for the user to
-      // potentially catch.
-      setTimeout((() => {
-        throw e3;
-      }), 0)), e3;
-    }
-  }
-  return e2;
-}
-var K2 = "IndexBackfiller";
-var __PRIVATE_IndexBackfillerScheduler = class {
-  constructor(e2, t3) {
-    this.asyncQueue = e2, this.ne = t3, this.task = null;
-  }
-  start() {
-    this.re(15e3);
-  }
-  stop() {
-    this.task && (this.task.cancel(), this.task = null);
-  }
-  get started() {
-    return null !== this.task;
-  }
-  re(e2) {
-    __PRIVATE_logDebug(K2, `Scheduled in ${e2}ms`), this.task = this.asyncQueue.enqueueAfterDelay("index_backfill", e2, (async () => {
-      this.task = null;
-      try {
-        const e3 = await this.ne.ie();
-        __PRIVATE_logDebug(K2, `Documents written: ${e3}`);
-      } catch (e3) {
-        __PRIVATE_isIndexedDbTransactionError(e3) ? __PRIVATE_logDebug(K2, "Ignoring IndexedDB error during index backfill: ", e3) : await __PRIVATE_ignoreIfPrimaryLeaseLoss(e3);
-      }
-      await this.re(6e4);
-    }));
-  }
-};
-var __PRIVATE_IndexBackfiller = class {
-  constructor(e2, t3) {
-    this.localStore = e2, this.persistence = t3;
-  }
-  async ie(e2 = 50) {
-    return this.persistence.runTransaction("Backfill Indexes", "readwrite-primary", ((t3) => this.se(t3, e2)));
-  }
-  /** Writes index entries until the cap is reached. Returns the number of documents processed. */
-  se(e2, t3) {
-    const n2 = /* @__PURE__ */ new Set();
-    let r2 = t3, i4 = true;
-    return PersistencePromise.doWhile((() => true === i4 && r2 > 0), (() => this.localStore.indexManager.getNextCollectionGroupToUpdate(e2).next(((t4) => {
-      if (null !== t4 && !n2.has(t4)) return __PRIVATE_logDebug(K2, `Processing collection: ${t4}`), this.oe(e2, t4, r2).next(((e3) => {
-        r2 -= e3, n2.add(t4);
-      }));
-      i4 = false;
-    })))).next((() => t3 - r2));
-  }
-  /**
-   * Writes entries for the provided collection group. Returns the number of documents processed.
-   */
-  oe(e2, t3, n2) {
-    return this.localStore.indexManager.getMinOffsetFromCollectionGroup(e2, t3).next(((r2) => this.localStore.localDocuments.getNextDocuments(e2, t3, r2, n2).next(((n3) => {
-      const i4 = n3.changes;
-      return this.localStore.indexManager.updateIndexEntries(e2, i4).next((() => this._e(r2, n3))).next(((n4) => (__PRIVATE_logDebug(K2, `Updating offset: ${n4}`), this.localStore.indexManager.updateCollectionGroup(e2, t3, n4)))).next((() => i4.size));
-    }))));
-  }
-  /** Returns the next offset based on the provided documents. */
-  _e(e2, t3) {
-    let n2 = e2;
-    return t3.changes.forEach(((e3, t4) => {
-      const r2 = __PRIVATE_newIndexOffsetFromDocument(t4);
-      __PRIVATE_indexOffsetComparator(r2, n2) > 0 && (n2 = r2);
-    })), new IndexOffset(n2.readTime, n2.documentKey, Math.max(t3.batchId, e2.largestBatchId));
-  }
-};
 var __PRIVATE_ListenSequence = class {
   constructor(e2, t3) {
     this.previousValue = e2, t3 && (t3.sequenceNumberHandler = (e3) => this.ae(e3), this.ue = (e3) => t3.writeSequenceNumber(e3));
@@ -69645,124 +69210,31 @@ function __PRIVATE_encodeSegment(e2, t3) {
 function __PRIVATE_encodeSeparator(e2) {
   return e2 + U2 + "";
 }
-function __PRIVATE_decodeResourcePath(e2) {
-  const t3 = e2.length;
-  if (__PRIVATE_hardAssert(t3 >= 2, 64408, {
-    path: e2
-  }), 2 === t3) return __PRIVATE_hardAssert(e2.charAt(0) === U2 && "" === e2.charAt(1), 56145, {
-    path: e2
-  }), ResourcePath.emptyPath();
-  const __PRIVATE_lastReasonableEscapeIndex = t3 - 2, n2 = [];
-  let r2 = "";
-  for (let i4 = 0; i4 < t3; ) {
-    const t4 = e2.indexOf(U2, i4);
-    (t4 < 0 || t4 > __PRIVATE_lastReasonableEscapeIndex) && fail(50515, {
-      path: e2
-    });
-    switch (e2.charAt(t4 + 1)) {
-      case "":
-        const s3 = e2.substring(i4, t4);
-        let o3;
-        0 === r2.length ? (
-          // Avoid copying for the common case of a segment that excludes \0
-          // and \001
-          o3 = s3
-        ) : (r2 += s3, o3 = r2, r2 = ""), n2.push(o3);
-        break;
-      case "":
-        r2 += e2.substring(i4, t4), r2 += "\0";
-        break;
-      case "":
-        r2 += e2.substring(i4, t4 + 1);
-        break;
-      default:
-        fail(61167, {
-          path: e2
-        });
-    }
-    i4 = t4 + 2;
-  }
-  return new ResourcePath(n2);
-}
 var $2 = "remoteDocuments";
 var W2 = "owner";
-var Q2 = "owner";
 var G2 = "mutationQueues";
-var z2 = "userId";
 var j2 = "mutations";
-var H2 = "batchId";
-var J2 = "userMutationsIndex";
-var Z2 = ["userId", "batchId"];
-function __PRIVATE_newDbDocumentMutationPrefixForPath(e2, t3) {
-  return [e2, __PRIVATE_encodeResourcePath(t3)];
-}
-function __PRIVATE_newDbDocumentMutationKey(e2, t3, n2) {
-  return [e2, __PRIVATE_encodeResourcePath(t3), n2];
-}
-var X3 = {};
 var Y2 = "documentMutations";
 var ee2 = "remoteDocumentsV14";
-var te2 = ["prefixPath", "collectionGroup", "readTime", "documentId"];
-var ne2 = "documentKeyIndex";
-var re2 = ["prefixPath", "collectionGroup", "documentId"];
-var ie2 = "collectionGroupIndex";
-var se2 = ["collectionGroup", "readTime", "prefixPath", "documentId"];
 var oe2 = "remoteDocumentGlobal";
-var _e2 = "remoteDocumentGlobalKey";
 var ae2 = "targets";
-var ue2 = "queryTargetsIndex";
-var ce2 = ["canonicalId", "targetId"];
 var le2 = "targetDocuments";
-var he2 = ["targetId", "path"];
-var Pe2 = "documentTargetsIndex";
-var Te = ["path", "targetId"];
-var Ie2 = "targetGlobalKey";
 var Ee = "targetGlobal";
 var Re = "collectionParents";
-var Ae2 = ["collectionId", "parent"];
 var Ve = "clientMetadata";
-var de2 = "clientId";
 var me2 = "bundles";
-var fe2 = "bundleId";
 var ge2 = "namedQueries";
-var pe2 = "name";
 var ye2 = "indexConfiguration";
-var we2 = "indexId";
-var be2 = "collectionGroupIndex";
-var Se2 = "collectionGroup";
 var De = "indexState";
-var Ce2 = ["indexId", "uid"];
-var ve2 = "sequenceNumberIndex";
-var Fe2 = ["uid", "sequenceNumber"];
 var Me = "indexEntries";
-var xe2 = ["indexId", "uid", "arrayValue", "directionalValue", "orderedDocumentKey", "documentKey"];
-var Oe = "documentKeyIndex";
-var Ne2 = ["indexId", "uid", "orderedDocumentKey"];
 var Be = "documentOverlays";
-var Le2 = ["userId", "collectionPath", "documentId"];
-var ke2 = "collectionPathOverlayIndex";
-var Ke = ["userId", "collectionPath", "largestBatchId"];
-var qe = "collectionGroupOverlayIndex";
-var Ue = ["userId", "collectionGroup", "largestBatchId"];
 var $e = "globals";
-var We = "name";
 var Qe = [...[...[...[...[G2, j2, Y2, $2, ae2, W2, Ee, le2], Ve], oe2], Re], me2, ge2];
 var Ge = [...Qe, Be];
 var ze = [G2, j2, Y2, ee2, ae2, W2, Ee, le2, Ve, oe2, Re, me2, ge2, Be];
 var je = ze;
 var He = [...je, ye2, De, Me];
-var Je = He;
 var Ze = [...He, $e];
-var Xe = Ze;
-var __PRIVATE_IndexedDbTransaction = class extends PersistenceTransaction {
-  constructor(e2, t3) {
-    super(), this.le = e2, this.currentSequenceNumber = t3;
-  }
-};
-function __PRIVATE_getStore(e2, t3) {
-  const n2 = __PRIVATE_debugCast(e2);
-  return __PRIVATE_SimpleDb.O(n2.le, t3);
-}
 function __PRIVATE_objectSize(e2) {
   let t3 = 0;
   for (const n2 in e2) Object.prototype.hasOwnProperty.call(e2, n2) && t3++;
@@ -70173,9 +69645,6 @@ var SortedSetIterator = class {
     return this.iter.hasNext();
   }
 };
-function __PRIVATE_advanceIterator(e2) {
-  return e2.hasNext() ? e2.getNext() : void 0;
-}
 var FieldMask = class _FieldMask {
   constructor(e2) {
     this.fields = e2, // TODO(dimond): validation of FieldMask
@@ -70375,9 +69844,6 @@ var _t2 = {
 };
 var at2 = "__vector__";
 var ut2 = "value";
-var ct2 = {
-  nullValue: "NULL_VALUE"
-};
 function __PRIVATE_typeOrder(e2) {
   return "nullValue" in e2 ? 0 : "booleanValue" in e2 ? 1 : "integerValue" in e2 || "doubleValue" in e2 ? 2 : "timestampValue" in e2 ? 3 : "stringValue" in e2 ? 5 : "bytesValue" in e2 ? 6 : "referenceValue" in e2 ? 7 : "geoPointValue" in e2 ? 8 : "arrayValue" in e2 ? 9 : "mapValue" in e2 ? __PRIVATE_isServerTimestamp(e2) ? 4 : __PRIVATE_isMaxValue(e2) ? 9007199254740991 : __PRIVATE_isVectorValue(e2) ? 10 : 11 : fail(28295, {
     value: e2
@@ -70591,11 +70057,6 @@ function __PRIVATE_estimateByteSize(e2) {
       });
   }
 }
-function __PRIVATE_refValue(e2, t3) {
-  return {
-    referenceValue: `projects/${e2.projectId}/databases/${e2.database}/documents/${t3.path.canonicalString()}`
-  };
-}
 function isInteger(e2) {
   return !!e2 && "integerValue" in e2;
 }
@@ -70662,66 +70123,6 @@ var lt2 = {
     }
   }
 };
-function __PRIVATE_valuesGetLowerBound(e2) {
-  return "nullValue" in e2 ? ct2 : "booleanValue" in e2 ? {
-    booleanValue: false
-  } : "integerValue" in e2 || "doubleValue" in e2 ? {
-    doubleValue: NaN
-  } : "timestampValue" in e2 ? {
-    timestampValue: {
-      seconds: Number.MIN_SAFE_INTEGER
-    }
-  } : "stringValue" in e2 ? {
-    stringValue: ""
-  } : "bytesValue" in e2 ? {
-    bytesValue: ""
-  } : "referenceValue" in e2 ? __PRIVATE_refValue(DatabaseId.empty(), DocumentKey.empty()) : "geoPointValue" in e2 ? {
-    geoPointValue: {
-      latitude: -90,
-      longitude: -180
-    }
-  } : "arrayValue" in e2 ? {
-    arrayValue: {}
-  } : "mapValue" in e2 ? __PRIVATE_isVectorValue(e2) ? lt2 : {
-    mapValue: {}
-  } : fail(35942, {
-    value: e2
-  });
-}
-function __PRIVATE_valuesGetUpperBound(e2) {
-  return "nullValue" in e2 ? {
-    booleanValue: false
-  } : "booleanValue" in e2 ? {
-    doubleValue: NaN
-  } : "integerValue" in e2 || "doubleValue" in e2 ? {
-    timestampValue: {
-      seconds: Number.MIN_SAFE_INTEGER
-    }
-  } : "timestampValue" in e2 ? {
-    stringValue: ""
-  } : "stringValue" in e2 ? {
-    bytesValue: ""
-  } : "bytesValue" in e2 ? __PRIVATE_refValue(DatabaseId.empty(), DocumentKey.empty()) : "referenceValue" in e2 ? {
-    geoPointValue: {
-      latitude: -90,
-      longitude: -180
-    }
-  } : "geoPointValue" in e2 ? {
-    arrayValue: {}
-  } : "arrayValue" in e2 ? lt2 : "mapValue" in e2 ? __PRIVATE_isVectorValue(e2) ? {
-    mapValue: {}
-  } : _t2 : fail(61959, {
-    value: e2
-  });
-}
-function __PRIVATE_lowerBoundCompare(e2, t3) {
-  const n2 = __PRIVATE_valueCompare(e2.value, t3.value);
-  return 0 !== n2 ? n2 : e2.inclusive && !t3.inclusive ? -1 : !e2.inclusive && t3.inclusive ? 1 : 0;
-}
-function __PRIVATE_upperBoundCompare(e2, t3) {
-  const n2 = __PRIVATE_valueCompare(e2.value, t3.value);
-  return 0 !== n2 ? n2 : e2.inclusive && !t3.inclusive ? 1 : !e2.inclusive && t3.inclusive ? -1 : 0;
-}
 var ObjectValue = class _ObjectValue {
   constructor(e2) {
     this.value = e2;
@@ -71084,9 +70485,6 @@ var CompositeFilter = class _CompositeFilter extends Filter {
 function __PRIVATE_compositeFilterIsConjunction(e2) {
   return "and" === e2.op;
 }
-function __PRIVATE_compositeFilterIsDisjunction(e2) {
-  return "or" === e2.op;
-}
 function __PRIVATE_compositeFilterIsFlatConjunction(e2) {
   return __PRIVATE_compositeFilterIsFlat(e2) && __PRIVATE_compositeFilterIsConjunction(e2);
 }
@@ -71113,10 +70511,6 @@ function __PRIVATE_filterEquals(e2, t3) {
     }
     return false;
   })(e2, t3) : void fail(19439);
-}
-function __PRIVATE_compositeFilterWithAddedFilters(e2, t3) {
-  const n2 = e2.filters.concat(t3);
-  return CompositeFilter.create(n2, e2.op);
 }
 function __PRIVATE_stringifyFilter(e2) {
   return e2 instanceof FieldFilter ? (function __PRIVATE_stringifyFieldFilter(e3) {
@@ -71220,103 +70614,6 @@ function __PRIVATE_targetEquals(e2, t3) {
 }
 function __PRIVATE_targetIsDocumentTarget(e2) {
   return DocumentKey.isDocumentKey(e2.path) && null === e2.collectionGroup && 0 === e2.filters.length;
-}
-function __PRIVATE_targetGetFieldFiltersForPath(e2, t3) {
-  return e2.filters.filter(((e3) => e3 instanceof FieldFilter && e3.field.isEqual(t3)));
-}
-function __PRIVATE_targetGetAscendingBound(e2, t3, n2) {
-  let r2 = ct2, i4 = true;
-  for (const n3 of __PRIVATE_targetGetFieldFiltersForPath(e2, t3)) {
-    let e3 = ct2, t4 = true;
-    switch (n3.op) {
-      case "<":
-      case "<=":
-        e3 = __PRIVATE_valuesGetLowerBound(n3.value);
-        break;
-      case "==":
-      case "in":
-      case ">=":
-        e3 = n3.value;
-        break;
-      case ">":
-        e3 = n3.value, t4 = false;
-        break;
-      case "!=":
-      case "not-in":
-        e3 = ct2;
-    }
-    __PRIVATE_lowerBoundCompare({
-      value: r2,
-      inclusive: i4
-    }, {
-      value: e3,
-      inclusive: t4
-    }) < 0 && (r2 = e3, i4 = t4);
-  }
-  if (null !== n2) for (let s3 = 0; s3 < e2.orderBy.length; ++s3) {
-    if (e2.orderBy[s3].field.isEqual(t3)) {
-      const e3 = n2.position[s3];
-      __PRIVATE_lowerBoundCompare({
-        value: r2,
-        inclusive: i4
-      }, {
-        value: e3,
-        inclusive: n2.inclusive
-      }) < 0 && (r2 = e3, i4 = n2.inclusive);
-      break;
-    }
-  }
-  return {
-    value: r2,
-    inclusive: i4
-  };
-}
-function __PRIVATE_targetGetDescendingBound(e2, t3, n2) {
-  let r2 = _t2, i4 = true;
-  for (const n3 of __PRIVATE_targetGetFieldFiltersForPath(e2, t3)) {
-    let e3 = _t2, t4 = true;
-    switch (n3.op) {
-      case ">=":
-      case ">":
-        e3 = __PRIVATE_valuesGetUpperBound(n3.value), t4 = false;
-        break;
-      case "==":
-      case "in":
-      case "<=":
-        e3 = n3.value;
-        break;
-      case "<":
-        e3 = n3.value, t4 = false;
-        break;
-      case "!=":
-      case "not-in":
-        e3 = _t2;
-    }
-    __PRIVATE_upperBoundCompare({
-      value: r2,
-      inclusive: i4
-    }, {
-      value: e3,
-      inclusive: t4
-    }) > 0 && (r2 = e3, i4 = t4);
-  }
-  if (null !== n2) for (let s3 = 0; s3 < e2.orderBy.length; ++s3) {
-    if (e2.orderBy[s3].field.isEqual(t3)) {
-      const e3 = n2.position[s3];
-      __PRIVATE_upperBoundCompare({
-        value: r2,
-        inclusive: i4
-      }, {
-        value: e3,
-        inclusive: n2.inclusive
-      }) > 0 && (r2 = e3, i4 = n2.inclusive);
-      break;
-    }
-  }
-  return {
-    value: r2,
-    inclusive: i4
-  };
 }
 var __PRIVATE_QueryImpl = class {
   /**
@@ -72616,14 +71913,6 @@ function __PRIVATE_toMutationDocument(e2, t3, n2) {
     fields: n2.value.mapValue.fields
   };
 }
-function __PRIVATE_fromDocument(e2, t3, n2) {
-  const r2 = fromName(e2, t3.name), i4 = __PRIVATE_fromVersion(t3.updateTime), s3 = t3.createTime ? __PRIVATE_fromVersion(t3.createTime) : SnapshotVersion.min(), o3 = new ObjectValue({
-    mapValue: {
-      fields: t3.fields
-    }
-  }), _3 = MutableDocument.newFoundDocument(r2, i4, s3, o3);
-  return n2 && _3.setHasCommittedMutations(), n2 ? _3.setHasCommittedMutations() : _3;
-}
 function __PRIVATE_fromWatchChange(e2, t3) {
   let n2;
   if ("targetChange" in t3) {
@@ -72731,54 +72020,6 @@ function toMutation(e2, t3) {
       exists: t4.exists
     } : fail(27497);
   })(e2, t3.precondition)), n2;
-}
-function __PRIVATE_fromMutation(e2, t3) {
-  const n2 = t3.currentDocument ? (function __PRIVATE_fromPrecondition(e3) {
-    return void 0 !== e3.updateTime ? Precondition.updateTime(__PRIVATE_fromVersion(e3.updateTime)) : void 0 !== e3.exists ? Precondition.exists(e3.exists) : Precondition.none();
-  })(t3.currentDocument) : Precondition.none(), r2 = t3.updateTransforms ? t3.updateTransforms.map(((t4) => (function __PRIVATE_fromFieldTransform(e3, t5) {
-    let n3 = null;
-    if ("setToServerValue" in t5) __PRIVATE_hardAssert("REQUEST_TIME" === t5.setToServerValue, 16630, {
-      proto: t5
-    }), n3 = new __PRIVATE_ServerTimestampTransform();
-    else if ("appendMissingElements" in t5) {
-      const e4 = t5.appendMissingElements.values || [];
-      n3 = new __PRIVATE_ArrayUnionTransformOperation(e4);
-    } else if ("removeAllFromArray" in t5) {
-      const e4 = t5.removeAllFromArray.values || [];
-      n3 = new __PRIVATE_ArrayRemoveTransformOperation(e4);
-    } else "increment" in t5 ? n3 = new __PRIVATE_NumericIncrementTransformOperation(e3, t5.increment) : fail(16584, {
-      proto: t5
-    });
-    const r3 = FieldPath$1.fromServerFormat(t5.fieldPath);
-    return new FieldTransform(r3, n3);
-  })(e2, t4))) : [];
-  if (t3.update) {
-    t3.update.name;
-    const i4 = fromName(e2, t3.update.name), s3 = new ObjectValue({
-      mapValue: {
-        fields: t3.update.fields
-      }
-    });
-    if (t3.updateMask) {
-      const e3 = (function __PRIVATE_fromDocumentMask(e4) {
-        const t4 = e4.fieldPaths || [];
-        return new FieldMask(t4.map(((e5) => FieldPath$1.fromServerFormat(e5))));
-      })(t3.updateMask);
-      return new __PRIVATE_PatchMutation(i4, s3, e3, n2, r2);
-    }
-    return new __PRIVATE_SetMutation(i4, s3, n2, r2);
-  }
-  if (t3.delete) {
-    const r3 = fromName(e2, t3.delete);
-    return new __PRIVATE_DeleteMutation(r3, n2);
-  }
-  if (t3.verify) {
-    const r3 = fromName(e2, t3.verify);
-    return new __PRIVATE_VerifyMutation(r3, n2);
-  }
-  return fail(1463, {
-    proto: t3
-  });
 }
 function __PRIVATE_fromWriteResults(e2, t3) {
   return e2 && e2.length > 0 ? (__PRIVATE_hardAssert(void 0 !== t3, 14353), e2.map(((e3) => (function __PRIVATE_fromWriteResult(e4, t4) {
@@ -73110,114 +72351,6 @@ var __PRIVATE_LocalSerializer = class {
     this.yt = e2;
   }
 };
-function __PRIVATE_fromDbRemoteDocument(e2, t3) {
-  let n2;
-  if (t3.document) n2 = __PRIVATE_fromDocument(e2.yt, t3.document, !!t3.hasCommittedMutations);
-  else if (t3.noDocument) {
-    const e3 = DocumentKey.fromSegments(t3.noDocument.path), r2 = __PRIVATE_fromDbTimestamp(t3.noDocument.readTime);
-    n2 = MutableDocument.newNoDocument(e3, r2), t3.hasCommittedMutations && n2.setHasCommittedMutations();
-  } else {
-    if (!t3.unknownDocument) return fail(56709);
-    {
-      const e3 = DocumentKey.fromSegments(t3.unknownDocument.path), r2 = __PRIVATE_fromDbTimestamp(t3.unknownDocument.version);
-      n2 = MutableDocument.newUnknownDocument(e3, r2);
-    }
-  }
-  return t3.readTime && n2.setReadTime((function __PRIVATE_fromDbTimestampKey(e3) {
-    const t4 = new Timestamp(e3[0], e3[1]);
-    return SnapshotVersion.fromTimestamp(t4);
-  })(t3.readTime)), n2;
-}
-function __PRIVATE_toDbRemoteDocument(e2, t3) {
-  const n2 = t3.key, r2 = {
-    prefixPath: n2.getCollectionPath().popLast().toArray(),
-    collectionGroup: n2.collectionGroup,
-    documentId: n2.path.lastSegment(),
-    readTime: __PRIVATE_toDbTimestampKey(t3.readTime),
-    hasCommittedMutations: t3.hasCommittedMutations
-  };
-  if (t3.isFoundDocument()) r2.document = (function __PRIVATE_toDocument(e3, t4) {
-    return {
-      name: __PRIVATE_toName(e3, t4.key),
-      fields: t4.data.value.mapValue.fields,
-      updateTime: toTimestamp(e3, t4.version.toTimestamp()),
-      createTime: toTimestamp(e3, t4.createTime.toTimestamp())
-    };
-  })(e2.yt, t3);
-  else if (t3.isNoDocument()) r2.noDocument = {
-    path: n2.path.toArray(),
-    readTime: __PRIVATE_toDbTimestamp(t3.version)
-  };
-  else {
-    if (!t3.isUnknownDocument()) return fail(57904, {
-      document: t3
-    });
-    r2.unknownDocument = {
-      path: n2.path.toArray(),
-      version: __PRIVATE_toDbTimestamp(t3.version)
-    };
-  }
-  return r2;
-}
-function __PRIVATE_toDbTimestampKey(e2) {
-  const t3 = e2.toTimestamp();
-  return [t3.seconds, t3.nanoseconds];
-}
-function __PRIVATE_toDbTimestamp(e2) {
-  const t3 = e2.toTimestamp();
-  return {
-    seconds: t3.seconds,
-    nanoseconds: t3.nanoseconds
-  };
-}
-function __PRIVATE_fromDbTimestamp(e2) {
-  const t3 = new Timestamp(e2.seconds, e2.nanoseconds);
-  return SnapshotVersion.fromTimestamp(t3);
-}
-function __PRIVATE_fromDbMutationBatch(e2, t3) {
-  const n2 = (t3.baseMutations || []).map(((t4) => __PRIVATE_fromMutation(e2.yt, t4)));
-  for (let e3 = 0; e3 < t3.mutations.length - 1; ++e3) {
-    const n3 = t3.mutations[e3];
-    if (e3 + 1 < t3.mutations.length && void 0 !== t3.mutations[e3 + 1].transform) {
-      const r3 = t3.mutations[e3 + 1];
-      n3.updateTransforms = r3.transform.fieldTransforms, t3.mutations.splice(e3 + 1, 1), ++e3;
-    }
-  }
-  const r2 = t3.mutations.map(((t4) => __PRIVATE_fromMutation(e2.yt, t4))), i4 = Timestamp.fromMillis(t3.localWriteTimeMs);
-  return new MutationBatch(t3.batchId, i4, n2, r2);
-}
-function __PRIVATE_fromDbTarget(e2) {
-  const t3 = __PRIVATE_fromDbTimestamp(e2.readTime), n2 = void 0 !== e2.lastLimboFreeSnapshotVersion ? __PRIVATE_fromDbTimestamp(e2.lastLimboFreeSnapshotVersion) : SnapshotVersion.min();
-  let r2;
-  return r2 = /**
-  * A helper function for figuring out what kind of query has been stored.
-  */
-  (function __PRIVATE_isDocumentQuery(e3) {
-    return void 0 !== e3.documents;
-  })(e2.query) ? (function __PRIVATE_fromDocumentsTarget(e3) {
-    const t4 = e3.documents.length;
-    return __PRIVATE_hardAssert(1 === t4, 1966, {
-      count: t4
-    }), __PRIVATE_queryToTarget(__PRIVATE_newQueryForPath(__PRIVATE_fromQueryPath(e3.documents[0])));
-  })(e2.query) : (function __PRIVATE_fromQueryTarget(e3) {
-    return __PRIVATE_queryToTarget(__PRIVATE_convertQueryTargetToQuery(e3));
-  })(e2.query), new TargetData(r2, e2.targetId, "TargetPurposeListen", e2.lastListenSequenceNumber, t3, n2, ByteString.fromBase64String(e2.resumeToken));
-}
-function __PRIVATE_toDbTarget(e2, t3) {
-  const n2 = __PRIVATE_toDbTimestamp(t3.snapshotVersion), r2 = __PRIVATE_toDbTimestamp(t3.lastLimboFreeSnapshotVersion);
-  let i4;
-  i4 = __PRIVATE_targetIsDocumentTarget(t3.target) ? __PRIVATE_toDocumentsTarget(e2.yt, t3.target) : __PRIVATE_toQueryTarget(e2.yt, t3.target).ft;
-  const s3 = t3.resumeToken.toBase64();
-  return {
-    targetId: t3.targetId,
-    canonicalId: __PRIVATE_canonifyTarget(t3.target),
-    readTime: n2,
-    resumeToken: s3,
-    lastListenSequenceNumber: t3.sequenceNumber,
-    lastLimboFreeSnapshotVersion: r2,
-    query: i4
-  };
-}
 function __PRIVATE_fromBundledQuery(e2) {
   const t3 = __PRIVATE_convertQueryTargetToQuery({
     parent: e2.parent,
@@ -73230,181 +72363,6 @@ function __PRIVATE_fromBundledQuery(e2) {
     /* LimitType.Last */
   ) : t3;
 }
-function __PRIVATE_fromDbDocumentOverlay(e2, t3) {
-  return new Overlay(t3.largestBatchId, __PRIVATE_fromMutation(e2.yt, t3.overlayMutation));
-}
-function __PRIVATE_toDbDocumentOverlayKey(e2, t3) {
-  const n2 = t3.path.lastSegment();
-  return [e2, __PRIVATE_encodeResourcePath(t3.path.popLast()), n2];
-}
-function __PRIVATE_toDbIndexState(e2, t3, n2, r2) {
-  return {
-    indexId: e2,
-    uid: t3,
-    sequenceNumber: n2,
-    readTime: __PRIVATE_toDbTimestamp(r2.readTime),
-    documentKey: __PRIVATE_encodeResourcePath(r2.documentKey.path),
-    largestBatchId: r2.largestBatchId
-  };
-}
-var __PRIVATE_IndexedDbBundleCache = class {
-  getBundleMetadata(e2, t3) {
-    return __PRIVATE_bundlesStore(e2).get(t3).next(((e3) => {
-      if (e3) return (function __PRIVATE_fromDbBundle(e4) {
-        return {
-          id: e4.bundleId,
-          createTime: __PRIVATE_fromDbTimestamp(e4.createTime),
-          version: e4.version
-        };
-      })(e3);
-    }));
-  }
-  saveBundleMetadata(e2, t3) {
-    return __PRIVATE_bundlesStore(e2).put((function __PRIVATE_toDbBundle(e3) {
-      return {
-        bundleId: e3.id,
-        createTime: __PRIVATE_toDbTimestamp(__PRIVATE_fromVersion(e3.createTime)),
-        version: e3.version
-      };
-    })(t3));
-  }
-  getNamedQuery(e2, t3) {
-    return __PRIVATE_namedQueriesStore(e2).get(t3).next(((e3) => {
-      if (e3) return (function __PRIVATE_fromDbNamedQuery(e4) {
-        return {
-          name: e4.name,
-          query: __PRIVATE_fromBundledQuery(e4.bundledQuery),
-          readTime: __PRIVATE_fromDbTimestamp(e4.readTime)
-        };
-      })(e3);
-    }));
-  }
-  saveNamedQuery(e2, t3) {
-    return __PRIVATE_namedQueriesStore(e2).put((function __PRIVATE_toDbNamedQuery(e3) {
-      return {
-        name: e3.name,
-        readTime: __PRIVATE_toDbTimestamp(__PRIVATE_fromVersion(e3.readTime)),
-        bundledQuery: e3.bundledQuery
-      };
-    })(t3));
-  }
-};
-function __PRIVATE_bundlesStore(e2) {
-  return __PRIVATE_getStore(e2, me2);
-}
-function __PRIVATE_namedQueriesStore(e2) {
-  return __PRIVATE_getStore(e2, ge2);
-}
-var __PRIVATE_IndexedDbDocumentOverlayCache = class ___PRIVATE_IndexedDbDocumentOverlayCache {
-  /**
-   * @param serializer - The document serializer.
-   * @param userId - The userId for which we are accessing overlays.
-   */
-  constructor(e2, t3) {
-    this.serializer = e2, this.userId = t3;
-  }
-  static wt(e2, t3) {
-    const n2 = t3.uid || "";
-    return new ___PRIVATE_IndexedDbDocumentOverlayCache(e2, n2);
-  }
-  getOverlay(e2, t3) {
-    return __PRIVATE_documentOverlayStore(e2).get(__PRIVATE_toDbDocumentOverlayKey(this.userId, t3)).next(((e3) => e3 ? __PRIVATE_fromDbDocumentOverlay(this.serializer, e3) : null));
-  }
-  getOverlays(e2, t3) {
-    const n2 = __PRIVATE_newOverlayMap();
-    return PersistencePromise.forEach(t3, ((t4) => this.getOverlay(e2, t4).next(((e3) => {
-      null !== e3 && n2.set(t4, e3);
-    })))).next((() => n2));
-  }
-  saveOverlays(e2, t3, n2) {
-    const r2 = [];
-    return n2.forEach(((n3, i4) => {
-      const s3 = new Overlay(t3, i4);
-      r2.push(this.St(e2, s3));
-    })), PersistencePromise.waitFor(r2);
-  }
-  removeOverlaysForBatchId(e2, t3, n2) {
-    const r2 = /* @__PURE__ */ new Set();
-    t3.forEach(((e3) => r2.add(__PRIVATE_encodeResourcePath(e3.getCollectionPath()))));
-    const i4 = [];
-    return r2.forEach(((t4) => {
-      const r3 = IDBKeyRange.bound(
-        [this.userId, t4, n2],
-        [this.userId, t4, n2 + 1],
-        /*lowerOpen=*/
-        false,
-        /*upperOpen=*/
-        true
-      );
-      i4.push(__PRIVATE_documentOverlayStore(e2).X(ke2, r3));
-    })), PersistencePromise.waitFor(i4);
-  }
-  getOverlaysForCollection(e2, t3, n2) {
-    const r2 = __PRIVATE_newOverlayMap(), i4 = __PRIVATE_encodeResourcePath(t3), s3 = IDBKeyRange.bound(
-      [this.userId, i4, n2],
-      [this.userId, i4, Number.POSITIVE_INFINITY],
-      /*lowerOpen=*/
-      true
-    );
-    return __PRIVATE_documentOverlayStore(e2).J(ke2, s3).next(((e3) => {
-      for (const t4 of e3) {
-        const e4 = __PRIVATE_fromDbDocumentOverlay(this.serializer, t4);
-        r2.set(e4.getKey(), e4);
-      }
-      return r2;
-    }));
-  }
-  getOverlaysForCollectionGroup(e2, t3, n2, r2) {
-    const i4 = __PRIVATE_newOverlayMap();
-    let s3;
-    const o3 = IDBKeyRange.bound(
-      [this.userId, t3, n2],
-      [this.userId, t3, Number.POSITIVE_INFINITY],
-      /*lowerOpen=*/
-      true
-    );
-    return __PRIVATE_documentOverlayStore(e2).ee({
-      index: qe,
-      range: o3
-    }, ((e3, t4, n3) => {
-      const o4 = __PRIVATE_fromDbDocumentOverlay(this.serializer, t4);
-      i4.size() < r2 || o4.largestBatchId === s3 ? (i4.set(o4.getKey(), o4), s3 = o4.largestBatchId) : n3.done();
-    })).next((() => i4));
-  }
-  St(e2, t3) {
-    return __PRIVATE_documentOverlayStore(e2).put((function __PRIVATE_toDbDocumentOverlay(e3, t4, n2) {
-      const [r2, i4, s3] = __PRIVATE_toDbDocumentOverlayKey(t4, n2.mutation.key);
-      return {
-        userId: t4,
-        collectionPath: i4,
-        documentId: s3,
-        collectionGroup: n2.mutation.key.getCollectionGroup(),
-        largestBatchId: n2.largestBatchId,
-        overlayMutation: toMutation(e3.yt, n2.mutation)
-      };
-    })(this.serializer, this.userId, t3));
-  }
-};
-function __PRIVATE_documentOverlayStore(e2) {
-  return __PRIVATE_getStore(e2, Be);
-}
-var __PRIVATE_IndexedDbGlobalsCache = class {
-  bt(e2) {
-    return __PRIVATE_getStore(e2, $e);
-  }
-  getSessionToken(e2) {
-    return this.bt(e2).get("sessionToken").next(((e3) => {
-      const t3 = e3?.value;
-      return t3 ? ByteString.fromUint8Array(t3) : ByteString.EMPTY_BYTE_STRING;
-    }));
-  }
-  setSessionToken(e2, t3) {
-    return this.bt(e2).put({
-      name: "sessionToken",
-      value: t3.toUint8Array()
-    });
-  }
-};
 var __PRIVATE_FirestoreIndexValueWriter = class {
   constructor() {
   }
@@ -73480,473 +72438,6 @@ var __PRIVATE_FirestoreIndexValueWriter = class {
   }
 };
 __PRIVATE_FirestoreIndexValueWriter.Wt = new __PRIVATE_FirestoreIndexValueWriter();
-var pt2 = 255;
-function __PRIVATE_numberOfLeadingZerosInByte(e2) {
-  if (0 === e2) return 8;
-  let t3 = 0;
-  return e2 >> 4 || // Test if the first four bits are zero.
-  (t3 += 4, e2 <<= 4), e2 >> 6 || // Test if the first two (or next two) bits are zero.
-  (t3 += 2, e2 <<= 2), e2 >> 7 || // Test if the remaining bit is zero.
-  (t3 += 1), t3;
-}
-function __PRIVATE_unsignedNumLength(e2) {
-  const t3 = 64 - (function __PRIVATE_numberOfLeadingZeros(e3) {
-    let t4 = 0;
-    for (let n2 = 0; n2 < 8; ++n2) {
-      const r2 = __PRIVATE_numberOfLeadingZerosInByte(255 & e3[n2]);
-      if (t4 += r2, 8 !== r2) break;
-    }
-    return t4;
-  })(e2);
-  return Math.ceil(t3 / 8);
-}
-var __PRIVATE_OrderedCodeWriter = class {
-  constructor() {
-    this.buffer = new Uint8Array(1024), this.position = 0;
-  }
-  Qt(e2) {
-    const t3 = e2[Symbol.iterator]();
-    let n2 = t3.next();
-    for (; !n2.done; ) this.Gt(n2.value), n2 = t3.next();
-    this.zt();
-  }
-  jt(e2) {
-    const t3 = e2[Symbol.iterator]();
-    let n2 = t3.next();
-    for (; !n2.done; ) this.Jt(n2.value), n2 = t3.next();
-    this.Ht();
-  }
-  /** Writes utf8 bytes into this byte sequence, ascending. */
-  Zt(e2) {
-    for (const t3 of e2) {
-      const e3 = t3.charCodeAt(0);
-      if (e3 < 128) this.Gt(e3);
-      else if (e3 < 2048) this.Gt(960 | e3 >>> 6), this.Gt(128 | 63 & e3);
-      else if (t3 < "\uD800" || "\uDBFF" < t3) this.Gt(480 | e3 >>> 12), this.Gt(128 | 63 & e3 >>> 6), this.Gt(128 | 63 & e3);
-      else {
-        const e4 = t3.codePointAt(0);
-        this.Gt(240 | e4 >>> 18), this.Gt(128 | 63 & e4 >>> 12), this.Gt(128 | 63 & e4 >>> 6), this.Gt(128 | 63 & e4);
-      }
-    }
-    this.zt();
-  }
-  /** Writes utf8 bytes into this byte sequence, descending */
-  Xt(e2) {
-    for (const t3 of e2) {
-      const e3 = t3.charCodeAt(0);
-      if (e3 < 128) this.Jt(e3);
-      else if (e3 < 2048) this.Jt(960 | e3 >>> 6), this.Jt(128 | 63 & e3);
-      else if (t3 < "\uD800" || "\uDBFF" < t3) this.Jt(480 | e3 >>> 12), this.Jt(128 | 63 & e3 >>> 6), this.Jt(128 | 63 & e3);
-      else {
-        const e4 = t3.codePointAt(0);
-        this.Jt(240 | e4 >>> 18), this.Jt(128 | 63 & e4 >>> 12), this.Jt(128 | 63 & e4 >>> 6), this.Jt(128 | 63 & e4);
-      }
-    }
-    this.Ht();
-  }
-  Yt(e2) {
-    const t3 = this.en(e2), n2 = __PRIVATE_unsignedNumLength(t3);
-    this.tn(1 + n2), this.buffer[this.position++] = 255 & n2;
-    for (let e3 = t3.length - n2; e3 < t3.length; ++e3) this.buffer[this.position++] = 255 & t3[e3];
-  }
-  nn(e2) {
-    const t3 = this.en(e2), n2 = __PRIVATE_unsignedNumLength(t3);
-    this.tn(1 + n2), this.buffer[this.position++] = ~(255 & n2);
-    for (let e3 = t3.length - n2; e3 < t3.length; ++e3) this.buffer[this.position++] = ~(255 & t3[e3]);
-  }
-  /**
-   * Writes the "infinity" byte sequence that sorts after all other byte
-   * sequences written in ascending order.
-   */
-  rn() {
-    this.sn(pt2), this.sn(255);
-  }
-  /**
-   * Writes the "infinity" byte sequence that sorts before all other byte
-   * sequences written in descending order.
-   */
-  _n() {
-    this.an(pt2), this.an(255);
-  }
-  /**
-   * Resets the buffer such that it is the same as when it was newly
-   * constructed.
-   */
-  reset() {
-    this.position = 0;
-  }
-  seed(e2) {
-    this.tn(e2.length), this.buffer.set(e2, this.position), this.position += e2.length;
-  }
-  /** Makes a copy of the encoded bytes in this buffer.  */
-  un() {
-    return this.buffer.slice(0, this.position);
-  }
-  /**
-   * Encodes `val` into an encoding so that the order matches the IEEE 754
-   * floating-point comparison results with the following exceptions:
-   *   -0.0 < 0.0
-   *   all non-NaN < NaN
-   *   NaN = NaN
-   */
-  en(e2) {
-    const t3 = (
-      /** Converts a JavaScript number to a byte array (using big endian encoding). */
-      (function __PRIVATE_doubleToLongBits(e3) {
-        const t4 = new DataView(new ArrayBuffer(8));
-        return t4.setFloat64(
-          0,
-          e3,
-          /* littleEndian= */
-          false
-        ), new Uint8Array(t4.buffer);
-      })(e2)
-    ), n2 = !!(128 & t3[0]);
-    t3[0] ^= n2 ? 255 : 128;
-    for (let e3 = 1; e3 < t3.length; ++e3) t3[e3] ^= n2 ? 255 : 0;
-    return t3;
-  }
-  /** Writes a single byte ascending to the buffer. */
-  Gt(e2) {
-    const t3 = 255 & e2;
-    0 === t3 ? (this.sn(0), this.sn(255)) : t3 === pt2 ? (this.sn(pt2), this.sn(0)) : this.sn(t3);
-  }
-  /** Writes a single byte descending to the buffer.  */
-  Jt(e2) {
-    const t3 = 255 & e2;
-    0 === t3 ? (this.an(0), this.an(255)) : t3 === pt2 ? (this.an(pt2), this.an(0)) : this.an(e2);
-  }
-  zt() {
-    this.sn(0), this.sn(1);
-  }
-  Ht() {
-    this.an(0), this.an(1);
-  }
-  sn(e2) {
-    this.tn(1), this.buffer[this.position++] = e2;
-  }
-  an(e2) {
-    this.tn(1), this.buffer[this.position++] = ~e2;
-  }
-  tn(e2) {
-    const t3 = e2 + this.position;
-    if (t3 <= this.buffer.length) return;
-    let n2 = 2 * this.buffer.length;
-    n2 < t3 && (n2 = t3);
-    const r2 = new Uint8Array(n2);
-    r2.set(this.buffer), // copy old data
-    this.buffer = r2;
-  }
-};
-var __PRIVATE_AscendingIndexByteEncoder = class {
-  constructor(e2) {
-    this.cn = e2;
-  }
-  Bt(e2) {
-    this.cn.Qt(e2);
-  }
-  xt(e2) {
-    this.cn.Zt(e2);
-  }
-  Mt(e2) {
-    this.cn.Yt(e2);
-  }
-  vt() {
-    this.cn.rn();
-  }
-};
-var __PRIVATE_DescendingIndexByteEncoder = class {
-  constructor(e2) {
-    this.cn = e2;
-  }
-  Bt(e2) {
-    this.cn.jt(e2);
-  }
-  xt(e2) {
-    this.cn.Xt(e2);
-  }
-  Mt(e2) {
-    this.cn.nn(e2);
-  }
-  vt() {
-    this.cn._n();
-  }
-};
-var __PRIVATE_IndexByteEncoder = class {
-  constructor() {
-    this.cn = new __PRIVATE_OrderedCodeWriter(), this.ascending = new __PRIVATE_AscendingIndexByteEncoder(this.cn), this.descending = new __PRIVATE_DescendingIndexByteEncoder(this.cn);
-  }
-  seed(e2) {
-    this.cn.seed(e2);
-  }
-  ln(e2) {
-    return 0 === e2 ? this.ascending : this.descending;
-  }
-  un() {
-    return this.cn.un();
-  }
-  reset() {
-    this.cn.reset();
-  }
-};
-var __PRIVATE_IndexEntry = class ___PRIVATE_IndexEntry {
-  constructor(e2, t3, n2, r2) {
-    this.hn = e2, this.Pn = t3, this.Tn = n2, this.En = r2;
-  }
-  /**
-   * Returns an IndexEntry entry that sorts immediately after the current
-   * directional value.
-   */
-  In() {
-    const e2 = this.En.length, t3 = 0 === e2 || 255 === this.En[e2 - 1] ? e2 + 1 : e2, n2 = new Uint8Array(t3);
-    return n2.set(this.En, 0), t3 !== e2 ? n2.set([0], this.En.length) : ++n2[n2.length - 1], new ___PRIVATE_IndexEntry(this.hn, this.Pn, this.Tn, n2);
-  }
-  // Create a representation of the Index Entry as a DbIndexEntry
-  Rn(e2, t3, n2) {
-    return {
-      indexId: this.hn,
-      uid: e2,
-      arrayValue: __PRIVATE_encodeKeySafeBytes(this.Tn),
-      directionalValue: __PRIVATE_encodeKeySafeBytes(this.En),
-      orderedDocumentKey: __PRIVATE_encodeKeySafeBytes(t3),
-      documentKey: n2.path.toArray()
-    };
-  }
-  // Create a representation of the Index Entry as a DbIndexEntryKey
-  An(e2, t3, n2) {
-    const r2 = this.Rn(e2, t3, n2);
-    return [r2.indexId, r2.uid, r2.arrayValue, r2.directionalValue, r2.orderedDocumentKey, r2.documentKey];
-  }
-};
-function __PRIVATE_indexEntryComparator(e2, t3) {
-  let n2 = e2.hn - t3.hn;
-  return 0 !== n2 ? n2 : (n2 = __PRIVATE_compareByteArrays(e2.Tn, t3.Tn), 0 !== n2 ? n2 : (n2 = __PRIVATE_compareByteArrays(e2.En, t3.En), 0 !== n2 ? n2 : DocumentKey.comparator(e2.Pn, t3.Pn)));
-}
-function __PRIVATE_compareByteArrays(e2, t3) {
-  for (let n2 = 0; n2 < e2.length && n2 < t3.length; ++n2) {
-    const r2 = e2[n2] - t3[n2];
-    if (0 !== r2) return r2;
-  }
-  return e2.length - t3.length;
-}
-function __PRIVATE_encodeKeySafeBytes(e2) {
-  return isSafariOrWebkit() ? (
-    /**
-    * Encodes a Uint8Array into a "sortable byte string".
-    * A "sortable byte string" sorts in the same order as the Uint8Array.
-    * This works because JS string comparison sorts strings based on code points.
-    */
-    (function __PRIVATE_encodeUint8ArrayToSortableString(e3) {
-      let t3 = "";
-      for (let n2 = 0; n2 < e3.length; n2++) t3 += String.fromCharCode(e3[n2]);
-      return t3;
-    })(e2)
-  ) : e2;
-}
-function __PRIVATE_decodeKeySafeBytes(e2) {
-  return "string" != typeof e2 ? e2 : (function __PRIVATE_decodeSortableStringToUint8Array(e3) {
-    const t3 = new Uint8Array(e3.length);
-    for (let n2 = 0; n2 < e3.length; n2++) t3[n2] = e3.charCodeAt(n2);
-    return t3;
-  })(e2);
-}
-var __PRIVATE_TargetIndexMatcher = class {
-  constructor(e2) {
-    this.Vn = new SortedSet(((e3, t3) => FieldPath$1.comparator(e3.field, t3.field))), this.collectionId = null != e2.collectionGroup ? e2.collectionGroup : e2.path.lastSegment(), this.dn = e2.orderBy, this.mn = [];
-    for (const t3 of e2.filters) {
-      const e3 = t3;
-      e3.isInequality() ? this.Vn = this.Vn.add(e3) : this.mn.push(e3);
-    }
-  }
-  get fn() {
-    return this.Vn.size > 1;
-  }
-  /**
-   * Returns whether the index can be used to serve the TargetIndexMatcher's
-   * target.
-   *
-   * An index is considered capable of serving the target when:
-   * - The target uses all index segments for its filters and orderBy clauses.
-   *   The target can have additional filter and orderBy clauses, but not
-   *   fewer.
-   * - If an ArrayContains/ArrayContainsAnyfilter is used, the index must also
-   *   have a corresponding `CONTAINS` segment.
-   * - All directional index segments can be mapped to the target as a series of
-   *   equality filters, a single inequality filter and a series of orderBy
-   *   clauses.
-   * - The segments that represent the equality filters may appear out of order.
-   * - The optional segment for the inequality filter must appear after all
-   *   equality segments.
-   * - The segments that represent that orderBy clause of the target must appear
-   *   in order after all equality and inequality segments. Single orderBy
-   *   clauses cannot be skipped, but a continuous orderBy suffix may be
-   *   omitted.
-   */
-  gn(e2) {
-    if (__PRIVATE_hardAssert(e2.collectionGroup === this.collectionId, 49279), this.fn)
-      return false;
-    const t3 = __PRIVATE_fieldIndexGetArraySegment(e2);
-    if (void 0 !== t3 && !this.pn(t3)) return false;
-    const n2 = __PRIVATE_fieldIndexGetDirectionalSegments(e2);
-    let r2 = /* @__PURE__ */ new Set(), i4 = 0, s3 = 0;
-    for (; i4 < n2.length && this.pn(n2[i4]); ++i4) r2 = r2.add(n2[i4].fieldPath.canonicalString());
-    if (i4 === n2.length) return true;
-    if (this.Vn.size > 0) {
-      const e3 = this.Vn.getIterator().getNext();
-      if (!r2.has(e3.field.canonicalString())) {
-        const t4 = n2[i4];
-        if (!this.yn(e3, t4) || !this.wn(this.dn[s3++], t4)) return false;
-      }
-      ++i4;
-    }
-    for (; i4 < n2.length; ++i4) {
-      const e3 = n2[i4];
-      if (s3 >= this.dn.length || !this.wn(this.dn[s3++], e3)) return false;
-    }
-    return true;
-  }
-  /**
-   * Returns a full matched field index for this target. Currently multiple
-   * inequality query is not supported so function returns null.
-   */
-  Sn() {
-    if (this.fn) return null;
-    let e2 = new SortedSet(FieldPath$1.comparator);
-    const t3 = [];
-    for (const n2 of this.mn) {
-      if (n2.field.isKeyField()) continue;
-      if ("array-contains" === n2.op || "array-contains-any" === n2.op) t3.push(new IndexSegment(
-        n2.field,
-        2
-        /* IndexKind.CONTAINS */
-      ));
-      else {
-        if (e2.has(n2.field)) continue;
-        e2 = e2.add(n2.field), t3.push(new IndexSegment(
-          n2.field,
-          0
-          /* IndexKind.ASCENDING */
-        ));
-      }
-    }
-    for (const n2 of this.dn)
-      n2.field.isKeyField() || e2.has(n2.field) || (e2 = e2.add(n2.field), t3.push(new IndexSegment(
-        n2.field,
-        "asc" === n2.dir ? 0 : 1
-        /* IndexKind.DESCENDING */
-      )));
-    return new FieldIndex(FieldIndex.UNKNOWN_ID, this.collectionId, t3, IndexState.empty());
-  }
-  pn(e2) {
-    for (const t3 of this.mn) if (this.yn(t3, e2)) return true;
-    return false;
-  }
-  yn(e2, t3) {
-    if (void 0 === e2 || !e2.field.isEqual(t3.fieldPath)) return false;
-    const n2 = "array-contains" === e2.op || "array-contains-any" === e2.op;
-    return 2 === t3.kind === n2;
-  }
-  wn(e2, t3) {
-    return !!e2.field.isEqual(t3.fieldPath) && (0 === t3.kind && "asc" === e2.dir || 1 === t3.kind && "desc" === e2.dir);
-  }
-};
-function __PRIVATE_computeInExpansion(e2) {
-  if (__PRIVATE_hardAssert(e2 instanceof FieldFilter || e2 instanceof CompositeFilter, 20012), e2 instanceof FieldFilter) {
-    if (e2 instanceof __PRIVATE_InFilter) {
-      const t4 = e2.value.arrayValue?.values?.map(((t5) => FieldFilter.create(e2.field, "==", t5))) || [];
-      return CompositeFilter.create(
-        t4,
-        "or"
-        /* CompositeOperator.OR */
-      );
-    }
-    return e2;
-  }
-  const t3 = e2.filters.map(((e3) => __PRIVATE_computeInExpansion(e3)));
-  return CompositeFilter.create(t3, e2.op);
-}
-function __PRIVATE_getDnfTerms(e2) {
-  if (0 === e2.getFilters().length) return [];
-  const t3 = __PRIVATE_computeDistributedNormalForm(__PRIVATE_computeInExpansion(e2));
-  return __PRIVATE_hardAssert(__PRIVATE_isDisjunctiveNormalForm(t3), 7391), __PRIVATE_isSingleFieldFilter(t3) || __PRIVATE_isFlatConjunction(t3) ? [t3] : t3.getFilters();
-}
-function __PRIVATE_isSingleFieldFilter(e2) {
-  return e2 instanceof FieldFilter;
-}
-function __PRIVATE_isFlatConjunction(e2) {
-  return e2 instanceof CompositeFilter && __PRIVATE_compositeFilterIsFlatConjunction(e2);
-}
-function __PRIVATE_isDisjunctiveNormalForm(e2) {
-  return __PRIVATE_isSingleFieldFilter(e2) || __PRIVATE_isFlatConjunction(e2) || /**
-  * Returns true if the given filter is the disjunction of one or more "flat conjunctions" and
-  * field filters. e.g. (a == 10) || (b==20 && c==30)
-  */
-  (function __PRIVATE_isDisjunctionOfFieldFiltersAndFlatConjunctions(e3) {
-    if (e3 instanceof CompositeFilter && __PRIVATE_compositeFilterIsDisjunction(e3)) {
-      for (const t3 of e3.getFilters()) if (!__PRIVATE_isSingleFieldFilter(t3) && !__PRIVATE_isFlatConjunction(t3)) return false;
-      return true;
-    }
-    return false;
-  })(e2);
-}
-function __PRIVATE_computeDistributedNormalForm(e2) {
-  if (__PRIVATE_hardAssert(e2 instanceof FieldFilter || e2 instanceof CompositeFilter, 34018), e2 instanceof FieldFilter) return e2;
-  if (1 === e2.filters.length) return __PRIVATE_computeDistributedNormalForm(e2.filters[0]);
-  const t3 = e2.filters.map(((e3) => __PRIVATE_computeDistributedNormalForm(e3)));
-  let n2 = CompositeFilter.create(t3, e2.op);
-  return n2 = __PRIVATE_applyAssociation(n2), __PRIVATE_isDisjunctiveNormalForm(n2) ? n2 : (__PRIVATE_hardAssert(n2 instanceof CompositeFilter, 64498), __PRIVATE_hardAssert(__PRIVATE_compositeFilterIsConjunction(n2), 40251), __PRIVATE_hardAssert(n2.filters.length > 1, 57927), n2.filters.reduce(((e3, t4) => __PRIVATE_applyDistribution(e3, t4))));
-}
-function __PRIVATE_applyDistribution(e2, t3) {
-  let n2;
-  return __PRIVATE_hardAssert(e2 instanceof FieldFilter || e2 instanceof CompositeFilter, 38388), __PRIVATE_hardAssert(t3 instanceof FieldFilter || t3 instanceof CompositeFilter, 25473), // FieldFilter FieldFilter
-  n2 = e2 instanceof FieldFilter ? t3 instanceof FieldFilter ? (function __PRIVATE_applyDistributionFieldFilters(e3, t4) {
-    return CompositeFilter.create(
-      [e3, t4],
-      "and"
-      /* CompositeOperator.AND */
-    );
-  })(e2, t3) : __PRIVATE_applyDistributionFieldAndCompositeFilters(e2, t3) : t3 instanceof FieldFilter ? __PRIVATE_applyDistributionFieldAndCompositeFilters(t3, e2) : (function __PRIVATE_applyDistributionCompositeFilters(e3, t4) {
-    if (__PRIVATE_hardAssert(e3.filters.length > 0 && t4.filters.length > 0, 48005), __PRIVATE_compositeFilterIsConjunction(e3) && __PRIVATE_compositeFilterIsConjunction(t4)) return __PRIVATE_compositeFilterWithAddedFilters(e3, t4.getFilters());
-    const n3 = __PRIVATE_compositeFilterIsDisjunction(e3) ? e3 : t4, r2 = __PRIVATE_compositeFilterIsDisjunction(e3) ? t4 : e3, i4 = n3.filters.map(((e4) => __PRIVATE_applyDistribution(e4, r2)));
-    return CompositeFilter.create(
-      i4,
-      "or"
-      /* CompositeOperator.OR */
-    );
-  })(e2, t3), __PRIVATE_applyAssociation(n2);
-}
-function __PRIVATE_applyDistributionFieldAndCompositeFilters(e2, t3) {
-  if (__PRIVATE_compositeFilterIsConjunction(t3))
-    return __PRIVATE_compositeFilterWithAddedFilters(t3, e2.getFilters());
-  {
-    const n2 = t3.filters.map(((t4) => __PRIVATE_applyDistribution(e2, t4)));
-    return CompositeFilter.create(
-      n2,
-      "or"
-      /* CompositeOperator.OR */
-    );
-  }
-}
-function __PRIVATE_applyAssociation(e2) {
-  if (__PRIVATE_hardAssert(e2 instanceof FieldFilter || e2 instanceof CompositeFilter, 11850), e2 instanceof FieldFilter) return e2;
-  const t3 = e2.getFilters();
-  if (1 === t3.length) return __PRIVATE_applyAssociation(t3[0]);
-  if (__PRIVATE_compositeFilterIsFlat(e2)) return e2;
-  const n2 = t3.map(((e3) => __PRIVATE_applyAssociation(e3))), r2 = [];
-  return n2.forEach(((t4) => {
-    t4 instanceof FieldFilter ? r2.push(t4) : t4 instanceof CompositeFilter && (t4.op === e2.op ? (
-      // compositeFilter: (A | (B | C))
-      // compositeSubfilter: (B | C)
-      // Result: (A | B | C)
-      r2.push(...t4.filters)
-    ) : (
-      // compositeFilter: (A | (B & C))
-      // compositeSubfilter: (B & C)
-      // Result: (A | (B & C))
-      r2.push(t4)
-    ));
-  })), 1 === r2.length ? r2[0] : CompositeFilter.create(r2, e2.op);
-}
 var __PRIVATE_MemoryIndexManager = class {
   constructor() {
     this.bn = new __PRIVATE_MemoryCollectionParentIndex();
@@ -74014,500 +72505,7 @@ var __PRIVATE_MemoryCollectionParentIndex = class {
     return (this.index[e2] || new SortedSet(ResourcePath.comparator)).toArray();
   }
 };
-var yt2 = "IndexedDbIndexManager";
 var wt2 = new Uint8Array(0);
-var __PRIVATE_IndexedDbIndexManager = class {
-  constructor(e2, t3) {
-    this.databaseId = t3, /**
-     * An in-memory copy of the index entries we've already written since the SDK
-     * launched. Used to avoid re-writing the same entry repeatedly.
-     *
-     * This is *NOT* a complete cache of what's in persistence and so can never be
-     * used to satisfy reads.
-     */
-    this.Dn = new __PRIVATE_MemoryCollectionParentIndex(), /**
-     * Maps from a target to its equivalent list of sub-targets. Each sub-target
-     * contains only one term from the target's disjunctive normal form (DNF).
-     */
-    this.Cn = new ObjectMap(((e3) => __PRIVATE_canonifyTarget(e3)), ((e3, t4) => __PRIVATE_targetEquals(e3, t4))), this.uid = e2.uid || "";
-  }
-  /**
-   * Adds a new entry to the collection parent index.
-   *
-   * Repeated calls for the same collectionPath should be avoided within a
-   * transaction as IndexedDbIndexManager only caches writes once a transaction
-   * has been committed.
-   */
-  addToCollectionParentIndex(e2, t3) {
-    if (!this.Dn.has(t3)) {
-      const n2 = t3.lastSegment(), r2 = t3.popLast();
-      e2.addOnCommittedListener((() => {
-        this.Dn.add(t3);
-      }));
-      const i4 = {
-        collectionId: n2,
-        parent: __PRIVATE_encodeResourcePath(r2)
-      };
-      return __PRIVATE_collectionParentsStore(e2).put(i4);
-    }
-    return PersistencePromise.resolve();
-  }
-  getCollectionParents(e2, t3) {
-    const n2 = [], r2 = IDBKeyRange.bound(
-      [t3, ""],
-      [__PRIVATE_immediateSuccessor(t3), ""],
-      /*lowerOpen=*/
-      false,
-      /*upperOpen=*/
-      true
-    );
-    return __PRIVATE_collectionParentsStore(e2).J(r2).next(((e3) => {
-      for (const r3 of e3) {
-        if (r3.collectionId !== t3) break;
-        n2.push(__PRIVATE_decodeResourcePath(r3.parent));
-      }
-      return n2;
-    }));
-  }
-  addFieldIndex(e2, t3) {
-    const n2 = __PRIVATE_indexConfigurationStore(e2), r2 = (function __PRIVATE_toDbIndexConfiguration(e3) {
-      return {
-        indexId: e3.indexId,
-        collectionGroup: e3.collectionGroup,
-        fields: e3.fields.map(((e4) => [e4.fieldPath.canonicalString(), e4.kind]))
-      };
-    })(t3);
-    delete r2.indexId;
-    const i4 = n2.add(r2);
-    if (t3.indexState) {
-      const n3 = __PRIVATE_indexStateStore(e2);
-      return i4.next(((e3) => {
-        n3.put(__PRIVATE_toDbIndexState(e3, this.uid, t3.indexState.sequenceNumber, t3.indexState.offset));
-      }));
-    }
-    return i4.next();
-  }
-  deleteFieldIndex(e2, t3) {
-    const n2 = __PRIVATE_indexConfigurationStore(e2), r2 = __PRIVATE_indexStateStore(e2), i4 = __PRIVATE_indexEntriesStore(e2);
-    return n2.delete(t3.indexId).next((() => r2.delete(IDBKeyRange.bound(
-      [t3.indexId],
-      [t3.indexId + 1],
-      /*lowerOpen=*/
-      false,
-      /*upperOpen=*/
-      true
-    )))).next((() => i4.delete(IDBKeyRange.bound(
-      [t3.indexId],
-      [t3.indexId + 1],
-      /*lowerOpen=*/
-      false,
-      /*upperOpen=*/
-      true
-    ))));
-  }
-  deleteAllFieldIndexes(e2) {
-    const t3 = __PRIVATE_indexConfigurationStore(e2), n2 = __PRIVATE_indexEntriesStore(e2), r2 = __PRIVATE_indexStateStore(e2);
-    return t3.X().next((() => n2.X())).next((() => r2.X()));
-  }
-  createTargetIndexes(e2, t3) {
-    return PersistencePromise.forEach(this.vn(t3), ((t4) => this.getIndexType(e2, t4).next(((n2) => {
-      if (0 === n2 || 1 === n2) {
-        const n3 = new __PRIVATE_TargetIndexMatcher(t4).Sn();
-        if (null != n3) return this.addFieldIndex(e2, n3);
-      }
-    }))));
-  }
-  getDocumentsMatchingTarget(e2, t3) {
-    const n2 = __PRIVATE_indexEntriesStore(e2);
-    let r2 = true;
-    const i4 = /* @__PURE__ */ new Map();
-    return PersistencePromise.forEach(this.vn(t3), ((t4) => this.Fn(e2, t4).next(((e3) => {
-      r2 && (r2 = !!e3), i4.set(t4, e3);
-    })))).next((() => {
-      if (r2) {
-        let e3 = __PRIVATE_documentKeySet();
-        const r3 = [];
-        return PersistencePromise.forEach(i4, ((i5, s3) => {
-          __PRIVATE_logDebug(yt2, `Using index ${(function __PRIVATE_fieldIndexToString(e4) {
-            return `id=${e4.indexId}|cg=${e4.collectionGroup}|f=${e4.fields.map(((e5) => `${e5.fieldPath}:${e5.kind}`)).join(",")}`;
-          })(i5)} to execute ${__PRIVATE_canonifyTarget(t3)}`);
-          const o3 = (function __PRIVATE_targetGetArrayValues(e4, t4) {
-            const n3 = __PRIVATE_fieldIndexGetArraySegment(t4);
-            if (void 0 === n3) return null;
-            for (const t5 of __PRIVATE_targetGetFieldFiltersForPath(e4, n3.fieldPath)) switch (t5.op) {
-              case "array-contains-any":
-                return t5.value.arrayValue.values || [];
-              case "array-contains":
-                return [t5.value];
-            }
-            return null;
-          })(s3, i5), _3 = (function __PRIVATE_targetGetNotInValues(e4, t4) {
-            const n3 = /* @__PURE__ */ new Map();
-            for (const r4 of __PRIVATE_fieldIndexGetDirectionalSegments(t4)) for (const t5 of __PRIVATE_targetGetFieldFiltersForPath(e4, r4.fieldPath)) switch (t5.op) {
-              case "==":
-              case "in":
-                n3.set(r4.fieldPath.canonicalString(), t5.value);
-                break;
-              case "not-in":
-              case "!=":
-                return n3.set(r4.fieldPath.canonicalString(), t5.value), Array.from(n3.values());
-            }
-            return null;
-          })(s3, i5), a3 = (function __PRIVATE_targetGetLowerBound(e4, t4) {
-            const n3 = [];
-            let r4 = true;
-            for (const i6 of __PRIVATE_fieldIndexGetDirectionalSegments(t4)) {
-              const t5 = 0 === i6.kind ? __PRIVATE_targetGetAscendingBound(e4, i6.fieldPath, e4.startAt) : __PRIVATE_targetGetDescendingBound(e4, i6.fieldPath, e4.startAt);
-              n3.push(t5.value), r4 && (r4 = t5.inclusive);
-            }
-            return new Bound(n3, r4);
-          })(s3, i5), u3 = (function __PRIVATE_targetGetUpperBound(e4, t4) {
-            const n3 = [];
-            let r4 = true;
-            for (const i6 of __PRIVATE_fieldIndexGetDirectionalSegments(t4)) {
-              const t5 = 0 === i6.kind ? __PRIVATE_targetGetDescendingBound(e4, i6.fieldPath, e4.endAt) : __PRIVATE_targetGetAscendingBound(e4, i6.fieldPath, e4.endAt);
-              n3.push(t5.value), r4 && (r4 = t5.inclusive);
-            }
-            return new Bound(n3, r4);
-          })(s3, i5), c4 = this.Mn(i5, s3, a3), l3 = this.Mn(i5, s3, u3), h3 = this.xn(i5, s3, _3), P2 = this.On(i5.indexId, o3, c4, a3.inclusive, l3, u3.inclusive, h3);
-          return PersistencePromise.forEach(P2, ((i6) => n2.Z(i6, t3.limit).next(((t4) => {
-            t4.forEach(((t5) => {
-              const n3 = DocumentKey.fromSegments(t5.documentKey);
-              e3.has(n3) || (e3 = e3.add(n3), r3.push(n3));
-            }));
-          }))));
-        })).next((() => r3));
-      }
-      return PersistencePromise.resolve(null);
-    }));
-  }
-  vn(e2) {
-    let t3 = this.Cn.get(e2);
-    if (t3) return t3;
-    if (0 === e2.filters.length) t3 = [e2];
-    else {
-      t3 = __PRIVATE_getDnfTerms(CompositeFilter.create(
-        e2.filters,
-        "and"
-        /* CompositeOperator.AND */
-      )).map(((t4) => __PRIVATE_newTarget(e2.path, e2.collectionGroup, e2.orderBy, t4.getFilters(), e2.limit, e2.startAt, e2.endAt)));
-    }
-    return this.Cn.set(e2, t3), t3;
-  }
-  /**
-   * Constructs a key range query on `DbIndexEntryStore` that unions all
-   * bounds.
-   */
-  On(e2, t3, n2, r2, i4, s3, o3) {
-    const _3 = (null != t3 ? t3.length : 1) * Math.max(n2.length, i4.length), a3 = _3 / (null != t3 ? t3.length : 1), u3 = [];
-    for (let c4 = 0; c4 < _3; ++c4) {
-      const _4 = t3 ? this.Nn(t3[c4 / a3]) : wt2, l3 = this.Bn(e2, _4, n2[c4 % a3], r2), h3 = this.Ln(e2, _4, i4[c4 % a3], s3), P2 = o3.map(((t4) => this.Bn(
-        e2,
-        _4,
-        t4,
-        /* inclusive= */
-        true
-      )));
-      u3.push(...this.createRange(l3, h3, P2));
-    }
-    return u3;
-  }
-  /** Generates the lower bound for `arrayValue` and `directionalValue`. */
-  Bn(e2, t3, n2, r2) {
-    const i4 = new __PRIVATE_IndexEntry(e2, DocumentKey.empty(), t3, n2);
-    return r2 ? i4 : i4.In();
-  }
-  /** Generates the upper bound for `arrayValue` and `directionalValue`. */
-  Ln(e2, t3, n2, r2) {
-    const i4 = new __PRIVATE_IndexEntry(e2, DocumentKey.empty(), t3, n2);
-    return r2 ? i4.In() : i4;
-  }
-  Fn(e2, t3) {
-    const n2 = new __PRIVATE_TargetIndexMatcher(t3), r2 = null != t3.collectionGroup ? t3.collectionGroup : t3.path.lastSegment();
-    return this.getFieldIndexes(e2, r2).next(((e3) => {
-      let t4 = null;
-      for (const r3 of e3) {
-        n2.gn(r3) && (!t4 || r3.fields.length > t4.fields.length) && (t4 = r3);
-      }
-      return t4;
-    }));
-  }
-  getIndexType(e2, t3) {
-    let n2 = 2;
-    const r2 = this.vn(t3);
-    return PersistencePromise.forEach(r2, ((t4) => this.Fn(e2, t4).next(((e3) => {
-      e3 ? 0 !== n2 && e3.fields.length < (function __PRIVATE_targetGetSegmentCount(e4) {
-        let t5 = new SortedSet(FieldPath$1.comparator), n3 = false;
-        for (const r3 of e4.filters) for (const e5 of r3.getFlattenedFilters())
-          e5.field.isKeyField() || // ARRAY_CONTAINS or ARRAY_CONTAINS_ANY filters must be counted separately.
-          // For instance, it is possible to have an index for "a ARRAY a ASC". Even
-          // though these are on the same field, they should be counted as two
-          // separate segments in an index.
-          ("array-contains" === e5.op || "array-contains-any" === e5.op ? n3 = true : t5 = t5.add(e5.field));
-        for (const n4 of e4.orderBy)
-          n4.field.isKeyField() || (t5 = t5.add(n4.field));
-        return t5.size + (n3 ? 1 : 0);
-      })(t4) && (n2 = 1) : n2 = 0;
-    })))).next((() => (
-      // OR queries have more than one sub-target (one sub-target per DNF term). We currently consider
-      // OR queries that have a `limit` to have a partial index. For such queries we perform sorting
-      // and apply the limit in memory as a post-processing step.
-      (function __PRIVATE_targetHasLimit(e3) {
-        return null !== e3.limit;
-      })(t3) && r2.length > 1 && 2 === n2 ? 1 : n2
-    )));
-  }
-  /**
-   * Returns the byte encoded form of the directional values in the field index.
-   * Returns `null` if the document does not have all fields specified in the
-   * index.
-   */
-  kn(e2, t3) {
-    const n2 = new __PRIVATE_IndexByteEncoder();
-    for (const r2 of __PRIVATE_fieldIndexGetDirectionalSegments(e2)) {
-      const e3 = t3.data.field(r2.fieldPath);
-      if (null == e3) return null;
-      const i4 = n2.ln(r2.kind);
-      __PRIVATE_FirestoreIndexValueWriter.Wt.Dt(e3, i4);
-    }
-    return n2.un();
-  }
-  /** Encodes a single value to the ascending index format. */
-  Nn(e2) {
-    const t3 = new __PRIVATE_IndexByteEncoder();
-    return __PRIVATE_FirestoreIndexValueWriter.Wt.Dt(e2, t3.ln(
-      0
-      /* IndexKind.ASCENDING */
-    )), t3.un();
-  }
-  /**
-   * Returns an encoded form of the document key that sorts based on the key
-   * ordering of the field index.
-   */
-  qn(e2, t3) {
-    const n2 = new __PRIVATE_IndexByteEncoder();
-    return __PRIVATE_FirestoreIndexValueWriter.Wt.Dt(__PRIVATE_refValue(this.databaseId, t3), n2.ln((function __PRIVATE_fieldIndexGetKeyOrder(e3) {
-      const t4 = __PRIVATE_fieldIndexGetDirectionalSegments(e3);
-      return 0 === t4.length ? 0 : t4[t4.length - 1].kind;
-    })(e2))), n2.un();
-  }
-  /**
-   * Encodes the given field values according to the specification in `target`.
-   * For IN queries, a list of possible values is returned.
-   */
-  xn(e2, t3, n2) {
-    if (null === n2) return [];
-    let r2 = [];
-    r2.push(new __PRIVATE_IndexByteEncoder());
-    let i4 = 0;
-    for (const s3 of __PRIVATE_fieldIndexGetDirectionalSegments(e2)) {
-      const e3 = n2[i4++];
-      for (const n3 of r2) if (this.Kn(t3, s3.fieldPath) && isArray(e3)) r2 = this.Un(r2, s3, e3);
-      else {
-        const t4 = n3.ln(s3.kind);
-        __PRIVATE_FirestoreIndexValueWriter.Wt.Dt(e3, t4);
-      }
-    }
-    return this.$n(r2);
-  }
-  /**
-   * Encodes the given bounds according to the specification in `target`. For IN
-   * queries, a list of possible values is returned.
-   */
-  Mn(e2, t3, n2) {
-    return this.xn(e2, t3, n2.position);
-  }
-  /** Returns the byte representation for the provided encoders. */
-  $n(e2) {
-    const t3 = [];
-    for (let n2 = 0; n2 < e2.length; ++n2) t3[n2] = e2[n2].un();
-    return t3;
-  }
-  /**
-   * Creates a separate encoder for each element of an array.
-   *
-   * The method appends each value to all existing encoders (e.g. filter("a",
-   * "==", "a1").filter("b", "in", ["b1", "b2"]) becomes ["a1,b1", "a1,b2"]). A
-   * list of new encoders is returned.
-   */
-  Un(e2, t3, n2) {
-    const r2 = [...e2], i4 = [];
-    for (const e3 of n2.arrayValue.values || []) for (const n3 of r2) {
-      const r3 = new __PRIVATE_IndexByteEncoder();
-      r3.seed(n3.un()), __PRIVATE_FirestoreIndexValueWriter.Wt.Dt(e3, r3.ln(t3.kind)), i4.push(r3);
-    }
-    return i4;
-  }
-  Kn(e2, t3) {
-    return !!e2.filters.find(((e3) => e3 instanceof FieldFilter && e3.field.isEqual(t3) && ("in" === e3.op || "not-in" === e3.op)));
-  }
-  getFieldIndexes(e2, t3) {
-    const n2 = __PRIVATE_indexConfigurationStore(e2), r2 = __PRIVATE_indexStateStore(e2);
-    return (t3 ? n2.J(be2, IDBKeyRange.bound(t3, t3)) : n2.J()).next(((e3) => {
-      const t4 = [];
-      return PersistencePromise.forEach(e3, ((e4) => r2.get([e4.indexId, this.uid]).next(((n3) => {
-        t4.push((function __PRIVATE_fromDbIndexConfiguration(e5, t5) {
-          const n4 = t5 ? new IndexState(t5.sequenceNumber, new IndexOffset(__PRIVATE_fromDbTimestamp(t5.readTime), new DocumentKey(__PRIVATE_decodeResourcePath(t5.documentKey)), t5.largestBatchId)) : IndexState.empty(), r3 = e5.fields.map((([e6, t6]) => new IndexSegment(FieldPath$1.fromServerFormat(e6), t6)));
-          return new FieldIndex(e5.indexId, e5.collectionGroup, r3, n4);
-        })(e4, n3));
-      })))).next((() => t4));
-    }));
-  }
-  getNextCollectionGroupToUpdate(e2) {
-    return this.getFieldIndexes(e2).next(((e3) => 0 === e3.length ? null : (e3.sort(((e4, t3) => {
-      const n2 = e4.indexState.sequenceNumber - t3.indexState.sequenceNumber;
-      return 0 !== n2 ? n2 : __PRIVATE_primitiveComparator(e4.collectionGroup, t3.collectionGroup);
-    })), e3[0].collectionGroup)));
-  }
-  updateCollectionGroup(e2, t3, n2) {
-    const r2 = __PRIVATE_indexConfigurationStore(e2), i4 = __PRIVATE_indexStateStore(e2);
-    return this.Wn(e2).next(((e3) => r2.J(be2, IDBKeyRange.bound(t3, t3)).next(((t4) => PersistencePromise.forEach(t4, ((t5) => i4.put(__PRIVATE_toDbIndexState(t5.indexId, this.uid, e3, n2))))))));
-  }
-  updateIndexEntries(e2, t3) {
-    const n2 = /* @__PURE__ */ new Map();
-    return PersistencePromise.forEach(t3, ((t4, r2) => {
-      const i4 = n2.get(t4.collectionGroup);
-      return (i4 ? PersistencePromise.resolve(i4) : this.getFieldIndexes(e2, t4.collectionGroup)).next(((i5) => (n2.set(t4.collectionGroup, i5), PersistencePromise.forEach(i5, ((n3) => this.Qn(e2, t4, n3).next(((t5) => {
-        const i6 = this.Gn(r2, n3);
-        return t5.isEqual(i6) ? PersistencePromise.resolve() : this.zn(e2, r2, n3, t5, i6);
-      })))))));
-    }));
-  }
-  jn(e2, t3, n2, r2) {
-    return __PRIVATE_indexEntriesStore(e2).put(r2.Rn(this.uid, this.qn(n2, t3.key), t3.key));
-  }
-  Jn(e2, t3, n2, r2) {
-    return __PRIVATE_indexEntriesStore(e2).delete(r2.An(this.uid, this.qn(n2, t3.key), t3.key));
-  }
-  Qn(e2, t3, n2) {
-    const r2 = __PRIVATE_indexEntriesStore(e2);
-    let i4 = new SortedSet(__PRIVATE_indexEntryComparator);
-    return r2.ee({
-      index: Oe,
-      range: IDBKeyRange.only([n2.indexId, this.uid, __PRIVATE_encodeKeySafeBytes(this.qn(n2, t3))])
-    }, ((e3, r3) => {
-      i4 = i4.add(new __PRIVATE_IndexEntry(n2.indexId, t3, __PRIVATE_decodeKeySafeBytes(r3.arrayValue), __PRIVATE_decodeKeySafeBytes(r3.directionalValue)));
-    })).next((() => i4));
-  }
-  /** Creates the index entries for the given document. */
-  Gn(e2, t3) {
-    let n2 = new SortedSet(__PRIVATE_indexEntryComparator);
-    const r2 = this.kn(t3, e2);
-    if (null == r2) return n2;
-    const i4 = __PRIVATE_fieldIndexGetArraySegment(t3);
-    if (null != i4) {
-      const s3 = e2.data.field(i4.fieldPath);
-      if (isArray(s3)) for (const i5 of s3.arrayValue.values || []) n2 = n2.add(new __PRIVATE_IndexEntry(t3.indexId, e2.key, this.Nn(i5), r2));
-    } else n2 = n2.add(new __PRIVATE_IndexEntry(t3.indexId, e2.key, wt2, r2));
-    return n2;
-  }
-  /**
-   * Updates the index entries for the provided document by deleting entries
-   * that are no longer referenced in `newEntries` and adding all newly added
-   * entries.
-   */
-  zn(e2, t3, n2, r2, i4) {
-    __PRIVATE_logDebug(yt2, "Updating index entries for document '%s'", t3.key);
-    const s3 = [];
-    return (function __PRIVATE_diffSortedSets(e3, t4, n3, r3, i5) {
-      const s4 = e3.getIterator(), o3 = t4.getIterator();
-      let _3 = __PRIVATE_advanceIterator(s4), a3 = __PRIVATE_advanceIterator(o3);
-      for (; _3 || a3; ) {
-        let e4 = false, t5 = false;
-        if (_3 && a3) {
-          const r4 = n3(_3, a3);
-          r4 < 0 ? (
-            // The element was removed if the next element in our ordered
-            // walkthrough is only in `before`.
-            t5 = true
-          ) : r4 > 0 && // The element was added if the next element in our ordered walkthrough
-          // is only in `after`.
-          (e4 = true);
-        } else null != _3 ? t5 = true : e4 = true;
-        e4 ? (r3(a3), a3 = __PRIVATE_advanceIterator(o3)) : t5 ? (i5(_3), _3 = __PRIVATE_advanceIterator(s4)) : (_3 = __PRIVATE_advanceIterator(s4), a3 = __PRIVATE_advanceIterator(o3));
-      }
-    })(
-      r2,
-      i4,
-      __PRIVATE_indexEntryComparator,
-      /* onAdd= */
-      ((r3) => {
-        s3.push(this.jn(e2, t3, n2, r3));
-      }),
-      /* onRemove= */
-      ((r3) => {
-        s3.push(this.Jn(e2, t3, n2, r3));
-      })
-    ), PersistencePromise.waitFor(s3);
-  }
-  Wn(e2) {
-    let t3 = 1;
-    return __PRIVATE_indexStateStore(e2).ee({
-      index: ve2,
-      reverse: true,
-      range: IDBKeyRange.upperBound([this.uid, Number.MAX_SAFE_INTEGER])
-    }, ((e3, n2, r2) => {
-      r2.done(), t3 = n2.sequenceNumber + 1;
-    })).next((() => t3));
-  }
-  /**
-   * Returns a new set of IDB ranges that splits the existing range and excludes
-   * any values that match the `notInValue` from these ranges. As an example,
-   * '[foo > 2 && foo != 3]` becomes  `[foo > 2 && < 3, foo > 3]`.
-   */
-  createRange(e2, t3, n2) {
-    n2 = n2.sort(((e3, t4) => __PRIVATE_indexEntryComparator(e3, t4))).filter(((e3, t4, n3) => !t4 || 0 !== __PRIVATE_indexEntryComparator(e3, n3[t4 - 1])));
-    const r2 = [];
-    r2.push(e2);
-    for (const i5 of n2) {
-      const n3 = __PRIVATE_indexEntryComparator(i5, e2), s3 = __PRIVATE_indexEntryComparator(i5, t3);
-      if (0 === n3)
-        r2[0] = e2.In();
-      else if (n3 > 0 && s3 < 0)
-        r2.push(i5), r2.push(i5.In());
-      else if (s3 > 0)
-        break;
-    }
-    r2.push(t3);
-    const i4 = [];
-    for (let e3 = 0; e3 < r2.length; e3 += 2) {
-      if (this.Hn(r2[e3], r2[e3 + 1])) return [];
-      const t4 = r2[e3].An(this.uid, wt2, DocumentKey.empty()), n3 = r2[e3 + 1].An(this.uid, wt2, DocumentKey.empty());
-      i4.push(IDBKeyRange.bound(t4, n3));
-    }
-    return i4;
-  }
-  Hn(e2, t3) {
-    return __PRIVATE_indexEntryComparator(e2, t3) > 0;
-  }
-  getMinOffsetFromCollectionGroup(e2, t3) {
-    return this.getFieldIndexes(e2, t3).next(__PRIVATE_getMinOffsetFromFieldIndexes);
-  }
-  getMinOffset(e2, t3) {
-    return PersistencePromise.mapArray(this.vn(t3), ((t4) => this.Fn(e2, t4).next(((e3) => e3 || fail(44426))))).next(__PRIVATE_getMinOffsetFromFieldIndexes);
-  }
-};
-function __PRIVATE_collectionParentsStore(e2) {
-  return __PRIVATE_getStore(e2, Re);
-}
-function __PRIVATE_indexEntriesStore(e2) {
-  return __PRIVATE_getStore(e2, Me);
-}
-function __PRIVATE_indexConfigurationStore(e2) {
-  return __PRIVATE_getStore(e2, ye2);
-}
-function __PRIVATE_indexStateStore(e2) {
-  return __PRIVATE_getStore(e2, De);
-}
-function __PRIVATE_getMinOffsetFromFieldIndexes(e2) {
-  __PRIVATE_hardAssert(0 !== e2.length, 28825);
-  let t3 = e2[0].indexState.offset, n2 = t3.largestBatchId;
-  for (let r2 = 1; r2 < e2.length; r2++) {
-    const i4 = e2[r2].indexState.offset;
-    __PRIVATE_indexOffsetComparator(i4, t3) < 0 && (t3 = i4), n2 < i4.largestBatchId && (n2 = i4.largestBatchId);
-  }
-  return new IndexOffset(t3.readTime, t3.documentKey, n2);
-}
 var bt2 = {
   didRun: false,
   sequenceNumbersCollected: 0,
@@ -74523,292 +72521,7 @@ var LruParams = class _LruParams {
     this.cacheSizeCollectionThreshold = e2, this.percentileToCollect = t3, this.maximumSequenceNumbersToCollect = n2;
   }
 };
-function removeMutationBatch(e2, t3, n2) {
-  const r2 = e2.store(j2), i4 = e2.store(Y2), s3 = [], o3 = IDBKeyRange.only(n2.batchId);
-  let _3 = 0;
-  const a3 = r2.ee({
-    range: o3
-  }, ((e3, t4, n3) => (_3++, n3.delete())));
-  s3.push(a3.next((() => {
-    __PRIVATE_hardAssert(1 === _3, 47070, {
-      batchId: n2.batchId
-    });
-  })));
-  const u3 = [];
-  for (const e3 of n2.mutations) {
-    const r3 = __PRIVATE_newDbDocumentMutationKey(t3, e3.key.path, n2.batchId);
-    s3.push(i4.delete(r3)), u3.push(e3.key);
-  }
-  return PersistencePromise.waitFor(s3).next((() => u3));
-}
-function __PRIVATE_dbDocumentSize(e2) {
-  if (!e2) return 0;
-  let t3;
-  if (e2.document) t3 = e2.document;
-  else if (e2.unknownDocument) t3 = e2.unknownDocument;
-  else {
-    if (!e2.noDocument) throw fail(14731);
-    t3 = e2.noDocument;
-  }
-  return JSON.stringify(t3).length;
-}
 LruParams.DEFAULT_COLLECTION_PERCENTILE = 10, LruParams.DEFAULT_MAX_SEQUENCE_NUMBERS_TO_COLLECT = 1e3, LruParams.DEFAULT = new LruParams(St2, LruParams.DEFAULT_COLLECTION_PERCENTILE, LruParams.DEFAULT_MAX_SEQUENCE_NUMBERS_TO_COLLECT), LruParams.DISABLED = new LruParams(-1, 0, 0);
-var __PRIVATE_IndexedDbMutationQueue = class ___PRIVATE_IndexedDbMutationQueue {
-  constructor(e2, t3, n2, r2) {
-    this.userId = e2, this.serializer = t3, this.indexManager = n2, this.referenceDelegate = r2, /**
-     * Caches the document keys for pending mutation batches. If the mutation
-     * has been removed from IndexedDb, the cached value may continue to
-     * be used to retrieve the batch's document keys. To remove a cached value
-     * locally, `removeCachedMutationKeys()` should be invoked either directly
-     * or through `removeMutationBatches()`.
-     *
-     * With multi-tab, when the primary client acknowledges or rejects a mutation,
-     * this cache is used by secondary clients to invalidate the local
-     * view of the documents that were previously affected by the mutation.
-     */
-    // PORTING NOTE: Multi-tab only.
-    this.Zn = {};
-  }
-  /**
-   * Creates a new mutation queue for the given user.
-   * @param user - The user for which to create a mutation queue.
-   * @param serializer - The serializer to use when persisting to IndexedDb.
-   */
-  static wt(e2, t3, n2, r2) {
-    __PRIVATE_hardAssert("" !== e2.uid, 64387);
-    const i4 = e2.isAuthenticated() ? e2.uid : "";
-    return new ___PRIVATE_IndexedDbMutationQueue(i4, t3, n2, r2);
-  }
-  checkEmpty(e2) {
-    let t3 = true;
-    const n2 = IDBKeyRange.bound([this.userId, Number.NEGATIVE_INFINITY], [this.userId, Number.POSITIVE_INFINITY]);
-    return __PRIVATE_mutationsStore(e2).ee({
-      index: J2,
-      range: n2
-    }, ((e3, n3, r2) => {
-      t3 = false, r2.done();
-    })).next((() => t3));
-  }
-  addMutationBatch(e2, t3, n2, r2) {
-    const i4 = __PRIVATE_documentMutationsStore(e2), s3 = __PRIVATE_mutationsStore(e2);
-    return s3.add({}).next(((o3) => {
-      __PRIVATE_hardAssert("number" == typeof o3, 49019);
-      const _3 = new MutationBatch(o3, t3, n2, r2), a3 = (function __PRIVATE_toDbMutationBatch(e3, t4, n3) {
-        const r3 = n3.baseMutations.map(((t5) => toMutation(e3.yt, t5))), i5 = n3.mutations.map(((t5) => toMutation(e3.yt, t5)));
-        return {
-          userId: t4,
-          batchId: n3.batchId,
-          localWriteTimeMs: n3.localWriteTime.toMillis(),
-          baseMutations: r3,
-          mutations: i5
-        };
-      })(this.serializer, this.userId, _3), u3 = [];
-      let c4 = new SortedSet(((e3, t4) => __PRIVATE_primitiveComparator(e3.canonicalString(), t4.canonicalString())));
-      for (const e3 of r2) {
-        const t4 = __PRIVATE_newDbDocumentMutationKey(this.userId, e3.key.path, o3);
-        c4 = c4.add(e3.key.path.popLast()), u3.push(s3.put(a3)), u3.push(i4.put(t4, X3));
-      }
-      return c4.forEach(((t4) => {
-        u3.push(this.indexManager.addToCollectionParentIndex(e2, t4));
-      })), e2.addOnCommittedListener((() => {
-        this.Zn[o3] = _3.keys();
-      })), PersistencePromise.waitFor(u3).next((() => _3));
-    }));
-  }
-  lookupMutationBatch(e2, t3) {
-    return __PRIVATE_mutationsStore(e2).get(t3).next(((e3) => e3 ? (__PRIVATE_hardAssert(e3.userId === this.userId, 48, "Unexpected user for mutation batch", {
-      userId: e3.userId,
-      batchId: t3
-    }), __PRIVATE_fromDbMutationBatch(this.serializer, e3)) : null));
-  }
-  /**
-   * Returns the document keys for the mutation batch with the given batchId.
-   * For primary clients, this method returns `null` after
-   * `removeMutationBatches()` has been called. Secondary clients return a
-   * cached result until `removeCachedMutationKeys()` is invoked.
-   */
-  // PORTING NOTE: Multi-tab only.
-  Xn(e2, t3) {
-    return this.Zn[t3] ? PersistencePromise.resolve(this.Zn[t3]) : this.lookupMutationBatch(e2, t3).next(((e3) => {
-      if (e3) {
-        const n2 = e3.keys();
-        return this.Zn[t3] = n2, n2;
-      }
-      return null;
-    }));
-  }
-  getNextMutationBatchAfterBatchId(e2, t3) {
-    const n2 = t3 + 1, r2 = IDBKeyRange.lowerBound([this.userId, n2]);
-    let i4 = null;
-    return __PRIVATE_mutationsStore(e2).ee({
-      index: J2,
-      range: r2
-    }, ((e3, t4, r3) => {
-      t4.userId === this.userId && (__PRIVATE_hardAssert(t4.batchId >= n2, 47524, {
-        Yn: n2
-      }), i4 = __PRIVATE_fromDbMutationBatch(this.serializer, t4)), r3.done();
-    })).next((() => i4));
-  }
-  getHighestUnacknowledgedBatchId(e2) {
-    const t3 = IDBKeyRange.upperBound([this.userId, Number.POSITIVE_INFINITY]);
-    let n2 = q2;
-    return __PRIVATE_mutationsStore(e2).ee({
-      index: J2,
-      range: t3,
-      reverse: true
-    }, ((e3, t4, r2) => {
-      n2 = t4.batchId, r2.done();
-    })).next((() => n2));
-  }
-  getAllMutationBatches(e2) {
-    const t3 = IDBKeyRange.bound([this.userId, q2], [this.userId, Number.POSITIVE_INFINITY]);
-    return __PRIVATE_mutationsStore(e2).J(J2, t3).next(((e3) => e3.map(((e4) => __PRIVATE_fromDbMutationBatch(this.serializer, e4)))));
-  }
-  getAllMutationBatchesAffectingDocumentKey(e2, t3) {
-    const n2 = __PRIVATE_newDbDocumentMutationPrefixForPath(this.userId, t3.path), r2 = IDBKeyRange.lowerBound(n2), i4 = [];
-    return __PRIVATE_documentMutationsStore(e2).ee({
-      range: r2
-    }, ((n3, r3, s3) => {
-      const [o3, _3, a3] = n3, u3 = __PRIVATE_decodeResourcePath(_3);
-      if (o3 === this.userId && t3.path.isEqual(u3))
-        return __PRIVATE_mutationsStore(e2).get(a3).next(((e3) => {
-          if (!e3) throw fail(61480, {
-            er: n3,
-            batchId: a3
-          });
-          __PRIVATE_hardAssert(e3.userId === this.userId, 10503, "Unexpected user for mutation batch", {
-            userId: e3.userId,
-            batchId: a3
-          }), i4.push(__PRIVATE_fromDbMutationBatch(this.serializer, e3));
-        }));
-      s3.done();
-    })).next((() => i4));
-  }
-  getAllMutationBatchesAffectingDocumentKeys(e2, t3) {
-    let n2 = new SortedSet(__PRIVATE_primitiveComparator);
-    const r2 = [];
-    return t3.forEach(((t4) => {
-      const i4 = __PRIVATE_newDbDocumentMutationPrefixForPath(this.userId, t4.path), s3 = IDBKeyRange.lowerBound(i4), o3 = __PRIVATE_documentMutationsStore(e2).ee({
-        range: s3
-      }, ((e3, r3, i5) => {
-        const [s4, o4, _3] = e3, a3 = __PRIVATE_decodeResourcePath(o4);
-        s4 === this.userId && t4.path.isEqual(a3) ? n2 = n2.add(_3) : i5.done();
-      }));
-      r2.push(o3);
-    })), PersistencePromise.waitFor(r2).next((() => this.tr(e2, n2)));
-  }
-  getAllMutationBatchesAffectingQuery(e2, t3) {
-    const n2 = t3.path, r2 = n2.length + 1, i4 = __PRIVATE_newDbDocumentMutationPrefixForPath(this.userId, n2), s3 = IDBKeyRange.lowerBound(i4);
-    let o3 = new SortedSet(__PRIVATE_primitiveComparator);
-    return __PRIVATE_documentMutationsStore(e2).ee({
-      range: s3
-    }, ((e3, t4, i5) => {
-      const [s4, _3, a3] = e3, u3 = __PRIVATE_decodeResourcePath(_3);
-      s4 === this.userId && n2.isPrefixOf(u3) ? (
-        // Rows with document keys more than one segment longer than the
-        // query path can't be matches. For example, a query on 'rooms'
-        // can't match the document /rooms/abc/messages/xyx.
-        // TODO(mcg): we'll need a different scanner when we implement
-        // ancestor queries.
-        u3.length === r2 && (o3 = o3.add(a3))
-      ) : i5.done();
-    })).next((() => this.tr(e2, o3)));
-  }
-  tr(e2, t3) {
-    const n2 = [], r2 = [];
-    return t3.forEach(((t4) => {
-      r2.push(__PRIVATE_mutationsStore(e2).get(t4).next(((e3) => {
-        if (null === e3) throw fail(35274, {
-          batchId: t4
-        });
-        __PRIVATE_hardAssert(e3.userId === this.userId, 9748, "Unexpected user for mutation batch", {
-          userId: e3.userId,
-          batchId: t4
-        }), n2.push(__PRIVATE_fromDbMutationBatch(this.serializer, e3));
-      })));
-    })), PersistencePromise.waitFor(r2).next((() => n2));
-  }
-  removeMutationBatch(e2, t3) {
-    return removeMutationBatch(e2.le, this.userId, t3).next(((n2) => (e2.addOnCommittedListener((() => {
-      this.nr(t3.batchId);
-    })), PersistencePromise.forEach(n2, ((t4) => this.referenceDelegate.markPotentiallyOrphaned(e2, t4))))));
-  }
-  /**
-   * Clears the cached keys for a mutation batch. This method should be
-   * called by secondary clients after they process mutation updates.
-   *
-   * Note that this method does not have to be called from primary clients as
-   * the corresponding cache entries are cleared when an acknowledged or
-   * rejected batch is removed from the mutation queue.
-   */
-  // PORTING NOTE: Multi-tab only
-  nr(e2) {
-    delete this.Zn[e2];
-  }
-  performConsistencyCheck(e2) {
-    return this.checkEmpty(e2).next(((t3) => {
-      if (!t3) return PersistencePromise.resolve();
-      const n2 = IDBKeyRange.lowerBound(
-        /**
-        * Creates a [userId] key for use in the DbDocumentMutations index to iterate
-        * over all of a user's document mutations.
-        */
-        /* @__PURE__ */ (function __PRIVATE_newDbDocumentMutationPrefixForUser(e3) {
-          return [e3];
-        })(this.userId)
-      ), r2 = [];
-      return __PRIVATE_documentMutationsStore(e2).ee({
-        range: n2
-      }, ((e3, t4, n3) => {
-        if (e3[0] === this.userId) {
-          const t5 = __PRIVATE_decodeResourcePath(e3[1]);
-          r2.push(t5);
-        } else n3.done();
-      })).next((() => {
-        __PRIVATE_hardAssert(0 === r2.length, 56720, {
-          rr: r2.map(((e3) => e3.canonicalString()))
-        });
-      }));
-    }));
-  }
-  containsKey(e2, t3) {
-    return __PRIVATE_mutationQueueContainsKey(e2, this.userId, t3);
-  }
-  // PORTING NOTE: Multi-tab only (state is held in memory in other clients).
-  /** Returns the mutation queue's metadata from IndexedDb. */
-  ir(e2) {
-    return __PRIVATE_mutationQueuesStore(e2).get(this.userId).next(((e3) => e3 || {
-      userId: this.userId,
-      lastAcknowledgedBatchId: q2,
-      lastStreamToken: ""
-    }));
-  }
-};
-function __PRIVATE_mutationQueueContainsKey(e2, t3, n2) {
-  const r2 = __PRIVATE_newDbDocumentMutationPrefixForPath(t3, n2.path), i4 = r2[1], s3 = IDBKeyRange.lowerBound(r2);
-  let o3 = false;
-  return __PRIVATE_documentMutationsStore(e2).ee({
-    range: s3,
-    Y: true
-  }, ((e3, n3, r3) => {
-    const [
-      s4,
-      _3,
-      /*batchID*/
-      a3
-    ] = e3;
-    s4 === t3 && _3 === i4 && (o3 = true), r3.done();
-  })).next((() => o3));
-}
-function __PRIVATE_mutationsStore(e2) {
-  return __PRIVATE_getStore(e2, j2);
-}
-function __PRIVATE_documentMutationsStore(e2) {
-  return __PRIVATE_getStore(e2, Y2);
-}
-function __PRIVATE_mutationQueuesStore(e2) {
-  return __PRIVATE_getStore(e2, G2);
-}
 var __PRIVATE_TargetIdGenerator = class ___PRIVATE_TargetIdGenerator {
   constructor(e2) {
     this.sr = e2;
@@ -74823,179 +72536,6 @@ var __PRIVATE_TargetIdGenerator = class ___PRIVATE_TargetIdGenerator {
     return new ___PRIVATE_TargetIdGenerator(-1);
   }
 };
-var __PRIVATE_IndexedDbTargetCache = class {
-  constructor(e2, t3) {
-    this.referenceDelegate = e2, this.serializer = t3;
-  }
-  // PORTING NOTE: We don't cache global metadata for the target cache, since
-  // some of it (in particular `highestTargetId`) can be modified by secondary
-  // tabs. We could perhaps be more granular (and e.g. still cache
-  // `lastRemoteSnapshotVersion` in memory) but for simplicity we currently go
-  // to IndexedDb whenever we need to read metadata. We can revisit if it turns
-  // out to have a meaningful performance impact.
-  allocateTargetId(e2) {
-    return this.ur(e2).next(((t3) => {
-      const n2 = new __PRIVATE_TargetIdGenerator(t3.highestTargetId);
-      return t3.highestTargetId = n2.next(), this.cr(e2, t3).next((() => t3.highestTargetId));
-    }));
-  }
-  getLastRemoteSnapshotVersion(e2) {
-    return this.ur(e2).next(((e3) => SnapshotVersion.fromTimestamp(new Timestamp(e3.lastRemoteSnapshotVersion.seconds, e3.lastRemoteSnapshotVersion.nanoseconds))));
-  }
-  getHighestSequenceNumber(e2) {
-    return this.ur(e2).next(((e3) => e3.highestListenSequenceNumber));
-  }
-  setTargetsMetadata(e2, t3, n2) {
-    return this.ur(e2).next(((r2) => (r2.highestListenSequenceNumber = t3, n2 && (r2.lastRemoteSnapshotVersion = n2.toTimestamp()), t3 > r2.highestListenSequenceNumber && (r2.highestListenSequenceNumber = t3), this.cr(e2, r2))));
-  }
-  addTargetData(e2, t3) {
-    return this.lr(e2, t3).next((() => this.ur(e2).next(((n2) => (n2.targetCount += 1, this.hr(t3, n2), this.cr(e2, n2))))));
-  }
-  updateTargetData(e2, t3) {
-    return this.lr(e2, t3);
-  }
-  removeTargetData(e2, t3) {
-    return this.removeMatchingKeysForTargetId(e2, t3.targetId).next((() => __PRIVATE_targetsStore(e2).delete(t3.targetId))).next((() => this.ur(e2))).next(((t4) => (__PRIVATE_hardAssert(t4.targetCount > 0, 8065), t4.targetCount -= 1, this.cr(e2, t4))));
-  }
-  /**
-   * Drops any targets with sequence number less than or equal to the upper bound, excepting those
-   * present in `activeTargetIds`. Document associations for the removed targets are also removed.
-   * Returns the number of targets removed.
-   */
-  removeTargets(e2, t3, n2) {
-    let r2 = 0;
-    const i4 = [];
-    return __PRIVATE_targetsStore(e2).ee(((s3, o3) => {
-      const _3 = __PRIVATE_fromDbTarget(o3);
-      _3.sequenceNumber <= t3 && null === n2.get(_3.targetId) && (r2++, i4.push(this.removeTargetData(e2, _3)));
-    })).next((() => PersistencePromise.waitFor(i4))).next((() => r2));
-  }
-  /**
-   * Call provided function with each `TargetData` that we have cached.
-   */
-  forEachTarget(e2, t3) {
-    return __PRIVATE_targetsStore(e2).ee(((e3, n2) => {
-      const r2 = __PRIVATE_fromDbTarget(n2);
-      t3(r2);
-    }));
-  }
-  ur(e2) {
-    return __PRIVATE_globalTargetStore(e2).get(Ie2).next(((e3) => (__PRIVATE_hardAssert(null !== e3, 2888), e3)));
-  }
-  cr(e2, t3) {
-    return __PRIVATE_globalTargetStore(e2).put(Ie2, t3);
-  }
-  lr(e2, t3) {
-    return __PRIVATE_targetsStore(e2).put(__PRIVATE_toDbTarget(this.serializer, t3));
-  }
-  /**
-   * In-place updates the provided metadata to account for values in the given
-   * TargetData. Saving is done separately. Returns true if there were any
-   * changes to the metadata.
-   */
-  hr(e2, t3) {
-    let n2 = false;
-    return e2.targetId > t3.highestTargetId && (t3.highestTargetId = e2.targetId, n2 = true), e2.sequenceNumber > t3.highestListenSequenceNumber && (t3.highestListenSequenceNumber = e2.sequenceNumber, n2 = true), n2;
-  }
-  getTargetCount(e2) {
-    return this.ur(e2).next(((e3) => e3.targetCount));
-  }
-  getTargetData(e2, t3) {
-    const n2 = __PRIVATE_canonifyTarget(t3), r2 = IDBKeyRange.bound([n2, Number.NEGATIVE_INFINITY], [n2, Number.POSITIVE_INFINITY]);
-    let i4 = null;
-    return __PRIVATE_targetsStore(e2).ee({
-      range: r2,
-      index: ue2
-    }, ((e3, n3, r3) => {
-      const s3 = __PRIVATE_fromDbTarget(n3);
-      __PRIVATE_targetEquals(t3, s3.target) && (i4 = s3, r3.done());
-    })).next((() => i4));
-  }
-  addMatchingKeys(e2, t3, n2) {
-    const r2 = [], i4 = __PRIVATE_documentTargetStore(e2);
-    return t3.forEach(((t4) => {
-      const s3 = __PRIVATE_encodeResourcePath(t4.path);
-      r2.push(i4.put({
-        targetId: n2,
-        path: s3
-      })), r2.push(this.referenceDelegate.addReference(e2, n2, t4));
-    })), PersistencePromise.waitFor(r2);
-  }
-  removeMatchingKeys(e2, t3, n2) {
-    const r2 = __PRIVATE_documentTargetStore(e2);
-    return PersistencePromise.forEach(t3, ((t4) => {
-      const i4 = __PRIVATE_encodeResourcePath(t4.path);
-      return PersistencePromise.waitFor([r2.delete([n2, i4]), this.referenceDelegate.removeReference(e2, n2, t4)]);
-    }));
-  }
-  removeMatchingKeysForTargetId(e2, t3) {
-    const n2 = __PRIVATE_documentTargetStore(e2), r2 = IDBKeyRange.bound(
-      [t3],
-      [t3 + 1],
-      /*lowerOpen=*/
-      false,
-      /*upperOpen=*/
-      true
-    );
-    return n2.delete(r2);
-  }
-  getMatchingKeysForTargetId(e2, t3) {
-    const n2 = IDBKeyRange.bound(
-      [t3],
-      [t3 + 1],
-      /*lowerOpen=*/
-      false,
-      /*upperOpen=*/
-      true
-    ), r2 = __PRIVATE_documentTargetStore(e2);
-    let i4 = __PRIVATE_documentKeySet();
-    return r2.ee({
-      range: n2,
-      Y: true
-    }, ((e3, t4, n3) => {
-      const r3 = __PRIVATE_decodeResourcePath(e3[1]), s3 = new DocumentKey(r3);
-      i4 = i4.add(s3);
-    })).next((() => i4));
-  }
-  containsKey(e2, t3) {
-    const n2 = __PRIVATE_encodeResourcePath(t3.path), r2 = IDBKeyRange.bound(
-      [n2],
-      [__PRIVATE_immediateSuccessor(n2)],
-      /*lowerOpen=*/
-      false,
-      /*upperOpen=*/
-      true
-    );
-    let i4 = 0;
-    return __PRIVATE_documentTargetStore(e2).ee({
-      index: Pe2,
-      Y: true,
-      range: r2
-    }, (([e3, t4], n3, r3) => {
-      0 !== e3 && (i4++, r3.done());
-    })).next((() => i4 > 0));
-  }
-  /**
-   * Looks up a TargetData entry by target ID.
-   *
-   * @param targetId - The target ID of the TargetData entry to look up.
-   * @returns The cached TargetData entry, or null if the cache has no entry for
-   * the target.
-   */
-  // PORTING NOTE: Multi-tab only.
-  At(e2, t3) {
-    return __PRIVATE_targetsStore(e2).get(t3).next(((e3) => e3 ? __PRIVATE_fromDbTarget(e3) : null));
-  }
-};
-function __PRIVATE_targetsStore(e2) {
-  return __PRIVATE_getStore(e2, ae2);
-}
-function __PRIVATE_globalTargetStore(e2) {
-  return __PRIVATE_getStore(e2, Ee);
-}
-function __PRIVATE_documentTargetStore(e2) {
-  return __PRIVATE_getStore(e2, le2);
-}
 var Dt2 = "LruGarbageCollector";
 var Ct2 = 1048576;
 function __PRIVATE_bufferEntryComparator([e2, t3], [n2, r2]) {
@@ -75097,114 +72637,6 @@ Total Duration: ${a3 - u3}ms`);
 function __PRIVATE_newLruGarbageCollector(e2, t3) {
   return new __PRIVATE_LruGarbageCollectorImpl(e2, t3);
 }
-var __PRIVATE_IndexedDbLruDelegateImpl = class {
-  constructor(e2, t3) {
-    this.db = e2, this.garbageCollector = __PRIVATE_newLruGarbageCollector(this, t3);
-  }
-  dr(e2) {
-    const t3 = this.pr(e2);
-    return this.db.getTargetCache().getTargetCount(e2).next(((e3) => t3.next(((t4) => e3 + t4))));
-  }
-  pr(e2) {
-    let t3 = 0;
-    return this.mr(e2, ((e3) => {
-      t3++;
-    })).next((() => t3));
-  }
-  forEachTarget(e2, t3) {
-    return this.db.getTargetCache().forEachTarget(e2, t3);
-  }
-  mr(e2, t3) {
-    return this.yr(e2, ((e3, n2) => t3(n2)));
-  }
-  addReference(e2, t3, n2) {
-    return __PRIVATE_writeSentinelKey(e2, n2);
-  }
-  removeReference(e2, t3, n2) {
-    return __PRIVATE_writeSentinelKey(e2, n2);
-  }
-  removeTargets(e2, t3, n2) {
-    return this.db.getTargetCache().removeTargets(e2, t3, n2);
-  }
-  markPotentiallyOrphaned(e2, t3) {
-    return __PRIVATE_writeSentinelKey(e2, t3);
-  }
-  /**
-   * Returns true if anything would prevent this document from being garbage
-   * collected, given that the document in question is not present in any
-   * targets and has a sequence number less than or equal to the upper bound for
-   * the collection run.
-   */
-  wr(e2, t3) {
-    return (function __PRIVATE_mutationQueuesContainKey(e3, t4) {
-      let n2 = false;
-      return __PRIVATE_mutationQueuesStore(e3).te(((r2) => __PRIVATE_mutationQueueContainsKey(e3, r2, t4).next(((e4) => (e4 && (n2 = true), PersistencePromise.resolve(!e4)))))).next((() => n2));
-    })(e2, t3);
-  }
-  removeOrphanedDocuments(e2, t3) {
-    const n2 = this.db.getRemoteDocumentCache().newChangeBuffer(), r2 = [];
-    let i4 = 0;
-    return this.yr(e2, ((s3, o3) => {
-      if (o3 <= t3) {
-        const t4 = this.wr(e2, s3).next(((t5) => {
-          if (!t5)
-            return i4++, n2.getEntry(e2, s3).next((() => (n2.removeEntry(s3, SnapshotVersion.min()), __PRIVATE_documentTargetStore(e2).delete((function __PRIVATE_sentinelKey$1(e3) {
-              return [0, __PRIVATE_encodeResourcePath(e3.path)];
-            })(s3)))));
-        }));
-        r2.push(t4);
-      }
-    })).next((() => PersistencePromise.waitFor(r2))).next((() => n2.apply(e2))).next((() => i4));
-  }
-  removeTarget(e2, t3) {
-    const n2 = t3.withSequenceNumber(e2.currentSequenceNumber);
-    return this.db.getTargetCache().updateTargetData(e2, n2);
-  }
-  updateLimboDocument(e2, t3) {
-    return __PRIVATE_writeSentinelKey(e2, t3);
-  }
-  /**
-   * Call provided function for each document in the cache that is 'orphaned'. Orphaned
-   * means not a part of any target, so the only entry in the target-document index for
-   * that document will be the sentinel row (targetId 0), which will also have the sequence
-   * number for the last time the document was accessed.
-   */
-  yr(e2, t3) {
-    const n2 = __PRIVATE_documentTargetStore(e2);
-    let r2, i4 = __PRIVATE_ListenSequence.ce;
-    return n2.ee({
-      index: Pe2
-    }, (([e3, n3], { path: s3, sequenceNumber: o3 }) => {
-      0 === e3 ? (
-        // if nextToReport is valid, report it, this is a new key so the
-        // last one must not be a member of any targets.
-        (i4 !== __PRIVATE_ListenSequence.ce && t3(new DocumentKey(__PRIVATE_decodeResourcePath(r2)), i4), // set nextToReport to be this sequence number. It's the next one we
-        // might report, if we don't find any targets for this document.
-        // Note that the sequence number must be defined when the targetId
-        // is 0.
-        i4 = o3, r2 = s3)
-      ) : (
-        // set nextToReport to be invalid, we know we don't need to report
-        // this one since we found a target for it.
-        i4 = __PRIVATE_ListenSequence.ce
-      );
-    })).next((() => {
-      i4 !== __PRIVATE_ListenSequence.ce && t3(new DocumentKey(__PRIVATE_decodeResourcePath(r2)), i4);
-    }));
-  }
-  getCacheSize(e2) {
-    return this.db.getRemoteDocumentCache().getSize(e2);
-  }
-};
-function __PRIVATE_writeSentinelKey(e2, t3) {
-  return __PRIVATE_documentTargetStore(e2).put((function __PRIVATE_sentinelRow(e3, t4) {
-    return {
-      targetId: 0,
-      path: __PRIVATE_encodeResourcePath(e3.path),
-      sequenceNumber: t4
-    };
-  })(t3, e2.currentSequenceNumber));
-}
 var RemoteDocumentChangeBuffer = class {
   constructor() {
     this.changes = new ObjectMap(((e2) => e2.toString()), ((e2, t3) => e2.isEqual(t3))), this.changesApplied = false;
@@ -75267,265 +72699,6 @@ var RemoteDocumentChangeBuffer = class {
   assertNotApplied() {
   }
 };
-var __PRIVATE_IndexedDbRemoteDocumentCacheImpl = class {
-  constructor(e2) {
-    this.serializer = e2;
-  }
-  setIndexManager(e2) {
-    this.indexManager = e2;
-  }
-  /**
-   * Adds the supplied entries to the cache.
-   *
-   * All calls of `addEntry` are required to go through the RemoteDocumentChangeBuffer
-   * returned by `newChangeBuffer()` to ensure proper accounting of metadata.
-   */
-  addEntry(e2, t3, n2) {
-    return __PRIVATE_remoteDocumentsStore(e2).put(n2);
-  }
-  /**
-   * Removes a document from the cache.
-   *
-   * All calls of `removeEntry`  are required to go through the RemoteDocumentChangeBuffer
-   * returned by `newChangeBuffer()` to ensure proper accounting of metadata.
-   */
-  removeEntry(e2, t3, n2) {
-    return __PRIVATE_remoteDocumentsStore(e2).delete(
-      /**
-      * Returns a key that can be used for document lookups via the primary key of
-      * the DbRemoteDocument object store.
-      */
-      (function __PRIVATE_dbReadTimeKey(e3, t4) {
-        const n3 = e3.path.toArray();
-        return [
-          /* prefix path */
-          n3.slice(0, n3.length - 2),
-          /* collection id */
-          n3[n3.length - 2],
-          __PRIVATE_toDbTimestampKey(t4),
-          /* document id */
-          n3[n3.length - 1]
-        ];
-      })(t3, n2)
-    );
-  }
-  /**
-   * Updates the current cache size.
-   *
-   * Callers to `addEntry()` and `removeEntry()` *must* call this afterwards to update the
-   * cache's metadata.
-   */
-  updateMetadata(e2, t3) {
-    return this.getMetadata(e2).next(((n2) => (n2.byteSize += t3, this.Sr(e2, n2))));
-  }
-  getEntry(e2, t3) {
-    let n2 = MutableDocument.newInvalidDocument(t3);
-    return __PRIVATE_remoteDocumentsStore(e2).ee({
-      index: ne2,
-      range: IDBKeyRange.only(__PRIVATE_dbKey(t3))
-    }, ((e3, r2) => {
-      n2 = this.br(t3, r2);
-    })).next((() => n2));
-  }
-  /**
-   * Looks up an entry in the cache.
-   *
-   * @param documentKey - The key of the entry to look up.
-   * @returns The cached document entry and its size.
-   */
-  Dr(e2, t3) {
-    let n2 = {
-      size: 0,
-      document: MutableDocument.newInvalidDocument(t3)
-    };
-    return __PRIVATE_remoteDocumentsStore(e2).ee({
-      index: ne2,
-      range: IDBKeyRange.only(__PRIVATE_dbKey(t3))
-    }, ((e3, r2) => {
-      n2 = {
-        document: this.br(t3, r2),
-        size: __PRIVATE_dbDocumentSize(r2)
-      };
-    })).next((() => n2));
-  }
-  getEntries(e2, t3) {
-    let n2 = __PRIVATE_mutableDocumentMap();
-    return this.Cr(e2, t3, ((e3, t4) => {
-      const r2 = this.br(e3, t4);
-      n2 = n2.insert(e3, r2);
-    })).next((() => n2));
-  }
-  /**
-   * Looks up several entries in the cache.
-   *
-   * @param documentKeys - The set of keys entries to look up.
-   * @returns A map of documents indexed by key and a map of sizes indexed by
-   *     key (zero if the document does not exist).
-   */
-  vr(e2, t3) {
-    let n2 = __PRIVATE_mutableDocumentMap(), r2 = new SortedMap(DocumentKey.comparator);
-    return this.Cr(e2, t3, ((e3, t4) => {
-      const i4 = this.br(e3, t4);
-      n2 = n2.insert(e3, i4), r2 = r2.insert(e3, __PRIVATE_dbDocumentSize(t4));
-    })).next((() => ({
-      documents: n2,
-      Fr: r2
-    })));
-  }
-  Cr(e2, t3, n2) {
-    if (t3.isEmpty()) return PersistencePromise.resolve();
-    let r2 = new SortedSet(__PRIVATE_dbKeyComparator);
-    t3.forEach(((e3) => r2 = r2.add(e3)));
-    const i4 = IDBKeyRange.bound(__PRIVATE_dbKey(r2.first()), __PRIVATE_dbKey(r2.last())), s3 = r2.getIterator();
-    let o3 = s3.getNext();
-    return __PRIVATE_remoteDocumentsStore(e2).ee({
-      index: ne2,
-      range: i4
-    }, ((e3, t4, r3) => {
-      const i5 = DocumentKey.fromSegments([...t4.prefixPath, t4.collectionGroup, t4.documentId]);
-      for (; o3 && __PRIVATE_dbKeyComparator(o3, i5) < 0; ) n2(o3, null), o3 = s3.getNext();
-      o3 && o3.isEqual(i5) && // Key found in cache.
-      (n2(o3, t4), o3 = s3.hasNext() ? s3.getNext() : null), // Skip to the next key (if there is one).
-      o3 ? r3.j(__PRIVATE_dbKey(o3)) : r3.done();
-    })).next((() => {
-      for (; o3; ) n2(o3, null), o3 = s3.hasNext() ? s3.getNext() : null;
-    }));
-  }
-  getDocumentsMatchingQuery(e2, t3, n2, r2, i4) {
-    const s3 = t3.path, o3 = [s3.popLast().toArray(), s3.lastSegment(), __PRIVATE_toDbTimestampKey(n2.readTime), n2.documentKey.path.isEmpty() ? "" : n2.documentKey.path.lastSegment()], _3 = [s3.popLast().toArray(), s3.lastSegment(), [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER], ""];
-    return __PRIVATE_remoteDocumentsStore(e2).J(IDBKeyRange.bound(o3, _3, true)).next(((e3) => {
-      i4?.incrementDocumentReadCount(e3.length);
-      let n3 = __PRIVATE_mutableDocumentMap();
-      for (const i5 of e3) {
-        const e4 = this.br(DocumentKey.fromSegments(i5.prefixPath.concat(i5.collectionGroup, i5.documentId)), i5);
-        e4.isFoundDocument() && (__PRIVATE_queryMatches(t3, e4) || r2.has(e4.key)) && // Either the document matches the given query, or it is mutated.
-        (n3 = n3.insert(e4.key, e4));
-      }
-      return n3;
-    }));
-  }
-  getAllFromCollectionGroup(e2, t3, n2, r2) {
-    let i4 = __PRIVATE_mutableDocumentMap();
-    const s3 = __PRIVATE_dbCollectionGroupKey(t3, n2), o3 = __PRIVATE_dbCollectionGroupKey(t3, IndexOffset.max());
-    return __PRIVATE_remoteDocumentsStore(e2).ee({
-      index: ie2,
-      range: IDBKeyRange.bound(s3, o3, true)
-    }, ((e3, t4, n3) => {
-      const s4 = this.br(DocumentKey.fromSegments(t4.prefixPath.concat(t4.collectionGroup, t4.documentId)), t4);
-      i4 = i4.insert(s4.key, s4), i4.size === r2 && n3.done();
-    })).next((() => i4));
-  }
-  newChangeBuffer(e2) {
-    return new __PRIVATE_IndexedDbRemoteDocumentChangeBuffer(this, !!e2 && e2.trackRemovals);
-  }
-  getSize(e2) {
-    return this.getMetadata(e2).next(((e3) => e3.byteSize));
-  }
-  getMetadata(e2) {
-    return __PRIVATE_documentGlobalStore(e2).get(_e2).next(((e3) => (__PRIVATE_hardAssert(!!e3, 20021), e3)));
-  }
-  Sr(e2, t3) {
-    return __PRIVATE_documentGlobalStore(e2).put(_e2, t3);
-  }
-  /**
-   * Decodes `dbRemoteDoc` and returns the document (or an invalid document if
-   * the document corresponds to the format used for sentinel deletes).
-   */
-  br(e2, t3) {
-    if (t3) {
-      const e3 = __PRIVATE_fromDbRemoteDocument(this.serializer, t3);
-      if (!(e3.isNoDocument() && e3.version.isEqual(SnapshotVersion.min()))) return e3;
-    }
-    return MutableDocument.newInvalidDocument(e2);
-  }
-};
-function __PRIVATE_newIndexedDbRemoteDocumentCache(e2) {
-  return new __PRIVATE_IndexedDbRemoteDocumentCacheImpl(e2);
-}
-var __PRIVATE_IndexedDbRemoteDocumentChangeBuffer = class extends RemoteDocumentChangeBuffer {
-  /**
-   * @param documentCache - The IndexedDbRemoteDocumentCache to apply the changes to.
-   * @param trackRemovals - Whether to create sentinel deletes that can be tracked by
-   * `getNewDocumentChanges()`.
-   */
-  constructor(e2, t3) {
-    super(), this.Mr = e2, this.trackRemovals = t3, // A map of document sizes and read times prior to applying the changes in
-    // this buffer.
-    this.Or = new ObjectMap(((e3) => e3.toString()), ((e3, t4) => e3.isEqual(t4)));
-  }
-  applyChanges(e2) {
-    const t3 = [];
-    let n2 = 0, r2 = new SortedSet(((e3, t4) => __PRIVATE_primitiveComparator(e3.canonicalString(), t4.canonicalString())));
-    return this.changes.forEach(((i4, s3) => {
-      const o3 = this.Or.get(i4);
-      if (t3.push(this.Mr.removeEntry(e2, i4, o3.readTime)), s3.isValidDocument()) {
-        const _3 = __PRIVATE_toDbRemoteDocument(this.Mr.serializer, s3);
-        r2 = r2.add(i4.path.popLast());
-        const a3 = __PRIVATE_dbDocumentSize(_3);
-        n2 += a3 - o3.size, t3.push(this.Mr.addEntry(e2, i4, _3));
-      } else if (n2 -= o3.size, this.trackRemovals) {
-        const n3 = __PRIVATE_toDbRemoteDocument(this.Mr.serializer, s3.convertToNoDocument(SnapshotVersion.min()));
-        t3.push(this.Mr.addEntry(e2, i4, n3));
-      }
-    })), r2.forEach(((n3) => {
-      t3.push(this.Mr.indexManager.addToCollectionParentIndex(e2, n3));
-    })), t3.push(this.Mr.updateMetadata(e2, n2)), PersistencePromise.waitFor(t3);
-  }
-  getFromCache(e2, t3) {
-    return this.Mr.Dr(e2, t3).next(((e3) => (this.Or.set(t3, {
-      size: e3.size,
-      readTime: e3.document.readTime
-    }), e3.document)));
-  }
-  getAllFromCache(e2, t3) {
-    return this.Mr.vr(e2, t3).next((({ documents: e3, Fr: t4 }) => (
-      // Note: `getAllFromCache` returns two maps instead of a single map from
-      // keys to `DocumentSizeEntry`s. This is to allow returning the
-      // `MutableDocumentMap` directly, without a conversion.
-      (t4.forEach(((t5, n2) => {
-        this.Or.set(t5, {
-          size: n2,
-          readTime: e3.get(t5).readTime
-        });
-      })), e3)
-    )));
-  }
-};
-function __PRIVATE_documentGlobalStore(e2) {
-  return __PRIVATE_getStore(e2, oe2);
-}
-function __PRIVATE_remoteDocumentsStore(e2) {
-  return __PRIVATE_getStore(e2, ee2);
-}
-function __PRIVATE_dbKey(e2) {
-  const t3 = e2.path.toArray();
-  return [
-    /* prefix path */
-    t3.slice(0, t3.length - 2),
-    /* collection id */
-    t3[t3.length - 2],
-    /* document id */
-    t3[t3.length - 1]
-  ];
-}
-function __PRIVATE_dbCollectionGroupKey(e2, t3) {
-  const n2 = t3.documentKey.path.toArray();
-  return [
-    /* collection id */
-    e2,
-    __PRIVATE_toDbTimestampKey(t3.readTime),
-    /* prefix path */
-    n2.slice(0, n2.length - 2),
-    /* document id */
-    n2.length > 0 ? n2[n2.length - 1] : ""
-  ];
-}
-function __PRIVATE_dbKeyComparator(e2, t3) {
-  const n2 = e2.path.toArray(), r2 = t3.path.toArray();
-  let i4 = 0;
-  for (let e3 = 0; e3 < n2.length - 2 && e3 < r2.length - 2; ++e3) if (i4 = __PRIVATE_primitiveComparator(n2[e3], r2[e3]), i4) return i4;
-  return i4 = __PRIVATE_primitiveComparator(n2.length, r2.length), i4 || (i4 = __PRIVATE_primitiveComparator(n2[n2.length - 2], r2[r2.length - 2]), i4 || __PRIVATE_primitiveComparator(n2[n2.length - 1], r2[r2.length - 1]));
-}
 var OverlayedDocument = class {
   constructor(e2, t3) {
     this.overlayedDocument = e2, this.mutatedFields = t3;
@@ -76392,606 +73565,6 @@ var __PRIVATE_MemoryLruDelegate = class ___PRIVATE_MemoryLruDelegate {
     return this.persistence.getRemoteDocumentCache().getSize(e2);
   }
 };
-var __PRIVATE_SchemaConverter = class {
-  constructor(e2) {
-    this.serializer = e2;
-  }
-  /**
-   * Performs database creation and schema upgrades.
-   *
-   * Note that in production, this method is only ever used to upgrade the schema
-   * to SCHEMA_VERSION. Different values of toVersion are only used for testing
-   * and local feature development.
-   */
-  k(e2, t3, n2, r2) {
-    const i4 = new __PRIVATE_SimpleDbTransaction("createOrUpgrade", t3);
-    n2 < 1 && r2 >= 1 && (!(function __PRIVATE_createPrimaryClientStore(e3) {
-      e3.createObjectStore(W2);
-    })(e2), (function __PRIVATE_createMutationQueue(e3) {
-      e3.createObjectStore(G2, {
-        keyPath: z2
-      });
-      const t4 = e3.createObjectStore(j2, {
-        keyPath: H2,
-        autoIncrement: true
-      });
-      t4.createIndex(J2, Z2, {
-        unique: true
-      }), e3.createObjectStore(Y2);
-    })(e2), __PRIVATE_createQueryCache(e2), (function __PRIVATE_createLegacyRemoteDocumentCache(e3) {
-      e3.createObjectStore($2);
-    })(e2));
-    let s3 = PersistencePromise.resolve();
-    return n2 < 3 && r2 >= 3 && // Brand new clients don't need to drop and recreate--only clients that
-    // potentially have corrupt data.
-    (0 !== n2 && (!(function __PRIVATE_dropQueryCache(e3) {
-      e3.deleteObjectStore(le2), e3.deleteObjectStore(ae2), e3.deleteObjectStore(Ee);
-    })(e2), __PRIVATE_createQueryCache(e2)), s3 = s3.next((() => (
-      /**
-      * Creates the target global singleton row.
-      *
-      * @param txn - The version upgrade transaction for indexeddb
-      */
-      (function __PRIVATE_writeEmptyTargetGlobalEntry(e3) {
-        const t4 = e3.store(Ee), n3 = {
-          highestTargetId: 0,
-          highestListenSequenceNumber: 0,
-          lastRemoteSnapshotVersion: SnapshotVersion.min().toTimestamp(),
-          targetCount: 0
-        };
-        return t4.put(Ie2, n3);
-      })(i4)
-    )))), n2 < 4 && r2 >= 4 && (0 !== n2 && // Schema version 3 uses auto-generated keys to generate globally unique
-    // mutation batch IDs (this was previously ensured internally by the
-    // client). To migrate to the new schema, we have to read all mutations
-    // and write them back out. We preserve the existing batch IDs to guarantee
-    // consistency with other object stores. Any further mutation batch IDs will
-    // be auto-generated.
-    (s3 = s3.next((() => (function __PRIVATE_upgradeMutationBatchSchemaAndMigrateData(e3, t4) {
-      const n3 = t4.store(j2);
-      return n3.J().next(((n4) => {
-        e3.deleteObjectStore(j2);
-        e3.createObjectStore(j2, {
-          keyPath: H2,
-          autoIncrement: true
-        }).createIndex(J2, Z2, {
-          unique: true
-        });
-        const r3 = t4.store(j2), i5 = n4.map(((e4) => r3.put(e4)));
-        return PersistencePromise.waitFor(i5);
-      }));
-    })(e2, i4)))), s3 = s3.next((() => {
-      !(function __PRIVATE_createClientMetadataStore(e3) {
-        e3.createObjectStore(Ve, {
-          keyPath: de2
-        });
-      })(e2);
-    }))), n2 < 5 && r2 >= 5 && (s3 = s3.next((() => this.gi(i4)))), n2 < 6 && r2 >= 6 && (s3 = s3.next((() => ((function __PRIVATE_createDocumentGlobalStore(e3) {
-      e3.createObjectStore(oe2);
-    })(e2), this.pi(i4))))), n2 < 7 && r2 >= 7 && (s3 = s3.next((() => this.yi(i4)))), n2 < 8 && r2 >= 8 && (s3 = s3.next((() => this.wi(e2, i4)))), n2 < 9 && r2 >= 9 && (s3 = s3.next((() => {
-      !(function __PRIVATE_dropRemoteDocumentChangesStore(e3) {
-        e3.objectStoreNames.contains("remoteDocumentChanges") && e3.deleteObjectStore("remoteDocumentChanges");
-      })(e2);
-    }))), n2 < 10 && r2 >= 10 && (s3 = s3.next((() => this.Si(i4)))), n2 < 11 && r2 >= 11 && (s3 = s3.next((() => {
-      !(function __PRIVATE_createBundlesStore(e3) {
-        e3.createObjectStore(me2, {
-          keyPath: fe2
-        });
-      })(e2), (function __PRIVATE_createNamedQueriesStore(e3) {
-        e3.createObjectStore(ge2, {
-          keyPath: pe2
-        });
-      })(e2);
-    }))), n2 < 12 && r2 >= 12 && (s3 = s3.next((() => {
-      !(function __PRIVATE_createDocumentOverlayStore(e3) {
-        const t4 = e3.createObjectStore(Be, {
-          keyPath: Le2
-        });
-        t4.createIndex(ke2, Ke, {
-          unique: false
-        }), t4.createIndex(qe, Ue, {
-          unique: false
-        });
-      })(e2);
-    }))), n2 < 13 && r2 >= 13 && (s3 = s3.next((() => (function __PRIVATE_createRemoteDocumentCache(e3) {
-      const t4 = e3.createObjectStore(ee2, {
-        keyPath: te2
-      });
-      t4.createIndex(ne2, re2), t4.createIndex(ie2, se2);
-    })(e2))).next((() => this.bi(e2, i4))).next((() => e2.deleteObjectStore($2)))), n2 < 14 && r2 >= 14 && (s3 = s3.next((() => this.Di(e2, i4)))), n2 < 15 && r2 >= 15 && (s3 = s3.next((() => (function __PRIVATE_createFieldIndex(e3) {
-      const t4 = e3.createObjectStore(ye2, {
-        keyPath: we2,
-        autoIncrement: true
-      });
-      t4.createIndex(be2, Se2, {
-        unique: false
-      });
-      const n3 = e3.createObjectStore(De, {
-        keyPath: Ce2
-      });
-      n3.createIndex(ve2, Fe2, {
-        unique: false
-      });
-      const r3 = e3.createObjectStore(Me, {
-        keyPath: xe2
-      });
-      r3.createIndex(Oe, Ne2, {
-        unique: false
-      });
-    })(e2)))), n2 < 16 && r2 >= 16 && // Clear the object stores to remove possibly corrupted index entries
-    (s3 = s3.next((() => {
-      t3.objectStore(De).clear();
-    })).next((() => {
-      t3.objectStore(Me).clear();
-    }))), n2 < 17 && r2 >= 17 && (s3 = s3.next((() => {
-      !(function __PRIVATE_createGlobalsStore(e3) {
-        e3.createObjectStore($e, {
-          keyPath: We
-        });
-      })(e2);
-    }))), n2 < 18 && r2 >= 18 && isSafariOrWebkit() && (s3 = s3.next((() => {
-      t3.objectStore(De).clear();
-    })).next((() => {
-      t3.objectStore(Me).clear();
-    }))), s3;
-  }
-  pi(e2) {
-    let t3 = 0;
-    return e2.store($2).ee(((e3, n2) => {
-      t3 += __PRIVATE_dbDocumentSize(n2);
-    })).next((() => {
-      const n2 = {
-        byteSize: t3
-      };
-      return e2.store(oe2).put(_e2, n2);
-    }));
-  }
-  gi(e2) {
-    const t3 = e2.store(G2), n2 = e2.store(j2);
-    return t3.J().next(((t4) => PersistencePromise.forEach(t4, ((t5) => {
-      const r2 = IDBKeyRange.bound([t5.userId, q2], [t5.userId, t5.lastAcknowledgedBatchId]);
-      return n2.J(J2, r2).next(((n3) => PersistencePromise.forEach(n3, ((n4) => {
-        __PRIVATE_hardAssert(n4.userId === t5.userId, 18650, "Cannot process batch from unexpected user", {
-          batchId: n4.batchId
-        });
-        const r3 = __PRIVATE_fromDbMutationBatch(this.serializer, n4);
-        return removeMutationBatch(e2, t5.userId, r3).next((() => {
-        }));
-      }))));
-    }))));
-  }
-  /**
-   * Ensures that every document in the remote document cache has a corresponding sentinel row
-   * with a sequence number. Missing rows are given the most recently used sequence number.
-   */
-  yi(e2) {
-    const t3 = e2.store(le2), n2 = e2.store($2);
-    return e2.store(Ee).get(Ie2).next(((e3) => {
-      const r2 = [];
-      return n2.ee(((n3, i4) => {
-        const s3 = new ResourcePath(n3), o3 = (function __PRIVATE_sentinelKey(e4) {
-          return [0, __PRIVATE_encodeResourcePath(e4)];
-        })(s3);
-        r2.push(t3.get(o3).next(((n4) => n4 ? PersistencePromise.resolve() : ((n5) => t3.put({
-          targetId: 0,
-          path: __PRIVATE_encodeResourcePath(n5),
-          sequenceNumber: e3.highestListenSequenceNumber
-        }))(s3))));
-      })).next((() => PersistencePromise.waitFor(r2)));
-    }));
-  }
-  wi(e2, t3) {
-    e2.createObjectStore(Re, {
-      keyPath: Ae2
-    });
-    const n2 = t3.store(Re), r2 = new __PRIVATE_MemoryCollectionParentIndex(), addEntry = (e3) => {
-      if (r2.add(e3)) {
-        const t4 = e3.lastSegment(), r3 = e3.popLast();
-        return n2.put({
-          collectionId: t4,
-          parent: __PRIVATE_encodeResourcePath(r3)
-        });
-      }
-    };
-    return t3.store($2).ee({
-      Y: true
-    }, ((e3, t4) => {
-      const n3 = new ResourcePath(e3);
-      return addEntry(n3.popLast());
-    })).next((() => t3.store(Y2).ee({
-      Y: true
-    }, (([e3, t4, n3], r3) => {
-      const i4 = __PRIVATE_decodeResourcePath(t4);
-      return addEntry(i4.popLast());
-    }))));
-  }
-  Si(e2) {
-    const t3 = e2.store(ae2);
-    return t3.ee(((e3, n2) => {
-      const r2 = __PRIVATE_fromDbTarget(n2), i4 = __PRIVATE_toDbTarget(this.serializer, r2);
-      return t3.put(i4);
-    }));
-  }
-  bi(e2, t3) {
-    const n2 = t3.store($2), r2 = [];
-    return n2.ee(((e3, n3) => {
-      const i4 = t3.store(ee2), s3 = (function __PRIVATE_extractKey(e4) {
-        return e4.document ? new DocumentKey(ResourcePath.fromString(e4.document.name).popFirst(5)) : e4.noDocument ? DocumentKey.fromSegments(e4.noDocument.path) : e4.unknownDocument ? DocumentKey.fromSegments(e4.unknownDocument.path) : fail(36783);
-      })(n3).path.toArray(), o3 = {
-        prefixPath: s3.slice(0, s3.length - 2),
-        collectionGroup: s3[s3.length - 2],
-        documentId: s3[s3.length - 1],
-        readTime: n3.readTime || [0, 0],
-        unknownDocument: n3.unknownDocument,
-        noDocument: n3.noDocument,
-        document: n3.document,
-        hasCommittedMutations: !!n3.hasCommittedMutations
-      };
-      r2.push(i4.put(o3));
-    })).next((() => PersistencePromise.waitFor(r2)));
-  }
-  Di(e2, t3) {
-    const n2 = t3.store(j2), r2 = __PRIVATE_newIndexedDbRemoteDocumentCache(this.serializer), i4 = new __PRIVATE_MemoryPersistence(__PRIVATE_MemoryEagerDelegate.Vi, this.serializer.yt);
-    return n2.J().next(((e3) => {
-      const n3 = /* @__PURE__ */ new Map();
-      return e3.forEach(((e4) => {
-        let t4 = n3.get(e4.userId) ?? __PRIVATE_documentKeySet();
-        __PRIVATE_fromDbMutationBatch(this.serializer, e4).keys().forEach(((e5) => t4 = t4.add(e5))), n3.set(e4.userId, t4);
-      })), PersistencePromise.forEach(n3, ((e4, n4) => {
-        const s3 = new User2(n4), o3 = __PRIVATE_IndexedDbDocumentOverlayCache.wt(this.serializer, s3), _3 = i4.getIndexManager(s3), a3 = __PRIVATE_IndexedDbMutationQueue.wt(s3, this.serializer, _3, i4.referenceDelegate);
-        return new LocalDocumentsView(r2, a3, o3, _3).recalculateAndSaveOverlaysForDocumentKeys(new __PRIVATE_IndexedDbTransaction(t3, __PRIVATE_ListenSequence.ce), e4).next();
-      }));
-    }));
-  }
-};
-function __PRIVATE_createQueryCache(e2) {
-  e2.createObjectStore(le2, {
-    keyPath: he2
-  }).createIndex(Pe2, Te, {
-    unique: true
-  });
-  e2.createObjectStore(ae2, {
-    keyPath: "targetId"
-  }).createIndex(ue2, ce2, {
-    unique: true
-  }), e2.createObjectStore(Ee);
-}
-var vt2 = "IndexedDbPersistence";
-var Ft2 = 18e5;
-var Mt2 = 5e3;
-var xt2 = "Failed to obtain exclusive access to the persistence layer. To allow shared access, multi-tab synchronization has to be enabled in all tabs. If you are using `experimentalForceOwningTab:true`, make sure that only one tab has persistence enabled at any given time.";
-var Ot2 = "main";
-var __PRIVATE_IndexedDbPersistence = class ___PRIVATE_IndexedDbPersistence {
-  constructor(e2, t3, n2, r2, i4, s3, o3, _3, a3, u3, c4 = 18) {
-    if (this.allowTabSynchronization = e2, this.persistenceKey = t3, this.clientId = n2, this.Ci = i4, this.window = s3, this.document = o3, this.Fi = a3, this.Mi = u3, this.xi = c4, this.ai = null, this.ui = false, this.isPrimary = false, this.networkEnabled = true, /** Our window.unload handler, if registered. */
-    this.Oi = null, this.inForeground = false, /** Our 'visibilitychange' listener if registered. */
-    this.Ni = null, /** The client metadata refresh task. */
-    this.Bi = null, /** The last time we garbage collected the client metadata object store. */
-    this.Li = Number.NEGATIVE_INFINITY, /** A listener to notify on primary state changes. */
-    this.ki = (e3) => Promise.resolve(), !___PRIVATE_IndexedDbPersistence.v()) throw new FirestoreError(D2.UNIMPLEMENTED, "This platform is either missing IndexedDB or is known to have an incomplete implementation. Offline persistence has been disabled.");
-    this.referenceDelegate = new __PRIVATE_IndexedDbLruDelegateImpl(this, r2), this.qi = t3 + Ot2, this.serializer = new __PRIVATE_LocalSerializer(_3), this.Ki = new __PRIVATE_SimpleDb(this.qi, this.xi, new __PRIVATE_SchemaConverter(this.serializer)), this.ci = new __PRIVATE_IndexedDbGlobalsCache(), this.li = new __PRIVATE_IndexedDbTargetCache(this.referenceDelegate, this.serializer), this.remoteDocumentCache = __PRIVATE_newIndexedDbRemoteDocumentCache(this.serializer), this.Pi = new __PRIVATE_IndexedDbBundleCache(), this.window && this.window.localStorage ? this.Ui = this.window.localStorage : (this.Ui = null, false === u3 && __PRIVATE_logError(vt2, "LocalStorage is unavailable. As a result, persistence may not work reliably. In particular enablePersistence() could fail immediately after refreshing the page."));
-  }
-  /**
-   * Attempt to start IndexedDb persistence.
-   *
-   * @returns Whether persistence was enabled.
-   */
-  start() {
-    return this.$i().then((() => {
-      if (!this.isPrimary && !this.allowTabSynchronization)
-        throw new FirestoreError(D2.FAILED_PRECONDITION, xt2);
-      return this.Wi(), this.Qi(), this.Gi(), this.runTransaction("getHighestListenSequenceNumber", "readonly", ((e2) => this.li.getHighestSequenceNumber(e2)));
-    })).then(((e2) => {
-      this.ai = new __PRIVATE_ListenSequence(e2, this.Fi);
-    })).then((() => {
-      this.ui = true;
-    })).catch(((e2) => (this.Ki && this.Ki.close(), Promise.reject(e2))));
-  }
-  /**
-   * Registers a listener that gets called when the primary state of the
-   * instance changes. Upon registering, this listener is invoked immediately
-   * with the current primary state.
-   *
-   * PORTING NOTE: This is only used for Web multi-tab.
-   */
-  zi(e2) {
-    return this.ki = async (t3) => {
-      if (this.started) return e2(t3);
-    }, e2(this.isPrimary);
-  }
-  /**
-   * Registers a listener that gets called when the database receives a
-   * version change event indicating that it has deleted.
-   *
-   * PORTING NOTE: This is only used for Web multi-tab.
-   */
-  setDatabaseDeletedListener(e2) {
-    this.Ki.K((async (t3) => {
-      null === t3.newVersion && await e2();
-    }));
-  }
-  /**
-   * Adjusts the current network state in the client's metadata, potentially
-   * affecting the primary lease.
-   *
-   * PORTING NOTE: This is only used for Web multi-tab.
-   */
-  setNetworkEnabled(e2) {
-    this.networkEnabled !== e2 && (this.networkEnabled = e2, // Schedule a primary lease refresh for immediate execution. The eventual
-    // lease update will be propagated via `primaryStateListener`.
-    this.Ci.enqueueAndForget((async () => {
-      this.started && await this.$i();
-    })));
-  }
-  /**
-   * Updates the client metadata in IndexedDb and attempts to either obtain or
-   * extend the primary lease for the local client. Asynchronously notifies the
-   * primary state listener if the client either newly obtained or released its
-   * primary lease.
-   */
-  $i() {
-    return this.runTransaction("updateClientMetadataAndTryBecomePrimary", "readwrite", ((e2) => __PRIVATE_clientMetadataStore(e2).put({
-      clientId: this.clientId,
-      updateTimeMs: Date.now(),
-      networkEnabled: this.networkEnabled,
-      inForeground: this.inForeground
-    }).next((() => {
-      if (this.isPrimary) return this.ji(e2).next(((e3) => {
-        e3 || (this.isPrimary = false, this.Ci.enqueueRetryable((() => this.ki(false))));
-      }));
-    })).next((() => this.Ji(e2))).next(((t3) => this.isPrimary && !t3 ? this.Hi(e2).next((() => false)) : !!t3 && this.Zi(e2).next((() => true)))))).catch(((e2) => {
-      if (__PRIVATE_isIndexedDbTransactionError(e2))
-        return __PRIVATE_logDebug(vt2, "Failed to extend owner lease: ", e2), this.isPrimary;
-      if (!this.allowTabSynchronization) throw e2;
-      return __PRIVATE_logDebug(vt2, "Releasing owner lease after error during lease refresh", e2), /* isPrimary= */
-      false;
-    })).then(((e2) => {
-      this.isPrimary !== e2 && this.Ci.enqueueRetryable((() => this.ki(e2))), this.isPrimary = e2;
-    }));
-  }
-  ji(e2) {
-    return __PRIVATE_primaryClientStore(e2).get(Q2).next(((e3) => PersistencePromise.resolve(this.Xi(e3))));
-  }
-  Yi(e2) {
-    return __PRIVATE_clientMetadataStore(e2).delete(this.clientId);
-  }
-  /**
-   * If the garbage collection threshold has passed, prunes the
-   * RemoteDocumentChanges and the ClientMetadata store based on the last update
-   * time of all clients.
-   */
-  async es() {
-    if (this.isPrimary && !this.ts(this.Li, Ft2)) {
-      this.Li = Date.now();
-      const e2 = await this.runTransaction("maybeGarbageCollectMultiClientState", "readwrite-primary", ((e3) => {
-        const t3 = __PRIVATE_getStore(e3, Ve);
-        return t3.J().next(((e4) => {
-          const n2 = this.ns(e4, Ft2), r2 = e4.filter(((e5) => -1 === n2.indexOf(e5)));
-          return PersistencePromise.forEach(r2, ((e5) => t3.delete(e5.clientId))).next((() => r2));
-        }));
-      })).catch((() => []));
-      if (this.Ui) for (const t3 of e2) this.Ui.removeItem(this.rs(t3.clientId));
-    }
-  }
-  /**
-   * Schedules a recurring timer to update the client metadata and to either
-   * extend or acquire the primary lease if the client is eligible.
-   */
-  Gi() {
-    this.Bi = this.Ci.enqueueAfterDelay("client_metadata_refresh", 4e3, (() => this.$i().then((() => this.es())).then((() => this.Gi()))));
-  }
-  /** Checks whether `client` is the local client. */
-  Xi(e2) {
-    return !!e2 && e2.ownerId === this.clientId;
-  }
-  /**
-   * Evaluate the state of all active clients and determine whether the local
-   * client is or can act as the holder of the primary lease. Returns whether
-   * the client is eligible for the lease, but does not actually acquire it.
-   * May return 'false' even if there is no active leaseholder and another
-   * (foreground) client should become leaseholder instead.
-   */
-  Ji(e2) {
-    if (this.Mi) return PersistencePromise.resolve(true);
-    return __PRIVATE_primaryClientStore(e2).get(Q2).next(((t3) => {
-      if (null !== t3 && this.ts(t3.leaseTimestampMs, Mt2) && !this.ss(t3.ownerId)) {
-        if (this.Xi(t3) && this.networkEnabled) return true;
-        if (!this.Xi(t3)) {
-          if (!t3.allowTabSynchronization)
-            throw new FirestoreError(D2.FAILED_PRECONDITION, xt2);
-          return false;
-        }
-      }
-      return !(!this.networkEnabled || !this.inForeground) || __PRIVATE_clientMetadataStore(e2).J().next(((e3) => void 0 === this.ns(e3, Mt2).find(((e4) => {
-        if (this.clientId !== e4.clientId) {
-          const t4 = !this.networkEnabled && e4.networkEnabled, n2 = !this.inForeground && e4.inForeground, r2 = this.networkEnabled === e4.networkEnabled;
-          if (t4 || n2 && r2) return true;
-        }
-        return false;
-      }))));
-    })).next(((e3) => (this.isPrimary !== e3 && __PRIVATE_logDebug(vt2, `Client ${e3 ? "is" : "is not"} eligible for a primary lease.`), e3)));
-  }
-  async shutdown() {
-    this.ui = false, this._s(), this.Bi && (this.Bi.cancel(), this.Bi = null), this.us(), this.cs(), // Use `SimpleDb.runTransaction` directly to avoid failing if another tab
-    // has obtained the primary lease.
-    await this.Ki.runTransaction("shutdown", "readwrite", [W2, Ve], ((e2) => {
-      const t3 = new __PRIVATE_IndexedDbTransaction(e2, __PRIVATE_ListenSequence.ce);
-      return this.Hi(t3).next((() => this.Yi(t3)));
-    })), this.Ki.close(), // Remove the entry marking the client as zombied from LocalStorage since
-    // we successfully deleted its metadata from IndexedDb.
-    this.ls();
-  }
-  /**
-   * Returns clients that are not zombied and have an updateTime within the
-   * provided threshold.
-   */
-  ns(e2, t3) {
-    return e2.filter(((e3) => this.ts(e3.updateTimeMs, t3) && !this.ss(e3.clientId)));
-  }
-  /**
-   * Returns the IDs of the clients that are currently active. If multi-tab
-   * is not supported, returns an array that only contains the local client's
-   * ID.
-   *
-   * PORTING NOTE: This is only used for Web multi-tab.
-   */
-  hs() {
-    return this.runTransaction("getActiveClients", "readonly", ((e2) => __PRIVATE_clientMetadataStore(e2).J().next(((e3) => this.ns(e3, Ft2).map(((e4) => e4.clientId))))));
-  }
-  get started() {
-    return this.ui;
-  }
-  getGlobalsCache() {
-    return this.ci;
-  }
-  getMutationQueue(e2, t3) {
-    return __PRIVATE_IndexedDbMutationQueue.wt(e2, this.serializer, t3, this.referenceDelegate);
-  }
-  getTargetCache() {
-    return this.li;
-  }
-  getRemoteDocumentCache() {
-    return this.remoteDocumentCache;
-  }
-  getIndexManager(e2) {
-    return new __PRIVATE_IndexedDbIndexManager(e2, this.serializer.yt.databaseId);
-  }
-  getDocumentOverlayCache(e2) {
-    return __PRIVATE_IndexedDbDocumentOverlayCache.wt(this.serializer, e2);
-  }
-  getBundleCache() {
-    return this.Pi;
-  }
-  runTransaction(e2, t3, n2) {
-    __PRIVATE_logDebug(vt2, "Starting transaction:", e2);
-    const r2 = "readonly" === t3 ? "readonly" : "readwrite", i4 = (
-      /** Returns the object stores for the provided schema. */
-      (function __PRIVATE_getObjectStores(e3) {
-        return 18 === e3 ? Xe : 17 === e3 ? Ze : 16 === e3 ? Je : 15 === e3 ? He : 14 === e3 ? je : 13 === e3 ? ze : 12 === e3 ? Ge : 11 === e3 ? Qe : void fail(60245);
-      })(this.xi)
-    );
-    let s3;
-    return this.Ki.runTransaction(e2, r2, i4, ((r3) => (s3 = new __PRIVATE_IndexedDbTransaction(r3, this.ai ? this.ai.next() : __PRIVATE_ListenSequence.ce), "readwrite-primary" === t3 ? this.ji(s3).next(((e3) => !!e3 || this.Ji(s3))).next(((t4) => {
-      if (!t4) throw __PRIVATE_logError(`Failed to obtain primary lease for action '${e2}'.`), this.isPrimary = false, this.Ci.enqueueRetryable((() => this.ki(false))), new FirestoreError(D2.FAILED_PRECONDITION, B2);
-      return n2(s3);
-    })).next(((e3) => this.Zi(s3).next((() => e3)))) : this.Ps(s3).next((() => n2(s3)))))).then(((e3) => (s3.raiseOnCommittedEvent(), e3)));
-  }
-  /**
-   * Verifies that the current tab is the primary leaseholder or alternatively
-   * that the leaseholder has opted into multi-tab synchronization.
-   */
-  // TODO(b/114226234): Remove this check when `synchronizeTabs` can no longer
-  // be turned off.
-  Ps(e2) {
-    return __PRIVATE_primaryClientStore(e2).get(Q2).next(((e3) => {
-      if (null !== e3 && this.ts(e3.leaseTimestampMs, Mt2) && !this.ss(e3.ownerId) && !this.Xi(e3) && !(this.Mi || this.allowTabSynchronization && e3.allowTabSynchronization)) throw new FirestoreError(D2.FAILED_PRECONDITION, xt2);
-    }));
-  }
-  /**
-   * Obtains or extends the new primary lease for the local client. This
-   * method does not verify that the client is eligible for this lease.
-   */
-  Zi(e2) {
-    const t3 = {
-      ownerId: this.clientId,
-      allowTabSynchronization: this.allowTabSynchronization,
-      leaseTimestampMs: Date.now()
-    };
-    return __PRIVATE_primaryClientStore(e2).put(Q2, t3);
-  }
-  static v() {
-    return __PRIVATE_SimpleDb.v();
-  }
-  /** Checks the primary lease and removes it if we are the current primary. */
-  Hi(e2) {
-    const t3 = __PRIVATE_primaryClientStore(e2);
-    return t3.get(Q2).next(((e3) => this.Xi(e3) ? (__PRIVATE_logDebug(vt2, "Releasing primary lease."), t3.delete(Q2)) : PersistencePromise.resolve()));
-  }
-  /** Verifies that `updateTimeMs` is within `maxAgeMs`. */
-  ts(e2, t3) {
-    const n2 = Date.now();
-    return !(e2 < n2 - t3) && (!(e2 > n2) || (__PRIVATE_logError(`Detected an update time that is in the future: ${e2} > ${n2}`), false));
-  }
-  Wi() {
-    null !== this.document && "function" == typeof this.document.addEventListener && (this.Ni = () => {
-      this.Ci.enqueueAndForget((() => (this.inForeground = "visible" === this.document.visibilityState, this.$i())));
-    }, this.document.addEventListener("visibilitychange", this.Ni), this.inForeground = "visible" === this.document.visibilityState);
-  }
-  us() {
-    this.Ni && (this.document.removeEventListener("visibilitychange", this.Ni), this.Ni = null);
-  }
-  /**
-   * Attaches a window.unload handler that will synchronously write our
-   * clientId to a "zombie client id" location in LocalStorage. This can be used
-   * by tabs trying to acquire the primary lease to determine that the lease
-   * is no longer valid even if the timestamp is recent. This is particularly
-   * important for the refresh case (so the tab correctly re-acquires the
-   * primary lease). LocalStorage is used for this rather than IndexedDb because
-   * it is a synchronous API and so can be used reliably from  an unload
-   * handler.
-   */
-  Qi() {
-    "function" == typeof this.window?.addEventListener && (this.Oi = () => {
-      this._s();
-      const e2 = /(?:Version|Mobile)\/1[456]/;
-      isSafari() && (navigator.appVersion.match(e2) || navigator.userAgent.match(e2)) && // On Safari 14, 15, and 16, we do not run any cleanup actions as it might
-      // trigger a bug that prevents Safari from re-opening IndexedDB during
-      // the next page load.
-      // See https://bugs.webkit.org/show_bug.cgi?id=226547
-      this.Ci.enterRestrictedMode(
-        /* purgeExistingTasks= */
-        true
-      ), this.Ci.enqueueAndForget((() => this.shutdown()));
-    }, this.window.addEventListener("pagehide", this.Oi));
-  }
-  cs() {
-    this.Oi && (this.window.removeEventListener("pagehide", this.Oi), this.Oi = null);
-  }
-  /**
-   * Returns whether a client is "zombied" based on its LocalStorage entry.
-   * Clients become zombied when their tab closes without running all of the
-   * cleanup logic in `shutdown()`.
-   */
-  ss(e2) {
-    try {
-      const t3 = null !== this.Ui?.getItem(this.rs(e2));
-      return __PRIVATE_logDebug(vt2, `Client '${e2}' ${t3 ? "is" : "is not"} zombied in LocalStorage`), t3;
-    } catch (e3) {
-      return __PRIVATE_logError(vt2, "Failed to get zombied client id.", e3), false;
-    }
-  }
-  /**
-   * Record client as zombied (a client that had its tab closed). Zombied
-   * clients are ignored during primary tab selection.
-   */
-  _s() {
-    if (this.Ui) try {
-      this.Ui.setItem(this.rs(this.clientId), String(Date.now()));
-    } catch (e2) {
-      __PRIVATE_logError("Failed to set zombie client id.", e2);
-    }
-  }
-  /** Removes the zombied client entry if it exists. */
-  ls() {
-    if (this.Ui) try {
-      this.Ui.removeItem(this.rs(this.clientId));
-    } catch (e2) {
-    }
-  }
-  rs(e2) {
-    return `firestore_zombie_${this.persistenceKey}_${e2}`;
-  }
-};
-function __PRIVATE_primaryClientStore(e2) {
-  return __PRIVATE_getStore(e2, W2);
-}
-function __PRIVATE_clientMetadataStore(e2) {
-  return __PRIVATE_getStore(e2, Ve);
-}
-function __PRIVATE_indexedDbStoragePrefix(e2, t3) {
-  let n2 = e2.projectId;
-  return e2.isDefaultDatabase || (n2 += "." + e2.database), "firestore/" + t3 + "/" + n2 + "/";
-}
 var __PRIVATE_LocalViewChanges = class ___PRIVATE_LocalViewChanges {
   constructor(e2, t3, n2, r2) {
     this.targetId = e2, this.fromCache = t3, this.Ts = n2, this.Es = r2;
@@ -77352,116 +73925,12 @@ function __PRIVATE_localStoreExecuteQuery(e2, t3, n2) {
     }))))
   );
 }
-function __PRIVATE_localStoreGetCachedTarget(e2, t3) {
-  const n2 = __PRIVATE_debugCast(e2), r2 = __PRIVATE_debugCast(n2.li), i4 = n2.vs.get(t3);
-  return i4 ? Promise.resolve(i4.target) : n2.persistence.runTransaction("Get target data", "readonly", ((e3) => r2.At(e3, t3).next(((e4) => e4 ? e4.target : null))));
-}
-function __PRIVATE_localStoreGetNewDocumentChanges(e2, t3) {
-  const n2 = __PRIVATE_debugCast(e2), r2 = n2.Ms.get(t3) || SnapshotVersion.min();
-  return n2.persistence.runTransaction("Get new document changes", "readonly", ((e3) => n2.xs.getAllFromCollectionGroup(
-    e3,
-    t3,
-    __PRIVATE_newIndexOffsetSuccessorFromReadTime(r2, N3),
-    /* limit= */
-    Number.MAX_SAFE_INTEGER
-  ))).then(((e3) => (__PRIVATE_setMaxReadTime(n2, t3, e3), e3)));
-}
 function __PRIVATE_setMaxReadTime(e2, t3, n2) {
   let r2 = e2.Ms.get(t3) || SnapshotVersion.min();
   n2.forEach(((e3, t4) => {
     t4.readTime.compareTo(r2) > 0 && (r2 = t4.readTime);
   })), e2.Ms.set(t3, r2);
 }
-var Lt2 = "firestore_clients";
-function createWebStorageClientStateKey(e2, t3) {
-  return `${Lt2}_${e2}_${t3}`;
-}
-var kt2 = "firestore_mutations";
-function createWebStorageMutationBatchKey(e2, t3, n2) {
-  let r2 = `${kt2}_${e2}_${n2}`;
-  return t3.isAuthenticated() && (r2 += `_${t3.uid}`), r2;
-}
-var Kt2 = "firestore_targets";
-function createWebStorageQueryTargetMetadataKey(e2, t3) {
-  return `${Kt2}_${e2}_${t3}`;
-}
-var qt2 = "SharedClientState";
-var __PRIVATE_MutationMetadata = class ___PRIVATE_MutationMetadata {
-  constructor(e2, t3, n2, r2) {
-    this.user = e2, this.batchId = t3, this.state = n2, this.error = r2;
-  }
-  /**
-   * Parses a MutationMetadata from its JSON representation in WebStorage.
-   * Logs a warning and returns null if the format of the data is not valid.
-   */
-  static $s(e2, t3, n2) {
-    const r2 = JSON.parse(n2);
-    let i4, s3 = "object" == typeof r2 && -1 !== ["pending", "acknowledged", "rejected"].indexOf(r2.state) && (void 0 === r2.error || "object" == typeof r2.error);
-    return s3 && r2.error && (s3 = "string" == typeof r2.error.message && "string" == typeof r2.error.code, s3 && (i4 = new FirestoreError(r2.error.code, r2.error.message))), s3 ? new ___PRIVATE_MutationMetadata(e2, t3, r2.state, i4) : (__PRIVATE_logError(qt2, `Failed to parse mutation state for ID '${t3}': ${n2}`), null);
-  }
-  Ws() {
-    const e2 = {
-      state: this.state,
-      updateTimeMs: Date.now()
-    };
-    return this.error && (e2.error = {
-      code: this.error.code,
-      message: this.error.message
-    }), JSON.stringify(e2);
-  }
-};
-var __PRIVATE_QueryTargetMetadata = class ___PRIVATE_QueryTargetMetadata {
-  constructor(e2, t3, n2) {
-    this.targetId = e2, this.state = t3, this.error = n2;
-  }
-  /**
-   * Parses a QueryTargetMetadata from its JSON representation in WebStorage.
-   * Logs a warning and returns null if the format of the data is not valid.
-   */
-  static $s(e2, t3) {
-    const n2 = JSON.parse(t3);
-    let r2, i4 = "object" == typeof n2 && -1 !== ["not-current", "current", "rejected"].indexOf(n2.state) && (void 0 === n2.error || "object" == typeof n2.error);
-    return i4 && n2.error && (i4 = "string" == typeof n2.error.message && "string" == typeof n2.error.code, i4 && (r2 = new FirestoreError(n2.error.code, n2.error.message))), i4 ? new ___PRIVATE_QueryTargetMetadata(e2, n2.state, r2) : (__PRIVATE_logError(qt2, `Failed to parse target state for ID '${e2}': ${t3}`), null);
-  }
-  Ws() {
-    const e2 = {
-      state: this.state,
-      updateTimeMs: Date.now()
-    };
-    return this.error && (e2.error = {
-      code: this.error.code,
-      message: this.error.message
-    }), JSON.stringify(e2);
-  }
-};
-var __PRIVATE_RemoteClientState = class ___PRIVATE_RemoteClientState {
-  constructor(e2, t3) {
-    this.clientId = e2, this.activeTargetIds = t3;
-  }
-  /**
-   * Parses a RemoteClientState from the JSON representation in WebStorage.
-   * Logs a warning and returns null if the format of the data is not valid.
-   */
-  static $s(e2, t3) {
-    const n2 = JSON.parse(t3);
-    let r2 = "object" == typeof n2 && n2.activeTargetIds instanceof Array, i4 = __PRIVATE_targetIdSet();
-    for (let e3 = 0; r2 && e3 < n2.activeTargetIds.length; ++e3) r2 = isSafeInteger(n2.activeTargetIds[e3]), i4 = i4.add(n2.activeTargetIds[e3]);
-    return r2 ? new ___PRIVATE_RemoteClientState(e2, i4) : (__PRIVATE_logError(qt2, `Failed to parse client data for instance '${e2}': ${t3}`), null);
-  }
-};
-var __PRIVATE_SharedOnlineState = class ___PRIVATE_SharedOnlineState {
-  constructor(e2, t3) {
-    this.clientId = e2, this.onlineState = t3;
-  }
-  /**
-   * Parses a SharedOnlineState from its JSON representation in WebStorage.
-   * Logs a warning and returns null if the format of the data is not valid.
-   */
-  static $s(e2) {
-    const t3 = JSON.parse(e2);
-    return "object" == typeof t3 && -1 !== ["Unknown", "Online", "Offline"].indexOf(t3.onlineState) && "string" == typeof t3.clientId ? new ___PRIVATE_SharedOnlineState(t3.clientId, t3.onlineState) : (__PRIVATE_logError(qt2, `Failed to parse online state: ${e2}`), null);
-  }
-};
 var __PRIVATE_LocalClientState = class {
   constructor() {
     this.activeTargetIds = __PRIVATE_targetIdSet();
@@ -77482,277 +73951,6 @@ var __PRIVATE_LocalClientState = class {
       updateTimeMs: Date.now()
     };
     return JSON.stringify(e2);
-  }
-};
-var __PRIVATE_WebStorageSharedClientState = class {
-  constructor(e2, t3, n2, r2, i4) {
-    this.window = e2, this.Ci = t3, this.persistenceKey = n2, this.zs = r2, this.syncEngine = null, this.onlineStateHandler = null, this.sequenceNumberHandler = null, this.js = this.Js.bind(this), this.Hs = new SortedMap(__PRIVATE_primitiveComparator), this.started = false, /**
-     * Captures WebStorage events that occur before `start()` is called. These
-     * events are replayed once `WebStorageSharedClientState` is started.
-     */
-    this.Zs = [];
-    const s3 = n2.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    this.storage = this.window.localStorage, this.currentUser = i4, this.Xs = createWebStorageClientStateKey(this.persistenceKey, this.zs), this.Ys = /** Assembles the key for the current sequence number. */
-    (function createWebStorageSequenceNumberKey(e3) {
-      return `firestore_sequence_number_${e3}`;
-    })(this.persistenceKey), this.Hs = this.Hs.insert(this.zs, new __PRIVATE_LocalClientState()), this.eo = new RegExp(`^${Lt2}_${s3}_([^_]*)$`), this.no = new RegExp(`^${kt2}_${s3}_(\\d+)(?:_(.*))?$`), this.ro = new RegExp(`^${Kt2}_${s3}_(\\d+)$`), this.io = /** Assembles the key for the online state of the primary tab. */
-    (function createWebStorageOnlineStateKey(e3) {
-      return `firestore_online_state_${e3}`;
-    })(this.persistenceKey), this.so = (function createBundleLoadedKey(e3) {
-      return `firestore_bundle_loaded_v2_${e3}`;
-    })(this.persistenceKey), // Rather than adding the storage observer during start(), we add the
-    // storage observer during initialization. This ensures that we collect
-    // events before other components populate their initial state (during their
-    // respective start() calls). Otherwise, we might for example miss a
-    // mutation that is added after LocalStore's start() processed the existing
-    // mutations but before we observe WebStorage events.
-    this.window.addEventListener("storage", this.js);
-  }
-  /** Returns 'true' if WebStorage is available in the current environment. */
-  static v(e2) {
-    return !(!e2 || !e2.localStorage);
-  }
-  async start() {
-    const e2 = await this.syncEngine.hs();
-    for (const t4 of e2) {
-      if (t4 === this.zs) continue;
-      const e3 = this.getItem(createWebStorageClientStateKey(this.persistenceKey, t4));
-      if (e3) {
-        const n2 = __PRIVATE_RemoteClientState.$s(t4, e3);
-        n2 && (this.Hs = this.Hs.insert(n2.clientId, n2));
-      }
-    }
-    this.oo();
-    const t3 = this.storage.getItem(this.io);
-    if (t3) {
-      const e3 = this._o(t3);
-      e3 && this.ao(e3);
-    }
-    for (const e3 of this.Zs) this.Js(e3);
-    this.Zs = [], // Register a window unload hook to remove the client metadata entry from
-    // WebStorage even if `shutdown()` was not called.
-    this.window.addEventListener("pagehide", (() => this.shutdown())), this.started = true;
-  }
-  writeSequenceNumber(e2) {
-    this.setItem(this.Ys, JSON.stringify(e2));
-  }
-  getAllActiveQueryTargets() {
-    return this.uo(this.Hs);
-  }
-  isActiveQueryTarget(e2) {
-    let t3 = false;
-    return this.Hs.forEach(((n2, r2) => {
-      r2.activeTargetIds.has(e2) && (t3 = true);
-    })), t3;
-  }
-  addPendingMutation(e2) {
-    this.co(e2, "pending");
-  }
-  updateMutationState(e2, t3, n2) {
-    this.co(e2, t3, n2), // Once a final mutation result is observed by other clients, they no longer
-    // access the mutation's metadata entry. Since WebStorage replays events
-    // in order, it is safe to delete the entry right after updating it.
-    this.lo(e2);
-  }
-  addLocalQueryTarget(e2, t3 = true) {
-    let n2 = "not-current";
-    if (this.isActiveQueryTarget(e2)) {
-      const t4 = this.storage.getItem(createWebStorageQueryTargetMetadataKey(this.persistenceKey, e2));
-      if (t4) {
-        const r2 = __PRIVATE_QueryTargetMetadata.$s(e2, t4);
-        r2 && (n2 = r2.state);
-      }
-    }
-    return t3 && this.ho.Qs(e2), this.oo(), n2;
-  }
-  removeLocalQueryTarget(e2) {
-    this.ho.Gs(e2), this.oo();
-  }
-  isLocalQueryTarget(e2) {
-    return this.ho.activeTargetIds.has(e2);
-  }
-  clearQueryState(e2) {
-    this.removeItem(createWebStorageQueryTargetMetadataKey(this.persistenceKey, e2));
-  }
-  updateQueryState(e2, t3, n2) {
-    this.Po(e2, t3, n2);
-  }
-  handleUserChange(e2, t3, n2) {
-    t3.forEach(((e3) => {
-      this.lo(e3);
-    })), this.currentUser = e2, n2.forEach(((e3) => {
-      this.addPendingMutation(e3);
-    }));
-  }
-  setOnlineState(e2) {
-    this.To(e2);
-  }
-  notifyBundleLoaded(e2) {
-    this.Eo(e2);
-  }
-  shutdown() {
-    this.started && (this.window.removeEventListener("storage", this.js), this.removeItem(this.Xs), this.started = false);
-  }
-  getItem(e2) {
-    const t3 = this.storage.getItem(e2);
-    return __PRIVATE_logDebug(qt2, "READ", e2, t3), t3;
-  }
-  setItem(e2, t3) {
-    __PRIVATE_logDebug(qt2, "SET", e2, t3), this.storage.setItem(e2, t3);
-  }
-  removeItem(e2) {
-    __PRIVATE_logDebug(qt2, "REMOVE", e2), this.storage.removeItem(e2);
-  }
-  Js(e2) {
-    const t3 = e2;
-    if (t3.storageArea === this.storage) {
-      if (__PRIVATE_logDebug(qt2, "EVENT", t3.key, t3.newValue), t3.key === this.Xs) return void __PRIVATE_logError("Received WebStorage notification for local change. Another client might have garbage-collected our state");
-      this.Ci.enqueueRetryable((async () => {
-        if (this.started) {
-          if (null !== t3.key) {
-            if (this.eo.test(t3.key)) {
-              if (null == t3.newValue) {
-                const e3 = this.Io(t3.key);
-                return this.Ro(e3, null);
-              }
-              {
-                const e3 = this.Ao(t3.key, t3.newValue);
-                if (e3) return this.Ro(e3.clientId, e3);
-              }
-            } else if (this.no.test(t3.key)) {
-              if (null !== t3.newValue) {
-                const e3 = this.Vo(t3.key, t3.newValue);
-                if (e3) return this.mo(e3);
-              }
-            } else if (this.ro.test(t3.key)) {
-              if (null !== t3.newValue) {
-                const e3 = this.fo(t3.key, t3.newValue);
-                if (e3) return this.po(e3);
-              }
-            } else if (t3.key === this.io) {
-              if (null !== t3.newValue) {
-                const e3 = this._o(t3.newValue);
-                if (e3) return this.ao(e3);
-              }
-            } else if (t3.key === this.Ys) {
-              const e3 = (function __PRIVATE_fromWebStorageSequenceNumber(e4) {
-                let t4 = __PRIVATE_ListenSequence.ce;
-                if (null != e4) try {
-                  const n2 = JSON.parse(e4);
-                  __PRIVATE_hardAssert("number" == typeof n2, 30636, {
-                    yo: e4
-                  }), t4 = n2;
-                } catch (e5) {
-                  __PRIVATE_logError(qt2, "Failed to read sequence number from WebStorage", e5);
-                }
-                return t4;
-              })(t3.newValue);
-              e3 !== __PRIVATE_ListenSequence.ce && this.sequenceNumberHandler(e3);
-            } else if (t3.key === this.so) {
-              const e3 = this.wo(t3.newValue);
-              await Promise.all(e3.map(((e4) => this.syncEngine.So(e4))));
-            }
-          }
-        } else this.Zs.push(t3);
-      }));
-    }
-  }
-  get ho() {
-    return this.Hs.get(this.zs);
-  }
-  oo() {
-    this.setItem(this.Xs, this.ho.Ws());
-  }
-  co(e2, t3, n2) {
-    const r2 = new __PRIVATE_MutationMetadata(this.currentUser, e2, t3, n2), i4 = createWebStorageMutationBatchKey(this.persistenceKey, this.currentUser, e2);
-    this.setItem(i4, r2.Ws());
-  }
-  lo(e2) {
-    const t3 = createWebStorageMutationBatchKey(this.persistenceKey, this.currentUser, e2);
-    this.removeItem(t3);
-  }
-  To(e2) {
-    const t3 = {
-      clientId: this.zs,
-      onlineState: e2
-    };
-    this.storage.setItem(this.io, JSON.stringify(t3));
-  }
-  Po(e2, t3, n2) {
-    const r2 = createWebStorageQueryTargetMetadataKey(this.persistenceKey, e2), i4 = new __PRIVATE_QueryTargetMetadata(e2, t3, n2);
-    this.setItem(r2, i4.Ws());
-  }
-  Eo(e2) {
-    const t3 = JSON.stringify(Array.from(e2));
-    this.setItem(this.so, t3);
-  }
-  /**
-   * Parses a client state key in WebStorage. Returns null if the key does not
-   * match the expected key format.
-   */
-  Io(e2) {
-    const t3 = this.eo.exec(e2);
-    return t3 ? t3[1] : null;
-  }
-  /**
-   * Parses a client state in WebStorage. Returns 'null' if the value could not
-   * be parsed.
-   */
-  Ao(e2, t3) {
-    const n2 = this.Io(e2);
-    return __PRIVATE_RemoteClientState.$s(n2, t3);
-  }
-  /**
-   * Parses a mutation batch state in WebStorage. Returns 'null' if the value
-   * could not be parsed.
-   */
-  Vo(e2, t3) {
-    const n2 = this.no.exec(e2), r2 = Number(n2[1]), i4 = void 0 !== n2[2] ? n2[2] : null;
-    return __PRIVATE_MutationMetadata.$s(new User2(i4), r2, t3);
-  }
-  /**
-   * Parses a query target state from WebStorage. Returns 'null' if the value
-   * could not be parsed.
-   */
-  fo(e2, t3) {
-    const n2 = this.ro.exec(e2), r2 = Number(n2[1]);
-    return __PRIVATE_QueryTargetMetadata.$s(r2, t3);
-  }
-  /**
-   * Parses an online state from WebStorage. Returns 'null' if the value
-   * could not be parsed.
-   */
-  _o(e2) {
-    return __PRIVATE_SharedOnlineState.$s(e2);
-  }
-  wo(e2) {
-    return JSON.parse(e2);
-  }
-  async mo(e2) {
-    if (e2.user.uid === this.currentUser.uid) return this.syncEngine.bo(e2.batchId, e2.state, e2.error);
-    __PRIVATE_logDebug(qt2, `Ignoring mutation for non-active user ${e2.user.uid}`);
-  }
-  po(e2) {
-    return this.syncEngine.Do(e2.targetId, e2.state, e2.error);
-  }
-  Ro(e2, t3) {
-    const n2 = t3 ? this.Hs.insert(e2, t3) : this.Hs.remove(e2), r2 = this.uo(this.Hs), i4 = this.uo(n2), s3 = [], o3 = [];
-    return i4.forEach(((e3) => {
-      r2.has(e3) || s3.push(e3);
-    })), r2.forEach(((e3) => {
-      i4.has(e3) || o3.push(e3);
-    })), this.syncEngine.Co(s3, o3).then((() => {
-      this.Hs = n2;
-    }));
-  }
-  ao(e2) {
-    this.Hs.get(e2.clientId) && this.onlineStateHandler(e2.onlineState);
-  }
-  uo(e2) {
-    let t3 = __PRIVATE_targetIdSet();
-    return e2.forEach(((e3, n2) => {
-      t3 = t3.unionWith(n2.activeTargetIds);
-    })), t3;
   }
 };
 var __PRIVATE_MemorySharedClientState = class {
@@ -78135,9 +74333,6 @@ var __PRIVATE_WebChannelConnection = class ___PRIVATE_WebChannelConnection exten
 };
 function __PRIVATE_newConnection(e2) {
   return new __PRIVATE_WebChannelConnection(e2);
-}
-function __PRIVATE_getWindow() {
-  return "undefined" != typeof window ? window : null;
 }
 function getDocument() {
   return "undefined" != typeof document ? document : null;
@@ -79939,161 +76134,6 @@ function __PRIVATE_syncEngineGetRemoteKeysForTarget(e2, t3) {
     return e3;
   }
 }
-async function __PRIVATE_synchronizeViewAndComputeSnapshot(e2, t3) {
-  const n2 = __PRIVATE_debugCast(e2), r2 = await __PRIVATE_localStoreExecuteQuery(
-    n2.localStore,
-    t3.query,
-    /* usePreviousResults= */
-    true
-  ), i4 = t3.view.cu(r2);
-  return n2.isPrimaryClient && __PRIVATE_updateTrackedLimbos(n2, t3.targetId, i4.au), i4;
-}
-async function __PRIVATE_syncEngineSynchronizeWithChangedDocuments(e2, t3) {
-  const n2 = __PRIVATE_debugCast(e2);
-  return __PRIVATE_localStoreGetNewDocumentChanges(n2.localStore, t3).then(((e3) => __PRIVATE_syncEngineEmitNewSnapsAndNotifyLocalStore(n2, e3)));
-}
-async function __PRIVATE_syncEngineApplyBatchState(e2, t3, n2, r2) {
-  const i4 = __PRIVATE_debugCast(e2), s3 = await (function __PRIVATE_localStoreLookupMutationDocuments(e3, t4) {
-    const n3 = __PRIVATE_debugCast(e3), r3 = __PRIVATE_debugCast(n3.mutationQueue);
-    return n3.persistence.runTransaction("Lookup mutation documents", "readonly", ((e4) => r3.Xn(e4, t4).next(((t5) => t5 ? n3.localDocuments.getDocuments(e4, t5) : PersistencePromise.resolve(null)))));
-  })(i4.localStore, t3);
-  null !== s3 ? ("pending" === n2 ? (
-    // If we are the primary client, we need to send this write to the
-    // backend. Secondary clients will ignore these writes since their remote
-    // connection is disabled.
-    await __PRIVATE_fillWritePipeline(i4.remoteStore)
-  ) : "acknowledged" === n2 || "rejected" === n2 ? (
-    // NOTE: Both these methods are no-ops for batches that originated from
-    // other clients.
-    (__PRIVATE_processUserCallback(i4, t3, r2 || null), __PRIVATE_triggerPendingWritesCallbacks(i4, t3), (function __PRIVATE_localStoreRemoveCachedMutationBatchMetadata(e3, t4) {
-      __PRIVATE_debugCast(__PRIVATE_debugCast(e3).mutationQueue).nr(t4);
-    })(i4.localStore, t3))
-  ) : fail(6720, "Unknown batchState", {
-    Su: n2
-  }), await __PRIVATE_syncEngineEmitNewSnapsAndNotifyLocalStore(i4, s3)) : (
-    // A throttled tab may not have seen the mutation before it was completed
-    // and removed from the mutation queue, in which case we won't have cached
-    // the affected documents. In this case we can safely ignore the update
-    // since that means we didn't apply the mutation locally at all (if we
-    // had, we would have cached the affected documents), and so we will just
-    // see any resulting document changes via normal remote document updates
-    // as applicable.
-    __PRIVATE_logDebug(Zt2, "Cannot apply mutation batch with id: " + t3)
-  );
-}
-async function __PRIVATE_syncEngineApplyPrimaryState(e2, t3) {
-  const n2 = __PRIVATE_debugCast(e2);
-  if (__PRIVATE_ensureWatchCallbacks(n2), __PRIVATE_syncEngineEnsureWriteCallbacks(n2), true === t3 && true !== n2.gu) {
-    const e3 = n2.sharedClientState.getAllActiveQueryTargets(), t4 = await __PRIVATE_synchronizeQueryViewsAndRaiseSnapshots(n2, e3.toArray());
-    n2.gu = true, await __PRIVATE_remoteStoreApplyPrimaryState(n2.remoteStore, true);
-    for (const e4 of t4) __PRIVATE_remoteStoreListen(n2.remoteStore, e4);
-  } else if (false === t3 && false !== n2.gu) {
-    const e3 = [];
-    let t4 = Promise.resolve();
-    n2.Eu.forEach(((r2, i4) => {
-      n2.sharedClientState.isLocalQueryTarget(i4) ? e3.push(i4) : t4 = t4.then((() => (__PRIVATE_removeAndCleanupTarget(n2, i4), __PRIVATE_localStoreReleaseTarget(
-        n2.localStore,
-        i4,
-        /*keepPersistedTargetData=*/
-        true
-      )))), __PRIVATE_remoteStoreUnlisten(n2.remoteStore, i4);
-    })), await t4, await __PRIVATE_synchronizeQueryViewsAndRaiseSnapshots(n2, e3), // PORTING NOTE: Multi-Tab only.
-    (function __PRIVATE_resetLimboDocuments(e4) {
-      const t5 = __PRIVATE_debugCast(e4);
-      t5.Au.forEach(((e5, n3) => {
-        __PRIVATE_remoteStoreUnlisten(t5.remoteStore, n3);
-      })), t5.Vu.zr(), t5.Au = /* @__PURE__ */ new Map(), t5.Ru = new SortedMap(DocumentKey.comparator);
-    })(n2), n2.gu = false, await __PRIVATE_remoteStoreApplyPrimaryState(n2.remoteStore, false);
-  }
-}
-async function __PRIVATE_synchronizeQueryViewsAndRaiseSnapshots(e2, t3, n2) {
-  const r2 = __PRIVATE_debugCast(e2), i4 = [], s3 = [];
-  for (const e3 of t3) {
-    let t4;
-    const n3 = r2.Eu.get(e3);
-    if (n3 && 0 !== n3.length) {
-      t4 = await __PRIVATE_localStoreAllocateTarget(r2.localStore, __PRIVATE_queryToTarget(n3[0]));
-      for (const e4 of n3) {
-        const t5 = r2.Tu.get(e4), n4 = await __PRIVATE_synchronizeViewAndComputeSnapshot(r2, t5);
-        n4.snapshot && s3.push(n4.snapshot);
-      }
-    } else {
-      const n4 = await __PRIVATE_localStoreGetCachedTarget(r2.localStore, e3);
-      t4 = await __PRIVATE_localStoreAllocateTarget(r2.localStore, n4), await __PRIVATE_initializeViewAndComputeSnapshot(
-        r2,
-        __PRIVATE_synthesizeTargetToQuery(n4),
-        e3,
-        /*current=*/
-        false,
-        t4.resumeToken
-      );
-    }
-    i4.push(t4);
-  }
-  return r2.Pu.H_(s3), i4;
-}
-function __PRIVATE_synthesizeTargetToQuery(e2) {
-  return __PRIVATE_newQuery(e2.path, e2.collectionGroup, e2.orderBy, e2.filters, e2.limit, "F", e2.startAt, e2.endAt);
-}
-function __PRIVATE_syncEngineGetActiveClients(e2) {
-  return (function __PRIVATE_localStoreGetActiveClients(e3) {
-    return __PRIVATE_debugCast(__PRIVATE_debugCast(e3).persistence).hs();
-  })(__PRIVATE_debugCast(e2).localStore);
-}
-async function __PRIVATE_syncEngineApplyTargetState(e2, t3, n2, r2) {
-  const i4 = __PRIVATE_debugCast(e2);
-  if (i4.gu)
-    return void __PRIVATE_logDebug(Zt2, "Ignoring unexpected query state notification.");
-  const s3 = i4.Eu.get(t3);
-  if (s3 && s3.length > 0) switch (n2) {
-    case "current":
-    case "not-current": {
-      const e3 = await __PRIVATE_localStoreGetNewDocumentChanges(i4.localStore, __PRIVATE_queryCollectionGroup(s3[0])), r3 = RemoteEvent.createSynthesizedRemoteEventForCurrentChange(t3, "current" === n2, ByteString.EMPTY_BYTE_STRING);
-      await __PRIVATE_syncEngineEmitNewSnapsAndNotifyLocalStore(i4, e3, r3);
-      break;
-    }
-    case "rejected":
-      await __PRIVATE_localStoreReleaseTarget(
-        i4.localStore,
-        t3,
-        /* keepPersistedTargetData */
-        true
-      ), __PRIVATE_removeAndCleanupTarget(i4, t3, r2);
-      break;
-    default:
-      fail(64155, n2);
-  }
-}
-async function __PRIVATE_syncEngineApplyActiveTargetsChange(e2, t3, n2) {
-  const r2 = __PRIVATE_ensureWatchCallbacks(e2);
-  if (r2.gu) {
-    for (const e3 of t3) {
-      if (r2.Eu.has(e3) && r2.sharedClientState.isActiveQueryTarget(e3)) {
-        __PRIVATE_logDebug(Zt2, "Adding an already active target " + e3);
-        continue;
-      }
-      const t4 = await __PRIVATE_localStoreGetCachedTarget(r2.localStore, e3), n3 = await __PRIVATE_localStoreAllocateTarget(r2.localStore, t4);
-      await __PRIVATE_initializeViewAndComputeSnapshot(
-        r2,
-        __PRIVATE_synthesizeTargetToQuery(t4),
-        n3.targetId,
-        /*current=*/
-        false,
-        n3.resumeToken
-      ), __PRIVATE_remoteStoreListen(r2.remoteStore, n3);
-    }
-    for (const e3 of n2)
-      r2.Eu.has(e3) && // Release queries that are still active.
-      await __PRIVATE_localStoreReleaseTarget(
-        r2.localStore,
-        e3,
-        /* keepPersistedTargetData */
-        false
-      ).then((() => {
-        __PRIVATE_remoteStoreUnlisten(r2.remoteStore, e3), __PRIVATE_removeAndCleanupTarget(r2, e3);
-      })).catch(__PRIVATE_ignoreIfPrimaryLeaseLoss);
-  }
-}
 function __PRIVATE_ensureWatchCallbacks(e2) {
   const t3 = __PRIVATE_debugCast(e2);
   return t3.remoteStore.remoteSyncer.applyRemoteEvent = __PRIVATE_syncEngineApplyRemoteEvent.bind(null, t3), t3.remoteStore.remoteSyncer.getRemoteKeysForTarget = __PRIVATE_syncEngineGetRemoteKeysForTarget.bind(null, t3), t3.remoteStore.remoteSyncer.rejectListen = __PRIVATE_syncEngineRejectListen.bind(null, t3), t3.Pu.H_ = __PRIVATE_eventManagerOnWatchChange.bind(null, t3.eventManager), t3.Pu.yu = __PRIVATE_eventManagerOnWatchError.bind(null, t3.eventManager), t3;
@@ -80143,66 +76183,6 @@ var __PRIVATE_LruGcMemoryOfflineComponentProvider = class extends __PRIVATE_Memo
   Cu(e2) {
     const t3 = void 0 !== this.cacheSizeBytes ? LruParams.withCacheSize(this.cacheSizeBytes) : LruParams.DEFAULT;
     return new __PRIVATE_MemoryPersistence(((e3) => __PRIVATE_MemoryLruDelegate.Vi(e3, t3)), this.serializer);
-  }
-};
-var __PRIVATE_IndexedDbOfflineComponentProvider = class extends __PRIVATE_MemoryOfflineComponentProvider {
-  constructor(e2, t3, n2) {
-    super(), this.xu = e2, this.cacheSizeBytes = t3, this.forceOwnership = n2, this.kind = "persistent", this.synchronizeTabs = false;
-  }
-  async initialize(e2) {
-    await super.initialize(e2), await this.xu.initialize(this, e2), // Enqueue writes from a previous session
-    await __PRIVATE_syncEngineEnsureWriteCallbacks(this.xu.syncEngine), await __PRIVATE_fillWritePipeline(this.xu.remoteStore), // NOTE: This will immediately call the listener, so we make sure to
-    // set it after localStore / remoteStore are started.
-    await this.persistence.zi((() => (this.gcScheduler && !this.gcScheduler.started && this.gcScheduler.start(), this.indexBackfillerScheduler && !this.indexBackfillerScheduler.started && this.indexBackfillerScheduler.start(), Promise.resolve())));
-  }
-  vu(e2) {
-    return __PRIVATE_newLocalStore(this.persistence, new __PRIVATE_QueryEngine(), e2.initialUser, this.serializer);
-  }
-  Fu(e2, t3) {
-    const n2 = this.persistence.referenceDelegate.garbageCollector;
-    return new __PRIVATE_LruScheduler(n2, e2.asyncQueue, t3);
-  }
-  Mu(e2, t3) {
-    const n2 = new __PRIVATE_IndexBackfiller(t3, this.persistence);
-    return new __PRIVATE_IndexBackfillerScheduler(e2.asyncQueue, n2);
-  }
-  Cu(e2) {
-    const t3 = __PRIVATE_indexedDbStoragePrefix(e2.databaseInfo.databaseId, e2.databaseInfo.persistenceKey), n2 = void 0 !== this.cacheSizeBytes ? LruParams.withCacheSize(this.cacheSizeBytes) : LruParams.DEFAULT;
-    return new __PRIVATE_IndexedDbPersistence(this.synchronizeTabs, t3, e2.clientId, n2, e2.asyncQueue, __PRIVATE_getWindow(), getDocument(), this.serializer, this.sharedClientState, !!this.forceOwnership);
-  }
-  Du(e2) {
-    return new __PRIVATE_MemorySharedClientState();
-  }
-};
-var __PRIVATE_MultiTabOfflineComponentProvider = class extends __PRIVATE_IndexedDbOfflineComponentProvider {
-  constructor(e2, t3) {
-    super(
-      e2,
-      t3,
-      /* forceOwnership= */
-      false
-    ), this.xu = e2, this.cacheSizeBytes = t3, this.synchronizeTabs = true;
-  }
-  async initialize(e2) {
-    await super.initialize(e2);
-    const t3 = this.xu.syncEngine;
-    this.sharedClientState instanceof __PRIVATE_WebStorageSharedClientState && (this.sharedClientState.syncEngine = {
-      bo: __PRIVATE_syncEngineApplyBatchState.bind(null, t3),
-      Do: __PRIVATE_syncEngineApplyTargetState.bind(null, t3),
-      Co: __PRIVATE_syncEngineApplyActiveTargetsChange.bind(null, t3),
-      hs: __PRIVATE_syncEngineGetActiveClients.bind(null, t3),
-      So: __PRIVATE_syncEngineSynchronizeWithChangedDocuments.bind(null, t3)
-    }, await this.sharedClientState.start()), // NOTE: This will immediately call the listener, so we make sure to
-    // set it after localStore / remoteStore are started.
-    await this.persistence.zi((async (e3) => {
-      await __PRIVATE_syncEngineApplyPrimaryState(this.xu.syncEngine, e3), this.gcScheduler && (e3 && !this.gcScheduler.started ? this.gcScheduler.start() : e3 || this.gcScheduler.stop()), this.indexBackfillerScheduler && (e3 && !this.indexBackfillerScheduler.started ? this.indexBackfillerScheduler.start() : e3 || this.indexBackfillerScheduler.stop());
-    }));
-  }
-  Du(e2) {
-    const t3 = __PRIVATE_getWindow();
-    if (!__PRIVATE_WebStorageSharedClientState.v(t3)) throw new FirestoreError(D2.UNIMPLEMENTED, "IndexedDB persistence is only available on platforms that support LocalStorage.");
-    const n2 = __PRIVATE_indexedDbStoragePrefix(e2.databaseInfo.databaseId, e2.databaseInfo.persistenceKey);
-    return new __PRIVATE_WebStorageSharedClientState(t3, e2.asyncQueue, n2, e2.clientId, e2.initialUser);
   }
 };
 var OnlineComponentProvider = class {
@@ -80842,23 +76822,6 @@ var Firestore = class extends Firestore$1 {
     }
   }
 };
-function initializeFirestore(e2, t3, n2) {
-  n2 || (n2 = it2);
-  const r2 = _getProvider(e2, "firestore");
-  if (r2.isInitialized(n2)) {
-    const e3 = r2.getImmediate({
-      identifier: n2
-    }), i4 = r2.getOptions(n2);
-    if (deepEqual(i4, t3)) return e3;
-    throw new FirestoreError(D2.FAILED_PRECONDITION, "initializeFirestore() has already been called with different options. To avoid this error, call initializeFirestore() with the same options as when it was originally called, or call getFirestore() to return the already initialized instance.");
-  }
-  if (void 0 !== t3.cacheSizeBytes && void 0 !== t3.localCache) throw new FirestoreError(D2.INVALID_ARGUMENT, "cache and cacheSizeBytes cannot be specified at the same time as cacheSizeBytes willbe deprecated. Instead, specify the cache size in the cache object");
-  if (void 0 !== t3.cacheSizeBytes && -1 !== t3.cacheSizeBytes && t3.cacheSizeBytes < Ct2) throw new FirestoreError(D2.INVALID_ARGUMENT, "cacheSizeBytes must be at least 1048576");
-  return t3.host && isCloudWorkstation(t3.host) && pingServer(t3.host), r2.initialize({
-    options: t3,
-    instanceIdentifier: n2
-  });
-}
 function getFirestore(e2, n2) {
   const r2 = "object" == typeof e2 ? e2 : getApp(), i4 = "string" == typeof e2 ? e2 : n2 || it2, s3 = _getProvider(r2, "firestore").getImmediate({
     identifier: i4
@@ -81744,62 +77707,6 @@ function __PRIVATE_validateHasExplicitOrderByForLimitToLast(t3) {
 function __PRIVATE_applyFirestoreDataConverter(t3, e2, n2) {
   let r2;
   return r2 = t3 ? n2 && (n2.merge || n2.mergeFields) ? t3.toFirestore(e2, n2) : t3.toFirestore(e2) : e2, r2;
-}
-var __PRIVATE_PersistentLocalCacheImpl = class {
-  constructor(t3) {
-    let e2;
-    this.kind = "persistent", t3?.tabManager ? (t3.tabManager._initialize(t3), e2 = t3.tabManager) : (e2 = persistentSingleTabManager(void 0), e2._initialize(t3)), this._onlineComponentProvider = e2._onlineComponentProvider, this._offlineComponentProvider = e2._offlineComponentProvider;
-  }
-  toJSON() {
-    return {
-      kind: this.kind
-    };
-  }
-};
-function persistentLocalCache(t3) {
-  return new __PRIVATE_PersistentLocalCacheImpl(t3);
-}
-var __PRIVATE_SingleTabManagerImpl = class {
-  constructor(t3) {
-    this.forceOwnership = t3, this.kind = "persistentSingleTab";
-  }
-  toJSON() {
-    return {
-      kind: this.kind
-    };
-  }
-  /**
-   * @internal
-   */
-  _initialize(t3) {
-    this._onlineComponentProvider = OnlineComponentProvider.provider, this._offlineComponentProvider = {
-      build: (e2) => new __PRIVATE_IndexedDbOfflineComponentProvider(e2, t3?.cacheSizeBytes, this.forceOwnership)
-    };
-  }
-};
-var __PRIVATE_MultiTabManagerImpl = class {
-  constructor() {
-    this.kind = "PersistentMultipleTab";
-  }
-  toJSON() {
-    return {
-      kind: this.kind
-    };
-  }
-  /**
-   * @internal
-   */
-  _initialize(t3) {
-    this._onlineComponentProvider = OnlineComponentProvider.provider, this._offlineComponentProvider = {
-      build: (e2) => new __PRIVATE_MultiTabOfflineComponentProvider(e2, t3?.cacheSizeBytes)
-    };
-  }
-};
-function persistentSingleTabManager(t3) {
-  return new __PRIVATE_SingleTabManagerImpl(t3?.forceOwnership);
-}
-function persistentMultipleTabManager() {
-  return new __PRIVATE_MultiTabManagerImpl();
 }
 var SnapshotMetadata = class {
   /** @hideconstructor */
@@ -83679,7 +79586,7 @@ function registerStorage() {
 }
 registerStorage();
 
-// firebase-config.js?v=seniorflow-offline-firestore-20260817-01
+// firebase-config.js?v=seniorflow-online-firestore-20260825-17
 var firebaseConfig = {
   apiKey: "AIzaSyAOviuXZVTK30e6AUnySCfRoAGg80xan1I",
   authDomain: "seniorflow-92da3.firebaseapp.com",
@@ -83690,15 +79597,7 @@ var firebaseConfig = {
 };
 var app = initializeApp(firebaseConfig);
 var auth = getAuth(app);
-var db;
-try {
-  db = initializeFirestore(app, {
-    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
-  });
-} catch (error) {
-  console.warn("Persistencia offline no disponible; se usa Firestore online.", error);
-  db = getFirestore(app);
-}
+var db = getFirestore(app);
 var storage = getStorage(app);
 
 // app.source.jsx
@@ -84162,6 +80061,7 @@ var esMovimientoCargoCuentaCorriente = (mov = null) => {
   if (mov.tipo === "saldo_inicial_cc") return true;
   if (esRecargoMoraMovimiento(mov)) return normalizarMetodoPago(mov.metodoPago) === "cuenta_corriente";
   if (mov?.detallesPago?.tipoComprobante === "nota_credito") return false;
+  if (mov.tipo === "actualizacion_precio_cc") return normalizarMetodoPago(mov.metodoPago) === "cuenta_corriente";
   return (mov.tipo === "venta" || mov.tipo === "ingreso_extra") && normalizarMetodoPago(mov.metodoPago) === "cuenta_corriente";
 };
 var esMovimientoDescuentoCuentaCorriente = (mov = null) => {
@@ -87175,16 +83075,17 @@ function AppInterna() {
     let egresosEfectivo = 0;
     let retirosEfectivo = 0;
     listaMovimientos.forEach((m4) => {
+      const monto = parseImporteCajaHistorico(m4?.monto);
       if (m4?.noImpactaCaja === true) return;
       const signoVenta = obtenerSignoPuntoVenta(m4);
-      if (m4.tipo === "venta") ventas += signoVenta * m4.monto;
-      if (m4.tipo === "gasto") gastos += m4.monto;
-      if (m4.tipo === "ingreso_extra") otrosIngresos += m4.monto;
+      if (m4.tipo === "venta") ventas += signoVenta * monto;
+      if (m4.tipo === "gasto") gastos += monto;
+      if (m4.tipo === "ingreso_extra") otrosIngresos += monto;
       if (m4.metodoPago === "efectivo") {
-        if (m4.tipo === "venta" && signoVenta < 0) egresosEfectivo += m4.monto;
-        if (m4.tipo === "venta" && signoVenta > 0 || m4.tipo === "cobro" || m4.tipo === "ingreso_extra") ingresosEfectivo += m4.monto;
-        if (m4.tipo === "gasto") egresosEfectivo += m4.monto;
-        if (m4.tipo === "retiro_caja") retirosEfectivo += m4.monto;
+        if (m4.tipo === "venta" && signoVenta < 0) egresosEfectivo += monto;
+        if (m4.tipo === "venta" && signoVenta > 0 || m4.tipo === "cobro" || m4.tipo === "ingreso_extra") ingresosEfectivo += monto;
+        if (m4.tipo === "gasto") egresosEfectivo += monto;
+        if (m4.tipo === "retiro_caja") retirosEfectivo += monto;
       }
     });
     return {
@@ -91909,6 +87810,73 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       if (itemsOrigen.length) return itemsOrigen;
     }
     return [];
+  };
+  const obtenerActualizacionesPrecioCuentaCliente = (cliente = null, estado = null) => {
+    if (!cliente) return [];
+    const estadoCuenta = estado || calcularEstadoCuentaCliente(cliente);
+    const productosPorCodigo = /* @__PURE__ */ new Map();
+    (productos || []).forEach((producto) => {
+      [producto?.codigo, producto?.codigoInterno, producto?.codigoBarras].map((codigo) => normalizarCodigoParaComparar(codigo || "")).filter(Boolean).forEach((codigo) => productosPorCodigo.set(codigo, producto));
+    });
+    const cambios = [];
+    (estadoCuenta.cargosProcesados || []).filter((cargo) => !esRecargoMoraMovimiento(cargo) && Number(cargo.pendiente || 0) > 9e-3).forEach((cargo) => {
+      const proporcionPendiente = Math.min(1, Math.max(0, Number(cargo.pendiente || 0) / Math.max(0.01, Number(cargo.montoOriginal || cargo.monto || 0))));
+      const cambiosPorProducto = /* @__PURE__ */ new Map();
+      obtenerItemsDocumentoVenta(cargo).forEach((item) => {
+        const producto = (item?.productoId ? (productos || []).find((p3) => p3.id === item.productoId) : null) || productosPorCodigo.get(normalizarCodigoParaComparar(item?.codigo || ""));
+        const precioAnterior = Math.max(0, parseNumeroBasico(item?.precio || item?.precioUnitario || 0));
+        const precioNuevo = producto ? Math.max(0, obtenerPrecioVentaProductoActualizado(producto)) : 0;
+        const cantidad = Math.max(0, parseNumeroBasico(item?.cantidad) || 0);
+        if (!producto?.id || cantidad <= 0 || precioNuevo <= precioAnterior + 9e-3) return;
+        const cambio = cambiosPorProducto.get(producto.id) || {
+          productoId: producto.id,
+          codigo: textoSeguroTrim(producto.codigo || item.codigo, ""),
+          descripcion: textoSeguroTrim(item.descripcion || producto.descripcion, "Producto"),
+          cantidad: 0,
+          precioAnterior,
+          precioNuevo
+        };
+        cambio.cantidad += cantidad;
+        cambio.precioAnterior = Math.min(cambio.precioAnterior, precioAnterior);
+        cambio.precioNuevo = Math.max(cambio.precioNuevo, precioNuevo);
+        cambiosPorProducto.set(producto.id, cambio);
+      });
+      const itemsActualizados = Array.from(cambiosPorProducto.values()).map((item) => ({ ...item, diferencia: Math.round((item.precioNuevo - item.precioAnterior) * item.cantidad * proporcionPendiente * 100) / 100 })).filter((item) => item.diferencia > 9e-3);
+      if (!itemsActualizados.length) return;
+      const yaAplicado = (movimientos || []).some((mov) => mov?.tipo === "actualizacion_precio_cc" && mov?.detallesPago?.cargoOrigenId === cargo.id && mov?.detallesPago?.items?.some((item) => itemsActualizados.some((actual) => item?.productoId === actual.productoId && Number(item?.precioNuevo || 0) >= Number(actual.precioNuevo || 0) - 9e-3)));
+      if (!yaAplicado) cambios.push({ cargoOrigenId: cargo.id, cargoDescripcion: cargo.descripcion || "Remito", items: itemsActualizados });
+    });
+    return cambios;
+  };
+  const aplicarActualizacionPreciosCuentaCliente = async () => {
+    if (!usuarioTieneRolAdministrador(usuarioActual) || !clienteSeleccionado) return;
+    const cambios = obtenerActualizacionesPrecioCuentaCliente(clienteSeleccionado, calcularEstadoCuentaCliente(clienteSeleccionado));
+    if (!cambios.length) {
+      await notificarSistema("No hay productos pendientes con un precio actualizado para esta cuenta.", { tipo: "info", titulo: "Sin actualizaci\xF3n" });
+      return;
+    }
+    try {
+      let totalActualizado = 0;
+      for (const cambio of cambios) {
+        const monto = cambio.items.reduce((total, item) => total + item.diferencia, 0);
+        if (monto <= 9e-3) continue;
+        totalActualizado += monto;
+        await addDoc(collection2(db, "movimientos"), limpiarDatoFirestore({
+          tipo: "actualizacion_precio_cc",
+          monto,
+          descripcion: `Actualizaci\xF3n de precios \u2022 ${cambio.cargoDescripcion}`,
+          metodoPago: "cuenta_corriente",
+          noImpactaCaja: true,
+          fecha: (/* @__PURE__ */ new Date()).toISOString(),
+          usuario: usuarioActual?.nombre || usuarioActual?.username || "Sistema",
+          detallesPago: { origen: "actualizacion_precio_inventario", esActualizacionPrecioCuenta: true, clienteId: clienteSeleccionado.id, cliente: clienteSeleccionado.nombre || "", cargoOrigenId: cambio.cargoOrigenId, items: cambio.items }
+        }));
+      }
+      await notificarSistema(`Se actualizaron ${cambios.reduce((total, cambio) => total + cambio.items.length, 0)} producto(s) por ${formatearDinero(totalActualizado)}.`, { tipo: "success", titulo: "Precios actualizados" });
+    } catch (error) {
+      console.error("Error al actualizar precios de cuenta corriente", error);
+      await notificarSistema("No se pudieron actualizar los precios de esta cuenta corriente.", { tipo: "error", titulo: "Error de actualizaci\xF3n" });
+    }
   };
   const obtenerClaveDevolucionItem = (item = {}, index2 = 0) => {
     const productoId = textoSeguroTrim(item?.productoId, "");
@@ -100830,8 +96798,8 @@ Esto reemplaza precios, costos, proveedores, stock y datos guardados en esos pro
     return matriz.slice(indiceEncabezado + 1).filter((fila) => (fila || []).some((valor) => String(valor ?? "").trim())).map((fila) => encabezados.reduce((registro, encabezado, indice) => ({ ...registro, [encabezado]: fila?.[indice] ?? "" }), {}));
   };
   const obtenerValorFilaImport = (fila, claves) => {
-    for (const k3 of claves) {
-      if (Object.prototype.hasOwnProperty.call(fila, k3) && fila[k3] !== "") return fila[k3];
+    for (const k2 of claves) {
+      if (Object.prototype.hasOwnProperty.call(fila, k2) && fila[k2] !== "") return fila[k2];
     }
     return "";
   };
@@ -117718,6 +113686,24 @@ ${configuracion.nombre}`;
                     ]
                   }
                 ),
+                (() => {
+                  const actualizacionesPrecio = obtenerActualizacionesPrecioCuentaCliente(clienteSeleccionado, estado);
+                  const puedeActualizarPrecios = usuarioTieneRolAdministrador(usuarioActual);
+                  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                    "button",
+                    {
+                      disabled: !puedeActualizarPrecios || actualizacionesPrecio.length === 0,
+                      onClick: aplicarActualizacionPreciosCuentaCliente,
+                      title: actualizacionesPrecio.length ? "Aplicar los aumentos pendientes de los productos vinculados por c\xF3digo" : "No hay productos pendientes con aumento de precio",
+                      className: "bg-orange-600 hover:bg-orange-700 text-white disabled:opacity-50 disabled:bg-gray-200 disabled:text-gray-400 px-3 py-2 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all",
+                      children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RefreshCw, { size: 14 }),
+                        " Actualizar precios",
+                        actualizacionesPrecio.length ? ` (${actualizacionesPrecio.length})` : ""
+                      ]
+                    }
+                  );
+                })(),
                 (usuarioActual?.rol || "").toLowerCase() === "admin" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
                   "button",
                   {
@@ -121374,6 +117360,7 @@ lucide-react/dist/esm/icons/pen.mjs:
 lucide-react/dist/esm/icons/phone.mjs:
 lucide-react/dist/esm/icons/plus.mjs:
 lucide-react/dist/esm/icons/printer.mjs:
+lucide-react/dist/esm/icons/refresh-cw.mjs:
 lucide-react/dist/esm/icons/save.mjs:
 lucide-react/dist/esm/icons/scan-barcode.mjs:
 lucide-react/dist/esm/icons/search.mjs:
@@ -121592,6 +117579,14 @@ jspdf/dist/jspdf.es.min.js:
 @firebase/firestore/dist/common-edb5d170.esm.js:
 @firebase/firestore/dist/common-edb5d170.esm.js:
 @firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
 @firebase/storage/dist/index.esm.js:
 @firebase/storage/dist/index.esm.js:
 @firebase/storage/dist/index.esm.js:
@@ -121669,6 +117664,11 @@ jspdf/dist/jspdf.es.min.js:
    *)
 
 @firebase/util/dist/index.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
 @firebase/firestore/dist/index.esm.js:
 @firebase/firestore/dist/index.esm.js:
 @firebase/firestore/dist/index.esm.js:
@@ -121695,6 +117695,9 @@ jspdf/dist/jspdf.es.min.js:
 @firebase/app/dist/esm/index.esm.js:
 @firebase/auth/dist/esm/index-dfb5c973.js:
 @firebase/auth/dist/esm/index-dfb5c973.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
 @firebase/firestore/dist/common-edb5d170.esm.js:
 @firebase/storage/dist/index.esm.js:
   (**
@@ -121745,6 +117748,9 @@ firebase/app/dist/esm/index.esm.js:
 @firebase/auth/dist/esm/index-dfb5c973.js:
 @firebase/auth/dist/esm/index-dfb5c973.js:
 @firebase/auth/dist/esm/index-dfb5c973.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
 @firebase/firestore/dist/common-edb5d170.esm.js:
 @firebase/firestore/dist/common-edb5d170.esm.js:
 @firebase/firestore/dist/common-edb5d170.esm.js:
@@ -122261,6 +118267,9 @@ firebase/app/dist/esm/index.esm.js:
 
 @firebase/firestore/dist/common-edb5d170.esm.js:
 @firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
+@firebase/firestore/dist/common-edb5d170.esm.js:
   (**
    * @license
    * Copyright 2020 Google LLC
@@ -122347,38 +118356,6 @@ firebase/app/dist/esm/index.esm.js:
 @firebase/firestore/dist/common-edb5d170.esm.js:
   (**
    * @license
-   * Copyright 2020 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-  (**
-   * @license
-   * Copyright 2017 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-  (**
-   * @license
    * Copyright 2018 Google LLC
    *
    * Licensed under the Apache License, Version 2.0 (the "License");
@@ -122393,8 +118370,6 @@ firebase/app/dist/esm/index.esm.js:
    * See the License for the specific language governing permissions and
    * limitations under the License.
    *)
-
-@firebase/firestore/dist/common-edb5d170.esm.js:
   (**
    * @license
    * Copyright 2017 Google LLC
@@ -122411,56 +118386,8 @@ firebase/app/dist/esm/index.esm.js:
    * See the License for the specific language governing permissions and
    * limitations under the License.
    *)
-  (**
-   * @license
-   * Copyright 2022 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-  (**
-   * @license
-   * Copyright 2020 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
 
 @firebase/firestore/dist/common-edb5d170.esm.js:
-  (**
-   * @license
-   * Copyright 2017 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
   (**
    * @license
    * Copyright 2020 Google LLC
@@ -122495,22 +118422,7 @@ firebase/app/dist/esm/index.esm.js:
    *)
 
 @firebase/firestore/dist/common-edb5d170.esm.js:
-  (**
-   * @license
-   * Copyright 2020 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
+@firebase/firestore/dist/index.esm.js:
   (**
    * @license
    * Copyright 2017 Google LLC
@@ -122530,22 +118442,6 @@ firebase/app/dist/esm/index.esm.js:
   (**
    * @license
    * Copyright 2022 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-  (**
-   * @license
-   * Copyright 2019 Google LLC
    *
    * Licensed under the Apache License, Version 2.0 (the "License");
    * you may not use this file except in compliance with the License.
@@ -122727,54 +118623,6 @@ firebase/app/dist/esm/index.esm.js:
    *)
 
 @firebase/firestore/dist/common-edb5d170.esm.js:
-  (**
-   * @license
-   * Copyright 2017 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-  (**
-   * @license
-   * Copyright 2020 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-  (**
-   * @license
-   * Copyright 2022 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
   (**
    * @license
    * Copyright 2024 Google LLC
@@ -122791,6 +118639,8 @@ firebase/app/dist/esm/index.esm.js:
    * See the License for the specific language governing permissions and
    * limitations under the License.
    *)
+
+@firebase/firestore/dist/common-edb5d170.esm.js:
   (**
    * @license
    * Copyright 2021 Google LLC
@@ -122823,22 +118673,8 @@ firebase/app/dist/esm/index.esm.js:
    * See the License for the specific language governing permissions and
    * limitations under the License.
    *)
-  (**
-   * @license
-   * Copyright 2019 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
+
+@firebase/firestore/dist/common-edb5d170.esm.js:
   (**
    * @license
    * Copyright 2018 Google LLC
@@ -122857,122 +118693,6 @@ firebase/app/dist/esm/index.esm.js:
    *)
   (**
    * @license
-   * Copyright 2023 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-
-@firebase/firestore/dist/common-edb5d170.esm.js:
-  (**
-   * @license
-   * Copyright 2019 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-  (**
-   * @license
-   * Copyright 2018 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-  (**
-   * @license
-   * Copyright 2020 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-  (**
-   * @license
-   * Copyright 2017 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-
-@firebase/firestore/dist/common-edb5d170.esm.js:
-  (**
-   * @license
-   * Copyright 2023 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-  (**
-   * @license
    * Copyright 2020 Google LLC
    *
    * Licensed under the Apache License, Version 2.0 (the "License");
@@ -122989,90 +118709,6 @@ firebase/app/dist/esm/index.esm.js:
    *)
 
 @firebase/firestore/dist/common-edb5d170.esm.js:
-  (**
-   * @license
-   * Copyright 2020 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-  (**
-   * @license
-   * Copyright 2017 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-
-@firebase/firestore/dist/common-edb5d170.esm.js:
-  (**
-   * @license
-   * Copyright 2020 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-  (**
-   * @license
-   * Copyright 2024 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *)
-
-@firebase/firestore/dist/index.esm.js:
   (**
    * @license
    * Copyright 2017 Google LLC
@@ -123092,6 +118728,306 @@ firebase/app/dist/esm/index.esm.js:
   (**
    * @license
    * Copyright 2022 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+  (**
+   * @license
+   * Copyright 2020 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+  (**
+   * @license
+   * Copyright 2024 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+
+@firebase/firestore/dist/common-edb5d170.esm.js:
+  (**
+   * @license
+   * Copyright 2017 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+  (**
+   * @license
+   * Copyright 2023 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+  (**
+   * @license
+   * Copyright 2019 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+  (**
+   * @license
+   * Copyright 2020 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+
+@firebase/firestore/dist/common-edb5d170.esm.js:
+  (**
+   * @license
+   * Copyright 2018 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+
+@firebase/firestore/dist/common-edb5d170.esm.js:
+  (**
+   * @license
+   * Copyright 2019 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+  (**
+   * @license
+   * Copyright 2023 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+  (**
+   * @license
+   * Copyright 2020 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+  (**
+   * @license
+   * Copyright 2017 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+
+@firebase/firestore/dist/common-edb5d170.esm.js:
+  (**
+   * @license
+   * Copyright 2023 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+  (**
+   * @license
+   * Copyright 2020 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+
+@firebase/firestore/dist/common-edb5d170.esm.js:
+  (**
+   * @license
+   * Copyright 2020 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+  (**
+   * @license
+   * Copyright 2017 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+  (**
+   * @license
+   * Copyright 2024 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+
+@firebase/firestore/dist/common-edb5d170.esm.js:
+  (**
+   * @license
+   * Copyright 2020 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   *)
+  (**
+   * @license
+   * Copyright 2024 Google LLC
    *
    * Licensed under the Apache License, Version 2.0 (the "License");
    * you may not use this file except in compliance with the License.

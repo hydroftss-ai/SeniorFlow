@@ -1,15 +1,15 @@
-const CACHE_NAME = 'seniorflow-flyer-gestion-20260824-13';
+const CACHE_NAME = 'seniorflow-flyer-gestion-20260825-17';
 const ASSETS = [
   './',
   './index.html',
   './stock-app.html',
   './stock-app.js?v=seniorflow-stock-mobile-20260807-08',
-  './app.js?v=seniorflow-flyer-gestion-20260824-13',
-  './firebase-config.js?v=seniorflow-local-first-20260817-02',
+  './app.js?v=seniorflow-flyer-gestion-20260825-17',
+  './firebase-config.js?v=seniorflow-online-firestore-20260825-17',
   './manifest.json',
   './manifest-stock-app.json?v=seniorflow-stock-mobile-20260807-08',
   './sw-stock-app.js?v=seniorflow-stock-mobile-20260807-08',
-  './ofertas.html?v=seniorflow-flyer-gestion-20260824-13',
+  './ofertas.html?v=seniorflow-flyer-gestion-20260825-17',
   './icons/stock-app.svg',
   './icons/stock-app-192.png',
   './icons/stock-app-512.png',
@@ -59,7 +59,7 @@ self.addEventListener('fetch', (event) => {
           url.pathname.endsWith('/stock-app.html')
             ? './stock-app.html'
             : url.pathname.endsWith('/ofertas.html')
-              ? './ofertas.html?v=seniorflow-flyer-gestion-20260824-13'
+              ? './ofertas.html?v=seniorflow-flyer-gestion-20260825-17'
               : './index.html',
           fresh.clone()
         );
@@ -69,7 +69,7 @@ self.addEventListener('fetch', (event) => {
           || (await caches.match(url.pathname.endsWith('/stock-app.html')
             ? './stock-app.html'
             : url.pathname.endsWith('/ofertas.html')
-              ? './ofertas.html?v=seniorflow-flyer-gestion-20260824-13'
+              ? './ofertas.html?v=seniorflow-flyer-gestion-20260825-17'
               : './index.html'));
       }
     })());
@@ -86,12 +86,12 @@ self.addEventListener('fetch', (event) => {
       } catch {
       return (await caches.match(event.request))
         || (await caches.match(url.pathname.endsWith('/firebase-config.js')
-          ? './firebase-config.js?v=seniorflow-local-first-20260817-02'
+          ? './firebase-config.js?v=seniorflow-online-firestore-20260825-17'
           : url.pathname.endsWith('/stock-app.js')
             ? './stock-app.js?v=seniorflow-stock-mobile-20260807-08'
             : url.pathname.endsWith('/ofertas.html')
-            ? './ofertas.html?v=seniorflow-flyer-gestion-20260824-13'
-            : './app.js?v=seniorflow-flyer-gestion-20260824-13'));
+            ? './ofertas.html?v=seniorflow-flyer-gestion-20260825-17'
+            : './app.js?v=seniorflow-flyer-gestion-20260825-17'));
       }
     })());
     return;
