@@ -79586,7 +79586,7 @@ function registerStorage() {
 }
 registerStorage();
 
-// firebase-config.js?v=seniorflow-online-firestore-20260825-17
+// firebase-config.js?v=seniorflow-online-firestore-20260825-18
 var firebaseConfig = {
   apiKey: "AIzaSyAOviuXZVTK30e6AUnySCfRoAGg80xan1I",
   authDomain: "seniorflow-92da3.firebaseapp.com",
@@ -79654,6 +79654,7 @@ var parseNumeroBasico = (valor) => {
   return parseFloat(texto) || 0;
 };
 var parseImporteCajaHistorico = (valor) => {
+  if (typeof valor === "number") return Number.isFinite(valor) ? valor : 0;
   const textoOriginal = (valor ?? "").toString().trim();
   if (!textoOriginal) return 0;
   const textoAnalisis = textoOriginal.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -79667,10 +79668,10 @@ var parseImporteCajaHistorico = (valor) => {
     normalizado = texto.lastIndexOf(",") > texto.lastIndexOf(".") ? texto.replace(/\./g, "").replace(",", ".") : texto.replace(/,/g, "");
   } else if (tieneComa) {
     const partes = texto.split(",");
-    normalizado = partes.length > 2 || (partes[1] || "").length === 3 ? texto.replace(/,/g, "") : texto.replace(",", ".");
+    normalizado = partes.length > 2 || (partes[1] || "").length === 3 && (partes[0] || "").replace("-", "").length <= 3 ? texto.replace(/,/g, "") : texto.replace(",", ".");
   } else if (tienePunto) {
     const partes = texto.split(".");
-    normalizado = partes.length > 2 || (partes[1] || "").length === 3 ? texto.replace(/\./g, "") : texto;
+    normalizado = partes.length > 2 || (partes[1] || "").length === 3 && (partes[0] || "").replace("-", "").length <= 3 ? texto.replace(/\./g, "") : texto;
   }
   const numero = parseFloat(normalizado);
   if (!Number.isFinite(numero)) return 0;
