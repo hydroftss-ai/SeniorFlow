@@ -79586,7 +79586,7 @@ function registerStorage() {
 }
 registerStorage();
 
-// firebase-config.js?v=seniorflow-online-firestore-20260825-18
+// firebase-config.js?v=seniorflow-online-firestore-20260825-21
 var firebaseConfig = {
   apiKey: "AIzaSyAOviuXZVTK30e6AUnySCfRoAGg80xan1I",
   authDomain: "seniorflow-92da3.firebaseapp.com",
@@ -82096,6 +82096,7 @@ function AppInterna() {
     if (modalActivo !== "punto_venta" && asignacionVendedorPuntoVentaAbierta) setAsignacionVendedorPuntoVentaAbierta(false);
   }, [modalActivo, asignacionVendedorPuntoVentaAbierta]);
   const [busquedaRastreoCheques, setBusquedaRastreoCheques] = (0, import_react4.useState)("");
+  const [busquedaAvanzada, setBusquedaAvanzada] = (0, import_react4.useState)({ tipo: "cliente", texto: "" });
   const [rastreoChequesAbiertos, setRastreoChequesAbiertos] = (0, import_react4.useState)({});
   const [formData, setFormData] = (0, import_react4.useState)({ monto: "", efectivo: "", cheques: "", tieneCheques: false, descripcion: "", metodoPago: "efectivo", detallesPago: {}, impactaCajaReportes: true });
   const [montoCierreReal, setMontoCierreReal] = (0, import_react4.useState)("");
@@ -87812,6 +87813,51 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
     }
     return [];
   };
+  const resultadosBuscadorAvanzado = (0, import_react4.useMemo)(() => {
+    const tipo = busquedaAvanzada.tipo || "cliente";
+    const query = normalizarTextoBusqueda(busquedaAvanzada.texto);
+    if (!query) return { clientes: [], productos: [], remitos: [] };
+    const textoClienteMovimiento = (mov) => {
+      const detalle = mov?.detallesPago || {};
+      const clienteId = textoSeguroTrim(detalle.clienteId || detalle.idCliente || mov?.clienteId, "");
+      const cliente = clientes.find((item) => item.id === clienteId);
+      return {
+        id: clienteId,
+        nombre: textoSeguroTrim(detalle.clienteNombre || detalle.cliente || detalle.nombreCliente || mov?.clienteNombre, textoSeguroTrim(cliente?.nombre, "Consumidor Final"))
+      };
+    };
+    const esRemito = (mov) => mov?.tipo === "venta" || ["punto_venta", "remito_r"].includes(mov?.detallesPago?.origen);
+    const datosRemito = (mov) => {
+      const detalle = mov?.detallesPago || {};
+      const cliente = textoClienteMovimiento(mov);
+      const numero = textoSeguroTrim(detalle.numeroComprobante || detalle.comprobanteNumero || detalle.numeroRemito || mov?.numeroComprobante, "Sin n\xFAmero");
+      const tipoComprobante = OPCIONES_COMPROBANTE_VENTA.find((opcion) => opcion.value === (detalle.tipoComprobante || "remito_x"))?.label || "Remito";
+      return { movimiento: mov, cliente, numero, tipoComprobante, etiqueta: `${tipoComprobante} N\xB0 ${numero}`, fecha: mov?.fecha || "", monto: Math.abs(Number(mov?.monto || 0)) };
+    };
+    const remitos = movimientos.filter(esRemito).map(datosRemito);
+    if (tipo === "cliente") {
+      return {
+        clientes: clientesVisiblesSegunAcceso.filter((cliente) => normalizarTextoBusqueda([cliente.nombre, cliente.documento, cliente.telefono, cliente.whatsapp, cliente.email].join(" ")).includes(query)).slice(0, 30).map((cliente) => ({ cliente, remitos: remitos.filter((item) => item.cliente.id === cliente.id || normalizarTextoBusqueda(item.cliente.nombre) === normalizarTextoBusqueda(cliente.nombre)).sort((a3, b3) => new Date(b3.fecha) - new Date(a3.fecha)) })),
+        productos: [],
+        remitos: []
+      };
+    }
+    if (tipo === "producto") {
+      return {
+        clientes: [],
+        productos: productos.filter((producto) => normalizarTextoBusqueda([producto.descripcion, producto.codigo, producto.codigoInterno, producto.codigoBarras].join(" ")).includes(query)).slice(0, 30).map((producto) => {
+          const ventas = remitos.filter((registro) => obtenerItemsDocumentoVenta(registro.movimiento).some((item) => item.productoId === producto.id || item.codigo && normalizarTextoBusqueda(item.codigo) === normalizarTextoBusqueda(producto.codigo || producto.codigoInterno || producto.codigoBarras))).sort((a3, b3) => new Date(b3.fecha) - new Date(a3.fecha));
+          return { producto, ventas: ventas.slice(0, 20), ultimo: ventas[0] || null };
+        }),
+        remitos: []
+      };
+    }
+    return {
+      clientes: [],
+      productos: [],
+      remitos: remitos.filter((registro) => normalizarTextoBusqueda([registro.etiqueta, registro.numero, registro.cliente.nombre, registro.movimiento?.descripcion, registro.movimiento?.id].join(" ")).includes(query)).sort((a3, b3) => new Date(b3.fecha) - new Date(a3.fecha)).slice(0, 100)
+    };
+  }, [busquedaAvanzada, clientes, clientesVisiblesSegunAcceso, movimientos, productos]);
   const obtenerActualizacionesPrecioCuentaCliente = (cliente = null, estado = null) => {
     if (!cliente) return [];
     const estadoCuenta = estado || calcularEstadoCuentaCliente(cliente);
@@ -87879,6 +87925,14 @@ Disponible del per\xEDodo: ${formatearDinero(datosReporte.flujoNeto)}`
       await notificarSistema("No se pudieron actualizar los precios de esta cuenta corriente.", { tipo: "error", titulo: "Error de actualizaci\xF3n" });
     }
   };
+  const actualizacionesPrecioPendientesCliente = (0, import_react4.useMemo)(
+    () => clienteSeleccionado ? obtenerActualizacionesPrecioCuentaCliente(clienteSeleccionado, estadoCuentaClienteSeleccionado) : [],
+    [clienteSeleccionado, estadoCuentaClienteSeleccionado, movimientos, productos]
+  );
+  const actualizacionesPrecioPorCargo = (0, import_react4.useMemo)(
+    () => Object.fromEntries(actualizacionesPrecioPendientesCliente.map((cambio) => [cambio.cargoOrigenId, cambio])),
+    [actualizacionesPrecioPendientesCliente]
+  );
   const obtenerClaveDevolucionItem = (item = {}, index2 = 0) => {
     const productoId = textoSeguroTrim(item?.productoId, "");
     if (productoId) return `producto:${productoId}`;
@@ -101787,6 +101841,7 @@ ${configuracion.nombre}`;
   const puedeVerPresupuestos = usuarioPuedeVerModulo("presupuestos", usuarioActual);
   const puedeVerReportes = usuarioPuedeVerModulo("reportes", usuarioActual);
   const puedeVerRastreo = usuarioPuedeVerModulo("rastreo", usuarioActual);
+  const puedeVerBuscadorAvanzado = puedeVerClientes || puedeVerInventario || puedeVerRastreo;
   const puedeVerNotificaciones = usuarioPuedeVerModulo("notificaciones", usuarioActual);
   const puedeVerAjustes = usuarioPuedeVerModulo("ajustes", usuarioActual);
   const puedeVerAyuda = usuarioPuedeVerModulo("ayuda", usuarioActual);
@@ -101810,6 +101865,7 @@ ${configuracion.nombre}`;
     puedeVerPresupuestos,
     puedeVerReportes,
     puedeVerRastreo,
+    puedeVerBuscadorAvanzado,
     puedeVerNotificaciones,
     puedeVerAjustes,
     puedeVerAyuda
@@ -101834,6 +101890,7 @@ ${configuracion.nombre}`;
     { visible: puedeVerComparativa, vista: "comparativa", etiqueta: "Comparativa", Icono: ChartNoAxesColumn, color: "cyan" },
     { visible: puedeVerComparativa, vista: "comparativa_paralela", etiqueta: "Log\xEDstica", Icono: Truck, color: "violet" },
     { visible: puedeVerRastreo, vista: "rastreo", etiqueta: "Rastreo", Icono: Search, color: "slate" },
+    { visible: puedeVerBuscadorAvanzado, vista: "buscador_avanzado", etiqueta: "Buscador avanzado", Icono: Search, color: "indigo" },
     { visible: puedeVerReportes, vista: "reportes", etiqueta: "Reportes", Icono: ChartNoAxesColumn, color: "rose" },
     { visible: puedeVerAjustes, vista: "ajustes", etiqueta: "Ajustes", Icono: Settings, color: "gray" },
     { visible: puedeVerAyuda, vista: "ayuda", etiqueta: "Ayuda", Icono: BookOpen, color: "blue" }
@@ -101844,7 +101901,7 @@ ${configuracion.nombre}`;
     { id: "ventas", etiqueta: "Ventas", Icono: ShoppingCart, rutas: ["ventas", "vendedores", "tarjetas_planes", "caja", "clientes", "presupuestos", "combos"] },
     { id: "inventario", etiqueta: "Inventario", Icono: Package, rutas: ["inventario", "stock_bajo", "compras", "variacion_precios", "mod_masiva", "sugerencias", "comparativa"] }
   ].map((grupo) => ({ ...grupo, hijos: grupo.rutas.map(obtenerRutaSidebar).filter(Boolean) })).filter((grupo) => grupo.hijos.length > 0);
-  const entradasSidebarGestion = ["notificaciones", "proveedores", "flyer", "comparativa_paralela", "rastreo"].map(obtenerRutaSidebar).filter(Boolean);
+  const entradasSidebarGestion = ["notificaciones", "proveedores", "flyer", "comparativa_paralela", "rastreo", "buscador_avanzado"].map(obtenerRutaSidebar).filter(Boolean);
   const entradasSidebarSistema = ["reportes", "ajustes", "ayuda"].map(obtenerRutaSidebar).filter(Boolean);
   const esAccionPersistente = (elemento) => {
     const texto = `${elemento?.textContent || ""} ${elemento?.getAttribute?.("title") || ""}`.toLowerCase();
@@ -107421,6 +107478,93 @@ ${configuracion.nombre}`;
             ] }, combo.id)) })
           ] }) })
         ] })
+      ] }),
+      puedeVerBuscadorAvanzado && vista === "buscador_avanzado" && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "h-full min-h-0 flex flex-col gap-4 overflow-hidden animate-in fade-in duration-300", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "shrink-0 rounded-3xl border border-indigo-100 bg-white p-5 shadow-sm", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-[10px] font-black uppercase tracking-wider text-indigo-600", children: "Gesti\xF3n" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", { className: "text-2xl font-black text-slate-900", children: "Buscador avanzado" }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "mt-1 text-sm font-bold text-slate-500", children: "Busc\xE1 clientes, productos y remitos relacionados." }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "mt-4 flex flex-wrap gap-2", children: [
+            { value: "cliente", label: "Cliente" },
+            { value: "producto", label: "Producto" },
+            { value: "remito", label: "Remito" }
+          ].map((opcion) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", onClick: () => setBusquedaAvanzada((prev) => ({ ...prev, tipo: opcion.value })), className: `rounded-xl px-4 py-2 text-xs font-black uppercase ${busquedaAvanzada.tipo === opcion.value ? "bg-indigo-600 text-white" : "border border-slate-200 bg-slate-50 text-slate-600"}`, children: opcion.label }, opcion.value)) }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "relative mt-3", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { size: 18, className: "absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", { type: "search", value: busquedaAvanzada.texto, onChange: (event) => setBusquedaAvanzada((prev) => ({ ...prev, texto: event.target.value })), placeholder: busquedaAvanzada.tipo === "cliente" ? "Nombre, documento o tel\xE9fono" : busquedaAvanzada.tipo === "producto" ? "Descripci\xF3n o c\xF3digo del producto" : "N\xFAmero de remito, cliente o descripci\xF3n", className: "w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm font-bold outline-none focus:border-indigo-400 focus:bg-white" })
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "flex-1 min-h-0 overflow-y-auto rounded-3xl border border-slate-200 bg-white p-4 shadow-sm", children: !busquedaAvanzada.texto.trim() ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "p-10 text-center text-sm font-bold text-slate-400", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, { size: 38, className: "mx-auto mb-3 text-indigo-300" }),
+          "Escrib\xED un dato para comenzar la b\xFAsqueda."
+        ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
+          busquedaAvanzada.tipo === "cliente" && (resultadosBuscadorAvanzado.clientes.length ? resultadosBuscadorAvanzado.clientes.map(({ cliente, remitos }) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "mb-4 rounded-2xl border border-slate-200 overflow-hidden", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex items-center justify-between gap-3 bg-slate-50 p-4", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "font-black text-slate-900", children: cliente.nombre || "Cliente sin nombre" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-xs font-bold text-slate-500", children: [cliente.documento, cliente.telefono || cliente.whatsapp, cliente.email].filter(Boolean).join(" \xB7 ") || "Sin datos de contacto" })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "rounded-lg bg-indigo-100 px-2 py-1 text-[10px] font-black text-indigo-700", children: [
+                remitos.length,
+                " remito(s)"
+              ] })
+            ] }),
+            remitos.length ? remitos.map((registro) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex justify-between gap-3 border-t border-slate-100 p-3", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-sm font-black", children: registro.etiqueta }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "text-[11px] font-bold text-slate-500", children: [
+                  formatearFecha(registro.fecha),
+                  " \xB7 ",
+                  registro.movimiento.descripcion || "Venta registrada"
+                ] })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-sm font-black text-emerald-700", children: formatearDinero(registro.monto) })
+            ] }, `buscador-cliente-remito-${registro.movimiento.id}`)) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "p-4 text-xs font-bold text-slate-400", children: "No hay remitos asociados." })
+          ] }, `buscador-cliente-${cliente.id}`)) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "p-8 text-center text-sm font-bold text-slate-400", children: "No se encontraron clientes." })),
+          busquedaAvanzada.tipo === "producto" && (resultadosBuscadorAvanzado.productos.length ? resultadosBuscadorAvanzado.productos.map(({ producto, ventas, ultimo }) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "mb-4 rounded-2xl border border-slate-200 overflow-hidden", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "bg-slate-50 p-4", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "font-black text-slate-900", children: producto.descripcion || "Producto sin descripci\xF3n" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "text-xs font-bold text-slate-500", children: [
+                "C\xF3digo: ",
+                producto.codigo || producto.codigoInterno || producto.codigoBarras || "Sin c\xF3digo"
+              ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "p-4", children: [
+              ultimo ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-black text-emerald-800", children: [
+                "\xDAltimo cliente: ",
+                ultimo.cliente.nombre,
+                " \xB7 ",
+                formatearFecha(ultimo.fecha),
+                " \xB7 ",
+                ultimo.etiqueta
+              ] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm font-bold text-amber-800", children: "No hay ventas asociadas." }),
+              ventas.slice(0, 10).map((registro) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex justify-between gap-3 border-t border-slate-100 py-3 mt-3", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-sm font-black", children: registro.cliente.nombre }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "text-[11px] font-bold text-slate-500", children: [
+                    registro.etiqueta,
+                    " \xB7 ",
+                    formatearFecha(registro.fecha)
+                  ] })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-sm font-black", children: formatearDinero(registro.monto) })
+              ] }, `buscador-producto-venta-${registro.movimiento.id}`))
+            ] })
+          ] }, `buscador-producto-${producto.id}`)) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "p-8 text-center text-sm font-bold text-slate-400", children: "No se encontraron productos." })),
+          busquedaAvanzada.tipo === "remito" && (resultadosBuscadorAvanzado.remitos.length ? resultadosBuscadorAvanzado.remitos.map((registro) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex justify-between gap-3 border-b border-slate-100 py-3", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "font-black", children: registro.etiqueta }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "text-xs font-bold text-slate-500", children: [
+                registro.cliente.nombre,
+                " \xB7 ",
+                formatearFecha(registro.fecha),
+                " \xB7 ",
+                registro.movimiento.descripcion || "Venta registrada"
+              ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-sm font-black text-emerald-700", children: formatearDinero(registro.monto) })
+          ] }, `buscador-remito-${registro.movimiento.id}`)) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "p-8 text-center text-sm font-bold text-slate-400", children: "No se encontraron remitos." }))
+        ] }) })
       ] }),
       puedeVerRastreo && vista === "rastreo" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "sf-module-tracking h-full min-h-0 flex flex-col gap-4 overflow-hidden animate-in fade-in duration-300", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex flex-1 min-h-0 flex-col bg-white border border-gray-200 rounded-3xl shadow-sm overflow-hidden", children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "sf-screen-header shrink-0 p-5 border-b border-gray-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
@@ -113688,7 +113832,7 @@ ${configuracion.nombre}`;
                   }
                 ),
                 (() => {
-                  const actualizacionesPrecio = obtenerActualizacionesPrecioCuentaCliente(clienteSeleccionado, estado);
+                  const actualizacionesPrecio = actualizacionesPrecioPendientesCliente;
                   const puedeActualizarPrecios = usuarioTieneRolAdministrador(usuarioActual);
                   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
                     "button",
@@ -113699,8 +113843,7 @@ ${configuracion.nombre}`;
                       className: "bg-orange-600 hover:bg-orange-700 text-white disabled:opacity-50 disabled:bg-gray-200 disabled:text-gray-400 px-3 py-2 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all",
                       children: [
                         /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RefreshCw, { size: 14 }),
-                        " Actualizar precios",
-                        actualizacionesPrecio.length ? ` (${actualizacionesPrecio.length})` : ""
+                        " Actualizar"
                       ]
                     }
                   );
@@ -113887,6 +114030,7 @@ ${configuracion.nombre}`;
               const recargoTicket = Number(cargoProcesado?.recargoMora || 0);
               const pagosAsignadosRemito = Array.isArray(cargoProcesado?.pagosAplicados) ? cargoProcesado.pagosAplicados : [];
               const remitoSaldado = esCargo && !esRecargo && pendienteTicket <= 9e-3;
+              const actualizacionPrecioPendiente = actualizacionesPrecioPorCargo[mov.id] || null;
               const tipoAbonoCobro = esCobro ? mov.detallesPago?.tipoAbono === "ticket_multi" ? "ticket_multi" : mov.detallesPago?.tipoAbono === "ticket" ? "ticket" : "general" : "general";
               const ticketRelacionado = esCobro && mov.detallesPago?.movimientoRelacionadoId ? (estadoCuentaClienteSeleccionado.cargosProcesados || []).find((cargo) => cargo.id === mov.detallesPago.movimientoRelacionadoId) : null;
               const fechaMovimiento = new Date(mov.fecha);
@@ -113920,7 +114064,11 @@ ${configuracion.nombre}`;
                       " ",
                       formatearHora(mov.fecha)
                     ] }),
-                    esCargo && pendienteTicket > 9e-3 && diasDesdeMovimiento !== null && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `text-[10px] font-bold border px-2 py-0.5 rounded-md ${semaforoTicket.badgeClass}`, children: semaforoTicket.texto })
+                    esCargo && pendienteTicket > 9e-3 && diasDesdeMovimiento !== null && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `text-[10px] font-bold border px-2 py-0.5 rounded-md ${semaforoTicket.badgeClass}`, children: semaforoTicket.texto }),
+                    actualizacionPrecioPendiente && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "inline-flex items-center gap-1 rounded-md border border-orange-300 bg-orange-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-orange-800", title: actualizacionPrecioPendiente.items.map((item) => item.descripcion || item.codigo).join(", "), children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleAlert, { size: 12 }),
+                      " Aumento pendiente"
+                    ] })
                   ] }),
                   /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-sm font-bold text-gray-900 mt-1", children: esComprobanteVentaCuenta ? `${tipoComprobanteCuenta}${numeroComprobanteCuenta ? ` N\xB0 ${numeroComprobanteCuenta}` : ""} - ${textoSeguroTrim(mov?.detallesPago?.cliente, clienteSeleccionado?.nombre || "")}` : mov.descripcion || "Movimiento de cuenta corriente" }),
                   esComprobanteVentaCuenta && yaFacturadoMovimiento && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "text-[10px] font-black uppercase tracking-wider text-blue-700 mt-0.5", children: [
