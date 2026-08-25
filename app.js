@@ -79586,7 +79586,7 @@ function registerStorage() {
 }
 registerStorage();
 
-// firebase-config.js?v=seniorflow-online-firestore-20260825-21
+// firebase-config.js?v=seniorflow-online-firestore-20260825-22
 var firebaseConfig = {
   apiKey: "AIzaSyAOviuXZVTK30e6AUnySCfRoAGg80xan1I",
   authDomain: "seniorflow-92da3.firebaseapp.com",
@@ -113824,7 +113824,7 @@ ${configuracion.nombre}`;
                   {
                     disabled: remitosFacturablesClienteSeleccionado.length === 0,
                     onClick: () => abrirFacturacionVariosCliente(clienteSeleccionado),
-                    className: "bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:bg-gray-200 disabled:text-gray-400 px-3 py-2 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all",
+                    className: "bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:bg-gray-200 disabled:text-gray-400 px-3 py-2 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0",
                     children: [
                       /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FilePlusCorner, { size: 14 }),
                       " Facturar Varios"
@@ -113840,7 +113840,7 @@ ${configuracion.nombre}`;
                       disabled: !puedeActualizarPrecios || actualizacionesPrecio.length === 0,
                       onClick: aplicarActualizacionPreciosCuentaCliente,
                       title: actualizacionesPrecio.length ? "Aplicar los aumentos pendientes de los productos vinculados por c\xF3digo" : "No hay productos pendientes con aumento de precio",
-                      className: "bg-orange-600 hover:bg-orange-700 text-white disabled:opacity-50 disabled:bg-gray-200 disabled:text-gray-400 px-3 py-2 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all",
+                      className: "bg-orange-600 hover:bg-orange-700 text-white disabled:opacity-50 disabled:bg-gray-200 disabled:text-gray-400 px-3 py-2 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all order-last whitespace-nowrap shrink-0",
                       children: [
                         /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RefreshCw, { size: 14 }),
                         " Actualizar"
