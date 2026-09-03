@@ -1,15 +1,15 @@
-const CACHE_NAME = 'seniorflow-flyer-gestion-20260825-36';
+const CACHE_NAME = 'seniorflow-flyer-gestion-20260903-48';
 const ASSETS = [
   './',
   './index.html',
   './stock-app.html',
   './stock-app.js?v=seniorflow-stock-mobile-20260807-08',
-  './app.js?v=seniorflow-flyer-gestion-20260825-36',
+  './app.js?v=seniorflow-flyer-gestion-20260903-48',
   './firebase-config.js?v=seniorflow-online-firestore-20260825-36',
   './manifest.json',
   './manifest-stock-app.json?v=seniorflow-stock-mobile-20260807-08',
   './sw-stock-app.js?v=seniorflow-stock-mobile-20260807-08',
-  './ofertas.html?v=seniorflow-flyer-gestion-20260825-36',
+  './ofertas.html?v=seniorflow-flyer-gestion-20260903-48',
   './icons/stock-app.svg',
   './icons/stock-app-192.png',
   './icons/stock-app-512.png',
@@ -59,7 +59,7 @@ self.addEventListener('fetch', (event) => {
           url.pathname.endsWith('/stock-app.html')
             ? './stock-app.html'
             : url.pathname.endsWith('/ofertas.html')
-              ? './ofertas.html?v=seniorflow-flyer-gestion-20260825-36'
+              ? './ofertas.html?v=seniorflow-flyer-gestion-20260903-48'
               : './index.html',
           fresh.clone()
         );
@@ -69,7 +69,7 @@ self.addEventListener('fetch', (event) => {
           || (await caches.match(url.pathname.endsWith('/stock-app.html')
             ? './stock-app.html'
             : url.pathname.endsWith('/ofertas.html')
-              ? './ofertas.html?v=seniorflow-flyer-gestion-20260825-36'
+              ? './ofertas.html?v=seniorflow-flyer-gestion-20260903-48'
               : './index.html'));
       }
     })());
@@ -90,8 +90,8 @@ self.addEventListener('fetch', (event) => {
           : url.pathname.endsWith('/stock-app.js')
             ? './stock-app.js?v=seniorflow-stock-mobile-20260807-08'
             : url.pathname.endsWith('/ofertas.html')
-            ? './ofertas.html?v=seniorflow-flyer-gestion-20260825-36'
-            : './app.js?v=seniorflow-flyer-gestion-20260825-36'));
+            ? './ofertas.html?v=seniorflow-flyer-gestion-20260903-48'
+            : './app.js?v=seniorflow-flyer-gestion-20260903-48'));
       }
     })());
     return;
