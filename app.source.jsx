@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 import { COMPANY_RUNTIME_CONFIG } from './company-runtime-config.js';
 
 // --- INTEGRACIÓN FIREBASE ---
@@ -27,7 +28,7 @@ const doc = (database, ...path) => firestoreDoc(database, ...path);
 const COLECCIONES_BACKUP = [
   'usuarios', 'historial_caja', 'movimientos', 'clientes', 'presupuestos', 'ofertas', 'combos',
   'productos', 'variaciones_precios', 'proveedores', 'pagos_proveedores', 'facturas_emitidas',
-  'marcas', 'pedidos_compra', 'respaldos_precios', 'vendedores', 'retiros_vendedores'
+  'marcas', 'pedidos_compra', 'respaldos_precios', 'vendedores', 'retiros_vendedores', 'seguimientos_cuenta_corriente'
 ];
 
 // --- FUNCIONES UTILITARIAS ---
@@ -797,6 +798,29 @@ const obtenerEtiquetaTipoComprobanteHistorico = (valor = '') => {
   return OPCIONES_COMPROBANTE_HISTORICO.find((op) => op.value === key)?.label || 'Remito X';
 };
 const crearFormularioProducto = (producto = {}) => {
+  // Este constructor puede ejecutarse durante la inicialización del componente.
+  // No debe depender de utilidades declaradas más abajo en este archivo.
+  const textoProducto = (valor, fallback = '') => (valor === undefined || valor === null ? fallback : String(valor).trim());
+  const imagenesProducto = Array.from(new Set([
+    producto?.imagen,
+    ...(Array.isArray(producto?.imagenes) ? producto.imagenes : [])
+  ].map((imagen) => textoProducto(imagen)).filter(Boolean)));
+  const normalizarCostoProducto = (costo = {}, index = 0) => ({
+    id: costo?.id || `prov-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 7)}`,
+    proveedor: textoProducto(costo?.proveedor),
+    codigoProveedor: textoProducto(costo?.codigoProveedor),
+    costo: costo?.costo ?? '',
+    gastoCosto: costo?.gastoCosto ?? costo?.costoSinIva ?? '',
+    costoSinIva: costo?.costoSinIva ?? '',
+    moneda: ['ARS', 'USD_BNA', 'USD_BLUE'].includes(costo?.moneda) ? costo.moneda : 'ARS',
+    ivaIncluido: Boolean(costo?.ivaIncluido || costo?.incluyeIva || costo?.costoConIva),
+    descuento: costo?.descuento ?? '',
+    descuentoProducto: costo?.descuentoProducto ?? '',
+    plazo: textoProducto(costo?.plazo),
+    actualizado: costo?.actualizado || new Date().toISOString().slice(0, 10),
+    nota: textoProducto(costo?.nota),
+    recomendado: Boolean(costo?.recomendado)
+  });
   const codigoLegacy = producto?.codigo ?? '';
   const codigoInternoDetectado = producto?.codigoInterno ?? (
     producto?.codigoTipoPrincipal === 'barra' ? '' : codigoLegacy
@@ -804,33 +828,32 @@ const crearFormularioProducto = (producto = {}) => {
   const codigoBarrasDetectado = producto?.codigoBarras ?? (
     producto?.codigoTipoPrincipal === 'barra' ? codigoLegacy : ''
   );
+  const costosProductoNormalizados = Array.isArray(producto?.proveedoresCostos) && producto.proveedoresCostos.length
+    ? producto.proveedoresCostos.map((costo, index) => normalizarCostoProducto(costo, index))
+    : [
+        normalizarCostoProducto({
+          proveedor: producto?.proveedor || '',
+          codigoProveedor: producto?.codigoProveedor || '',
+          costo: producto?.costoOriginal ?? producto?.costo ?? '',
+          moneda: producto?.monedaCosto ?? 'ARS',
+          ivaIncluido: Boolean(producto?.costoIvaIncluido),
+          recomendado: true
+        }, 0)
+      ];
+  const proveedoresCostosNormalizados = costosProductoNormalizados.some((costo) => costo.recomendado)
+    ? costosProductoNormalizados
+    : costosProductoNormalizados.map((costo, index) => ({ ...costo, recomendado: index === 0 }));
   return {
-  ...(typeof obtenerCostoNetoInicialDesdeProveedores === 'function'
-    ? ((() => {
-        const costoInicialDerivado = obtenerCostoNetoInicialDesdeProveedores(producto);
-        return {
-          costo: costoInicialDerivado?.costo ?? (
-            (producto?.monedaCosto === 'USD_BNA' && producto?.costoOriginal !== undefined)
-              ? producto?.costoOriginal
-              : (producto?.costo ?? '')
-          ),
-          monedaCosto: costoInicialDerivado?.monedaCosto ?? producto?.monedaCosto ?? 'ARS',
-          costoOriginal: costoInicialDerivado?.costoOriginal ?? producto?.costoOriginal ?? producto?.costo ?? '',
-          proveedor: costoInicialDerivado?.proveedor ?? producto?.proveedor ?? '',
-          codigoProveedor: costoInicialDerivado?.codigoProveedor ?? producto?.codigoProveedor ?? '',
-          costoIvaIncluido: Boolean(costoInicialDerivado?.ivaIncluido ?? producto?.costoIvaIncluido)
-        };
-      })())
-    : {
-        costo: (producto?.monedaCosto === 'USD_BNA' && producto?.costoOriginal !== undefined)
-          ? producto?.costoOriginal
-          : (producto?.costo ?? ''),
-        monedaCosto: producto?.monedaCosto ?? 'ARS',
-        costoOriginal: producto?.costoOriginal ?? producto?.costo ?? '',
-        proveedor: producto?.proveedor ?? '',
-        codigoProveedor: producto?.codigoProveedor ?? '',
-        costoIvaIncluido: Boolean(producto?.costoIvaIncluido)
-      }),
+  // Este constructor se ejecuta durante la inicialización del componente.
+  // No debe depender de funciones declaradas más adelante dentro de AppInterna.
+  costo: (producto?.monedaCosto === 'USD_BNA' && producto?.costoOriginal !== undefined)
+    ? producto?.costoOriginal
+    : (producto?.costo ?? ''),
+  monedaCosto: producto?.monedaCosto ?? 'ARS',
+  costoOriginal: producto?.costoOriginal ?? producto?.costo ?? '',
+  proveedor: producto?.proveedor ?? '',
+  codigoProveedor: producto?.codigoProveedor ?? '',
+  costoIvaIncluido: Boolean(producto?.costoIvaIncluido),
   codigo: codigoInternoDetectado || '',
   codigoInterno: codigoInternoDetectado || '',
   codigoBarras: codigoBarrasDetectado || '',
@@ -847,12 +870,12 @@ const crearFormularioProducto = (producto = {}) => {
   cantidad: producto?.cantidad ?? '',
   stockMinimo: producto?.stockMinimo ?? producto?.minimoStock ?? '',
   imagen: producto?.imagen ?? '',
-  imagenes: obtenerImagenesProducto(producto),
+  imagenes: imagenesProducto,
   logoMarca: producto?.logoMarca ?? '',
   esProductoCompuesto: Boolean(producto?.esProductoCompuesto),
   componentesCompuesto: Array.isArray(producto?.componentesCompuesto)
     ? producto.componentesCompuesto.map((componente) => ({
-      productoId: textoSeguroTrim(componente?.productoId, ''),
+      productoId: textoProducto(componente?.productoId),
         cantidad: Math.max(0.01, parseNumeroBasico(componente?.cantidad) || 1),
         descuento: Math.min(100, Math.max(0, parseNumeroBasico(componente?.descuento) || 0))
       }))
@@ -864,18 +887,7 @@ const crearFormularioProducto = (producto = {}) => {
   cotizacionDolarBlue: producto?.cotizacionDolarBlue ?? '',
   cotizacionDolarBlueFecha: producto?.cotizacionDolarBlueFecha ?? '',
   cotizacionDolarBlueHora: producto?.cotizacionDolarBlueHora ?? '',
-  proveedoresCostos: Array.isArray(producto?.proveedoresCostos) && producto.proveedoresCostos.length
-    ? producto.proveedoresCostos.map((costo, index) => normalizarProveedorCosto(costo, index))
-    : [
-        normalizarProveedorCosto({
-          proveedor: producto?.proveedor || '',
-          codigoProveedor: producto?.codigoProveedor || '',
-          costo: producto?.costoOriginal ?? producto?.costo ?? '',
-          moneda: producto?.monedaCosto ?? 'ARS',
-          ivaIncluido: Boolean(producto?.costoIvaIncluido),
-          recomendado: true
-        }, 0)
-      ],
+  proveedoresCostos: proveedoresCostosNormalizados,
   generarCodigoAutomatico: producto?.generarCodigoAutomatico === undefined ? true : Boolean(producto?.generarCodigoAutomatico),
   usarCostoPromedioProveedores: Boolean(producto?.usarCostoPromedioProveedores),
   aplicarGananciaObjetivoReal: false,
@@ -2614,9 +2626,11 @@ function AppInterna() {
   const [busquedaComponenteCompuesto, setBusquedaComponenteCompuesto] = useState('');
   const [campoPrecioProductoPreferido, setCampoPrecioProductoPreferido] = useState('ganancia');
   const [productoAEditar, setProductoAEditar] = useState(null);
+  const [modoFormularioProducto, setModoFormularioProducto] = useState('nuevo');
   const [menuContextualInventario, setMenuContextualInventario] = useState(null);
   const [menuContextualCheque, setMenuContextualCheque] = useState(null);
   const [productoCompuestoDetalle, setProductoCompuestoDetalle] = useState(null);
+  const [productoHistorialVentas, setProductoHistorialVentas] = useState(null);
   const [guardandoProducto, setGuardandoProducto] = useState(false);
   // Mantiene la escritura de los formularios fluida mientras React actualiza
   // los listados grandes de productos/clientes que viven en esta pantalla.
@@ -2624,7 +2638,9 @@ function AppInterna() {
     startTransition(() => setFormCliente((prev) => ({ ...prev, ...cambios })));
   };
   const actualizarFormProducto = (cambios) => {
-    startTransition(() => setFormProducto((prev) => ({ ...prev, ...cambios })));
+    // La descripción es un campo controlado: diferir su actualización puede
+    // restaurar la selección del navegador al final del texto.
+    setFormProducto((prev) => ({ ...prev, ...cambios }));
   };
   const [formFacturaCuentaCorriente, setFormFacturaCuentaCorriente] = useState(() => crearFormularioFacturaCuentaCorrienteVacio());
   const [puedePegarImagenProducto, setPuedePegarImagenProducto] = useState(false);
@@ -2693,6 +2709,13 @@ function AppInterna() {
   const [configCostosProveedor, setConfigCostosProveedor] = useState({ proveedor: '', columnaCodigo: '', columnaCosto: '', ivaIncluido: false });
   const [importandoCostosProveedor, setImportandoCostosProveedor] = useState(false);
   const [resumenCostosProveedor, setResumenCostosProveedor] = useState(null);
+  const [vistaPreviaCostosProveedor, setVistaPreviaCostosProveedor] = useState(null);
+  const [filtroVistaPreviaCostosProveedor, setFiltroVistaPreviaCostosProveedor] = useState('todos');
+  const [progresoCostosProveedor, setProgresoCostosProveedor] = useState({ activo: false, total: 0, procesadas: 0, actualizados: 0, errores: 0, completo: false });
+  const [seguimientosCuentaCorriente, setSeguimientosCuentaCorriente] = useState([]);
+  const [mostrarSeguimientoCuenta, setMostrarSeguimientoCuenta] = useState(false);
+  const [guardandoSeguimientoCuenta, setGuardandoSeguimientoCuenta] = useState(false);
+  const [formSeguimientoCuenta, setFormSeguimientoCuenta] = useState({ respuesta: '', canal: 'whatsapp', estado: 'promesa_pago', compromisoFecha: '', proximoSeguimiento: '', observaciones: '' });
   const [gestionTaxonomiaBusy, setGestionTaxonomiaBusy] = useState('');
   const [categoriaEnEdicion, setCategoriaEnEdicion] = useState('');
   const [categoriaEditValor, setCategoriaEditValor] = useState('');
@@ -2714,6 +2737,7 @@ function AppInterna() {
   });
   const [reporteFechaDesdeReporte, setReporteFechaDesdeReporte] = useState('');
   const [reporteFechaHastaReporte, setReporteFechaHastaReporte] = useState('');
+  const [detalleReporteActivo, setDetalleReporteActivo] = useState(null);
 
   const [busquedaDirectorio, setBusquedaDirectorio] = useState('');
   const [paginacionListados, setPaginacionListados] = useState(() => ({
@@ -2744,6 +2768,7 @@ function AppInterna() {
     fecha: obtenerFechaInputLocal(),
     monto: '',
     descuentoProveedor: '',
+    descuentoProveedorPorcentaje: '',
     metodoPago: 'transferencia',
     numeroComprobante: '',
     notas: '',
@@ -2766,6 +2791,7 @@ function AppInterna() {
   const [sobrantePagoProveedorDetectado, setSobrantePagoProveedorDetectado] = useState(0);
   const [confirmarSaldoFavorPagoProveedor, setConfirmarSaldoFavorPagoProveedor] = useState(false);
   const [guardandoPagoProveedor, setGuardandoPagoProveedor] = useState(false);
+  const [pdfPagoProveedorPreviewUrl, setPdfPagoProveedorPreviewUrl] = useState('');
   const [busquedaMarcas, setBusquedaMarcas] = useState('');
   const [filtroCategoriaInventario, setFiltroCategoriaInventario] = useState('');
   const [filtroProveedorInventario, setFiltroProveedorInventario] = useState('');
@@ -2788,6 +2814,7 @@ function AppInterna() {
   const [compraDirectaMetodoPago, setCompraDirectaMetodoPago] = useState('cuenta_corriente');
   const [compraDirectaMontoPagado, setCompraDirectaMontoPagado] = useState('');
   const [compraDirectaTipoComprobante, setCompraDirectaTipoComprobante] = useState('');
+  const [compraDirectaPreciosSinIva, setCompraDirectaPreciosSinIva] = useState(false);
   const [compraDirectaNumeroComprobante, setCompraDirectaNumeroComprobante] = useState('');
   const [compraDirectaComprobante, setCompraDirectaComprobante] = useState('');
   const [busquedaPedidosCompra, setBusquedaPedidosCompra] = useState('');
@@ -2810,6 +2837,10 @@ function AppInterna() {
   const [pedidoCompraIva105, setPedidoCompraIva105] = useState('');
   const [pedidoCompraIngresosBrutos, setPedidoCompraIngresosBrutos] = useState('');
   const [pedidoCompraFlete, setPedidoCompraFlete] = useState('');
+  // Stock, costo del proveedor y precio general son decisiones independientes.
+  // El importe escrito en el remito no recibe descuentos ni flete implícitos.
+  const [compraActualizaCostoProveedor, setCompraActualizaCostoProveedor] = useState(true);
+  const [modoActualizacionPrecioCompra, setModoActualizacionPrecioCompra] = useState('siempre');
   const [recepcionCompraPedido, setRecepcionCompraPedido] = useState(null);
   const [recepcionCompraItems, setRecepcionCompraItems] = useState([]);
   const [formRecepcionCompra, setFormRecepcionCompra] = useState({
@@ -2954,8 +2985,6 @@ function AppInterna() {
   const operacionCajaRef = useRef(null);
   const configuracionSnapshotRef = useRef(false);
   const cajaSnapshotRef = useRef(false);
-  const usuariosSeedRef = useRef(false);
-  const usuariosSnapshotVersionRef = useRef(0);
   const ultimaCajaPersistidaRef = useRef(null);
   const proteccionAccionesRef = useRef({ elemento: null, formulario: null, instante: 0 });
   const [cierrePantallaClientePuntoVenta, setCierrePantallaClientePuntoVenta] = useState(null);
@@ -2973,6 +3002,7 @@ function AppInterna() {
   const [remitoRPreviewMovimiento, setRemitoRPreviewMovimiento] = useState(null);
   const [pendienteEntregaPreview, setPendienteEntregaPreview] = useState(null);
   const [presupuestoAImprimir, setPresupuestoAImprimir] = useState(null);
+  const [retornoPrevisualizadorPresupuesto, setRetornoPrevisualizadorPresupuesto] = useState('');
   const [incluirImagenesPdf, setIncluirImagenesPdf] = useState(false);
   const [incluirLogoMarcaPresupuestoPdf, setIncluirLogoMarcaPresupuestoPdf] = useState(true);
   const [soloPreciosPorItemPresupuestoPdf, setSoloPreciosPorItemPresupuestoPdf] = useState(false);
@@ -3240,6 +3270,19 @@ function AppInterna() {
       clearTimeout(dbReadyTimer);
       setIsDBReady(true);
     };
+    const programarSuscripcion = (demora, iniciar) => {
+      let cancelar = null;
+      let cancelada = false;
+      const timer = window.setTimeout(() => {
+        if (cancelada) return;
+        cancelar = iniciar();
+      }, Math.max(0, demora));
+      return () => {
+        cancelada = true;
+        window.clearTimeout(timer);
+        if (typeof cancelar === 'function') cancelar();
+      };
+    };
 
     const unsubConfig = onSnapshot(doc(db, 'sistema', 'configuracion'), (d) => {
         if (d.exists()) {
@@ -3271,36 +3314,26 @@ function AppInterna() {
         marcarDBLista();
     }, (err) => console.error(err));
 
-    const unsubHistorialCaja = onSnapshot(collection(db, 'historial_caja'), (snapshot) => {
+    const unsubHistorialCaja = usuarioActual
+      ? programarSuscripcion(6000, () => onSnapshot(collection(db, 'historial_caja'), (snapshot) => {
         const loaded = [];
         snapshot.forEach((item) => loaded.push({ id: item.id, ...item.data() }));
         loaded.sort((a, b) => new Date(b.cierreFecha || b.fechaCierre || 0) - new Date(a.cierreFecha || a.fechaCierre || 0));
         setHistorialCaja(loaded);
-    }, (err) => console.error('No se pudo cargar el historial de caja.', err));
+      }, (err) => console.error('No se pudo cargar el historial de caja.', err)))
+      : () => {};
 
     const unsubUsuarios = onSnapshot(collection(db, 'usuarios'), async (snapshot) => {
-        const snapshotVersion = ++usuariosSnapshotVersionRef.current;
         if (snapshot.empty) {
-            setUsuarios((actuales) => actuales.length ? actuales : [USUARIO_ADMIN_FALLBACK]);
-            if (!usuariosSeedRef.current) {
-              usuariosSeedRef.current = true;
-              const { id: _id, ...usuarioSemillaFirestore } = USUARIO_ADMIN_FALLBACK;
-              // ID fijo y una sola siembra por instancia para evitar carreras.
-              setDoc(doc(db, 'usuarios', 'admin'), usuarioSemillaFirestore, { merge: true })
-                .catch((err) => { usuariosSeedRef.current = false; console.error(err); });
-            }
+            // Un listado temporalmente vacío jamás debe crear, migrar ni borrar
+            // usuarios. El acceso de respaldo existe solo en memoria para evitar
+            // bloquear la pantalla, pero no se escribe en la base de datos.
+            setUsuarios([USUARIO_ADMIN_FALLBACK]);
         } else {
             const loaded = []; snapshot.forEach(doc => loaded.push({ id: doc.id, ...doc.data() }));
-            const admins = loaded.filter((usuario) => textoSeguro(usuario.username || usuario.usuario || '', '').trim().toLowerCase() === 'admin');
-            const canonico = admins.find((usuario) => usuario.id === 'admin') || admins[0];
-            if (canonico && canonico.id !== 'admin') {
-              const { id: _id, ...datosCanonicos } = canonico;
-              await setDoc(doc(db, 'usuarios', 'admin'), datosCanonicos, { merge: true });
-            }
-            if (snapshotVersion !== usuariosSnapshotVersionRef.current) return;
-            const idsDuplicados = new Set(admins.filter((usuario) => usuario !== canonico || usuario.id !== 'admin').map((usuario) => usuario.id));
-            await Promise.all(Array.from(idsDuplicados).map((id) => deleteDoc(doc(db, 'usuarios', id))));
-            setUsuarios(loaded.filter((usuario) => !idsDuplicados.has(usuario.id)).map((usuario) => usuario.id === canonico?.id && canonico.id !== 'admin' ? { ...usuario, id: 'admin' } : usuario));
+            // Los usuarios son datos administrativos: nunca se normalizan ni se
+            // eliminan automáticamente desde un listener en tiempo real.
+            setUsuarios(loaded);
         }
         setUsuariosCargados(true);
         setEstadoConexion('conectado');
@@ -3313,49 +3346,68 @@ function AppInterna() {
         marcarDBLista();
       });
 
-    const unsubMovs = onSnapshot(collection(db, 'movimientos'), (snapshot) => {
+    // Antes del login solo hacen falta configuración, caja y usuarios. Las
+    // colecciones operativas e históricas se inician después de validar la
+    // sesión para que la pantalla de acceso no espere toda la base de datos.
+    if (!usuarioActual) {
+      return () => {
+        clearTimeout(dbReadyTimer);
+        unsubConfig();
+        unsubCaja();
+        unsubHistorialCaja();
+        unsubUsuarios();
+      };
+    }
+
+    const unsubMovs = programarSuscripcion(0, () => onSnapshot(collection(db, 'movimientos'), (snapshot) => {
         const loaded = []; snapshot.forEach(doc => loaded.push({ id: doc.id, ...doc.data() }));
         loaded.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); 
         setMovimientos(loaded);
-    }, (err) => console.error(err));
+    }, (err) => console.error(err)));
 
-    const unsubClientes = onSnapshot(collection(db, 'clientes'), (snapshot) => {
+    const unsubClientes = programarSuscripcion(150, () => onSnapshot(collection(db, 'clientes'), (snapshot) => {
         const loaded = []; snapshot.forEach(doc => loaded.push({ id: doc.id, ...doc.data() })); setClientes(loaded);
-    }, (err) => console.error(err));
+    }, (err) => console.error(err)));
 
-    const unsubPresupuestos = onSnapshot(collection(db, 'presupuestos'), (snapshot) => {
+    const unsubSeguimientosCuenta = programarSuscripcion(2400, () => onSnapshot(collection(db, 'seguimientos_cuenta_corriente'), (snapshot) => {
+        const loaded = []; snapshot.forEach(item => loaded.push({ id: item.id, ...item.data() }));
+        loaded.sort((a, b) => new Date(b?.fecha || 0) - new Date(a?.fecha || 0));
+        setSeguimientosCuentaCorriente(loaded);
+    }, (err) => console.error('No se pudo cargar el seguimiento de cuentas corrientes.', err)));
+
+    const unsubPresupuestos = programarSuscripcion(1400, () => onSnapshot(collection(db, 'presupuestos'), (snapshot) => {
         const loaded = []; snapshot.forEach(doc => loaded.push({ id: doc.id, ...doc.data() })); 
         loaded.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
         setPresupuestos(loaded);
-    }, (err) => console.error(err));
+    }, (err) => console.error(err)));
 
-    const unsubOfertas = onSnapshot(collection(db, 'ofertas'), (snapshot) => {
+    const unsubOfertas = programarSuscripcion(1700, () => onSnapshot(collection(db, 'ofertas'), (snapshot) => {
         const loaded = []; snapshot.forEach(doc => loaded.push({ id: doc.id, ...doc.data() }));
         loaded.sort((a, b) => new Date(b.fechaActualizacion || b.fechaCreacion || 0) - new Date(a.fechaActualizacion || a.fechaCreacion || 0));
         setOfertas(loaded);
-    }, (err) => console.error(err));
+    }, (err) => console.error(err)));
 
-    const unsubCombos = onSnapshot(collection(db, 'combos'), (snapshot) => {
+    const unsubCombos = programarSuscripcion(1800, () => onSnapshot(collection(db, 'combos'), (snapshot) => {
         const loaded = []; snapshot.forEach(doc => loaded.push({ id: doc.id, ...doc.data() }));
         loaded.sort((a, b) => new Date(b.fechaActualizacion || b.fechaCreacion || 0) - new Date(a.fechaActualizacion || a.fechaCreacion || 0));
         setCombos(loaded);
-    }, (err) => console.error(err));
+    }, (err) => console.error(err)));
 
-    const unsubProductos = onSnapshot(collection(db, 'productos'), (snapshot) => {
+    const unsubProductos = programarSuscripcion(350, () => onSnapshot(collection(db, 'productos'), (snapshot) => {
         const loaded = []; snapshot.forEach(doc => loaded.push({ id: doc.id, ...doc.data() })); 
         loaded.sort((a, b) => a.descripcion.localeCompare(b.descripcion));
         setProductos(loaded);
         marcarDBLista(); 
-    }, (err) => { console.error(err); marcarDBLista(); });
+    }, (err) => { console.error(err); marcarDBLista(); }));
 
-    const unsubVariacionesPrecios = onSnapshot(collection(db, 'variaciones_precios'), (snapshot) => {
+    const unsubVariacionesPrecios = programarSuscripcion(7200, () => onSnapshot(collection(db, 'variaciones_precios'), (snapshot) => {
         const loaded = [];
         snapshot.forEach(doc => loaded.push({ id: doc.id, ...doc.data() }));
         loaded.sort((a, b) => new Date(b?.fecha || 0) - new Date(a?.fecha || 0));
         setVariacionesPrecios(loaded);
-    }, (err) => console.error('No se pudo cargar el historial de variaciones de precio.', err));
+    }, (err) => console.error('No se pudo cargar el historial de variaciones de precio.', err)));
 
-    const unsubProveedores = onSnapshot(collection(db, 'proveedores'), (snapshot) => {
+    const unsubProveedores = programarSuscripcion(750, () => onSnapshot(collection(db, 'proveedores'), (snapshot) => {
         const nombresProveedores = new Map();
         snapshot.forEach((item) => {
           const key = normalizarTextoBusqueda(item.data()?.nombre || '');
@@ -3387,35 +3439,35 @@ function AppInterna() {
         const loaded = Array.from(porNombre.values());
         loaded.sort((a, b) => (a?.nombre || '').localeCompare((b?.nombre || ''), 'es', { sensitivity: 'base' }));
         setProveedores(loaded);
-    }, (err) => console.error(err));
+    }, (err) => console.error(err)));
 
-    const unsubPagosProveedores = onSnapshot(collection(db, 'pagos_proveedores'), (snapshot) => {
+    const unsubPagosProveedores = programarSuscripcion(5000, () => onSnapshot(collection(db, 'pagos_proveedores'), (snapshot) => {
         const loaded = [];
         snapshot.forEach(doc => loaded.push({ id: doc.id, ...doc.data() }));
         loaded.sort((a, b) => new Date(b?.fecha || b?.fechaCreacion || 0) - new Date(a?.fecha || a?.fechaCreacion || 0));
         setPagosProveedores(loaded);
-    }, (err) => console.error(err));
+    }, (err) => console.error(err)));
 
-    const unsubFacturasEmitidas = onSnapshot(collection(db, 'facturas_emitidas'), (snapshot) => {
+    const unsubFacturasEmitidas = programarSuscripcion(5500, () => onSnapshot(collection(db, 'facturas_emitidas'), (snapshot) => {
         const loaded = [];
         snapshot.forEach(doc => loaded.push({ id: doc.id, ...doc.data() }));
         loaded.sort((a, b) => new Date(b?.fechaFactura || b?.fechaCreacion || 0) - new Date(a?.fechaFactura || a?.fechaCreacion || 0));
         setFacturasEmitidas(loaded);
-    }, (err) => console.error(err));
+    }, (err) => console.error(err)));
 
-    const unsubVendedores = onSnapshot(collection(db, 'vendedores'), (snapshot) => {
+    const unsubVendedores = programarSuscripcion(1000, () => onSnapshot(collection(db, 'vendedores'), (snapshot) => {
         const loaded = []; snapshot.forEach(item => loaded.push({ id: item.id, ...item.data() }));
         loaded.sort((a, b) => (a?.nombre || '').localeCompare((b?.nombre || ''), 'es', { sensitivity: 'base' }));
         setVendedores(loaded);
-    }, (err) => console.error('No se pudieron cargar los vendedores.', err));
+    }, (err) => console.error('No se pudieron cargar los vendedores.', err)));
 
-    const unsubRetirosVendedores = onSnapshot(collection(db, 'retiros_vendedores'), (snapshot) => {
+    const unsubRetirosVendedores = programarSuscripcion(6500, () => onSnapshot(collection(db, 'retiros_vendedores'), (snapshot) => {
         const loaded = []; snapshot.forEach(item => loaded.push({ id: item.id, ...item.data() }));
         loaded.sort((a, b) => new Date(b?.fecha || b?.fechaCreacion || 0) - new Date(a?.fecha || a?.fechaCreacion || 0));
         setRetirosVendedores(loaded);
-    }, (err) => console.error('No se pudieron cargar los retiros de vendedores.', err));
+    }, (err) => console.error('No se pudieron cargar los retiros de vendedores.', err)));
 
-    const unsubMarcas = onSnapshot(collection(db, 'marcas'), (snapshot) => {
+    const unsubMarcas = programarSuscripcion(900, () => onSnapshot(collection(db, 'marcas'), (snapshot) => {
         const nombresMarcas = new Map();
         snapshot.forEach((item) => {
           const key = normalizarTextoBusqueda(item.data()?.nombre || item.data()?.normalizada || '');
@@ -3439,16 +3491,16 @@ function AppInterna() {
         const loaded = Array.from(porNombre.values());
         loaded.sort((a, b) => (a?.nombre || '').localeCompare((b?.nombre || ''), 'es', { sensitivity: 'base' }));
         setMarcas(loaded);
-    }, (err) => console.error(err));
+    }, (err) => console.error(err)));
 
-    const unsubPedidosCompra = onSnapshot(collection(db, 'pedidos_compra'), (snapshot) => {
+    const unsubPedidosCompra = programarSuscripcion(3000, () => onSnapshot(collection(db, 'pedidos_compra'), (snapshot) => {
         const loaded = []; snapshot.forEach(doc => loaded.push({ id: doc.id, ...doc.data() }));
         loaded.sort((a, b) => new Date(b?.fechaActualizacion || b?.fechaCreacion || 0) - new Date(a?.fechaActualizacion || a?.fechaCreacion || 0));
         setPedidosCompra(loaded);
-    }, (err) => console.error(err));
+    }, (err) => console.error(err)));
 
-    return () => { clearTimeout(dbReadyTimer); unsubConfig(); unsubCaja(); unsubHistorialCaja(); unsubUsuarios(); unsubMovs(); unsubClientes(); unsubPresupuestos(); unsubOfertas(); unsubCombos(); unsubProductos(); unsubVariacionesPrecios(); unsubProveedores(); unsubPagosProveedores(); unsubFacturasEmitidas(); unsubVendedores(); unsubRetirosVendedores(); unsubMarcas(); unsubPedidosCompra(); };
-  }, [firebaseUser]);
+    return () => { clearTimeout(dbReadyTimer); unsubConfig(); unsubCaja(); unsubHistorialCaja(); unsubUsuarios(); unsubMovs(); unsubClientes(); unsubSeguimientosCuenta(); unsubPresupuestos(); unsubOfertas(); unsubCombos(); unsubProductos(); unsubVariacionesPrecios(); unsubProveedores(); unsubPagosProveedores(); unsubFacturasEmitidas(); unsubVendedores(); unsubRetirosVendedores(); unsubMarcas(); unsubPedidosCompra(); };
+  }, [firebaseUser, usuarioActual?.id]);
 
   useEffect(() => {
     let desmontado = false;
@@ -3695,7 +3747,7 @@ function AppInterna() {
     });
     
     let ventas = 0; let ventasCobradas = 0; let otrosIngresos = 0; let cobros = 0;
-    let gastosOperativos = 0; let pagosProveedores = 0; let retirosCaja = 0;
+    let gastosOperativos = 0; let pagosProveedoresReporteTotal = 0; let retirosCaja = 0;
 
     movsFiltrados.forEach((m) => {
       const monto = Math.max(0, parseNumeroBasico(m?.monto) || 0);
@@ -3717,17 +3769,17 @@ function AppInterna() {
       if (m.tipo === 'ingreso_extra') otrosIngresos += monto;
       if (m.tipo === 'cobro') cobros += monto;
       if (m.tipo === 'gasto') {
-        if (esPagoProveedor) pagosProveedores += monto;
+        if (esPagoProveedor) pagosProveedoresReporteTotal += monto;
         else gastosOperativos += monto;
       }
       if (m.tipo === 'retiro_caja') retirosCaja += monto;
     });
 
     pagosProveedoresReporte.forEach((pago) => {
-      pagosProveedores += Math.max(0, parseNumeroBasico(pago?.monto) || 0);
+      pagosProveedoresReporteTotal += Math.max(0, parseNumeroBasico(pago?.monto) || 0);
     });
 
-    const egresos = gastosOperativos + pagosProveedores;
+    const egresos = gastosOperativos + pagosProveedoresReporteTotal;
     // Resultado del negocio: no suma cobros para no duplicar ventas que antes fueron a cuenta corriente.
     const neto = ventas + otrosIngresos - egresos;
     // Flujo disponible: solamente dinero efectivamente cobrado, menos egresos y retiros.
@@ -3839,53 +3891,91 @@ function AppInterna() {
       movimientos: movsFiltrados,
       pagosProveedoresDetalle: pagosProveedoresReporte,
       ventas, ventasCobradas, otrosIngresos, cobros,
-      gastosOperativos, pagosProveedores, egresos, retiros: retirosCaja,
+      gastosOperativos, pagosProveedores: pagosProveedoresReporteTotal, egresos, retiros: retirosCaja,
       neto, flujoNeto, inicio, fin, impuestos, vendedores: reporteVendedores, tarjetas: reporteTarjetas
     };
   }, [movimientos, pagosProveedores, pedidosCompra, productos, vendedores, retirosVendedores, reporteTiempo, reporteMesSeleccionado, reporteFechaDesdeReporte, reporteFechaHastaReporte]);
 
-  const mostrarDetalleIndicadorReporte = async (clave) => {
-    const periodo = `Período: ${formatearFecha(datosReporte.inicio)} al ${formatearFecha(datosReporte.fin)}.`;
-    const detalles = {
-      ventas: {
-        titulo: 'Detalle de Ventas',
-        mensaje: `${periodo}\nIncluye todas las ventas y notas de crédito del período.\nTotal facturado: ${formatearDinero(datosReporte.ventas)}`
-      },
-      cobros: {
-        titulo: 'Detalle de Cobros (Cuentas)',
-        mensaje: `${periodo}\nIncluye cobros registrados de cuenta corriente.\nTotal: ${formatearDinero(datosReporte.cobros)}`
-      },
-      otrosIngresos: {
-        titulo: 'Detalle de Otros Ingresos',
-        mensaje: `${periodo}\nIncluye ingresos manuales registrados con impacto en reportes.\nTotal: ${formatearDinero(datosReporte.otrosIngresos)}`
-      },
-      gastos: {
-        titulo: 'Detalle de Gastos Diarios',
-        mensaje: `${periodo}\nIncluye gastos operativos, sin duplicar pagos a proveedores.\nTotal: ${formatearDinero(datosReporte.gastosOperativos)}`
-      },
-      proveedores: {
-        titulo: 'Detalle de Pagos a Proveedores',
-        mensaje: `${periodo}\nRegistros verificados: ${datosReporte.pagosProveedoresDetalle?.length || 0}. Fuente: pagos a proveedores y su movimiento espejo, sin duplicarlos.\nEl total representa el dinero efectivamente pagado; los descuentos/bonificaciones se muestran en la cuenta corriente y no se suman como salida de caja.\nTotal: ${formatearDinero(datosReporte.pagosProveedores)}`
-      },
-      retiros: {
-        titulo: 'Detalle de Retiros de Efectivo',
-        mensaje: `${periodo}\nIncluye retiros de caja registrados.\nTotal: ${formatearDinero(datosReporte.retiros)}`
-      },
-      ganancia: {
-        titulo: 'Resultado del Negocio',
-        mensaje: `${periodo}\nCálculo: Ventas + Otros ingresos - Gastos diarios - Pagos a proveedores. Los cobros no se vuelven a sumar para no duplicar ventas a cuenta.\nResultado: ${formatearDinero(datosReporte.neto)}`
-      },
-      flujo: {
-        titulo: 'Flujo Neto Disponible',
-        mensaje: `${periodo}\nCálculo: Ventas cobradas + Cobros de cuenta + Otros ingresos - Egresos - Retiros.\nDisponible del período: ${formatearDinero(datosReporte.flujoNeto)}`
-      }
+  const construirDetalleIndicadorReporte = (clave) => {
+    const periodo = `Período: ${formatearFecha(datosReporte.inicio)} al ${formatearFecha(datosReporte.fin)}`;
+    const movimientosOrdenados = [...(datosReporte.movimientos || [])].sort((a, b) => new Date(a.fecha || 0) - new Date(b.fecha || 0));
+    const tipoMovimiento = (mov) => {
+      const esProveedor = mov?.tipo === 'gasto' && Boolean(mov?.pagoProveedorId || mov?.detallesPago?.origen === 'pago_proveedor' || normalizarTextoBusqueda(mov?.categoria || '').includes('pago a proveedor'));
+      const esVendedor = mov?.tipo === 'gasto' && mov?.detallesPago?.origen === 'retiro_vendedor';
+      if (esProveedor) return 'Pago a proveedor';
+      if (esVendedor) return 'Pago a vendedor';
+      return { venta: 'Venta', cobro: 'Cobro de cuenta corriente', ingreso_extra: 'Otro ingreso', gasto: 'Gasto operativo', retiro_caja: 'Retiro de caja' }[mov?.tipo] || textoSeguroTrim(mov?.tipo, 'Movimiento');
     };
-    const detalle = detalles[clave];
-    if (!detalle) return;
-    await notificarSistema(detalle.mensaje, {
-      tipo: 'info',
-      titulo: detalle.titulo
+    const filaMovimiento = (mov, signo = null) => {
+      const importe = Math.max(0, Number(mov?.monto || 0));
+      const esSalida = signo === -1 || ['gasto', 'retiro_caja'].includes(mov?.tipo);
+      const detalle = mov?.detallesPago || {};
+      const referencia = [mov?.descripcion, detalle?.cliente || detalle?.clienteNombre ? `Cliente: ${detalle.cliente || detalle.clienteNombre}` : '', mov?.categoria ? `Categoría: ${mov.categoria}` : ''].filter(Boolean).join(' · ');
+      return { fecha: mov?.fecha, tipo: tipoMovimiento(mov), descripcion: referencia || 'Sin descripción', medio: obtenerEtiquetaMetodoPago(mov?.metodoPago), importe, signo: esSalida ? '-' : '+', usuario: mov?.usuario || '-' };
+    };
+    const soloMovimientos = (filtro, signo = null) => movimientosOrdenados.filter(filtro).map((mov) => filaMovimiento(mov, signo));
+    const esPagoProveedor = (mov) => mov?.tipo === 'gasto' && Boolean(mov?.pagoProveedorId || mov?.detallesPago?.origen === 'pago_proveedor' || normalizarTextoBusqueda(mov?.categoria || '').includes('pago a proveedor'));
+    const definiciones = {
+      ventas: { titulo: 'Detalle de ventas', explicacion: 'Incluye las ventas y notas de crédito emitidas en el período. Las notas de crédito reducen el total.', total: datosReporte.ventas, filas: soloMovimientos((m) => m.tipo === 'venta') },
+      cobros: { titulo: 'Detalle de cobros de cuenta corriente', explicacion: 'Son cobros registrados sobre deudas de clientes. Se muestran como dinero ingresado y no vuelven a sumarse como venta.', total: datosReporte.cobros, filas: soloMovimientos((m) => m.tipo === 'cobro') },
+      otrosIngresos: { titulo: 'Detalle de otros ingresos', explicacion: 'Incluye ingresos manuales marcados para impactar en reportes.', total: datosReporte.otrosIngresos, filas: soloMovimientos((m) => m.tipo === 'ingreso_extra') },
+      gastos: { titulo: 'Detalle de gastos operativos', explicacion: 'Incluye gastos diarios. Los pagos a proveedores se separan para evitar duplicar la salida.', total: datosReporte.gastosOperativos, filas: soloMovimientos((m) => m.tipo === 'gasto' && !esPagoProveedor(m), -1) },
+      proveedores: { titulo: 'Detalle de pagos a proveedores', explicacion: 'Muestra el dinero efectivamente pagado. El movimiento espejo del pago no se duplica y los descuentos no se cuentan como salida de caja.', total: datosReporte.pagosProveedores, filas: (datosReporte.pagosProveedoresDetalle || []).sort((a, b) => new Date(a.fecha || a.fechaCreacion || 0) - new Date(b.fecha || b.fechaCreacion || 0)).map((pago) => ({ fecha: pago.fecha || pago.fechaCreacion, tipo: 'Pago a proveedor', descripcion: [pago.proveedor, pago.numeroComprobante ? `Comprobante: ${pago.numeroComprobante}` : '', pago.notas].filter(Boolean).join(' · ') || 'Pago general a proveedor', medio: obtenerEtiquetaMetodoPago(pago.metodoPago), importe: Math.max(0, Number(pago.monto || 0)), signo: '-', usuario: pago.usuario || '-' })) },
+      retiros: { titulo: 'Detalle de retiros de caja', explicacion: 'Son salidas de dinero retiradas de la caja. No se consideran un gasto operativo.', total: datosReporte.retiros, filas: soloMovimientos((m) => m.tipo === 'retiro_caja', -1) },
+      ganancia: { titulo: 'Detalle del resultado del negocio', explicacion: 'Cálculo: ventas + otros ingresos − gastos operativos − pagos a proveedores. Los cobros no se agregan nuevamente para no duplicar ventas a cuenta corriente.', total: datosReporte.neto, filas: [
+        { tipo: 'Ingresos', descripcion: 'Ventas del período', importe: Math.abs(datosReporte.ventas), signo: datosReporte.ventas >= 0 ? '+' : '-' },
+        { tipo: 'Ingresos', descripcion: 'Otros ingresos', importe: datosReporte.otrosIngresos, signo: '+' },
+        { tipo: 'Egresos', descripcion: 'Gastos operativos', importe: datosReporte.gastosOperativos, signo: '-' },
+        { tipo: 'Egresos', descripcion: 'Pagos a proveedores', importe: datosReporte.pagosProveedores, signo: '-' }
+      ] },
+      flujo: { titulo: 'Detalle del flujo neto disponible', explicacion: 'Cálculo: ventas cobradas + cobros de cuenta + otros ingresos − egresos − retiros. Representa el dinero disponible generado en el período.', total: datosReporte.flujoNeto, filas: [
+        ...soloMovimientos((m) => m.tipo === 'venta' && normalizarMetodoPago(m.metodoPago) !== 'cuenta_corriente'),
+        ...soloMovimientos((m) => m.tipo === 'cobro'),
+        ...soloMovimientos((m) => m.tipo === 'ingreso_extra'),
+        ...soloMovimientos((m) => m.tipo === 'gasto' && !esPagoProveedor(m), -1),
+        ...(datosReporte.pagosProveedoresDetalle || []).map((pago) => ({ fecha: pago.fecha || pago.fechaCreacion, tipo: 'Pago a proveedor', descripcion: pago.proveedor || 'Pago a proveedor', medio: obtenerEtiquetaMetodoPago(pago.metodoPago), importe: Math.max(0, Number(pago.monto || 0)), signo: '-', usuario: pago.usuario || '-' })),
+        ...soloMovimientos((m) => m.tipo === 'retiro_caja', -1)
+      ].sort((a, b) => new Date(a.fecha || 0) - new Date(b.fecha || 0)) }
+    };
+    const filasVendedores = (datosReporte.vendedores?.filas || []).map((fila) => ({ tipo: 'Vendedor', descripcion: fila.vendedorNombre, medio: `${fila.comprobantes} comprobante(s)`, importe: Math.abs(fila.comisiones || 0), signo: fila.comisiones >= 0 ? '+/-' : '-', usuario: `Pagado: ${formatearDinero(fila.pagos || 0)}` }));
+    const filasTarjetas = (datosReporte.tarjetas?.filas || []).map((fila) => ({ tipo: fila.tipo === 'debito' ? 'Débito' : 'Crédito', descripcion: `${fila.tarjeta} · ${fila.plan}`, medio: `${fila.operaciones} operación(es)`, importe: Math.abs(fila.totalPosnet || 0), signo: fila.totalPosnet >= 0 ? '+' : '-', usuario: `Neto: ${formatearDinero(fila.netoEstimado || 0)}` }));
+    Object.assign(definiciones, {
+      vendedoresComisiones: { titulo: 'Detalle de comisiones de vendedores', explicacion: 'Suma las comisiones generadas por las ventas asignadas a cada vendedor durante el período.', total: datosReporte.vendedores.comisiones, filas: filasVendedores },
+      vendedoresPagos: { titulo: 'Detalle de pagos a vendedores', explicacion: 'Muestra los retiros de comisión registrados para cada vendedor.', total: datosReporte.vendedores.pagos, filas: filasVendedores.map((fila) => ({ ...fila, importe: Number(String(fila.usuario || '').replace(/[^0-9.,-]/g, '').replace('.', '').replace(',', '.')) || 0, signo: '-' })) },
+      vendedoresBalance: { titulo: 'Detalle del balance de vendedores', explicacion: 'Resultado de comisiones generadas menos pagos realizados a vendedores.', total: datosReporte.vendedores.balancePeriodo, filas: filasVendedores },
+      tarjetasPosnet: { titulo: 'Detalle de cobros por POSNET', explicacion: 'Agrupa las ventas con tarjeta por tipo, tarjeta y plan, mostrando el total cobrado al cliente.', total: datosReporte.tarjetas.totalPosnet, filas: filasTarjetas },
+      tarjetasContado: { titulo: 'Detalle del valor contado con tarjeta', explicacion: 'Muestra el precio base de las ventas antes de la financiación del plan.', total: datosReporte.tarjetas.totalContado, filas: filasTarjetas.map((fila) => ({ ...fila, importe: Math.abs((datosReporte.tarjetas.filas.find((item) => `${item.tarjeta} · ${item.plan}` === fila.descripcion)?.totalContado) || 0) })) },
+      tarjetasRecargo: { titulo: 'Detalle de financiación trasladada', explicacion: 'Diferencia entre el valor contado y el total cobrado según el plan de tarjeta.', total: datosReporte.tarjetas.recargo, filas: filasTarjetas.map((fila) => ({ ...fila, importe: Math.abs((datosReporte.tarjetas.filas.find((item) => `${item.tarjeta} · ${item.plan}` === fila.descripcion)?.recargo) || 0) })) },
+      tarjetasNeto: { titulo: 'Detalle del neto estimado de tarjetas', explicacion: 'Importe estimado que debería acreditar la tarjeta para cada plan.', total: datosReporte.tarjetas.netoEstimado, filas: filasTarjetas.map((fila) => ({ ...fila, importe: Math.abs((datosReporte.tarjetas.filas.find((item) => `${item.tarjeta} · ${item.plan}` === fila.descripcion)?.netoEstimado) || 0) })) },
+      ivaVentas21: { titulo: 'Detalle de IVA ventas 21%', explicacion: 'IVA débito fiscal calculado sobre facturas A/B de ventas con alícuota del 21%.', total: datosReporte.impuestos.ventas21, filas: soloMovimientos((m) => m.tipo === 'venta' && (m.detallesPago?.items || []).some((item) => String(item.iva ?? item.alicuotaIva ?? '').replace(',', '.') === '21')) },
+      ivaVentas105: { titulo: 'Detalle de IVA ventas 10,5%', explicacion: 'IVA débito fiscal calculado sobre facturas A/B de ventas con alícuota del 10,5%.', total: datosReporte.impuestos.ventas105, filas: soloMovimientos((m) => m.tipo === 'venta' && (m.detallesPago?.items || []).some((item) => String(item.iva ?? item.alicuotaIva ?? '').replace(',', '.') === '10.5')) },
+      ivaCompras21: { titulo: 'Detalle de IVA compras 21%', explicacion: 'IVA crédito fiscal informado en pedidos y compras del período.', total: datosReporte.impuestos.compras21, filas: (pedidosCompra || []).filter((p) => Number(p.iva21 || 0) > 0).map((p) => ({ fecha: p.fechaComprobante || p.fechaPedido || p.fechaCreacion, tipo: 'Compra', descripcion: `Pedido de compra PC-${p.numero || '000000'}`, medio: 'Proveedor', importe: Number(p.iva21 || 0), signo: '+', usuario: p.proveedor || '-' })) },
+      ivaCompras105: { titulo: 'Detalle de IVA compras 10,5%', explicacion: 'IVA crédito fiscal informado en pedidos y compras del período.', total: datosReporte.impuestos.compras105, filas: (pedidosCompra || []).filter((p) => Number(p.iva105 || 0) > 0).map((p) => ({ fecha: p.fechaComprobante || p.fechaPedido || p.fechaCreacion, tipo: 'Compra', descripcion: `Pedido de compra PC-${p.numero || '000000'}`, medio: 'Proveedor', importe: Number(p.iva105 || 0), signo: '+', usuario: p.proveedor || '-' })) }
     });
+    const detalle = definiciones[clave];
+    return detalle ? { ...detalle, periodo, clave } : null;
+  };
+
+  const mostrarDetalleIndicadorReporte = (clave) => {
+    const detalle = construirDetalleIndicadorReporte(clave);
+    if (detalle) setDetalleReporteActivo(detalle);
+  };
+
+  const descargarPdfDetalleReporte = (detalle = detalleReporteActivo) => {
+    if (!detalle) return;
+    const docPdf = crearPdfA4('landscape', { titulo: detalle.titulo });
+    docPdf.setFont('helvetica', 'bold'); docPdf.setFontSize(16); docPdf.setTextColor(15, 23, 42);
+    docPdf.text(detalle.titulo.toUpperCase(), 14, 18);
+    docPdf.setFont('helvetica', 'normal'); docPdf.setFontSize(9); docPdf.setTextColor(71, 85, 105);
+    docPdf.text(detalle.periodo, 14, 25);
+    const explicacion = docPdf.splitTextToSize(detalle.explicacion, 260);
+    docPdf.text(explicacion, 14, 31);
+    const inicioTabla = 36 + ((explicacion.length - 1) * 4);
+    autoTable(docPdf, { startY: inicioTabla, head: [['Fecha', 'Tipo', 'Detalle / explicación', 'Medio', 'Usuario', 'Importe']], body: detalle.filas.length ? detalle.filas.map((fila) => [`${formatearFecha(fila.fecha)} ${formatearHora(fila.fecha)}`, fila.tipo || '-', fila.descripcion || '-', fila.medio || '-', fila.usuario || '-', `${fila.signo || ''} ${formatearDinero(fila.importe || 0)}`]) : [['-', 'Sin movimientos', 'No hay registros para este indicador en el período.', '-', '-', '-']], styles: { fontSize: 7.5, cellPadding: 2, overflow: 'linebreak' }, headStyles: { fillColor: [15, 23, 42], textColor: 255, fontStyle: 'bold' }, columnStyles: { 0: { cellWidth: 30 }, 1: { cellWidth: 32 }, 2: { cellWidth: 115 }, 3: { cellWidth: 28 }, 4: { cellWidth: 28 }, 5: { cellWidth: 32, halign: 'right' } }, margin: { left: 14, right: 14 } });
+    const yFinal = docPdf.lastAutoTable?.finalY || inicioTabla + 20;
+    docPdf.setFont('helvetica', 'bold'); docPdf.setFontSize(11); docPdf.setTextColor(15, 23, 42);
+    docPdf.text(`TOTAL DEL INDICADOR: ${formatearDinero(detalle.total || 0)}`, 14, yFinal + 9);
+    docPdf.save(`reporte_${normalizarTextoArchivo(detalle.clave)}_${obtenerFechaInputLocal()}.pdf`);
   };
 
   const puedeVerClienteEnCuentas = (cliente) => {
@@ -4206,13 +4296,10 @@ function AppInterna() {
       })
       .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
 
-    const parseMonto = (valor) => {
-      const n = parseFloat((valor ?? '').toString().replace(',', '.'));
-      return Number.isFinite(n) ? n : 0;
-    };
+    const parseMonto = (valor) => parseNumeroBasico(valor);
 
 	    const cargosProcesados = movimientosCuentaAsc
-	      .filter((mov) => esMovimientoCargoCuentaCorriente(mov))
+	      .filter((mov) => esMovimientoCargoCuentaCorriente(mov) && mov?.tipo !== 'actualizacion_precio_cc')
 	      .map((mov) => {
 	        const montoOriginal = parseMonto(mov.monto);
 	        const fechaCargo = new Date(mov.fecha);
@@ -4234,12 +4321,30 @@ function AppInterna() {
 	          tramosRecargoMora: Number(mov?.detallesPago?.tramoIndice || mov?.detallesPago?.tramos || 0),
 	          porcentajeRecargoMora: Number(mov?.detallesPago?.porcentaje || 0),
 	          pagosAplicados: [],
+	          actualizacionesPrecioAplicadas: [],
+	          montoOriginalSinActualizaciones: montoOriginal,
+	          actualizacionesPrecioMonto: 0,
 	          pendiente: montoOriginal
 	          ,fechaVencimiento
 	        };
 	      });
 
-    const cargosPorId = Object.fromEntries(cargosProcesados.map((cargo) => [cargo.id, cargo]));
+    const cargosBasePorId = Object.fromEntries(cargosProcesados.map((cargo) => [cargo.id, cargo]));
+    const cargosPorId = { ...cargosBasePorId };
+    movimientosCuentaAsc
+      .filter((mov) => mov?.tipo === 'actualizacion_precio_cc')
+      .forEach((actualizacion) => {
+        const cargoOrigenId = textoSeguroTrim(actualizacion?.detallesPago?.cargoOrigenId, '');
+        const cargoOrigen = cargosBasePorId[cargoOrigenId];
+        if (!cargoOrigen) return;
+        const montoActualizacion = Math.max(0, parseMonto(actualizacion?.monto));
+        cargoOrigen.actualizacionesPrecioAplicadas.push(actualizacion);
+        cargoOrigen.actualizacionesPrecioMonto += montoActualizacion;
+        cargoOrigen.montoOriginal += montoActualizacion;
+        cargoOrigen.pendiente += montoActualizacion;
+        // Los pagos antiguos que hayan quedado ligados al ajuste se imputan al remito original.
+        cargosPorId[actualizacion.id] = cargoOrigen;
+      });
     const cobros = movimientosCuentaAsc.filter((mov) => mov.tipo === 'cobro' || esMovimientoDescuentoCuentaCorriente(mov));
 
     cobros.forEach((cobro) => {
@@ -4315,9 +4420,17 @@ function AppInterna() {
       && cargo.fechaVencimiento < hoyInput
     ));
     const saldoPendienteCalculado = ticketsPendientes.reduce((acc, cargo) => acc + Math.max(0, Number(cargo.pendiente || 0)), 0);
-    const saldoPendiente = movimientosCuentaAsc.length
-      ? Math.max(0, saldoPendienteCalculado)
-      : Math.max(0, Number(cliente?.saldo || 0));
+    // Un cobro mayor a la deuda debe conservarse como crédito del cliente.
+    const saldoNetoCalculado = movimientosCuentaAsc.length
+      ? Math.round(movimientosCuentaAsc.reduce((acc, mov) => {
+        const monto = Math.max(0, Number(mov?.monto || 0));
+        if (mov?.tipo === 'cobro' || esMovimientoDescuentoCuentaCorriente(mov)) return acc - monto;
+        if (esMovimientoCargoCuentaCorriente(mov)) return acc + monto;
+        return acc;
+      }, 0) * 100) / 100
+      : Number(cliente?.saldo || 0);
+    const saldoPendiente = Math.max(0, saldoNetoCalculado);
+    const saldoFavor = Math.max(0, -saldoNetoCalculado);
     const tieneDeuda = saldoPendiente > 0.009;
     const ticketsBasePendientes = ticketsPendientes.filter((cargo) => !esRecargoMoraMovimiento(cargo));
     const universoDias = ticketsBasePendientes.length ? ticketsBasePendientes : ticketsPendientes;
@@ -4389,12 +4502,14 @@ function AppInterna() {
 
     return {
       movimientosDesc: [...movimientosCuentaAsc]
-        .map((mov) => cargosPorId[mov.id] ? cargosPorId[mov.id] : mov)
+        .map((mov) => cargosBasePorId[mov.id] ? cargosBasePorId[mov.id] : mov)
         .sort((a, b) => new Date(b.fecha) - new Date(a.fecha)),
       cargosProcesados,
       ticketsPendientes,
       ticketsVencidos,
       saldoPendiente,
+      saldoFavor,
+      saldoNeto: saldoNetoCalculado,
       tieneDeuda,
       diasDeuda,
       recargosAplicados,
@@ -4578,6 +4693,8 @@ function AppInterna() {
         vencido30,
         diasDeuda,
         saldoPendiente,
+        saldoFavor: Math.max(0, Number(estado?.saldoFavor || 0)),
+        saldoNeto: Number(estado?.saldoNeto ?? saldoPendiente - Number(estado?.saldoFavor || 0)),
         ticketsVencidos: estado?.ticketsVencidos || [],
         cantidadRemitosVencidos: (estado?.ticketsVencidos || []).length,
         recargosAplicados,
@@ -5478,16 +5595,25 @@ function AppInterna() {
     if (!presupuesto) return;
     const itemsAnalisis = (presupuesto?.items || []).map((item, index) => {
       const cantidadOriginal = Math.max(0, parseNumeroBasico(item?.cantidad) || 0);
+      const producto = item?.productoId
+        ? (productos || []).find((p) => p.id === item.productoId)
+        : (productos || []).find((p) => normalizarTextoBusqueda(p?.descripcion) === normalizarTextoBusqueda(item?.descripcion));
+      const costosProveedor = obtenerCostosProveedorProducto(producto || {}).filter((costo) => convertirCostoProveedorRealAPesos(costo, producto?.iva, producto) > 0);
       return {
         key: `${presupuesto.id || 'pres'}-${item?.id || index}-${index}`,
+        productoId: producto?.id || item?.productoId || '',
         codigo: textoSeguroTrim(item?.codigo, ''),
         descripcion: textoSeguroTrim(item?.descripcion, 'Producto'),
         unidad: textoSeguroTrim(item?.unidad, 'unid'),
+        iva: textoSeguroTrim(producto?.iva || item?.iva, 'sin_iva'),
         cantidadOriginal,
         cantidadEditada: cantidadOriginal > 0 ? String(cantidadOriginal) : '0',
         precioUnitario: Math.max(0, parseNumeroBasico(item?.precio) || 0),
         descuentoPct: Math.max(0, parseNumeroBasico(item?.descuento) || 0),
-        costoUnitario: Math.max(0, obtenerCostoProductoPorItem(item))
+        fuenteCosto: 'producto',
+        proveedorSeleccionado: '',
+        proveedoresCostos: costosProveedor,
+        costoUnitario: Math.max(0, producto ? obtenerCostoProductoRealPesos(producto) : obtenerCostoProductoPorItem(item))
       };
     });
 
@@ -5501,6 +5627,29 @@ function AppInterna() {
       items: itemsAnalisis
     });
     setModalActivo('analizador_costos_presupuesto');
+  };
+
+  const actualizarFuenteCostoAnalizador = (itemKey = '', fuente = 'producto') => {
+    setAnalizadorCostosPresupuesto((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        items: (prev.items || []).map((item) => {
+          if (item.key !== itemKey) return item;
+          if (fuente === 'producto') {
+            const producto = (productos || []).find((p) => p.id === item.productoId);
+            return { ...item, fuenteCosto: 'producto', proveedorSeleccionado: '', costoUnitario: producto ? obtenerCostoProductoRealPesos(producto) : item.costoUnitario };
+          }
+          const proveedor = (item.proveedoresCostos || []).find((costo) => normalizarTextoBusqueda(costo?.proveedor) === normalizarTextoBusqueda(fuente));
+          return {
+            ...item,
+            fuenteCosto: 'proveedor',
+            proveedorSeleccionado: proveedor?.proveedor || fuente,
+            costoUnitario: proveedor ? convertirCostoProveedorRealAPesos(proveedor, item.iva, item) : 0
+          };
+        })
+      };
+    });
   };
 
   const actualizarCantidadAnalizadorCosto = (itemKey = '', valor = '') => {
@@ -5826,7 +5975,6 @@ function AppInterna() {
     const pagos = obtenerPagosProveedor(proveedorNombre)
       .map((pago) => ({ ...pago, monto: Math.max(0, parseNumeroBasico(pago?.monto)), descuentoProveedor: Math.max(0, parseNumeroBasico(pago?.descuentoProveedor ?? pago?.bonificacionProveedor ?? pago?.descuento)) }))
       .sort((a, b) => new Date(a.fecha || a.fechaCreacion || 0) - new Date(b.fecha || b.fechaCreacion || 0));
-
     const aplicarSaldoFavorAComprasPosteriores = (pago, saldoDisponible = 0) => {
       let restante = Math.max(0, Number(saldoDisponible || 0));
       if (restante <= 0.009) return 0;
@@ -5904,8 +6052,18 @@ function AppInterna() {
       pago.saldoFavorGenerado = Math.max(0, restante);
     });
 
+    const cargosPorIdProveedor = new Map(cargosProcesados.map((cargo) => [cargo.pedidoId, cargo]));
+    pagos.forEach((pago) => {
+      if (!Array.isArray(pago.aplicacionesComprobantes)) return;
+      pago.aplicacionesComprobantes = pago.aplicacionesComprobantes.map((aplicacion) => {
+        const cargo = cargosPorIdProveedor.get(aplicacion?.pedidoCompraId);
+        return { ...aplicacion, pedidoCompraIdInterno: aplicacion?.pedidoCompraId, pedidoCompraId: cargo?.numero || aplicacion?.pedidoCompraNumero || aplicacion?.pedidoCompraId };
+      });
+    });
+
     const totalCompras = cargosProcesados.reduce((acc, cargo) => acc + (cargo.imputableSaldo ? Number(cargo.monto || 0) : 0), 0);
     const totalPagos = pagos.reduce((acc, pago) => acc + Number(pago.monto || 0), 0);
+    const totalBonificaciones = pagos.reduce((acc, pago) => acc + Number(pago.descuentoProveedor || 0), 0);
     const saldoPendiente = Math.max(0, cargosProcesados.reduce((acc, cargo) => acc + Number(cargo.pendiente || 0), 0));
     const saldoFavor = pagos.reduce((acc, pago) => acc + Math.max(0, Number(pago.saldoFavorGenerado || 0)), 0);
     const movimientosDesc = [
@@ -5920,6 +6078,7 @@ function AppInterna() {
       movimientosDesc,
       totalCompras,
       totalPagos,
+      totalBonificaciones,
       saldoPendiente,
       saldoFavor
     };
@@ -5975,10 +6134,15 @@ function AppInterna() {
 
   const resumenAplicacionPagoProveedor = useMemo(() => {
     const montoPago = Math.max(0, parseNumeroBasico(formPagoProveedor?.monto));
-    const descuentoProveedor = Math.max(0, parseNumeroBasico(formPagoProveedor?.descuentoProveedor));
+    const descuentoProveedorPorcentaje = Math.min(100, Math.max(0, parseNumeroBasico(formPagoProveedor?.descuentoProveedorPorcentaje)));
     const idsSeleccionados = Array.isArray(formPagoProveedor?.pedidoCompraIds)
       ? formPagoProveedor.pedidoCompraIds.filter(Boolean)
       : [];
+    const totalPendienteSeleccionado = idsSeleccionados.reduce((total, pedidoCompraId) => {
+      const cargo = cargosPendientesPagoProveedor.find((item) => item.pedidoId === pedidoCompraId);
+      return total + Math.max(0, Number(cargo?.pendiente || 0));
+    }, 0);
+    const descuentoProveedor = Math.min(totalPendienteSeleccionado, totalPendienteSeleccionado * (descuentoProveedorPorcentaje / 100));
     let restantePago = montoPago;
     let restanteDescuento = descuentoProveedor;
     const aplicaciones = idsSeleccionados.map((pedidoCompraId, index) => {
@@ -6002,10 +6166,10 @@ function AppInterna() {
         restanteAplicableDespues: restantePago + restanteDescuento
       };
     }).filter(Boolean);
-    const totalPendienteSeleccionado = aplicaciones.reduce((total, item) => total + item.pendiente, 0);
     const totalAplicado = aplicaciones.reduce((total, item) => total + item.aplicado, 0);
     return {
       montoPago,
+      descuentoProveedorPorcentaje,
       descuentoProveedor,
       aplicaciones,
       aplicacionesPorId: new Map(aplicaciones.map((item) => [item.pedidoCompraId, item])),
@@ -6016,7 +6180,20 @@ function AppInterna() {
       restanteAplicable: Math.max(0, restantePago + restanteDescuento),
       saldoPendienteSeleccionado: Math.max(0, totalPendienteSeleccionado - totalAplicado)
     };
-  }, [formPagoProveedor?.monto, formPagoProveedor?.descuentoProveedor, formPagoProveedor?.pedidoCompraIds, cargosPendientesPagoProveedor]);
+  }, [formPagoProveedor?.monto, formPagoProveedor?.descuentoProveedorPorcentaje, formPagoProveedor?.pedidoCompraIds, cargosPendientesPagoProveedor]);
+
+  useEffect(() => {
+    const porcentaje = parseNumeroBasico(formPagoProveedor?.descuentoProveedorPorcentaje);
+    const ids = Array.isArray(formPagoProveedor?.pedidoCompraIds) ? formPagoProveedor.pedidoCompraIds : [];
+    if (!formPagoProveedor?.proveedor || !ids.length || !textoSeguroTrim(formPagoProveedor?.descuentoProveedorPorcentaje, '') || !Number.isFinite(porcentaje) || porcentaje < 0) return;
+    const pendiente = ids.reduce((total, id) => total + Math.max(0, Number(cargosPendientesPagoProveedor.find((cargo) => cargo.pedidoId === id)?.pendiente || 0)), 0);
+    const descuento = Math.min(pendiente, pendiente * Math.min(100, porcentaje) / 100);
+    const montoSugerido = Math.max(0, pendiente - descuento);
+    setFormPagoProveedor((prev) => {
+      const nuevoMonto = montoSugerido.toFixed(2);
+      return prev.monto === nuevoMonto ? prev : { ...prev, monto: nuevoMonto };
+    });
+  }, [formPagoProveedor?.descuentoProveedorPorcentaje, formPagoProveedor?.pedidoCompraIds, formPagoProveedor?.proveedor, cargosPendientesPagoProveedor]);
 
   const marcasVisualizadas = useMemo(() => {
     return (marcas || []).filter((marca) => {
@@ -6169,7 +6346,9 @@ function AppInterna() {
   const remitosVencidosPuntoVenta = Array.isArray(estadoCuentaClientePuntoVenta.ticketsVencidos)
     ? estadoCuentaClientePuntoVenta.ticketsVencidos
     : [];
-  const saldoCuentaPuntoVenta = Math.max(0, Number(estadoCuentaClientePuntoVenta.saldoPendiente || clienteSeleccionadoPuntoVenta?.saldo || 0));
+  const saldoNetoCuentaPuntoVenta = Number(estadoCuentaClientePuntoVenta.saldoNeto ?? clienteSeleccionadoPuntoVenta?.saldo ?? 0);
+  const saldoCuentaPuntoVenta = Math.max(0, saldoNetoCuentaPuntoVenta);
+  const saldoFavorPuntoVenta = Math.max(0, -saldoNetoCuentaPuntoVenta);
   const limiteCuentaPuntoVenta = Math.max(0, Number(clienteSeleccionadoPuntoVenta?.limiteCuentaCorriente || 0));
 
   const clientesSugeridosRemitoR = useMemo(() => {
@@ -6192,6 +6371,68 @@ function AppInterna() {
       .sort((a, b) => new Date(b.fecha) - new Date(a.fecha)),
     [movimientos]
   );
+
+  const ventasProductoHistorial = useMemo(() => {
+    if (!productoHistorialVentas) return [];
+    const codigoProducto = normalizarCodigoParaComparar(productoHistorialVentas?.codigo || productoHistorialVentas?.codigoInterno || productoHistorialVentas?.codigoBarras || '');
+    const descripcionProducto = normalizarTextoBusqueda(productoHistorialVentas?.descripcion || '');
+    return (movimientos || [])
+      .filter((mov) => mov?.tipo === 'venta' && Array.isArray(mov?.detallesPago?.items))
+      .flatMap((mov) => (mov.detallesPago.items || []).map((item, indice) => ({ mov, item, indice })))
+      .filter(({ item }) => {
+        if (item?.productoId && productoHistorialVentas?.id) return item.productoId === productoHistorialVentas.id;
+        const codigoItem = normalizarCodigoParaComparar(item?.codigo || item?.codigoInterno || item?.codigoBarras || '');
+        if (codigoProducto && codigoItem) return codigoProducto === codigoItem;
+        return Boolean(descripcionProducto) && normalizarTextoBusqueda(item?.descripcion || '') === descripcionProducto;
+      })
+      .map(({ mov, item, indice }) => {
+        const detalles = mov?.detallesPago || {};
+        const cantidad = Math.max(0, parseNumeroBasico(item?.cantidad) || 0);
+        const precio = Math.max(0, parseNumeroBasico(item?.precio ?? item?.precioUnitario) || 0);
+        const importe = Math.max(0, parseNumeroBasico(item?.subtotal ?? item?.importe) || (cantidad * precio));
+        const esCuentaCorriente = normalizarMetodoPago(mov?.metodoPago) === 'cuenta_corriente';
+        return {
+          id: `${mov.id || 'venta'}-${indice}`,
+          movimiento: mov,
+          fecha: mov?.fecha || '',
+          comprobante: textoSeguroTrim(detalles?.numeroComprobante, textoSeguroTrim(mov?.descripcion, 'Sin número')),
+          tipoComprobante: OPCIONES_COMPROBANTE_VENTA.find((op) => op.value === detalles?.tipoComprobante)?.label || 'Comprobante',
+          cliente: textoSeguroTrim(detalles?.cliente, textoSeguroTrim(detalles?.clienteNombre, esCuentaCorriente ? 'Cliente sin identificar' : 'Consumidor final')),
+          metodoPago: obtenerEtiquetaMetodoPago(mov?.metodoPago),
+          esCuentaCorriente,
+          pendiente: Math.max(0, parseNumeroBasico(mov?.pendiente) || 0),
+          cantidad,
+          precio,
+          importe
+        };
+      })
+      .sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
+  }, [productoHistorialVentas, movimientos]);
+
+  const abrirHistorialVentasProducto = (producto = null) => {
+    if (!producto) return;
+    setProductoHistorialVentas(producto);
+    setModalActivo('historial_ventas_producto');
+  };
+
+  const irAVentaDesdeHistorialProducto = (venta = null) => {
+    const movimiento = venta?.movimiento;
+    if (!movimiento?.id) return;
+    setProductoHistorialVentas(null);
+    setModalActivo(null);
+    setVista('ventas');
+    setFechaDesdeVentas('');
+    setFechaHastaVentas('');
+    const indice = movimientosPuntoVenta.findIndex((mov) => mov.id === movimiento.id);
+    if (indice >= 0) {
+      window.setTimeout(() => {
+        setPaginacionListados((prev) => ({ ...prev, ventas: { ...prev.ventas, pagina: Math.floor(indice / prev.ventas.porPagina) + 1 } }));
+        window.setTimeout(() => document.getElementById(`venta-${movimiento.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 180);
+      }, 0);
+    } else {
+      abrirPreviewVentaDocumento(movimiento);
+    }
+  };
 
   const movimientosRemitoR = useMemo(
     () => (movimientos || []).filter((mov) => mov?.detallesPago?.origen === 'remito_r'),
@@ -6319,12 +6560,10 @@ function AppInterna() {
   const totalFormularioPuntoVentaBase = useMemo(
     () => (formPuntoVenta.items || []).reduce((acc, item) => {
       const cantidad = Math.max(0, parseNumeroBasico(item?.cantidad) || 0);
-      const precioBase = Math.max(0, parseNumeroBasico(item?.precio) || 0);
-      const precio = redondeoVentasHaciaArribaActivo ? redondearImporteVentaHaciaArriba(precioBase) : precioBase;
+      const precio = Math.max(0, parseNumeroBasico(item?.precio) || 0);
       const descuento = Math.min(100, Math.max(0, parseNumeroBasico(item?.descuento) || 0));
       const subtotal = cantidad * precio;
-      const subtotalConDescuento = Math.max(0, subtotal - (subtotal * descuento / 100));
-      return acc + (redondeoVentasHaciaArribaActivo ? redondearImporteVentaHaciaArriba(subtotalConDescuento) : subtotalConDescuento);
+      return acc + Math.max(0, subtotal - (subtotal * descuento / 100));
     }, 0),
     [formPuntoVenta.items, redondeoVentasHaciaArribaActivo]
   );
@@ -6435,7 +6674,7 @@ function AppInterna() {
       return;
     }
     setFormPuntoVenta((prev) => ({ ...prev, items: restaurarPreciosSinComisionVendedor(prev.items || []), vendedorId: '', vendedorNombre: '', comisionPorcentaje: '', comisionMonto: 0 }));
-    setFormAsignacionVendedorPuntoVenta({ vendedorId: '', porcentaje: '' });
+    setFormAsignacionVendedorPuntoVenta({ vendedorId: '', porcentaje: '', aplicarAlPrecio: false });
     setAsignacionVendedorPuntoVentaAbierta(false);
   };
 
@@ -6456,12 +6695,11 @@ function AppInterna() {
       .map((item) => {
         const producto = buscarProductoVisual(item);
         const cantidad = Math.max(0, parseNumeroBasico(item?.cantidad) || 0);
-        const precioBase = Math.max(0, parseNumeroBasico(item?.precio) || 0);
-        const precio = redondeoVentasHaciaArribaActivo ? redondearImporteVentaHaciaArriba(precioBase) : precioBase;
+        const precio = Math.max(0, parseNumeroBasico(item?.precio) || 0);
         const descuento = Math.min(100, Math.max(0, parseNumeroBasico(item?.descuento) || 0));
         const bruto = cantidad * precio;
         const subtotalBase = Math.max(0, bruto - (bruto * descuento / 100));
-        const subtotal = redondeoVentasHaciaArribaActivo ? redondearImporteVentaHaciaArriba(subtotalBase) : subtotalBase;
+        const subtotal = subtotalBase;
         return {
           id: item?.id || `pv-display-${Math.random().toString(36).slice(2, 8)}`,
           productoId: item?.productoId || producto?.id || '',
@@ -7926,10 +8164,7 @@ const abrirPuntoVenta = () => {
     }));
   };
 
-  const normalizarPrecioPuntoVenta = (precio = 0) => {
-    const importe = Math.max(0, parseNumeroBasico(precio) || 0);
-    return String(redondeoVentasHaciaArribaActivo ? redondearImporteVentaHaciaArriba(importe) : importe);
-  };
+  const normalizarPrecioPuntoVenta = (precio = 0) => String(Math.max(0, parseNumeroBasico(precio) || 0));
 
   const agregarItemRemitoR = () => {
     setFormRemitoR((prev) => ({
@@ -7947,15 +8182,6 @@ const abrirPuntoVenta = () => {
           ? (valor || '').toString().replace(',', '.')
           : valor;
         if (campo === 'precio') {
-          if (redondeoVentasHaciaArribaActivo) {
-            return {
-              ...item,
-              // Conservamos el importe ingresado para poder restaurarlo si se desactiva el redondeo,
-              // pero la línea siempre opera, muestra y guarda el valor sin centavos.
-              precioSinRedondear: valorNormalizado,
-              precio: valorNormalizado.trim() === '' ? '' : normalizarPrecioPuntoVenta(valorNormalizado)
-            };
-          }
           const { precioSinRedondear, ...itemSinRedondeo } = item;
           return { ...itemSinRedondeo, precio: valorNormalizado };
         }
@@ -8645,22 +8871,8 @@ const abrirPuntoVenta = () => {
       obtenerSiguienteNumeroComprobanteVenta(tipoComp, formPuntoVenta.idMovimiento || '')
     );
     const descripcionBase = `${etiquetaComprobante}${numeroComprobante ? ` N° ${numeroComprobante}` : ''} - ${clienteNombre}`;
-    let saldoBaseClienteDestino = null;
-
-    if (movimientoOriginal?.id) {
-      const originalDetalles = movimientoOriginal?.detallesPago || {};
-      const originalClienteId = originalDetalles?.clienteId || '';
-      const originalEsCuenta = normalizarMetodoPago(movimientoOriginal?.metodoPago) === 'cuenta_corriente';
-      if (originalEsCuenta && originalClienteId) {
-        const clienteOriginal = clientes.find((c) => c.id === originalClienteId);
-        if (clienteOriginal) {
-          const signoOriginal = originalDetalles?.tipoComprobante === 'nota_credito' ? 1 : -1;
-          const saldoAjustado = Math.max(0, Number(clienteOriginal.saldo || 0) + (signoOriginal * Number(movimientoOriginal?.monto || 0)));
-          await promesaConTimeout(updateDoc(doc(db, 'clientes', originalClienteId), { saldo: saldoAjustado }), 15000, 'La actualización del cliente tardó demasiado.');
-          if (originalClienteId === clienteId) saldoBaseClienteDestino = saldoAjustado;
-        }
-      }
-    }
+    // El saldo se reconstruye desde los movimientos confirmados. No se toca
+    // antes de guardar: así una venta fallida no deja deuda o crédito fantasma.
 
     // Evita que doble clic o doble confirmación creen comprobantes duplicados.
     if (guardandoPuntoVentaRef.current) return;
@@ -8670,37 +8882,14 @@ const abrirPuntoVenta = () => {
 
     if (esCuentaCorriente && clienteId && !esNotaCredito) {
       const limiteCuentaCorriente = Math.max(0, Number(clienteDestino?.limiteCuentaCorriente || 0));
-      const saldoActual = saldoBaseClienteDestino === null
-        ? Math.max(0, Number(estadoCuentaClientes[clienteId]?.saldoPendiente ?? clienteDestino?.saldo ?? 0))
-        : Math.max(0, Number(saldoBaseClienteDestino || 0));
-      const saldoConVenta = saldoActual + total;
-      if (limiteCuentaCorriente > 0 && saldoConVenta > limiteCuentaCorriente + 0.009) {
+      const saldoActual = Number(estadoCuentaClientes[clienteId]?.saldoNeto ?? clienteDestino?.saldo ?? 0);
+      const deudaConVenta = Math.max(0, saldoActual + total);
+      if (limiteCuentaCorriente > 0 && deudaConVenta > limiteCuentaCorriente + 0.009) {
         await notificarSistema(
-          `No se puede cargar esta venta en cuenta corriente. El cliente tiene ${formatearDinero(saldoActual)} pendiente y el límite es ${formatearDinero(limiteCuentaCorriente)}. Esta venta dejaría la cuenta en ${formatearDinero(saldoConVenta)}.`,
+          `No se puede cargar esta venta en cuenta corriente. El cliente tiene ${saldoActual < 0 ? `${formatearDinero(Math.abs(saldoActual))} a favor` : `${formatearDinero(saldoActual)} pendiente`} y el límite es ${formatearDinero(limiteCuentaCorriente)}. Esta venta dejaría la cuenta con ${formatearDinero(deudaConVenta)} pendiente.`,
           { tipo: 'warning', titulo: 'Límite de cuenta corriente superado' }
         );
         liberarBloqueoVenta();
-        return;
-      }
-    }
-
-    if (esCuentaCorriente && clienteId) {
-      const clienteActual = clientes.find((c) => c.id === clienteId);
-      const saldoActual = saldoBaseClienteDestino === null
-        ? Number(estadoCuentaClientes[clienteId]?.saldoPendiente ?? clienteActual?.saldo ?? 0)
-        : saldoBaseClienteDestino;
-      const saldoActualizado = esNotaCredito
-        ? Math.max(0, saldoActual - total)
-        : saldoActual + total;
-      try {
-        await promesaConTimeout(updateDoc(doc(db, 'clientes', clienteId), { saldo: saldoActualizado }), 15000, 'La actualización de la cuenta corriente tardó demasiado.');
-      } catch (error) {
-        console.error('No se pudo actualizar la cuenta corriente antes de guardar la venta', error);
-        liberarBloqueoVenta();
-        await notificarSistema('No se pudo actualizar la cuenta corriente. La venta no fue guardada; revisá la conexión e intentá nuevamente.', {
-          tipo: 'danger',
-          titulo: 'Cuenta corriente no actualizada'
-        });
         return;
       }
     }
@@ -8740,7 +8929,7 @@ const abrirPuntoVenta = () => {
           vendedorNombre: vendedorPuntoVenta.nombre,
           comisionPorcentaje: porcentajeComisionPuntoVenta,
           comisionMonto: comisionMontoPuntoVenta,
-          comisionPrecioIncluida: true,
+          comisionPrecioIncluida: formPuntoVenta.comisionPrecioIncluida === true,
           montoSinComisionVendedor: preciosComisionPuntoVenta.totalBase,
           comisionItems: itemsVentaNormalizados.map((item) => ({
             itemId: textoSeguroTrim(item?.id, ''),
@@ -8784,10 +8973,23 @@ const abrirPuntoVenta = () => {
     const payloadVentaFirestore = limpiarDatoFirestore(payloadVenta);
 
     try {
+      let movimientoGuardadoId = movimientoOriginal?.id || '';
       if (movimientoOriginal?.id) {
         await promesaConTimeout(updateDoc(doc(db, 'movimientos', movimientoOriginal.id), payloadVentaFirestore), 20000, 'La actualización de la venta tardó demasiado. Revisá la conexión e intentá nuevamente.');
       } else {
-        await promesaConTimeout(addDoc(collection(db, 'movimientos'), payloadVentaFirestore), 20000, 'El guardado de la venta tardó demasiado. Revisá la conexión e intentá nuevamente.');
+        const ventaRef = await promesaConTimeout(addDoc(collection(db, 'movimientos'), payloadVentaFirestore), 20000, 'El guardado de la venta tardó demasiado. Revisá la conexión e intentá nuevamente.');
+        movimientoGuardadoId = ventaRef.id;
+      }
+      const movimientosRecalculados = movimientoOriginal?.id
+        ? movimientos.map((mov) => mov.id === movimientoOriginal.id ? { ...mov, ...payloadVentaFirestore } : mov)
+        : [...movimientos, { id: movimientoGuardadoId, ...payloadVentaFirestore }];
+      const clientesARecalcular = [
+        { id: clienteId, nombre: clienteNombre },
+        { id: movimientoOriginal?.detallesPago?.clienteId || '', nombre: movimientoOriginal?.detallesPago?.cliente || '' }
+      ];
+      for (const referencia of clientesARecalcular) {
+        if (!referencia.id && !referencia.nombre) continue;
+        await recalcularSaldoClienteCuentaCorriente(referencia, movimientosRecalculados);
       }
       await promesaConTimeout(aplicarImpactoStockPuntoVenta({
         movimientoOriginal,
@@ -8997,6 +9199,9 @@ const abrirPuntoVenta = () => {
   const obtenerActualizacionesPrecioCuentaCliente = (cliente = null, estado = null) => {
     if (!cliente) return [];
     const estadoCuenta = estado || calcularEstadoCuentaCliente(cliente);
+    // Una cuenta totalmente saldada cierra también el ciclo de actualización
+    // de sus remitos. Los aumentos posteriores no deben reabrir avisos viejos.
+    if (!estadoCuenta?.tieneDeuda || Number(estadoCuenta?.saldoPendiente || 0) <= 0.009) return [];
     const productosPorCodigo = new Map();
     (productos || []).forEach((producto) => {
       [producto?.codigo, producto?.codigoInterno, producto?.codigoBarras]
@@ -9006,9 +9211,12 @@ const abrirPuntoVenta = () => {
     });
     const cambios = [];
     (estadoCuenta.cargosProcesados || [])
-      .filter((cargo) => !esRecargoMoraMovimiento(cargo) && Number(cargo.pendiente || 0) > 0.009)
+      .filter((cargo) => cargo?.tipo !== 'actualizacion_precio_cc' && !esRecargoMoraMovimiento(cargo) && Number(cargo.pendiente || 0) > 0.009)
       .forEach((cargo) => {
         const proporcionPendiente = Math.min(1, Math.max(0, Number(cargo.pendiente || 0) / Math.max(0.01, Number(cargo.montoOriginal || cargo.monto || 0))));
+        const actualizacionesAplicadas = (movimientos || [])
+          .filter((mov) => mov?.tipo === 'actualizacion_precio_cc' && String(mov?.detallesPago?.cargoOrigenId || '') === String(cargo.id))
+          .flatMap((mov) => Array.isArray(mov?.detallesPago?.items) ? mov.detallesPago.items : []);
         const cambiosPorProducto = new Map();
         obtenerItemsDocumentoVenta(cargo).forEach((item) => {
           const producto = (item?.productoId
@@ -9049,24 +9257,34 @@ const abrirPuntoVenta = () => {
           cambiosPorProducto.set(producto.id, cambio);
         });
         const itemsActualizados = Array.from(cambiosPorProducto.values())
-          .map((item) => ({ ...item, diferencia: Math.round(((item.precioNuevo - item.precioAnterior) * item.cantidad * proporcionPendiente) * 100) / 100 }))
+          .map((item) => {
+            const preciosYaAplicados = actualizacionesAplicadas
+              .filter((aplicado) => {
+                const mismoProducto = aplicado?.productoId && item?.productoId && String(aplicado.productoId) === String(item.productoId);
+                const mismoCodigo = normalizarCodigoParaComparar(aplicado?.codigo || '') && normalizarCodigoParaComparar(aplicado?.codigo || '') === normalizarCodigoParaComparar(item?.codigo || '');
+                return mismoProducto || mismoCodigo;
+              })
+              .map((aplicado) => Math.max(0, Number(aplicado?.precioNuevo || 0)));
+            const precioBaseActualizado = Math.max(item.precioAnterior, ...preciosYaAplicados);
+            return {
+              ...item,
+              precioAnterior: precioBaseActualizado,
+              diferencia: Math.round(((item.precioNuevo - precioBaseActualizado) * item.cantidad * proporcionPendiente) * 100) / 100
+            };
+          })
           .filter((item) => item.diferencia > 0.009);
         if (!itemsActualizados.length) return;
-        const yaAplicado = (movimientos || []).some((mov) => (
-          mov?.tipo === 'actualizacion_precio_cc'
-          && mov?.detallesPago?.cargoOrigenId === cargo.id
-          && mov?.detallesPago?.items?.some((item) => itemsActualizados.some((actual) => (
-            item?.productoId === actual.productoId && Number(item?.precioNuevo || 0) >= Number(actual.precioNuevo || 0) - 0.009
-          )))
-        ));
-        if (!yaAplicado) cambios.push({ cargoOrigenId: cargo.id, cargoDescripcion: cargo.descripcion || 'Remito', items: itemsActualizados });
+        cambios.push({ cargoOrigenId: cargo.id, cargoDescripcion: cargo.descripcion || 'Remito', items: itemsActualizados });
       });
     return cambios;
   };
 
-  const aplicarActualizacionPreciosCuentaCliente = async () => {
+  const aplicarActualizacionPreciosCuentaCliente = async (cargoOrigenId = '') => {
     if (!usuarioTieneRolAdministrador(usuarioActual) || !clienteSeleccionado) return;
-    const cambios = obtenerActualizacionesPrecioCuentaCliente(clienteSeleccionado, calcularEstadoCuentaCliente(clienteSeleccionado));
+    const cambiosDisponibles = obtenerActualizacionesPrecioCuentaCliente(clienteSeleccionado, calcularEstadoCuentaCliente(clienteSeleccionado));
+    const cambios = cargoOrigenId
+      ? cambiosDisponibles.filter((cambio) => String(cambio.cargoOrigenId || '') === String(cargoOrigenId))
+      : cambiosDisponibles;
     if (!cambios.length) {
       await notificarSistema('No hay productos pendientes con un precio actualizado para esta cuenta.', { tipo: 'info', titulo: 'Sin actualización' });
       return;
@@ -9079,16 +9297,37 @@ const abrirPuntoVenta = () => {
         totalActualizado += monto;
         await addDoc(collection(db, 'movimientos'), limpiarDatoFirestore({
           tipo: 'actualizacion_precio_cc', monto,
-          descripcion: `Actualización de precios • ${cambio.cargoDescripcion}`,
+          descripcion: `Ajuste de precios vinculado a ${cambio.cargoDescripcion}`,
           metodoPago: 'cuenta_corriente', noImpactaCaja: true, fecha: new Date().toISOString(),
           usuario: usuarioActual?.nombre || usuarioActual?.username || 'Sistema',
-          detallesPago: { origen: 'actualizacion_precio_inventario', esActualizacionPrecioCuenta: true, clienteId: clienteSeleccionado.id, cliente: clienteSeleccionado.nombre || '', cargoOrigenId: cambio.cargoOrigenId, items: cambio.items }
+          detallesPago: { origen: 'actualizacion_precio_inventario', esActualizacionPrecioCuenta: true, clienteId: clienteSeleccionado.id, cliente: clienteSeleccionado.nombre || '', cargoOrigenId: cambio.cargoOrigenId, cargoOrigenDescripcion: cambio.cargoDescripcion || 'Remito', aplicadoEn: new Date().toISOString(), items: cambio.items }
         }));
       }
-      await notificarSistema(`Se actualizaron ${cambios.reduce((total, cambio) => total + cambio.items.length, 0)} producto(s) por ${formatearDinero(totalActualizado)}.`, { tipo: 'success', titulo: 'Precios actualizados' });
+      await notificarSistema(`${cargoOrigenId ? 'Remito actualizado' : 'Actualización general completada'}: ${cambios.reduce((total, cambio) => total + cambio.items.length, 0)} producto(s) por ${formatearDinero(totalActualizado)}.`, { tipo: 'success', titulo: cargoOrigenId ? 'Remito actualizado' : 'Precios actualizados' });
     } catch (error) {
       console.error('Error al actualizar precios de cuenta corriente', error);
       await notificarSistema('No se pudieron actualizar los precios de esta cuenta corriente.', { tipo: 'error', titulo: 'Error de actualización' });
+    }
+  };
+
+  const deshacerActualizacionPrecioCuentaCliente = async (actualizacion = null) => {
+    if (!usuarioTieneRolAdministrador(usuarioActual) || !actualizacion?.id || actualizacion?.tipo !== 'actualizacion_precio_cc') return;
+    const monto = Math.max(0, Number(actualizacion?.monto || 0));
+    const confirmar = await confirmarSistema(
+      `¿Deshacer este ajuste de precios por ${formatearDinero(monto)}?\n\nSe quitará el aumento de la cuenta. Si hubo cobros posteriores, el saldo se recalculará automáticamente y podría quedar dinero a favor del cliente.`,
+      { tipo: 'warning', titulo: 'Deshacer actualización de precios', textoAceptar: 'Deshacer actualización' }
+    );
+    if (!confirmar) return;
+    try {
+      await deleteDoc(doc(db, 'movimientos', actualizacion.id));
+      await recalcularSaldoClienteCuentaCorriente(
+        { id: clienteSeleccionado?.id || '', nombre: clienteSeleccionado?.nombre || '' },
+        movimientos.filter((movimiento) => movimiento.id !== actualizacion.id)
+      );
+      await notificarSistema('La actualización fue eliminada y la cuenta se recalculó.', { tipo: 'success', titulo: 'Actualización deshecha' });
+    } catch (error) {
+      console.error('No se pudo deshacer la actualización de precios', error);
+      await notificarSistema('No se pudo deshacer la actualización. Revisá la conexión e intentá nuevamente.', { tipo: 'error', titulo: 'Error al deshacer' });
     }
   };
 
@@ -10278,7 +10517,7 @@ const abrirPuntoVenta = () => {
       const cliente = clientes.find((c) => c.id === clienteId);
       if (cliente) {
         const signoReversion = detalles?.tipoComprobante === 'nota_credito' ? 1 : -1;
-        const saldoAjustado = Math.max(0, Number(cliente.saldo || 0) + (signoReversion * Number(mov?.monto || 0)));
+        const saldoAjustado = Number(cliente.saldo || 0) + (signoReversion * Number(mov?.monto || 0));
         await updateDoc(doc(db, 'clientes', cliente.id), { saldo: saldoAjustado });
       }
     }
@@ -10303,7 +10542,7 @@ const abrirPuntoVenta = () => {
     setFormAsignacionVendedor({
       vendedorId: textoSeguroTrim(mov?.detallesPago?.vendedorId, ''),
       porcentaje: mov?.detallesPago?.comisionPorcentaje ?? '',
-      aplicarAlPrecio: mov?.detallesPago?.comisionPrecioIncluida !== false
+      aplicarAlPrecio: mov?.detallesPago?.comisionPrecioIncluida === true
     });
   };
 
@@ -10337,7 +10576,7 @@ const abrirPuntoVenta = () => {
       : Math.round((montoBaseSinItems * porcentaje / 100) * 100) / 100;
     const montoNuevo = itemsVenta.length
       ? (formAsignacionVendedor.aplicarAlPrecio ? preciosConComision.totalFinal : preciosConComision.totalBase)
-      : Math.round((montoBaseSinItems + comisionMonto) * 100) / 100;
+      : Math.round((montoBaseSinItems + (formAsignacionVendedor.aplicarAlPrecio ? comisionMonto : 0)) * 100) / 100;
     const itemsConComision = preciosConComision.items;
     const totalRetirado = aplicacionesExistentes.reduce((total, item) => total + Number(item.aplicacion?.montoAplicado || 0), 0);
     if (comisionMonto + 0.009 < totalRetirado) {
@@ -10365,14 +10604,19 @@ const abrirPuntoVenta = () => {
       if (clienteId && normalizarMetodoPago(ventaAsignarVendedor?.metodoPago) === 'cuenta_corriente' && Math.abs(deltaCuentaCliente) > 0.009) {
         const cliente = clientes.find((item) => item.id === clienteId);
         if (cliente) {
-          const saldoActualizado = Math.max(0, Math.round((Number(cliente.saldo || 0) + deltaCuentaCliente) * 100) / 100);
+          const saldoActualizado = Math.round((Number(cliente.saldo || 0) + deltaCuentaCliente) * 100) / 100;
           await updateDoc(doc(db, 'clientes', clienteId), { saldo: saldoActualizado });
           setClientes((prev) => prev.map((item) => item.id === clienteId ? { ...item, saldo: saldoActualizado } : item));
         }
       }
       setMovimientos((prev) => prev.map((movimiento) => movimiento.id === ventaAsignarVendedor.id ? { ...movimiento, monto: montoNuevo, detallesPago: detallesPagoActualizados } : movimiento));
       setVentaAsignarVendedor(null);
-      await notificarSistema(`Venta asignada a ${vendedor.nombre}. La comisión de ${formatearDinero(comisionMonto)} se distribuyó en los precios de los ítems.`, { tipo: 'success', titulo: 'Comisión asignada' });
+      await notificarSistema(
+        formAsignacionVendedor.aplicarAlPrecio
+          ? `Venta asignada a ${vendedor.nombre}. La comisión de ${formatearDinero(comisionMonto)} se distribuyó en los precios de los ítems.`
+          : `Venta asignada a ${vendedor.nombre}. La comisión de ${formatearDinero(comisionMonto)} se toma de la venta sin modificar el precio al cliente.`,
+        { tipo: 'success', titulo: 'Comisión asignada' }
+      );
     } catch (error) {
       console.error(error);
       await notificarSistema('No se pudo guardar la asignación del vendedor.', { tipo: 'error', titulo: 'Error' });
@@ -10399,7 +10643,7 @@ const abrirPuntoVenta = () => {
     if (clienteId && normalizarMetodoPago(ventaAsignarVendedor?.metodoPago) === 'cuenta_corriente' && Math.abs(deltaCuentaCliente) > 0.009) {
       const cliente = clientes.find((item) => item.id === clienteId);
       if (cliente) {
-        const saldoActualizado = Math.max(0, Math.round((Number(cliente.saldo || 0) + deltaCuentaCliente) * 100) / 100);
+        const saldoActualizado = Math.round((Number(cliente.saldo || 0) + deltaCuentaCliente) * 100) / 100;
         await updateDoc(doc(db, 'clientes', clienteId), { saldo: saldoActualizado });
         setClientes((prev) => prev.map((item) => item.id === clienteId ? { ...item, saldo: saldoActualizado } : item));
       }
@@ -10773,6 +11017,24 @@ const abrirPuntoVenta = () => {
     try {
       const ahora = new Date().toISOString();
       const diferencia = cierreReal - saldoActual;
+      const movimientosTurnoDetalle = [...movimientosDelTurno]
+        .filter((mov) => mov?.noImpactaCaja !== true)
+        .sort((a, b) => new Date(a?.fecha || 0) - new Date(b?.fecha || 0));
+      const resumenTurno = movimientosTurnoDetalle.reduce((acc, mov) => {
+        const monto = parseImporteCajaHistorico(mov?.monto);
+        const metodo = normalizarMetodoPago(mov?.metodoPago || 'sin especificar') || 'sin especificar';
+        const signoVenta = obtenerSignoPuntoVenta(mov);
+        const esIngreso = (mov?.tipo === 'venta' && signoVenta > 0) || mov?.tipo === 'cobro' || mov?.tipo === 'ingreso_extra';
+        const esEgreso = (mov?.tipo === 'gasto' || mov?.tipo === 'retiro_caja') || (mov?.tipo === 'venta' && signoVenta < 0);
+        if (mov?.tipo === 'venta') acc.ventas += signoVenta * monto;
+        if (mov?.tipo === 'cobro') acc.cobrosDeuda += monto;
+        if (mov?.tipo === 'ingreso_extra') acc.ingresosExtra += monto;
+        if (mov?.tipo === 'gasto') acc.gastos += monto;
+        if (mov?.tipo === 'retiro_caja') acc.retiros += monto;
+        if (esIngreso) acc.ingresosPorMetodo[metodo] = Number(acc.ingresosPorMetodo[metodo] || 0) + monto;
+        if (esEgreso) acc.egresosPorMetodo[metodo] = Number(acc.egresosPorMetodo[metodo] || 0) + monto;
+        return acc;
+      }, { ventas: 0, cobrosDeuda: 0, ingresosExtra: 0, gastos: 0, retiros: 0, ingresosPorMetodo: {}, egresosPorMetodo: {} });
       await addDoc(collection(db, 'historial_caja'), {
         aperturaFecha: caja.fechaApertura || ahora,
         cierreFecha: ahora,
@@ -10782,6 +11044,16 @@ const abrirPuntoVenta = () => {
         efectivoCierre: cierreReal,
         chequesCierre: parseImporteCajaHistorico(caja.chequesInicial),
         diferencia,
+        resumenTurno,
+        movimientosDetalle: movimientosTurnoDetalle.map((mov) => ({
+          fecha: mov?.fecha || '',
+          tipo: mov?.tipo || '',
+          monto: Number(mov?.monto || 0),
+          metodoPago: mov?.metodoPago || '',
+          descripcion: mov?.descripcion || '',
+          usuario: mov?.usuario || '',
+          cliente: mov?.detallesPago?.cliente || mov?.detallesPago?.clienteNombre || ''
+        })),
         usuarioCierre: usuarioActual?.nombre || usuarioActual?.username || 'Sistema'
       });
       const docRef = doc(db, 'sistema', 'caja');
@@ -10802,6 +11074,82 @@ const abrirPuntoVenta = () => {
     } finally {
       operacionCajaRef.current = null;
     }
+  };
+
+  const descargarPdfHistorialCaja = async (cierre = null) => {
+    if (!cierre) return;
+    const resumen = cierre.resumenTurno || {};
+    const detalle = Array.isArray(cierre.movimientosDetalle) ? cierre.movimientosDetalle : [];
+    const docPdf = crearPdfA4('landscape', { titulo: 'Detalle de cierre de caja' });
+    const fechaApertura = cierre.aperturaFecha ? `${formatearFecha(cierre.aperturaFecha)} ${formatearHora(cierre.aperturaFecha)}` : '-';
+    const fechaCierre = cierre.cierreFecha ? `${formatearFecha(cierre.cierreFecha)} ${formatearHora(cierre.cierreFecha)}` : '-';
+    docPdf.setFont('helvetica', 'bold');
+    docPdf.setFontSize(16);
+    docPdf.setTextColor(15, 23, 42);
+    docPdf.text('DETALLE DE CIERRE DE CAJA', 14, 18);
+    docPdf.setFont('helvetica', 'normal');
+    docPdf.setFontSize(9);
+    docPdf.text(`Apertura: ${fechaApertura} · Cierre: ${fechaCierre}`, 14, 25);
+    docPdf.text(`Responsable del cierre: ${cierre.usuarioCierre || '-'}`, 14, 31);
+    autoTable(docPdf, {
+      startY: 38,
+      head: [['Resumen', 'Importe']],
+      body: [
+        ['Fondo inicial efectivo', formatearDinero(cierre.efectivoApertura || 0)],
+        ['Ventas', formatearDinero(resumen.ventas || 0)],
+        ['Cobros de deuda', formatearDinero(resumen.cobrosDeuda || 0)],
+        ['Ingresos extra', formatearDinero(resumen.ingresosExtra || 0)],
+        ['Gastos', `- ${formatearDinero(resumen.gastos || 0)}`],
+        ['Retiros', `- ${formatearDinero(resumen.retiros || 0)}`],
+        ['Efectivo esperado', formatearDinero(cierre.efectivoEsperado || 0)],
+        ['Efectivo contado al cierre', formatearDinero(cierre.efectivoCierre || 0)],
+        ['Diferencia', formatearDinero(cierre.diferencia || 0)]
+      ],
+      styles: { fontSize: 8.5, cellPadding: 2.5 },
+      headStyles: { fillColor: [15, 23, 42], textColor: 255, fontStyle: 'bold' },
+      columnStyles: { 0: { cellWidth: 210, fontStyle: 'bold' }, 1: { cellWidth: 55, halign: 'right' } },
+      margin: { left: 14, right: 14 }
+    });
+    const formatearMetodos = (mapa = {}) => Object.entries(mapa).map(([metodo, monto]) => [obtenerEtiquetaMetodoPago(metodo), formatearDinero(monto)]);
+    let y = (docPdf.lastAutoTable?.finalY || 80) + 8;
+    docPdf.setFont('helvetica', 'bold');
+    docPdf.setFontSize(10);
+    docPdf.text('INGRESOS Y EGRESOS POR MEDIO DE PAGO', 14, y);
+    autoTable(docPdf, {
+      startY: y + 4,
+      head: [['Ingresos', 'Importe', 'Egresos', 'Importe']],
+      body: Array.from({ length: Math.max(Object.keys(resumen.ingresosPorMetodo || {}).length, Object.keys(resumen.egresosPorMetodo || {}).length, 1) }, (_, index) => [
+        formatearMetodos(resumen.ingresosPorMetodo || {})[index]?.[0] || '-',
+        formatearMetodos(resumen.ingresosPorMetodo || {})[index]?.[1] || '-',
+        formatearMetodos(resumen.egresosPorMetodo || {})[index]?.[0] || '-',
+        formatearMetodos(resumen.egresosPorMetodo || {})[index]?.[1] || '-'
+      ]),
+      styles: { fontSize: 8, cellPadding: 2.2 },
+      headStyles: { fillColor: [16, 185, 129], textColor: 255, fontStyle: 'bold' },
+      columnStyles: { 1: { halign: 'right' }, 3: { halign: 'right' } },
+      margin: { left: 14, right: 14 }
+    });
+    y = (docPdf.lastAutoTable?.finalY || y + 20) + 8;
+    docPdf.setFont('helvetica', 'bold');
+    docPdf.setFontSize(10);
+    docPdf.text('MOVIMIENTOS DEL TURNO · ORDEN CRONOLÓGICO', 14, y);
+    autoTable(docPdf, {
+      startY: y + 4,
+      head: [['Fecha', 'Tipo', 'Detalle', 'Medio', 'Importe', 'Usuario']],
+      body: detalle.map((mov) => [
+        mov.fecha ? `${formatearFecha(mov.fecha)} ${formatearHora(mov.fecha)}` : '-',
+        mov.tipo || '-',
+        [mov.descripcion, mov.cliente ? `Cliente: ${mov.cliente}` : ''].filter(Boolean).join(' · ') || '-',
+        obtenerEtiquetaMetodoPago(mov.metodoPago),
+        `${['gasto', 'retiro_caja'].includes(mov.tipo) ? '- ' : ''}${formatearDinero(mov.monto || 0)}`,
+        mov.usuario || '-'
+      ]),
+      styles: { fontSize: 7, cellPadding: 1.8, overflow: 'linebreak' },
+      headStyles: { fillColor: [15, 23, 42], textColor: 255, fontStyle: 'bold' },
+      columnStyles: { 0: { cellWidth: 30 }, 1: { cellWidth: 25 }, 2: { cellWidth: 112 }, 3: { cellWidth: 29 }, 4: { cellWidth: 27, halign: 'right' }, 5: { cellWidth: 32 } },
+      margin: { left: 14, right: 14 }
+    });
+    docPdf.save(`cierre_caja_${normalizarTextoArchivo(cierre.cierreFecha || cierre.aperturaFecha || 'sin_fecha')}.pdf`);
   };
 
   const guardarConfiguracion = async (e) => {
@@ -10856,28 +11204,9 @@ const abrirPuntoVenta = () => {
 
   const alternarRedondeoVentasHaciaArriba = async (activo) => {
     const configuracionAnterior = configuracion;
-    const itemsAnteriores = formPuntoVenta.items;
     const siguienteConfiguracion = { ...configuracion, redondearVentasHaciaArriba: Boolean(activo) };
     setConfiguracion(siguienteConfiguracion);
     setConfiguracionPersistida((prev) => ({ ...prev, redondearVentasHaciaArriba: Boolean(activo) }));
-    setFormPuntoVenta((prev) => ({
-      ...prev,
-      items: (prev.items || []).map((item) => {
-        if (activo) {
-          const precioOriginal = item?.precioSinRedondear ?? item?.precio ?? '';
-          return {
-            ...item,
-            precioSinRedondear: precioOriginal,
-            precio: String(redondearImporteVentaHaciaArriba(precioOriginal))
-          };
-        }
-        const { precioSinRedondear, ...itemSinRespaldo } = item;
-        return {
-          ...itemSinRespaldo,
-          precio: precioSinRedondear ?? item?.precio ?? ''
-        };
-      })
-    }));
     try {
       await setDoc(doc(db, 'sistema', 'configuracion'), {
         redondearVentasHaciaArriba: Boolean(activo)
@@ -10885,7 +11214,6 @@ const abrirPuntoVenta = () => {
     } catch (error) {
       setConfiguracion(configuracionAnterior);
       setConfiguracionPersistida((prev) => ({ ...prev, redondearVentasHaciaArriba: Boolean(configuracionAnterior?.redondearVentasHaciaArriba) }));
-      setFormPuntoVenta((prev) => ({ ...prev, items: itemsAnteriores }));
       await notificarSistema('No se pudo guardar la preferencia de redondeo. Intentá nuevamente.', {
         tipo: 'error',
         titulo: 'Redondeo no guardado'
@@ -11115,12 +11443,16 @@ const abrirPuntoVenta = () => {
   };
 
   const registrarMovimiento = async (e, tipo) => {
-    e.preventDefault();
+    if (e?.preventDefault) e.preventDefault();
     if (formData.impactaCajaReportes !== false && caja.estado !== 'abierta') {
       await notificarSistema('Abrí la caja antes de registrar este movimiento para que impacte correctamente.', { tipo: 'warning', titulo: 'Caja cerrada' });
       return;
     }
-    const monto = parseFloat(formData.monto); if (!monto || monto <= 0) return;
+    const monto = parseFloat(formData.monto);
+    if (!monto || monto <= 0) {
+      await notificarSistema('Ingresá un monto mayor a cero para guardar la venta.', { tipo: 'warning', titulo: 'Monto requerido' });
+      return;
+    }
     const esCuentaCorriente = formData.metodoPago === 'cuenta_corriente' && (tipo === 'venta' || tipo === 'ingreso_extra');
     
     let defaultDesc = 'Movimiento general';
@@ -11154,7 +11486,6 @@ const abrirPuntoVenta = () => {
           return;
         }
         await updateDoc(doc(db, 'clientes', clienteSeleccionadoCC.id), {
-          saldo: Number(clienteSeleccionadoCC.saldo || 0) + monto,
           whatsapp: formData.detallesPago.whatsapp || clienteSeleccionadoCC.whatsapp || ''
         });
         clienteCuentaCorrienteId = clienteSeleccionadoCC.id;
@@ -11175,7 +11506,6 @@ const abrirPuntoVenta = () => {
 
         if (clienteExistentePorNombre) {
           await updateDoc(doc(db, 'clientes', clienteExistentePorNombre.id), {
-            saldo: Number(clienteExistentePorNombre.saldo || 0) + monto,
             whatsapp: formData.detallesPago.whatsapp || clienteExistentePorNombre.whatsapp || ''
           });
           clienteCuentaCorrienteId = clienteExistentePorNombre.id;
@@ -11185,7 +11515,7 @@ const abrirPuntoVenta = () => {
             numero: obtenerSiguienteNumeroCliente(),
             nombre: nombreCliente,
             whatsapp: formData.detallesPago.whatsapp || '',
-            saldo: monto,
+            saldo: 0,
             esEspecial: false
           });
           clienteCuentaCorrienteId = nuevoClienteRef.id;
@@ -11194,7 +11524,7 @@ const abrirPuntoVenta = () => {
       }
     }
     
-    await addDoc(collection(db, 'movimientos'), {
+    const payloadMovimiento = {
       tipo,
       monto,
       descripcion: formData.descripcion || defaultDesc,
@@ -11208,13 +11538,34 @@ const abrirPuntoVenta = () => {
       impactaReportes: true,
       fecha: new Date().toISOString(),
       usuario: usuarioActual.nombre
-    });
-    setFormData({ monto: '', efectivo: '', cheques: '', tieneCheques: false, descripcion: '', metodoPago: 'efectivo', detallesPago: {}, impactaCajaReportes: true }); setModalActivo(null);
+    };
+    const movimientoRef = await addDoc(collection(db, 'movimientos'), payloadMovimiento);
+    if (esCuentaCorriente && clienteCuentaCorrienteId) {
+      await recalcularSaldoClienteCuentaCorriente(
+        { id: clienteCuentaCorrienteId, nombre: nombreClienteCuenta },
+        [...movimientos, { id: movimientoRef.id, ...payloadMovimiento }]
+      );
+    }
+    setFormData({ monto: '', efectivo: '', cheques: '', tieneCheques: false, descripcion: '', metodoPago: 'efectivo', detallesPago: {}, impactaCajaReportes: true }); volverACuentaClienteSeleccionado();
   };
 
   const registrarCobro = async (e) => {
     e.preventDefault();
     const monto = parseFloat(formData.monto); if (!monto || monto <= 0) return;
+    if (normalizarMetodoPago(formData.metodoPago) === 'cheque') {
+      const cheque = formData.detallesPago || {};
+      const faltantes = [
+        !textoSeguroTrim(cheque.numeroCheque, '') && 'número',
+        !textoSeguroTrim(cheque.emisor, '') && 'emisor',
+        !textoSeguroTrim(cheque.banco, '') && 'banco',
+        !textoSeguroTrim(cheque.fechaEmision, '') && 'fecha de emisión',
+        !textoSeguroTrim(cheque.fechaCobro, '') && 'fecha de cobro'
+      ].filter(Boolean);
+      if (faltantes.length) {
+        await notificarSistema(`Completá los datos del cheque: ${faltantes.join(', ')}.`, { tipo: 'warning', titulo: 'Datos de cheque requeridos' });
+        return;
+      }
+    }
     const tipoAbonoRaw = formData.detallesPago?.tipoAbono || 'general';
     const tipoAbono = tipoAbonoRaw === 'ticket'
       ? 'ticket'
@@ -11261,7 +11612,9 @@ const abrirPuntoVenta = () => {
       descripcionDefault = `Cobro aplicado a ${ticketsSeleccionados.length} remito(s) seleccionados: ${clienteSeleccionado.nombre}`;
     }
 
-    if (monto > (limiteCobro + 0.01)) {
+    // El abono general admite excedentes, que quedan como saldo a favor.
+    // Las aplicaciones explícitas a remitos mantienen el límite del destino.
+    if (tipoAbono !== 'general' && monto > (limiteCobro + 0.01)) {
         await notificarSistema(tipoAbono === 'ticket_multi'
           ? `El monto supera los remitos tildados (${formatearDinero(limiteCobro)}). Tildá más remitos o reducí el monto a pagar.`
           : `El monto no debe superar el saldo pendiente (${formatearDinero(limiteCobro)}).`, {
@@ -11275,8 +11628,8 @@ const abrirPuntoVenta = () => {
       ? formData.fechaCobroInput
       : obtenerFechaInputLocal();
     const fechaCobroIso = combinarFechaInputConHoraReferenciaISO(fechaCobroInput, new Date());
-    const saldoAntesCliente = Math.max(0, Number(estadoCuentaClienteSeleccionado?.saldoPendiente ?? clienteSeleccionado.saldo ?? 0));
-    const saldoDespuesCliente = Math.max(0, saldoAntesCliente - monto);
+    const saldoAntesCliente = Number(estadoCuentaClienteSeleccionado?.saldoNeto ?? clienteSeleccionado.saldo ?? 0);
+    const saldoDespuesCliente = saldoAntesCliente - monto;
     const numeroRecibo = generarNumeroReciboCobro(fechaCobroIso);
     let restanteRecibo = monto;
     const itemsAplicadosRecibo = [];
@@ -11392,7 +11745,7 @@ const abrirPuntoVenta = () => {
       { id: clienteSeleccionado.id, nombre: clienteSeleccionado.nombre },
       [...movimientos, { id: cobroRef.id, ...payloadCobro }]
     );
-    setFormData({ monto: '', efectivo: '', cheques: '', tieneCheques: false, descripcion: '', metodoPago: 'efectivo', fechaCobroInput: obtenerFechaInputLocal(), detallesPago: {} }); setModalActivo(null); setClienteSeleccionado(null);
+    setFormData({ monto: '', efectivo: '', cheques: '', tieneCheques: false, descripcion: '', metodoPago: 'efectivo', fechaCobroInput: obtenerFechaInputLocal(), detallesPago: {} }); volverACuentaClienteSeleccionado();
   };
 
   const confirmarEliminacion = (id) => {
@@ -11424,7 +11777,11 @@ const abrirPuntoVenta = () => {
     }
     
     await deleteDoc(doc(db, 'movimientos', mov.id));
-    setModalActivo(null); setMovimientoAEliminar(null);
+    await recalcularSaldoClienteCuentaCorriente(
+      { id: mov?.detallesPago?.clienteId || '', nombre: mov?.detallesPago?.cliente || mov?.detallesPago?.clienteNombre || '' },
+      movimientos.filter((item) => item.id !== mov.id)
+    );
+    volverACuentaClienteSeleccionado(); setMovimientoAEliminar(null);
   };
 
   const iniciarEdicionMovimiento = (mov) => {
@@ -11450,12 +11807,12 @@ const abrirPuntoVenta = () => {
       const movClienteId = detalles.clienteId || '';
       const movClienteNombre = normalizarTextoBusqueda(detalles.cliente || detalles.clienteNombre || '');
       const perteneceAlCliente = clienteId
-        ? movClienteId === clienteId
+        ? (movClienteId === clienteId || (!movClienteId && Boolean(clienteNombre && movClienteNombre === clienteNombre)))
         : Boolean(clienteNombre && movClienteNombre === clienteNombre);
 
       if (!perteneceAlCliente) return acc;
 
-      const monto = Math.max(0, Number(mov?.monto || 0));
+      const monto = Math.max(0, parseNumeroBasico(mov?.monto || 0));
       if (mov?.tipo === 'cobro') return acc - monto;
       if (esMovimientoDescuentoCuentaCorriente(mov)) return acc - monto;
       if (esMovimientoCargoCuentaCorriente(mov)) return acc + monto;
@@ -11468,7 +11825,7 @@ const abrirPuntoVenta = () => {
 
     if (clienteDestino?.id) {
       await updateDoc(doc(db, 'clientes', clienteDestino.id), {
-        saldo: Math.max(0, saldoCalculado)
+        saldo: Math.round(saldoCalculado * 100) / 100
       });
     }
   };
@@ -11515,7 +11872,7 @@ const abrirPuntoVenta = () => {
         movimientosRecalculados
       );
 
-      setModalActivo(null);
+      volverACuentaClienteSeleccionado();
       setMovimientoAEditar(null);
       setFormData({ monto: '', efectivo: '', cheques: '', tieneCheques: false, descripcion: '', metodoPago: 'efectivo', detallesPago: {} });
       return;
@@ -11574,7 +11931,7 @@ const abrirPuntoVenta = () => {
       await recalcularSaldoClienteCuentaCorriente(referencia, movimientosRecalculados);
     }
 
-    setModalActivo(null); setMovimientoAEditar(null); 
+    volverACuentaClienteSeleccionado(); setMovimientoAEditar(null); 
     setFormData({ monto: '', efectivo: '', cheques: '', tieneCheques: false, descripcion: '', metodoPago: 'efectivo', detallesPago: {} });
   };
 
@@ -11624,11 +11981,7 @@ const abrirPuntoVenta = () => {
     if (usuarioAEditar) {
       await updateDoc(doc(db, 'usuarios', usuarioAEditar.id), payloadUsuario);
     } else {
-      if (usernameNormalizado === 'admin' || (payloadUsuario.rol || '').toLowerCase() === 'admin' && usernameNormalizado === 'admin') {
-        await setDoc(doc(db, 'usuarios', 'admin'), payloadUsuario, { merge: true });
-      } else {
-        await addDoc(collection(db, 'usuarios'), payloadUsuario);
-      }
+      await addDoc(collection(db, 'usuarios'), payloadUsuario);
     }
     setModalActivo(null); setFormUsuario(FORM_USUARIO_VACIO); setUsuarioAEditar(null);
   };
@@ -11704,7 +12057,12 @@ const abrirPuntoVenta = () => {
       await addDoc(collection(db, 'clientes'), { ...data, numero: obtenerSiguienteNumeroCliente(), saldo: 0 });
     }
 
-    setModalActivo(null);
+    if (clienteSeleccionado?.id && clienteAEditar?.id === clienteSeleccionado.id) {
+      setClienteSeleccionado((cliente) => cliente ? { ...cliente, ...data } : cliente);
+      volverACuentaClienteSeleccionado();
+    } else {
+      setModalActivo(null);
+    }
     setClienteAEditar(null);
     setFormCliente(formularioClienteVacio);
   };
@@ -11719,6 +12077,16 @@ const abrirPuntoVenta = () => {
     }
     setClienteSeleccionado(cliente);
     setModalActivo('cliente_detalle');
+  };
+
+  // Las acciones iniciadas desde una cuenta deben volver a la misma cuenta,
+  // nunca al listado general de clientes.
+  const volverACuentaClienteSeleccionado = () => {
+    if (clienteSeleccionado?.id && puedeVerClienteEnCuentas(clienteSeleccionado)) {
+      setModalActivo('cliente_detalle');
+      return;
+    }
+    setModalActivo(null);
   };
 
   const esMovimientoRelacionadoACliente = (movimiento = {}, cliente = null) => {
@@ -13187,9 +13555,18 @@ const abrirPuntoVenta = () => {
   };
 
   const eliminarUsuario = async (id) => {
+    if (!usuarioTieneRolAdministrador(usuarioActual)) return;
+    if (id === USUARIO_ADMIN_FALLBACK.id) {
+      await notificarSistema('El acceso de respaldo no es un usuario guardado y no se puede eliminar.', {
+        tipo: 'warning',
+        titulo: 'Acción no permitida'
+      });
+      return;
+    }
     const usuarioObjetivo = usuarios.find((usuario) => usuario.id === id);
-    const esAdministradorObjetivo = (usuarioObjetivo?.rol || '').toLowerCase() === 'admin';
-    const cantidadAdministradores = usuarios.filter((usuario) => (usuario?.rol || '').toLowerCase() === 'admin').length;
+    if (!usuarioObjetivo) return;
+    const esAdministradorObjetivo = usuarioTieneRolAdministrador(usuarioObjetivo);
+    const cantidadAdministradores = usuarios.filter((usuario) => usuarioTieneRolAdministrador(usuario)).length;
     if (esAdministradorObjetivo && cantidadAdministradores <= 1) {
       await notificarSistema('Debe quedar al menos un administrador activo.', {
         tipo: 'warning',
@@ -13204,7 +13581,7 @@ const abrirPuntoVenta = () => {
       });
       return;
     }
-    const confirmar = await confirmarSistema('¿Estás seguro de que deseas eliminar este usuario?', {
+    const confirmar = await confirmarSistema('¿Eliminar este usuario? Solo se eliminará su acceso. Los clientes, ventas, configuración, alias y demás datos del negocio no se modificarán.', {
       tipo: 'danger',
       titulo: 'Eliminar usuario',
       textoAceptar: 'Sí, eliminar'
@@ -13528,17 +13905,17 @@ const abrirPuntoVenta = () => {
       body: filas,
       theme: 'grid',
       margin: { left: 14, right: 14 },
-      styles: { fontSize: 8, cellPadding: 2, textColor: [30, 41, 59], lineColor: [226, 232, 240], valign: 'top' },
+      styles: { fontSize: 7.5, cellPadding: 1.7, textColor: [30, 41, 59], lineColor: [226, 232, 240], valign: 'top', overflow: 'linebreak' },
       headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' },
       columnStyles: {
-        0: { cellWidth: 25 },
-        1: { cellWidth: 68 },
-        2: { cellWidth: 18, halign: 'right' },
-        3: { cellWidth: 19 },
-        4: { cellWidth: 25, halign: 'right' },
-        5: { cellWidth: 15, halign: 'right' },
-        6: { cellWidth: 18, halign: 'right' },
-        7: { cellWidth: 28, halign: 'right', fontStyle: 'bold' }
+        0: { cellWidth: 20 },
+        1: { cellWidth: 53 },
+        2: { cellWidth: 13, halign: 'right' },
+        3: { cellWidth: 14 },
+        4: { cellWidth: 22, halign: 'right' },
+        5: { cellWidth: 12, halign: 'right' },
+        6: { cellWidth: 14, halign: 'right' },
+        7: { cellWidth: 27, halign: 'right', fontStyle: 'bold' }
       }
     });
     const totalY = Math.min((docPdf.lastAutoTable?.finalY || 70) + 12, 270);
@@ -15313,6 +15690,7 @@ const abrirPuntoVenta = () => {
       fecha: pagoBase?.fecha ? obtenerFechaInputLocal(pagoBase.fecha) : obtenerFechaInputLocal(),
       monto: pagoBase ? String(pagoBase?.monto || '') : '',
       descuentoProveedor: pagoBase ? String(pagoBase?.descuentoProveedor ?? pagoBase?.bonificacionProveedor ?? '') : '',
+      descuentoProveedorPorcentaje: pagoBase ? String(pagoBase?.descuentoProveedorPorcentaje ?? '') : '',
       metodoPago: textoSeguroTrim(pagoBase?.metodoPago, 'transferencia'),
       numeroComprobante: textoSeguroTrim(pagoBase?.numeroComprobante, ''),
       notas: textoSeguroTrim(pagoBase?.notas, ''),
@@ -15453,7 +15831,7 @@ const abrirPuntoVenta = () => {
         .map((pedidoCompraId, index) => ({ pedidoCompraId, orden: index + 1, comprobante: etiquetaCargoPagoPdf(pedidoCompraId) }))
         .filter((item) => item.pedidoCompraId);
     const referenciaAplicacionPdf = aplicacionesPagoPdf.length
-      ? aplicacionesPagoPdf.map((aplicacion) => `${aplicacion.comprobante || etiquetaCargoPagoPdf(aplicacion.pedidoCompraId, aplicacion.pedidoCompraNumero)} · aplicado ${formatearDinero(Number(aplicacion.montoAplicado || 0))}`).join(' | ')
+      ? aplicacionesPagoPdf.map((aplicacion) => `${aplicacion.comprobante || etiquetaCargoPagoPdf(aplicacion.pedidoCompraIdInterno || aplicacion.pedidoCompraId, aplicacion.pedidoCompraNumero)} · aplicado ${formatearDinero(Number(aplicacion.montoAplicado || 0))}`).join(' | ')
       : (pago?.pedidoCompraNumero ? `Pedido PC-${pago.pedidoCompraNumero}` : 'Pago general a la cuenta corriente');
 
     const detallePago = [
@@ -15495,7 +15873,7 @@ const abrirPuntoVenta = () => {
         head: [['Orden', 'Remito / factura', 'Saldo anterior', 'Aplicado', 'Saldo posterior']],
         body: aplicacionesPagoPdf.map((aplicacion, index) => [
           String(aplicacion?.orden || index + 1),
-          textoSeguroTrim(aplicacion?.comprobante, etiquetaCargoPagoPdf(aplicacion?.pedidoCompraId, aplicacion?.pedidoCompraNumero)),
+          textoSeguroTrim(aplicacion?.comprobante, etiquetaCargoPagoPdf(aplicacion?.pedidoCompraIdInterno || aplicacion?.pedidoCompraId, aplicacion?.pedidoCompraNumero)),
           formatearDinero(Number(aplicacion?.saldoAntes || 0)),
           formatearDinero(Number(aplicacion?.montoAplicado || 0)),
           formatearDinero(Number(aplicacion?.saldoDespues || 0))
@@ -15541,21 +15919,24 @@ const abrirPuntoVenta = () => {
 
     if (adjuntosImagen.length) {
       docPdf.addPage();
-      docPdf.setFont('helvetica', 'bold');
-      docPdf.setFontSize(12);
-      docPdf.text('Comprobantes adjuntos', 14, 16);
-      let yImg = 24;
-      for (const adj of adjuntosImagen.slice(0, 6)) {
+      for (const [indiceAdjunto, adj] of adjuntosImagen.slice(0, 6).entries()) {
         try {
+          if (indiceAdjunto > 0) docPdf.addPage();
+          docPdf.setFont('helvetica', 'bold');
+          docPdf.setFontSize(12);
+          docPdf.text('Comprobantes adjuntos', 14, 16);
           docPdf.setFont('helvetica', 'bold');
           docPdf.setFontSize(8);
-          docPdf.text(textoSeguroTrim(adj?.nombre, 'Adjunto'), 14, yImg);
-          docPdf.addImage(adj.dataUrl, adj?.tipo?.includes('png') ? 'PNG' : 'JPEG', 14, yImg + 3, 85, 58, undefined, 'FAST');
-          yImg += 68;
-          if (yImg > 240) {
-            docPdf.addPage();
-            yImg = 18;
-          }
+          docPdf.text(textoSeguroTrim(adj?.nombre, 'Adjunto'), 14, 24);
+          const propiedadesAdjunto = docPdf.getImageProperties(adj.dataUrl);
+          const ratioAdjunto = (propiedadesAdjunto?.width || 1) / Math.max(propiedadesAdjunto?.height || 1, 1);
+          const maxW = 180;
+          const maxH = 250;
+          const drawW = Math.min(maxW, maxH * ratioAdjunto);
+          const drawH = Math.min(maxH, drawW / Math.max(ratioAdjunto, 0.01));
+          const drawX = 14 + ((maxW - drawW) / 2);
+          const formatoAdjunto = /png/i.test(tipoAdjunto(adj)) ? 'PNG' : 'JPEG';
+          docPdf.addImage(adj.dataUrl, formatoAdjunto, drawX, 30, drawW, drawH, undefined, 'NONE');
         } catch (error) {
           console.warn('No se pudo adjuntar imagen al recibo de pago proveedor', error);
         }
@@ -15566,6 +15947,18 @@ const abrirPuntoVenta = () => {
       docPdf.save(`recibo_pago_proveedor_${normalizarTextoArchivo(nombreProveedor)}_${obtenerFechaInputLocal(fechaPago)}.pdf`);
     }
     return docPdf;
+  };
+
+  const previsualizarPdfPagoProveedor = async (pago = null) => {
+    const docPdf = await construirPdfPagoProveedor(pago, { descargar: false });
+    if (!docPdf) return;
+    const blob = docPdf.output('blob');
+    const url = URL.createObjectURL(blob);
+    setPdfPagoProveedorPreviewUrl((anterior) => {
+      if (anterior) URL.revokeObjectURL(anterior);
+      return url;
+    });
+    setModalActivo('preview_pago_proveedor');
   };
 
   const sincronizarMovimientoPagoProveedor = async ({ pagoId = '', pago = null, eliminar = false } = {}) => {
@@ -15648,7 +16041,8 @@ const abrirPuntoVenta = () => {
     if (guardandoPagoProveedor) return;
     const proveedor = textoSeguroTrim(formPagoProveedor?.proveedor, '');
     const monto = parseNumeroBasico(formPagoProveedor?.monto);
-    const descuentoProveedor = Math.max(0, parseNumeroBasico(formPagoProveedor?.descuentoProveedor));
+    const descuentoProveedorPorcentaje = Math.min(100, Math.max(0, parseNumeroBasico(formPagoProveedor?.descuentoProveedorPorcentaje)));
+    const descuentoProveedor = Math.max(0, Number(resumenAplicacionPagoProveedor.descuentoProveedor || 0));
     if (!proveedor || monto + descuentoProveedor <= 0) {
       await notificarSistema('Seleccioná un proveedor e ingresá un pago o descuento válido.', {
         tipo: 'warning',
@@ -15721,6 +16115,7 @@ const abrirPuntoVenta = () => {
       aplicacionesComprobantes,
       montoAplicadoComprobantes: aplicacionesComprobantes.reduce((total, aplicacion) => total + Number(aplicacion.montoAplicado || 0), 0),
       descuentoProveedor,
+      descuentoProveedorPorcentaje,
       importeAplicadoTotal: aplicacionesComprobantes.reduce((total, aplicacion) => total + Number(aplicacion.montoAplicado || 0), 0),
       saldoFavorRegistrado: tipoAplicacion === 'general' ? 0 : Math.max(0, restanteAplicacion)
       ,impactaCaja: formPagoProveedor?.impactaCaja !== false,
@@ -15954,7 +16349,8 @@ const abrirPuntoVenta = () => {
         subtotalBase: item.subtotalBase || 0,
         subtotal: item.subtotal || 0,
         imagen: item.imagen || '',
-        manual: Boolean(item.manual)
+        manual: Boolean(item.manual),
+        temporal: Boolean(item.temporal)
       })),
       totalEstimado: totalRecibido,
       stockActualizado: Boolean(recepcionCompraPedido?.stockActualizado || stockActualizadoAhora),
@@ -16832,10 +17228,47 @@ const abrirPuntoVenta = () => {
       textoAceptar: 'Eliminar'
     });
     if (!confirmar) return;
-    await deleteDoc(doc(db, 'proveedores', proveedor.id));
-    if (proveedorAEditar?.id === proveedor.id) {
-      setProveedorAEditar(null);
-      setFormProveedor(FORM_PROVEEDOR_VACIO);
+    try {
+      const claveProveedorEliminado = normalizarClaveProveedorFlexible(proveedor.nombre || '');
+      const productosAfectados = (productos || []).filter((producto) => {
+        const costos = Array.isArray(producto?.proveedoresCostos) ? producto.proveedoresCostos : [];
+        return normalizarClaveProveedorFlexible(producto?.proveedor || '') === claveProveedorEliminado
+          || costos.some((costo) => normalizarClaveProveedorFlexible(costo?.proveedor || '') === claveProveedorEliminado);
+      });
+      const actualizacionesProductos = productosAfectados.map((producto) => {
+        const costosRestantes = (Array.isArray(producto?.proveedoresCostos) ? producto.proveedoresCostos : [])
+          .filter((costo) => normalizarClaveProveedorFlexible(costo?.proveedor || '') !== claveProveedorEliminado);
+        const proveedorPrincipal = costosRestantes.find((costo) => costo.recomendado) || costosRestantes[0] || null;
+        return updateDoc(doc(db, 'productos', producto.id), limpiarDatoFirestore({
+          proveedoresCostos: costosRestantes,
+          proveedor: proveedorPrincipal?.proveedor || '',
+          codigoProveedor: proveedorPrincipal?.codigoProveedor || '',
+          costoIvaIncluido: proveedorPrincipal ? Boolean(proveedorPrincipal.ivaIncluido) : Boolean(producto?.costoIvaIncluido),
+          fechaActualizacion: new Date().toISOString()
+        }));
+      });
+      await deleteDoc(doc(db, 'proveedores', proveedor.id));
+      // Borrar el proveedor no debe depender de que todos sus productos se
+      // puedan actualizar: así una referencia antigua no bloquea la acción.
+      setProveedores((prev) => (prev || []).filter((item) => item?.id !== proveedor.id));
+      const resultadosProductos = await Promise.allSettled(actualizacionesProductos);
+      const referenciasNoActualizadas = resultadosProductos.filter((resultado) => resultado.status === 'rejected').length;
+      if (proveedorAEditar?.id === proveedor.id) {
+        setProveedorAEditar(null);
+        setFormProveedor(FORM_PROVEEDOR_VACIO);
+      }
+      await notificarSistema(
+        referenciasNoActualizadas
+          ? `Se eliminó el proveedor "${proveedor.nombre}". ${referenciasNoActualizadas} referencia(s) de producto no se pudieron depurar automáticamente.`
+          : `Se eliminó el proveedor "${proveedor.nombre}" y se quitaron sus referencias de ${productosAfectados.length} producto(s).`,
+        { tipo: referenciasNoActualizadas ? 'warning' : 'success', titulo: 'Proveedor eliminado' }
+      );
+    } catch (error) {
+      console.error('No se pudo eliminar el proveedor', error);
+      await notificarSistema('No se pudo eliminar el proveedor ni sus referencias. Revisá la conexión y volvé a intentar.', {
+        tipo: 'error',
+        titulo: 'Error al eliminar'
+      });
     }
   };
 
@@ -17504,6 +17937,7 @@ const abrirPuntoVenta = () => {
     setGuardandoProducto(true);
     try {
       const descripcionFinal = textoSeguroTrim(formProducto.descripcion, '');
+      const esProductoCompuesto = Boolean(formProducto.esProductoCompuesto);
       const precioCompuesto = calcularPrecioCompuestoFormulario(formProducto);
       const precioFinalBase = formProducto.esProductoCompuesto ? precioCompuesto : parseNumeroBasico(formProducto.precio);
       const precioFinal = formProducto.esProductoCompuesto ? precioFinalBase : redondearPrecioProducto(precioFinalBase, formProducto.redondeoPrecio);
@@ -17531,7 +17965,8 @@ const abrirPuntoVenta = () => {
 
       const codigoInternoIngresado = (formProducto.codigoInterno || '').toString().trim();
       const codigoBarrasIngresado = (formProducto.codigoBarras || '').toString().trim();
-      const codigoAutomatico = (!codigoInternoIngresado && Boolean(formProducto.generarCodigoAutomatico))
+      // El código se genera siempre que el usuario no haya escrito uno manualmente.
+      const codigoAutomatico = !codigoInternoIngresado
         ? generarCodigoInternoAutomatico(productoAEditar?.id || null)
         : '';
       const codigoInternoFinal = (codigoInternoIngresado || codigoAutomatico || '').trim();
@@ -17539,7 +17974,7 @@ const abrirPuntoVenta = () => {
       const codigoFinal = codigoInternoFinal;
 
       if (!codigoFinal) {
-        await notificarSistema('Ingresa un código interno o activa "Generar código automático".', {
+        await notificarSistema('No se pudo generar el código interno automáticamente. Ingresá uno manualmente.', {
           tipo: 'warning',
           titulo: 'Código requerido'
         });
@@ -17608,6 +18043,26 @@ const abrirPuntoVenta = () => {
       const proveedoresCostos = (formProducto.proveedoresCostos || [])
         .map((costo, index) => normalizarProveedorCosto(costo, index))
         .filter((costo) => costo.proveedor || parseNumeroBasico(costo.costo) > 0 || parseNumeroBasico(costo.gastoCosto ?? costo.costoSinIva) > 0);
+      const variacionesCostosProveedor = !esProductoCompuesto && productoAEditar
+        ? proveedoresCostos
+          .map((costoNuevo) => {
+            const proveedorNuevo = normalizarClaveProveedorFlexible(costoNuevo?.proveedor || '');
+            const codigoNuevo = normalizarCodigoProveedorImportacion(costoNuevo?.codigoProveedor || '');
+            const costoAnterior = (productoAEditar.proveedoresCostos || [])
+              .map((costoAnteriorItem, index) => normalizarProveedorCosto(costoAnteriorItem, index))
+              .find((costoAnteriorItem) => {
+                const mismoProveedor = proveedorNuevo && normalizarClaveProveedorFlexible(costoAnteriorItem?.proveedor || '') === proveedorNuevo;
+                const mismoCodigo = codigoNuevo && normalizarCodigoProveedorImportacion(costoAnteriorItem?.codigoProveedor || '') === codigoNuevo;
+                return mismoProveedor || (mismoCodigo && !proveedorNuevo);
+              });
+            const anterior = parseNumeroBasico(costoAnterior?.costo);
+            const nuevo = parseNumeroBasico(costoNuevo?.costo);
+            return anterior > 0 && nuevo >= 0 && Math.abs(nuevo - anterior) >= 0.005
+              ? { anterior, nuevo, proveedor: costoNuevo?.proveedor || '' }
+              : null;
+          })
+          .filter(Boolean)
+        : [];
       const proveedoresAsignados = new Map();
       const proveedorDuplicadoProducto = proveedoresCostos.find((costo) => {
         const claveProveedor = normalizarClaveProveedorFlexible(costo?.proveedor || '');
@@ -17660,7 +18115,7 @@ const abrirPuntoVenta = () => {
       const marcaInventarioRegistrada = marcasInventario.find((marca) => normalizarTaxonomia(marca) === normalizarTaxonomia(marcaSeleccionada));
       const marcaFinal = textoSeguroTrim(marcaRegistrada?.nombre || marcaInventarioRegistrada || marcaSeleccionada, '');
       const logoMarcaFinal = textoSeguroTrim(formProducto.logoMarca, '') || textoSeguroTrim(marcaRegistrada?.logo, '');
-      const imagenesFormulario = obtenerImagenesProducto(formProducto);
+      const imagenesFormulario = obtenerImagenesProducto(formProducto).slice(0, 1);
       const imagenPrincipalFormulario = textoSeguroTrim(formProducto.imagen, '') || imagenesFormulario[0] || '';
       const imagenPreparada = await prepararImagenProductoParaGuardadoRapido(imagenPrincipalFormulario, productoAEditar?.imagen || '');
       const imagenProductoFinal = imagenPreparada.imagenInmediata || '';
@@ -17687,7 +18142,6 @@ const abrirPuntoVenta = () => {
         ? null
         : Math.max(0, parseNumeroBasico(stockMinimoTexto));
       const cantidadProductoAnterior = productoAEditar ? parseNumeroBasico(productoAEditar.cantidad) : null;
-      const esProductoCompuesto = Boolean(formProducto.esProductoCompuesto);
       const stockFueControlado = !esProductoCompuesto && (!productoAEditar || cantidadProductoFormulario !== cantidadProductoAnterior);
       const costoCompuesto = esProductoCompuesto ? calcularCostoCompuestoFormulario(formProducto) : 0;
       const componentesCompuesto = esProductoCompuesto
@@ -17769,6 +18223,16 @@ const abrirPuntoVenta = () => {
         );
         productoGuardadoId = productoRef?.id || '';
       }
+      if (productoGuardadoId && variacionesCostosProveedor.length) {
+        await Promise.all(variacionesCostosProveedor.map((variacion) => registrarVariacionPrecio({
+          producto: { ...(productoAEditar || {}), id: productoGuardadoId },
+          precioAnterior: variacion.anterior,
+          precioNuevo: variacion.nuevo,
+          proveedor: variacion.proveedor,
+          origen: 'lista_proveedor',
+          tipoVariacion: 'costo_proveedor'
+        })));
+      }
       if (productoGuardadoId && imagenesPendientesStorage.length) {
         Promise.all(imagenesPendientesStorage.map((imagenPendienteStorage) => promesaConTimeout(
           subirImagenProductoAStorage(imagenPendienteStorage, {
@@ -17802,6 +18266,26 @@ const abrirPuntoVenta = () => {
       setFormProducto(crearFormularioProducto());
     } catch (error) {
       console.error('No se pudo guardar el producto', error);
+      // Respaldo específico para ediciones de código de barras. Si alguna
+      // validación/cálculo secundario falla, el código no debe quedar sin
+      // guardar ni bloquear una modificación simple del producto.
+      const mensajeErrorProducto = String(error?.message || '');
+      const codigoBarrasRespaldo = (formProducto?.codigoBarras || '').toString().trim();
+      if (productoAEditar?.id && codigoBarrasRespaldo && /before initialization/i.test(mensajeErrorProducto)) {
+        try {
+          await updateDoc(doc(db, 'productos', productoAEditar.id), limpiarDatoFirestore({
+            codigoBarras: codigoBarrasRespaldo,
+            codigoTipoPrincipal: 'interno',
+            fechaActualizacion: new Date().toISOString()
+          }));
+          setModalActivo(null); setProductoAEditar(null); limpiarEdicionTaxonomias();
+          setFormProducto(crearFormularioProducto());
+          await notificarSistema('El código de barras se guardó correctamente. Revisá el resto de los datos si también querías modificarlos.', { tipo: 'success', titulo: 'Código guardado' });
+          return;
+        } catch (respaldoError) {
+          console.error('No se pudo guardar el código de barras mediante respaldo', respaldoError);
+        }
+      }
       await notificarSistema(`No se pudo guardar el producto. ${error?.message || 'Revisá la conexión y volvé a intentar.'}`, {
         tipo: 'danger',
         titulo: 'Error al guardar'
@@ -17830,6 +18314,7 @@ const abrirPuntoVenta = () => {
         }, index))
       : undefined;
     setProductoAEditar(null);
+    setModoFormularioProducto('duplicado');
     setFormProducto(crearFormularioProducto({
       ...producto,
       codigo: '',
@@ -17837,6 +18322,7 @@ const abrirPuntoVenta = () => {
       codigoBarras: '',
       codigoProveedor: '',
       codigoTipoPrincipal: 'interno',
+      imagenes: producto?.imagen ? [producto.imagen] : [],
       cantidad: '',
       stock: '',
       generarCodigoAutomatico: true,
@@ -17848,7 +18334,7 @@ const abrirPuntoVenta = () => {
     setModalActivo('nuevo_producto');
   };
 
-  const normalizarTaxonomia = (valor) => (valor || '').toString().trim().toLowerCase();
+  function normalizarTaxonomia(valor) { return (valor || '').toString().trim().toLowerCase(); }
 
   const iniciarEdicionCategoria = (categoria) => {
     setCategoriaEnEdicion(categoria);
@@ -18353,8 +18839,7 @@ const abrirPuntoVenta = () => {
           }
           if (Object.keys(payload).length <= 1) return null;
           return Promise.all([
-            updateDoc(doc(db, 'productos', producto.id), payload),
-            payload.precio !== undefined ? registrarVariacionPrecio({ producto, precioAnterior: producto.precio, precioNuevo: payload.precio, proveedor: modMasivaFiltroProveedorPrecio, origen: 'modificacion_masiva' }) : Promise.resolve(false)
+            updateDoc(doc(db, 'productos', producto.id), payload)
           ]);
         })
         .filter(Boolean);
@@ -18404,6 +18889,7 @@ const abrirPuntoVenta = () => {
     const updates = productosObjetivo.map((producto) => {
       const fechaActualizacionPrecios = new Date().toISOString();
       const payload = { fechaActualizacion: fechaActualizacionPrecios, fechaActualizacionPrecio: fechaActualizacionPrecios };
+      let variacionCostoProveedor = Promise.resolve(false);
       if (ivaNuevo) payload.iva = ivaNuevo;
       if (modoAjuste === 'venta') {
         const precioActual = Math.max(0, parseNumeroBasico(producto?.precio));
@@ -18423,6 +18909,14 @@ const abrirPuntoVenta = () => {
             payload.costo = convertirCostoProveedorAPesos(costoActualizado);
             payload.costoOriginal = costoNuevo;
             payload.monedaCosto = costoActualizado.moneda || producto?.monedaCosto || 'ARS';
+            variacionCostoProveedor = registrarVariacionPrecio({
+              producto,
+              precioAnterior: costoActual,
+              precioNuevo: costoNuevo,
+              proveedor: costoActualizado.proveedor,
+              origen: 'lista_proveedor',
+              tipoVariacion: 'costo_proveedor'
+            });
             const proveedorPrincipal = costosSiguientes.find((costo) => costo.recomendado) || costosSiguientes[0] || null;
             if (proveedorPrincipal?.proveedor === costoActualizado.proveedor) {
               payload.proveedor = proveedorPrincipal.proveedor || '';
@@ -18441,7 +18935,7 @@ const abrirPuntoVenta = () => {
       }
       return Promise.all([
         updateDoc(doc(db, 'productos', producto.id), payload),
-        modoAjuste === 'venta' ? registrarVariacionPrecio({ producto, precioAnterior: producto.precio, precioNuevo: payload.precio, proveedor: proveedorFiltroPrecio, origen: 'modificacion_masiva' }) : Promise.resolve(false)
+        variacionCostoProveedor
       ]);
     });
     actualizarOperacionPrecios({ fase: 'Aplicando cambios', total: updates.length, procesadas: 0, detalle: `Actualizando ${updates.length} producto(s)` });
@@ -18815,7 +19309,7 @@ function obtenerCategoriaProducto(producto) {
     URL.revokeObjectURL(url);
   };
 
-  const normalizarCodigoProducto = (valor) => (valor ?? '').toString().trim().toLowerCase();
+  function normalizarCodigoProducto(valor) { return (valor ?? '').toString().trim().toLowerCase(); }
   const normalizarCodigoNumerico = (valor) => normalizarCodigoProducto(valor).replace(/\D/g, '').replace(/^0+/, '');
   const parseNumeroImportacion = (valor) => {
     if (valor === null || valor === undefined) return null;
@@ -18891,38 +19385,29 @@ function obtenerCategoriaProducto(producto) {
     }
     return rows;
   };
-  const cargarSheetJs = () => new Promise((resolve, reject) => {
-    if (window.XLSX) { resolve(window.XLSX); return; }
-    const scriptId = 'sheetjs-xlsx-lib';
-    let script = document.getElementById(scriptId);
-    if (!script) {
-      script = document.createElement('script');
-      script.id = scriptId;
-      script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
-      script.async = true;
-      document.body.appendChild(script);
-    }
-    script.addEventListener('load', () => resolve(window.XLSX), { once: true });
-    script.addEventListener('error', () => reject(new Error('No se pudo cargar la librería XLSX')), { once: true });
-  });
   const leerExcelInventario = async (file) => {
-    const XLSX = await cargarSheetJs();
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(buffer, { type: 'array', cellDates: false, raw: true, WTF: false });
-    const firstSheetName = workbook.SheetNames[0];
-    if (!firstSheetName) return [];
-    const worksheet = workbook.Sheets[firstSheetName];
-    const matriz = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '', raw: true, blankrows: false });
-    const esEncabezadoProbable = (fila = []) => fila.filter((valor) => /codigo|c[oó]d|descrip|detalle|art[ií]culo|producto|precio|costo|stock|marca|sku|ean/i.test(String(valor || ''))).length;
-    const limite = Math.min(20, matriz.length);
-    let indiceEncabezado = -1;
-    let puntajeMayor = 0;
-    for (let i = 0; i < limite; i += 1) {
-      const puntaje = esEncabezadoProbable(matriz[i] || []);
-      if (puntaje > puntajeMayor) { puntajeMayor = puntaje; indiceEncabezado = i; }
-    }
-    if (indiceEncabezado < 0 || puntajeMayor === 0) indiceEncabezado = matriz.findIndex((fila) => (fila || []).some((valor) => String(valor ?? '').trim()));
-    if (indiceEncabezado < 0) return [];
+    if (!workbook.SheetNames?.length) return [];
+    let mejorHoja = null;
+    workbook.SheetNames.forEach((nombreHoja) => {
+      const worksheet = workbook.Sheets[nombreHoja];
+      const matriz = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '', raw: false, blankrows: false });
+      const limite = Math.min(30, matriz.length);
+      let indiceEncabezado = -1;
+      let puntajeMayor = 0;
+      for (let i = 0; i < limite; i += 1) {
+        const puntaje = (matriz[i] || []).filter((valor) => /codigo|c[oó]d|descrip|detalle|art[ií]culo|producto|precio|costo|stock|marca|sku|ean|referencia/i.test(String(valor || ''))).length;
+        if (puntaje > puntajeMayor) { puntajeMayor = puntaje; indiceEncabezado = i; }
+      }
+      if (indiceEncabezado < 0 || puntajeMayor === 0) indiceEncabezado = matriz.findIndex((fila) => (fila || []).some((valor) => String(valor ?? '').trim()));
+      if (indiceEncabezado < 0) return;
+      const filasConDatos = matriz.slice(indiceEncabezado + 1).filter((fila) => (fila || []).some((valor) => String(valor ?? '').trim())).length;
+      const puntuacion = (puntajeMayor * 100000) + filasConDatos;
+      if (!mejorHoja || puntuacion > mejorHoja.puntuacion) mejorHoja = { matriz, indiceEncabezado, puntuacion };
+    });
+    if (!mejorHoja) return [];
+    const { matriz, indiceEncabezado } = mejorHoja;
     const usados = new Map();
     const encabezados = (matriz[indiceEncabezado] || []).map((valor, indice) => {
       const base = normalizarTituloColumnaImportacion(valor, indice);
@@ -19034,7 +19519,7 @@ function obtenerCategoriaProducto(producto) {
     }
   };
 
-  const registrarVariacionPrecio = async ({ producto = {}, precioAnterior, precioNuevo, proveedor = '', origen = 'actualizacion_masiva', archivo = '' } = {}) => {
+  const registrarVariacionPrecio = async ({ producto = {}, precioAnterior, precioNuevo, proveedor = '', origen = 'lista_proveedor', archivo = '', tipoVariacion = 'costo_proveedor' } = {}) => {
     const anterior = parseNumeroBasico(precioAnterior);
     const nuevo = parseNumeroBasico(precioNuevo);
     if (!(anterior > 0) || !(nuevo >= 0) || Math.abs(nuevo - anterior) < 0.005) return false;
@@ -19053,6 +19538,7 @@ function obtenerCategoriaProducto(producto) {
         fecha,
         mes: fecha.slice(0, 7),
         origen,
+        tipoVariacion,
         archivo,
         usuario: usuarioActual?.nombre || usuarioActual?.usuario || 'Sistema'
       }));
@@ -19234,6 +19720,8 @@ function obtenerCategoriaProducto(producto) {
 
         let proveedoresCostosSiguientes = null;
         let proveedorPrincipal = null;
+        let costoAnteriorProveedor = null;
+        let costoNuevoProveedor = null;
         const debeActualizarProveedor = Boolean(proveedorNombre && (codigoProveedor || costoValido));
         if (debeActualizarProveedor) {
           const costosActuales = producto
@@ -19249,6 +19737,7 @@ function obtenerCategoriaProducto(producto) {
           ));
           if (idxCosto < 0 && coincidenciasProveedor?.[0]?.index >= 0) idxCosto = coincidenciasProveedor[0].index;
           const costoBase = idxCosto >= 0 ? costosActuales[idxCosto] : { recomendado: costosActuales.length === 0 };
+          costoAnteriorProveedor = idxCosto >= 0 ? parseNumeroBasico(costosActuales[idxCosto]?.costo) : null;
           const costoActualizado = {
             ...aplicarCondicionesMaestrasProveedor(costoBase, proveedorMaestro, proveedorNombre),
             proveedor: proveedorNombre,
@@ -19259,6 +19748,7 @@ function obtenerCategoriaProducto(producto) {
             actualizado: fechaActualizacionImportacionDia,
             recomendado: Boolean(costoBase?.recomendado || costosActuales.length === 0)
           };
+          costoNuevoProveedor = costoValido ? Number(costo.toFixed(2)) : null;
           proveedoresCostosSiguientes = idxCosto >= 0
             ? costosActuales.map((item, index) => (index === idxCosto ? costoActualizado : item))
             : [...costosActuales, costoActualizado];
@@ -19306,13 +19796,14 @@ function obtenerCategoriaProducto(producto) {
           }
           await respaldoImportacion.respaldar(producto);
           await updateDoc(doc(db, 'productos', producto.id), limpiarDatoFirestore(updates));
-          const variacionRegistrada = updates.precio !== undefined
+          const variacionRegistrada = costoAnteriorProveedor > 0 && costoNuevoProveedor !== null
             ? await registrarVariacionPrecio({
                 producto,
-                precioAnterior: producto.precio,
-                precioNuevo: updates.precio,
+                precioAnterior: costoAnteriorProveedor,
+                precioNuevo: costoNuevoProveedor,
                 proveedor: proveedorNombre,
-                origen: 'importacion_excel',
+                origen: 'lista_proveedor',
+                tipoVariacion: 'costo_proveedor',
                 archivo: archivoImportacionInventario?.name || ''
               })
             : false;
@@ -19389,7 +19880,7 @@ function obtenerCategoriaProducto(producto) {
     }
   };
 
-  const normalizarCodigoProveedorImportacion = (valor) => normalizarCodigoProducto(valor).replace(/\s+/g, '');
+  function normalizarCodigoProveedorImportacion(valor) { return normalizarCodigoProducto(valor).replace(/\s+/g, ''); }
 
   const obtenerColumnasDesdeFilas = (filas = []) => {
     const columnas = new Set();
@@ -19403,8 +19894,8 @@ function obtenerCategoriaProducto(producto) {
   };
 
   const detectarColumnaCostosProveedor = (columnas = [], tipo = 'codigo') => {
-    const patronesCodigo = ['codigo proveedor', 'código proveedor', 'cod proveedor', 'codigo prov', 'cod prov', 'codigo', 'código', 'cod', 'sku', 'articulo', 'artículo'];
-    const patronesCosto = ['costo sin iva', 'precio costo sin iva', 'costo neto', 'precio costo', 'precio de costo', 'costo', 'coste', 'neto'];
+    const patronesCodigo = ['codigo proveedor', 'código proveedor', 'cod proveedor', 'codigo prov', 'código prov', 'cod prov', 'cod. prov.', 'cod. prov', 'codigo de proveedor', 'código de proveedor', 'codigo articulo', 'código artículo', 'referencia', 'ref.', 'ref', 'sku proveedor', 'sku', 'articulo', 'artículo', 'codigo', 'código', 'cod'];
+    const patronesCosto = ['costo sin iva', 'precio costo sin iva', 'precio de costo sin iva', 'costo unitario', 'precio unitario', 'costo nuevo', 'nuevo costo', 'costo neto', 'precio neto', 'precio costo', 'precio de costo', 'costo', 'coste', 'neto', 'precio'];
     const patrones = tipo === 'costo' ? patronesCosto : patronesCodigo;
     const exacta = columnas.find((columna) => patrones.includes(normalizarTextoBusqueda(columna)));
     if (exacta) return exacta;
@@ -19420,6 +19911,9 @@ function obtenerCategoriaProducto(producto) {
     setColumnasArchivoCostosProveedor([]);
     setConfigCostosProveedor({ proveedor: '', columnaCodigo: '', columnaCosto: '', ivaIncluido: false });
     setResumenCostosProveedor(null);
+    setVistaPreviaCostosProveedor(null);
+    setFiltroVistaPreviaCostosProveedor('todos');
+    setProgresoCostosProveedor({ activo: false, total: 0, procesadas: 0, actualizados: 0, errores: 0, completo: false });
   };
 
   const abrirActualizacionCostosProveedor = () => {
@@ -19433,6 +19927,8 @@ function obtenerCategoriaProducto(producto) {
     setFilasCostosProveedor([]);
     setColumnasArchivoCostosProveedor([]);
     setResumenCostosProveedor(null);
+    setVistaPreviaCostosProveedor(null);
+    setProgresoCostosProveedor({ activo: false, total: 0, procesadas: 0, actualizados: 0, errores: 0, completo: false });
     setConfigCostosProveedor((prev) => ({ ...prev, columnaCodigo: '', columnaCosto: '' }));
     if (!file) return;
 
@@ -19456,7 +19952,7 @@ function obtenerCategoriaProducto(producto) {
       }
     } catch (error) {
       console.error('Error leyendo lista de costos de proveedor', error);
-      await notificarSistema('No se pudo leer el archivo. Revisa si es Excel o CSV válido.', {
+      await notificarSistema(`No se pudo leer el archivo. ${textoSeguroTrim(error?.message, 'Revisá si es un Excel o CSV válido y que no esté protegido con contraseña.')}`, {
         tipo: 'error',
         titulo: 'Archivo no válido'
       });
@@ -19486,7 +19982,111 @@ function obtenerCategoriaProducto(producto) {
     };
   };
 
-  const procesarActualizacionCostosProveedor = async () => {
+  const analizarActualizacionCostosProveedor = async () => {
+    const proveedorNombre = textoSeguroTrim(configCostosProveedor.proveedor, '');
+    const columnaCodigo = configCostosProveedor.columnaCodigo;
+    const columnaCosto = configCostosProveedor.columnaCosto;
+    if (!proveedorNombre) {
+      await notificarSistema('Seleccioná el proveedor al que pertenece la lista.', { tipo: 'warning', titulo: 'Proveedor requerido' });
+      return;
+    }
+    if (!archivoCostosProveedor || !filasCostosProveedor.length) {
+      await notificarSistema('Cargá primero un Excel o CSV con códigos y costos.', { tipo: 'warning', titulo: 'Archivo requerido' });
+      return;
+    }
+    if (!columnaCodigo || !columnaCosto) {
+      await notificarSistema('Indicá cuál columna contiene el código de proveedor y cuál contiene el costo.', { tipo: 'warning', titulo: 'Columnas requeridas' });
+      return;
+    }
+
+    setImportandoCostosProveedor(true);
+    setResumenCostosProveedor(null);
+    setVistaPreviaCostosProveedor(null);
+    setProgresoCostosProveedor({ activo: false, total: 0, procesadas: 0, actualizados: 0, errores: 0, completo: false });
+    try {
+      const proveedorKey = normalizarTextoBusqueda(proveedorNombre);
+      const mapaCodigos = new Map();
+      (productos || []).forEach((producto) => {
+        obtenerCostosProveedorProducto(producto).forEach((costo, index) => {
+          if (normalizarTextoBusqueda(costo?.proveedor || '') !== proveedorKey) return;
+          if (!textoSeguroTrim(costo?.codigoProveedor, '')) return;
+          registrarProductoEnMapaProveedor(mapaCodigos, costo.codigoProveedor, { producto, costo, index });
+        });
+      });
+
+      const filasVista = [];
+      const productosYaIncluidos = new Set();
+      filasCostosProveedor.forEach((fila, filaIndex) => {
+        const codigoRaw = fila?.[columnaCodigo];
+        const codigo = normalizarCodigoProveedorImportacion(codigoRaw);
+        const codigoNumerico = normalizarCodigoNumerico(codigoRaw);
+        const costoNuevo = parseNumeroImportacion(fila?.[columnaCosto]);
+        const base = { id: `lista-${filaIndex}`, fila, filaNumero: filaIndex + 2, codigo: textoSeguroTrim(codigoRaw, ''), costoNuevo };
+        if (!codigo) {
+          filasVista.push({ ...base, estado: 'sin_codigo', motivo: 'La fila no tiene código de proveedor.', seleccionado: false });
+          return;
+        }
+        if (costoNuevo === null || costoNuevo < 0) {
+          filasVista.push({ ...base, estado: 'costo_invalido', motivo: 'El costo está vacío o no tiene un formato numérico válido.', seleccionado: false });
+          return;
+        }
+        const coincidencias = mapaCodigos.get(codigo) || (codigoNumerico ? mapaCodigos.get(codigoNumerico) : null);
+        if (!coincidencias?.length) {
+          filasVista.push({ ...base, estado: 'sin_coincidencia', motivo: 'El código no existe para el proveedor seleccionado.', seleccionado: false });
+          return;
+        }
+        coincidencias.forEach((coincidencia, coincidenciaIndex) => {
+          const costoAnterior = parseNumeroBasico(coincidencia.costo?.costo || 0);
+          const cambioIvaIncluido = Boolean(coincidencia.costo?.ivaIncluido) !== Boolean(configCostosProveedor.ivaIncluido);
+          const porcentaje = costoAnterior > 0 ? ((costoNuevo - costoAnterior) / costoAnterior) * 100 : null;
+          const claveProducto = `${coincidencia.producto.id}:${coincidencia.index}`;
+          const duplicado = productosYaIncluidos.has(claveProducto);
+          productosYaIncluidos.add(claveProducto);
+          const sinCambios = Math.abs(costoAnterior - costoNuevo) < 0.0001 && !cambioIvaIncluido;
+          filasVista.push({
+            ...base,
+            id: `${base.id}-${coincidenciaIndex}-${coincidencia.producto.id}`,
+            productoId: coincidencia.producto.id,
+            costoIndex: coincidencia.index,
+            descripcion: coincidencia.producto.descripcion || 'Producto sin descripción',
+            codigoProducto: coincidencia.producto.codigo || coincidencia.producto.codigoInterno || '',
+            costoAnterior,
+            porcentaje,
+            estado: duplicado ? 'duplicado' : (sinCambios ? 'sin_cambios' : 'listo'),
+            motivo: duplicado ? 'Este producto ya apareció antes en la lista.' : (sinCambios ? 'El costo ya está actualizado.' : 'Coincidencia lista para actualizar.'),
+            seleccionado: !duplicado && !sinCambios
+          });
+        });
+      });
+      const resumen = {
+        total: filasCostosProveedor.length,
+        coincidencias: filasVista.filter((fila) => Boolean(fila.productoId)).length,
+        listos: filasVista.filter((fila) => fila.estado === 'listo').length,
+        sinCambios: filasVista.filter((fila) => fila.estado === 'sin_cambios').length,
+        sinCoincidencia: filasVista.filter((fila) => fila.estado === 'sin_coincidencia').length,
+        invalidos: filasVista.filter((fila) => ['sin_codigo', 'costo_invalido', 'duplicado'].includes(fila.estado)).length
+      };
+      setVistaPreviaCostosProveedor({ filas: filasVista, resumen, proveedor: proveedorNombre, archivo: archivoCostosProveedor.name });
+      setFiltroVistaPreviaCostosProveedor('todos');
+      if (!resumen.listos) {
+        await notificarSistema('El archivo se leyó correctamente, pero no hay costos nuevos listos para actualizar. Revisá los códigos y las columnas seleccionadas.', { tipo: 'warning', titulo: 'Sin cambios aplicables' });
+      }
+    } catch (error) {
+      console.error('Error analizando lista de costos de proveedor', error);
+      await notificarSistema(`No se pudo analizar la lista. ${textoSeguroTrim(error?.message, 'Revisá el formato del archivo y volvé a intentar.')}`, { tipo: 'error', titulo: 'Error al procesar' });
+    } finally {
+      setImportandoCostosProveedor(false);
+    }
+  };
+
+  const alternarFilaVistaPreviaCosto = (filaId) => {
+    setVistaPreviaCostosProveedor((prev) => prev ? {
+      ...prev,
+      filas: prev.filas.map((fila) => fila.id === filaId && fila.estado === 'listo' ? { ...fila, seleccionado: !fila.seleccionado } : fila)
+    } : prev);
+  };
+
+  const aplicarActualizacionCostosProveedor = async () => {
     const proveedorNombre = textoSeguroTrim(configCostosProveedor.proveedor, '');
     const columnaCodigo = configCostosProveedor.columnaCodigo;
     const columnaCosto = configCostosProveedor.columnaCosto;
@@ -19513,9 +20113,19 @@ function obtenerCategoriaProducto(producto) {
       });
       return;
     }
+    const filasSeleccionadas = (vistaPreviaCostosProveedor?.filas || []).filter((fila) => fila.estado === 'listo' && fila.seleccionado);
+    if (!vistaPreviaCostosProveedor) {
+      await notificarSistema('Primero analizá el archivo para revisar las coincidencias antes de actualizar.', { tipo: 'warning', titulo: 'Análisis requerido' });
+      return;
+    }
+    if (!filasSeleccionadas.length) {
+      await notificarSistema('No hay coincidencias seleccionadas para actualizar.', { tipo: 'warning', titulo: 'Sin selección' });
+      return;
+    }
 
     setImportandoCostosProveedor(true);
     setResumenCostosProveedor(null);
+    setProgresoCostosProveedor({ activo: true, total: filasSeleccionadas.length, procesadas: 0, actualizados: 0, errores: 0, completo: false });
     try {
       const proveedorKey = normalizarTextoBusqueda(proveedorNombre);
       const proveedorMaestro = obtenerProveedorMaestroPorNombre(proveedorNombre);
@@ -19542,7 +20152,8 @@ function obtenerCategoriaProducto(producto) {
         detalle: archivoCostosProveedor?.name || ''
       });
 
-      for (const fila of filasCostosProveedor) {
+      for (const entradaVista of filasSeleccionadas) {
+        const fila = entradaVista.fila;
         const codigoRaw = fila?.[columnaCodigo];
         const codigo = normalizarCodigoProveedorImportacion(codigoRaw);
         const codigoNumerico = normalizarCodigoNumerico(codigoRaw);
@@ -19551,7 +20162,8 @@ function obtenerCategoriaProducto(producto) {
         const costoNuevo = parseNumeroImportacion(fila?.[columnaCosto]);
         if (costoNuevo === null || costoNuevo < 0) { costoInvalido += 1; continue; }
 
-        const coincidencias = mapaCodigos.get(codigo) || (codigoNumerico ? mapaCodigos.get(codigoNumerico) : null);
+        const productoVista = (productos || []).find((producto) => producto.id === entradaVista.productoId);
+        const coincidencias = productoVista ? [{ producto: productoVista, index: entradaVista.costoIndex }] : null;
         if (!coincidencias?.length) { sinCoincidencia += 1; continue; }
         productosCoincidentes += coincidencias.length;
 
@@ -19631,6 +20243,7 @@ function obtenerCategoriaProducto(producto) {
           actualizados += 1;
           productosTocados.add(producto.id);
         }
+        setProgresoCostosProveedor((prev) => ({ ...prev, procesadas: prev.procesadas + 1, actualizados }));
       }
 
       setResumenCostosProveedor({
@@ -19638,23 +20251,26 @@ function obtenerCategoriaProducto(producto) {
         actualizados,
         productosActualizados: productosTocados.size,
         productosCoincidentes,
-        sinCoincidencia,
-        sinCodigo,
-        costoInvalido,
-        sinCambios
+        sinCoincidencia: vistaPreviaCostosProveedor?.resumen?.sinCoincidencia || sinCoincidencia,
+        sinCodigo: vistaPreviaCostosProveedor?.filas?.filter((fila) => fila.estado === 'sin_codigo').length || sinCodigo,
+        costoInvalido: vistaPreviaCostosProveedor?.filas?.filter((fila) => fila.estado === 'costo_invalido').length || costoInvalido,
+        sinCambios: vistaPreviaCostosProveedor?.resumen?.sinCambios || sinCambios
       });
       await notificarSistema(`Se actualizaron ${actualizados} costo(s) de ${productosTocados.size} producto(s).`, {
         tipo: 'success',
         titulo: 'Costos actualizados'
       });
+      setProgresoCostosProveedor((prev) => ({ ...prev, activo: false, procesadas: prev.total, actualizados, completo: true }));
     } catch (error) {
       console.error('Error actualizando costos de proveedor', error);
-      await notificarSistema('No se pudieron actualizar los costos. Revisa el archivo e intenta nuevamente.', {
+      setProgresoCostosProveedor((prev) => ({ ...prev, activo: false, errores: prev.errores + 1 }));
+      await notificarSistema(`No se pudieron actualizar los costos. ${textoSeguroTrim(error?.message, 'Revisá el archivo e intentá nuevamente.')}`, {
         tipo: 'error',
         titulo: 'Error de actualización'
       });
     } finally {
       setImportandoCostosProveedor(false);
+      setProgresoCostosProveedor((prev) => ({ ...prev, activo: false }));
     }
   };
 
@@ -20069,6 +20685,33 @@ function obtenerCategoriaProducto(producto) {
       return;
     }
 
+    // Las validaciones de cliente deben resolverse antes de poner el formulario
+    // en estado "guardando". Así, después de corregir un nombre o teléfono el
+    // siguiente intento siempre queda habilitado de inmediato.
+    const clienteIdValidado = textoSeguroTrim(formPresupuesto.clienteId, '');
+    const clienteNombreValidado = textoSeguroTrim(formPresupuesto.clienteNombre, '');
+    if (formPresupuesto.esNuevoCliente && !clienteNombreValidado) {
+      await notificarSistema('Ingresá el nombre del nuevo cliente.', {
+        tipo: 'warning',
+        titulo: 'Nombre requerido'
+      });
+      return;
+    }
+    if (!formPresupuesto.esNuevoCliente && !clienteIdValidado) {
+      await notificarSistema('Buscá y seleccioná un cliente existente, o marcá “Nuevo” para cargarlo.', {
+        tipo: 'warning',
+        titulo: 'Cliente requerido'
+      });
+      return;
+    }
+    if (!formPresupuesto.esNuevoCliente && !clientes.some((cliente) => cliente.id === clienteIdValidado)) {
+      await notificarSistema('El cliente seleccionado ya no está disponible. Volvé a buscarlo.', {
+        tipo: 'warning',
+        titulo: 'Cliente no disponible'
+      });
+      return;
+    }
+
     setGuardandoPresupuesto(true);
     try {
       const resumen = calcularResumenPresupuesto(itemsNormalizados, formPresupuesto.descuentoGeneral);
@@ -20076,38 +20719,20 @@ function obtenerCategoriaProducto(producto) {
         ? (parseEnteroPresupuesto(formPresupuesto.numero) || parseEnteroPresupuesto(presupuestos.find((p) => p.id === formPresupuesto.id)?.numero) || obtenerSiguienteNumeroPresupuesto())
         : obtenerSiguienteNumeroPresupuesto();
 
-      let cId = textoSeguroTrim(formPresupuesto.clienteId, '');
-      let cNombre = textoSeguroTrim(formPresupuesto.clienteNombre, '');
+      let cId = clienteIdValidado;
+      let cNombre = clienteNombreValidado;
       let cWpp = textoSeguroTrim(formPresupuesto.whatsapp, '');
 
       if (formPresupuesto.esNuevoCliente) {
-        if (!cNombre) {
-          await notificarSistema('Ingresa el nombre del nuevo cliente.', {
-            tipo: 'warning',
-            titulo: 'Nombre requerido'
-          });
-          return;
-        }
         const docRef = await addDoc(collection(db, 'clientes'), limpiarDatoFirestore({ numero: obtenerSiguienteNumeroCliente(), nombre: cNombre, whatsapp: cWpp, saldo: 0, esEspecial: false }));
         cId = docRef.id;
       } else {
-        if (!cId) {
-          await notificarSistema('Busca y selecciona un cliente existente para continuar.', {
-            tipo: 'warning',
-            titulo: 'Cliente requerido'
-          });
-          return;
-        }
         const clienteSeleccionado = clientes.find(c => c.id === cId);
         if (clienteSeleccionado) {
           cNombre = clienteSeleccionado.nombre;
           cWpp = clienteSeleccionado.whatsapp || cWpp;
         } else {
-          await notificarSistema('El cliente seleccionado ya no está disponible. Vuelve a buscarlo.', {
-            tipo: 'warning',
-            titulo: 'Cliente no disponible'
-          });
-          return;
+          throw new Error('El cliente seleccionado ya no está disponible.');
         }
       }
 
@@ -20160,6 +20785,67 @@ function obtenerCategoriaProducto(producto) {
     } finally {
       setGuardandoPresupuesto(false);
     }
+  };
+
+  const generarPresupuestoDesdePuntoVenta = async () => {
+    const items = (formPuntoVenta.items || [])
+      .map((item, index) => normalizarItemPresupuestoParaGuardar({ ...item }, index))
+      .filter((item) => textoSeguroTrim(item?.descripcion, '') || textoSeguroTrim(item?.codigo, ''));
+    if (!items.length) {
+      await notificarSistema('Agregá al menos un producto antes de generar el presupuesto.', { tipo: 'warning', titulo: 'Presupuesto vacío' });
+      return;
+    }
+
+    let clienteId = textoSeguroTrim(formPuntoVenta.clienteId, '');
+    let clienteNombre = textoSeguroTrim(formPuntoVenta.clienteNombre, '');
+    let whatsapp = textoSeguroTrim(formPuntoVenta.whatsapp, '');
+    if (formPuntoVenta.modoCliente === 'nuevo') {
+      if (!clienteNombre) {
+        await notificarSistema('Ingresá el nombre del cliente para generar el presupuesto.', { tipo: 'warning', titulo: 'Cliente requerido' });
+        return;
+      }
+      const clienteNuevo = await addDoc(collection(db, 'clientes'), limpiarDatoFirestore({ numero: obtenerSiguienteNumeroCliente(), nombre: clienteNombre, whatsapp, saldo: 0, esEspecial: false }));
+      clienteId = clienteNuevo.id;
+    } else {
+      const cliente = (clientes || []).find((item) => item.id === clienteId);
+      if (!cliente) {
+        await notificarSistema('Seleccioná un cliente antes de generar el presupuesto.', { tipo: 'warning', titulo: 'Cliente requerido' });
+        return;
+      }
+      clienteNombre = cliente.nombre;
+      whatsapp = cliente.whatsapp || whatsapp;
+    }
+
+    const resumen = calcularResumenPresupuesto(items, 0);
+    const presupuesto = limpiarDatoFirestore({
+      clienteId, clienteNombre, whatsapp, items,
+      empresaNombre: textoSeguroTrim(configuracion?.nombre, NOMBRE_EMPRESA_FALLBACK),
+      empresaLogo: textoSeguroTrim(logoEmpresaRender, textoSeguroTrim(configuracion?.logo, '')),
+      descuentoGeneral: 0, numero: obtenerSiguienteNumeroPresupuesto(),
+      aplicaFleteCosto: false, fletePorcentaje: 0, fleteMontoEstimado: 0, costoTotalEstimado: 0, gananciaEstimada: 0,
+      total: resumen.total, estado: 'borrador', notas: textoSeguroTrim(formPuntoVenta.notas, ''), fecha: new Date().toISOString(), usuario: usuarioActual.nombre
+    });
+    try {
+      const creado = await addDoc(collection(db, 'presupuestos'), presupuesto);
+      setPresupuestoAImprimir({ ...presupuesto, id: creado.id });
+      setIncluirImagenesPdf(true);
+      setIncluirLogoMarcaPresupuestoPdf(true);
+      setSoloPreciosPorItemPresupuestoPdf(false);
+      setRetornoPrevisualizadorPresupuesto('punto_venta');
+      setModalActivo('imprimir_presupuesto');
+    } catch (error) {
+      console.error('No se pudo generar el presupuesto desde punto de venta', error);
+      await notificarSistema('No se pudo guardar el presupuesto. Revisá la conexión e intentá nuevamente.', { tipo: 'error', titulo: 'Error al generar presupuesto' });
+    }
+  };
+
+  const seleccionarMetodoPagoPuntoVenta = (metodo = 'efectivo') => {
+    guardandoPuntoVentaRef.current = false;
+    setCierrePantallaClientePuntoVenta(null);
+    setPagoPendientePuntoVenta(null);
+    setEfectivoRecibidoPuntoVenta('');
+    setFormPuntoVenta((prev) => ({ ...prev, metodoPago: metodo, tarjetaPlanId: '' }));
+    refrescarPantallaClientePuntoVentaPronto();
   };
 
   const cancelarEdicionPresupuesto = async () => {
@@ -20220,6 +20906,18 @@ function obtenerCategoriaProducto(producto) {
     return conExtension ? `${base}.pdf` : base;
   };
 
+  // El código de proveedor pertenece a la relación producto + proveedor.
+  // Nunca debe heredarse el código de otro proveedor del mismo producto.
+  function obtenerCodigoProveedorParaPedidoPdf(item = {}) {
+    const proveedorPedido = normalizarTextoBusqueda(item?.proveedor || item?.proveedorCompra || '');
+    const producto = obtenerProductoParaPedidoCompra(item);
+    if (!producto || !proveedorPedido) return producto ? '' : textoSeguroTrim(item?.codigoProveedor, '');
+    const costoProveedor = obtenerCostosProveedorProducto(producto).find((costo) => (
+      normalizarTextoBusqueda(costo?.proveedor || '') === proveedorPedido
+    ));
+    return textoSeguroTrim(costoProveedor?.codigoProveedor, '');
+  }
+
   const descargarPedidosProveedorPresupuesto = async (presupuesto = null) => {
     const items = (presupuesto?.items || []).filter((item) => textoSeguroTrim(item?.proveedorCompra, ''));
     if (!items.length) {
@@ -20275,7 +20973,7 @@ function obtenerCategoriaProducto(producto) {
         startY: 50,
         head: [['Cod. proveedor', 'Código interno', 'Detalle', 'Cant.', 'Unidad', 'Costo ref.']],
         body: itemsProveedor.map((item) => [
-          item.codigoProveedor || '-',
+          obtenerCodigoProveedorParaPedidoPdf(item) || '-',
           item.codigo || '-',
           item.descripcion || '-',
           String(item.cantidad || 1),
@@ -20285,12 +20983,12 @@ function obtenerCategoriaProducto(producto) {
         styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' },
         headStyles: { fillColor: [15, 23, 42], textColor: 255, fontStyle: 'bold' },
         columnStyles: {
-          0: { cellWidth: 25 },
-          1: { cellWidth: 25 },
-          2: { cellWidth: 78 },
-          3: { cellWidth: 16, halign: 'right' },
-          4: { cellWidth: 18 },
-          5: { cellWidth: 28, halign: 'right' }
+          0: { cellWidth: 22 },
+          1: { cellWidth: 22 },
+          2: { cellWidth: 72 },
+          3: { cellWidth: 14, halign: 'right' },
+          4: { cellWidth: 16 },
+          5: { cellWidth: 24, halign: 'right' }
         },
         margin: { left: 14, right: 14 }
       });
@@ -20323,7 +21021,8 @@ function obtenerCategoriaProducto(producto) {
     iva: item?.iva ?? ((productos || []).find((producto) => producto?.id === item?.productoId)?.iva ?? ''),
     descuento: item?.descuento ?? '',
     imagen: textoSeguroTrim(item?.imagen, ''),
-    manual: Boolean(item?.manual)
+    manual: Boolean(item?.manual),
+    temporal: Boolean(item?.temporal)
   });
 
   const obtenerEstadoPedidoCompraLabel = (estado = '') => {
@@ -20401,9 +21100,9 @@ function obtenerCategoriaProducto(producto) {
     return '';
   };
 
-  // En compras el costo del remito se toma como base: sólo se aplica el
-  // descuento general del proveedor. IVA y flete se reservan para la etapa
-  // posterior de precio/costo del inventario y nunca se agregan aquí.
+  // Convierte el costo guardado del proveedor a pesos. En una compra directa,
+  // el descuento maestro sólo se vuelve a aplicar si el usuario lo habilita.
+  // El IVA es informativo y el flete queda fuera salvo selección explícita.
   const convertirCostoProveedorBrutoParaPedidoCompra = (costo = {}, producto = {}) => {
     const moneda = ['ARS', 'USD_BNA', 'USD_BLUE'].includes(costo?.moneda) ? costo.moneda : 'ARS';
     const valorBase = costo?.costo !== undefined && costo?.costo !== null && String(costo.costo).trim() !== ''
@@ -20473,13 +21172,17 @@ function obtenerCategoriaProducto(producto) {
     const producto = obtenerProductoParaPedidoCompra(item);
     const costoProveedor = obtenerCostoProveedorParaPedidoCompra(producto, proveedorElegido);
     if (!costoProveedor || (!producto && !textoSeguroTrim(item?.descripcion, ''))) return { ...item, proveedor: proveedorElegido };
+    const costoBaseCompraPesos = compraDirectaActiva
+      ? convertirCostoProveedorBrutoParaPedidoCompra(costoProveedor, producto)
+      : (costoProveedor.costoPesos || 0);
     return {
       ...item,
       proveedor: proveedorElegido || costoProveedor.proveedor || '',
       codigoProveedor: costoProveedor.codigoProveedor || '',
       costo: costoProveedor.costo ?? '',
       moneda: costoProveedor.moneda || 'ARS',
-      costoPesos: costoProveedor.costoPesos || 0,
+      costoPesos: costoBaseCompraPesos,
+      costoBaseCompraPesos: compraDirectaActiva ? costoBaseCompraPesos : '',
       imagen: obtenerImagenItemPedidoCompra({ ...item, productoId: producto?.id || item.productoId })
     };
   };
@@ -20489,6 +21192,7 @@ function obtenerCategoriaProducto(producto) {
     setCompraDirectaMetodoPago('cuenta_corriente');
     setCompraDirectaMontoPagado('');
     setCompraDirectaTipoComprobante('');
+    setCompraDirectaPreciosSinIva(false);
     setCompraDirectaNumeroComprobante('');
     setCompraDirectaComprobante('');
     setItemsPedidoCompra([]);
@@ -20508,6 +21212,8 @@ function obtenerCategoriaProducto(producto) {
     setPedidoCompraRemitoProveedor('');
     setPedidoCompraTransporte('');
     setCompraImpactaInventario(true);
+    setCompraActualizaCostoProveedor(true);
+    setModoActualizacionPrecioCompra('siempre');
     setMostrarTransportePedidoCompraPdf(false);
     setPedidoCompraDescuentoPct('');
     setPedidoCompraAjusteMonto('');
@@ -20523,6 +21229,7 @@ function obtenerCategoriaProducto(producto) {
     setCompraDirectaMetodoPago('cuenta_corriente');
     setCompraDirectaMontoPagado('');
     setCompraDirectaTipoComprobante('');
+    setCompraDirectaPreciosSinIva(false);
     setCompraDirectaNumeroComprobante('');
     setCompraDirectaComprobante('');
     setItemsPedidoCompra([]);
@@ -20542,6 +21249,8 @@ function obtenerCategoriaProducto(producto) {
     setPedidoCompraRemitoProveedor('');
     setPedidoCompraTransporte('');
     setCompraImpactaInventario(true);
+    setCompraActualizaCostoProveedor(true);
+    setModoActualizacionPrecioCompra('siempre');
     setMostrarTransportePedidoCompraPdf(false);
     setPedidoCompraDescuentoPct('');
     setPedidoCompraAjusteMonto('');
@@ -20559,6 +21268,7 @@ function obtenerCategoriaProducto(producto) {
     setCompraDirectaMetodoPago(textoSeguroTrim(pedido?.detalleRecepcion?.metodoPago, textoSeguroTrim(pedido?.pagoRegistradoProveedorMetodo, 'cuenta_corriente')));
     setCompraDirectaMontoPagado('');
     setCompraDirectaTipoComprobante(textoSeguroTrim(pedido?.tipoComprobanteProveedor, ''));
+    setCompraDirectaPreciosSinIva(Boolean(pedido?.preciosSinIva));
     setCompraDirectaNumeroComprobante(textoSeguroTrim(pedido?.numeroComprobanteProveedor, ''));
     setCompraDirectaComprobante('');
     const items = (pedido?.items || []).map((item, index) => normalizarItemPedidoCompra(item, index));
@@ -20573,7 +21283,9 @@ function obtenerCategoriaProducto(producto) {
     setPedidoCompraRemitoProveedor(textoSeguroTrim(pedido?.remitoProveedor, ''));
     setProveedorCompraSeleccionado(obtenerProveedorPrincipalPedidoCompra(pedido));
     setPedidoCompraTransporte(textoSeguroTrim(pedido?.transporte, ''));
-    setCompraImpactaInventario(pedido?.actualizarStock !== false && pedido?.actualizarCostos !== false);
+    setCompraImpactaInventario(pedido?.actualizarStock !== false);
+    setCompraActualizaCostoProveedor(pedido?.actualizarCostos !== false);
+    setModoActualizacionPrecioCompra(textoSeguroTrim(pedido?.modoActualizacionPrecio, 'siempre'));
     setMostrarTransportePedidoCompraPdf(Boolean(pedido?.mostrarTransporte));
     setPedidoCompraDescuentoPct(pedido?.descuentoPorcentaje ? String(pedido.descuentoPorcentaje) : '');
     setPedidoCompraAjusteMonto(pedido?.ajusteMonto ? String(pedido.ajusteMonto) : '');
@@ -20608,6 +21320,18 @@ function obtenerCategoriaProducto(producto) {
         costoPesos: 0,
         imagen: '',
         manual: true
+      }, prev.length)
+    ]));
+  };
+
+  const agregarItemTemporalPedidoCompra = () => {
+    setItemsPedidoCompra((prev) => ([
+      ...prev,
+      normalizarItemPedidoCompra({
+        id: `temporal-${Date.now()}-${prev.length}`,
+        productoId: '', codigo: '', descripcion: 'Flete / gasto temporal', unidad: 'unid',
+        cantidad: 1, proveedor: proveedorCompraSeleccionado || '', codigoProveedor: '',
+        costo: '', moneda: 'ARS', costoPesos: 0, imagen: '', manual: false, temporal: true
       }, prev.length)
     ]));
   };
@@ -20671,6 +21395,9 @@ function obtenerCategoriaProducto(producto) {
   const agregarProductoAPedidoCompra = (producto = {}, costoProveedorPreferido = null) => {
     const costoProveedor = obtenerCostoProveedorParaPedidoCompra(producto, proveedorCompraSeleccionado, costoProveedorPreferido);
     if (!costoProveedor) return;
+    const costoBaseCompraPesos = compraDirectaActiva
+      ? convertirCostoProveedorBrutoParaPedidoCompra(costoProveedor, producto)
+      : (costoProveedor.costoPesos || 0);
     setItemsPedidoCompra((prev) => {
       const proveedorItem = proveedorCompraSeleccionado || costoProveedor.proveedor || '';
       const existente = prev.find((item) => item.productoId === producto.id && item.proveedor === proveedorItem);
@@ -20693,7 +21420,8 @@ function obtenerCategoriaProducto(producto) {
           codigoProveedor: costoProveedor.codigoProveedor || '',
           costo: costoProveedor.costo ?? '',
           moneda: costoProveedor.moneda || 'ARS',
-          costoPesos: costoProveedor.costoPesos || 0,
+          costoPesos: costoBaseCompraPesos,
+          costoBaseCompraPesos: compraDirectaActiva ? costoBaseCompraPesos : '',
           iva: producto?.iva ?? '',
           imagen: producto.imagen || ''
         }, prev.length)
@@ -20749,6 +21477,8 @@ function obtenerCategoriaProducto(producto) {
     setPedidoCompraRemitoProveedor('');
     setPedidoCompraTransporte('');
     setCompraImpactaInventario(true);
+    setCompraActualizaCostoProveedor(true);
+    setModoActualizacionPrecioCompra('siempre');
     setMostrarTransportePedidoCompraPdf(false);
     setPedidoCompraDescuentoPct('');
     setPedidoCompraAjusteMonto('');
@@ -20802,8 +21532,11 @@ function obtenerCategoriaProducto(producto) {
         costo: mejor.costo ?? item.costo,
         moneda: mejor.moneda || 'ARS',
         costoPesos: producto
-          ? convertirCostoProveedorNetoParaPedidoCompra(mejor, producto)
-          : item.costoPesos
+          ? (compraDirectaActiva ? convertirCostoProveedorBrutoParaPedidoCompra(mejor, producto) : convertirCostoProveedorNetoParaPedidoCompra(mejor, producto))
+          : item.costoPesos,
+        costoBaseCompraPesos: producto && compraDirectaActiva
+          ? convertirCostoProveedorBrutoParaPedidoCompra(mejor, producto)
+          : ''
       });
     }));
   };
@@ -20855,6 +21588,8 @@ function obtenerCategoriaProducto(producto) {
     setPedidoCompraRemitoProveedor('');
     setPedidoCompraTransporte('');
     setCompraImpactaInventario(true);
+    setCompraActualizaCostoProveedor(true);
+    setModoActualizacionPrecioCompra('siempre');
     setMostrarTransportePedidoCompraPdf(false);
     setModalActivo('pedido_compra');
   };
@@ -20931,17 +21666,20 @@ function obtenerCategoriaProducto(producto) {
     const descuentoPorcentaje = 0;
     const descuentoMonto = Math.max(0, subtotalBruto - subtotalBase);
     const ajusteMonto = (compraDirectaActiva || pedidoCompraEditandoId) ? parseNumeroConSigno(pedidoCompraAjusteMonto) : 0;
-    const iva21 = compraDirectaActiva && compraEsFacturaA(compraDirectaTipoComprobante)
-      ? calcularIvaAutomaticoPedidoCompra(filas, '21')
+    const iva21 = compraDirectaActiva
+      ? obtenerIvaCompraDirecta(filas, '21')
       : (pedidoCompraEditandoId ? Math.max(0, parseNumeroBasico(pedidoCompraIva21)) : 0);
-    const iva105 = compraDirectaActiva && compraEsFacturaA(compraDirectaTipoComprobante)
-      ? calcularIvaAutomaticoPedidoCompra(filas, '10.5')
+    const iva105 = compraDirectaActiva
+      ? obtenerIvaCompraDirecta(filas, '10.5')
       : (pedidoCompraEditandoId ? Math.max(0, parseNumeroBasico(pedidoCompraIva105)) : 0);
     const ingresosBrutos = Math.max(0, parseNumeroConSigno(pedidoCompraIngresosBrutos));
     // El flete se conserva informado para el cálculo posterior del precio
     // final, pero no forma parte del importe de una compra directa/remito.
     const flete = Math.max(0, parseNumeroConSigno(pedidoCompraFlete));
-    const totalEstimado = Math.max(0, subtotalBase + iva21 + iva105 + ingresosBrutos + (compraDirectaActiva ? 0 : flete) + ajusteMonto);
+    // Si la factura A informa valores netos, el IVA se suma sólo al total
+    // contable/deuda. El costo almacenado en inventario conserva el neto.
+    const ivaSeSumaAlTotal = compraDirectaActiva && compraDirectaPreciosSinIva;
+    const totalEstimado = Math.max(0, subtotalBase + (ivaSeSumaAlTotal ? iva21 + iva105 : 0) + ingresosBrutos + flete + ajusteMonto);
     const itemsConProducto = compraDirectaActiva && compraImpactaInventario
       ? await crearProductosManualesDesdeCompra(filas)
       : filas;
@@ -20970,8 +21708,8 @@ function obtenerCategoriaProducto(producto) {
     const stockActualizadoAhora = debeActualizarStock
       ? await actualizarStockDesdePedidoCompra(itemsAjustados)
       : false;
-    const costoActualizadoAhora = impactaInventario && estadoPedido === 'recibido'
-      ? await actualizarCostosProveedorDesdeRecepcion(itemsAjustados)
+    const costoActualizadoAhora = compraDirectaActiva && compraActualizaCostoProveedor && estadoPedido === 'recibido'
+      ? await actualizarCostosProveedorDesdeRecepcion(itemsAjustados.map((item) => ({ ...item, origenActualizacionCosto: 'compra_directa', costoIvaIncluido: !compraDirectaPreciosSinIva })), modoActualizacionPrecioCompra)
       : false;
     const comprobanteProveedor = [
       textoSeguroTrim(compraDirectaTipoComprobante, ''),
@@ -21004,7 +21742,8 @@ function obtenerCategoriaProducto(producto) {
         subtotalBase: item.subtotalBase || 0,
         subtotal: item.subtotal || 0,
         imagen: item.imagen || '',
-        manual: Boolean(item.manual)
+        manual: Boolean(item.manual),
+        temporal: Boolean(item.temporal)
       })),
       notas: textoSeguroTrim(pedidoCompraNotas, ''),
       subtotalBase,
@@ -21014,8 +21753,14 @@ function obtenerCategoriaProducto(producto) {
       ajusteMonto,
       iva21,
       iva105,
+      preciosSinIva: Boolean(ivaSeSumaAlTotal),
+      ivaIncluidoEnTotal: Boolean(ivaSeSumaAlTotal),
       ingresosBrutos,
       flete,
+      aplicarCondicionesProveedorCompra: false,
+      aplicarDescuentoProveedorCompra: false,
+      aplicarFleteProveedorCompra: false,
+      modoActualizacionPrecio: compraDirectaActiva ? modoActualizacionPrecioCompra : '',
       totalEstimado,
       tipoRegistro: pedidoAnterior?.tipoRegistro || (compraDirectaActiva ? 'compra_directa' : 'pedido_compra'),
       tipoComprobanteProveedor: (compraDirectaActiva || pedidoCompraEditandoId) ? textoSeguroTrim(compraDirectaTipoComprobante, '') : (pedidoAnterior?.tipoComprobanteProveedor || ''),
@@ -21028,7 +21773,7 @@ function obtenerCategoriaProducto(producto) {
         ? combinarFechaInputConHoraReferenciaISO(pedidoCompraFechaRecepcion, pedidoAnterior?.fechaRecepcion || new Date())
         : (pedidoAnterior?.fechaRecepcion || (compraDirectaActiva ? combinarFechaInputConHoraReferenciaISO(pedidoCompraFechaPedido || obtenerFechaInputLocal(), new Date()) : '')),
       actualizarStock: Boolean(impactaInventario),
-      actualizarCostos: Boolean(impactaInventario),
+      actualizarCostos: Boolean(compraDirectaActiva && compraActualizaCostoProveedor),
       stockActualizado: Boolean(pedidoAnterior?.stockActualizado || stockActualizadoAhora),
       stockActualizadoEn: stockActualizadoAhora ? new Date().toISOString() : (pedidoAnterior?.stockActualizadoEn || ''),
       costoProveedorActualizado: Boolean(pedidoAnterior?.costoProveedorActualizado || costoActualizadoAhora),
@@ -21084,6 +21829,8 @@ function obtenerCategoriaProducto(producto) {
     }
 
     setCompraDirectaActiva(false);
+    setCompraActualizaCostoProveedor(true);
+    setModoActualizacionPrecioCompra('siempre');
     setCompraDirectaMontoPagado('');
     setCompraDirectaComprobante('');
     await notificarSistema(compraDirectaActiva
@@ -21140,7 +21887,10 @@ function obtenerCategoriaProducto(producto) {
           && String(item.costoBaseCompraPesos).trim() !== ''
           ? Math.max(0, parseNumeroPresupuesto(item.costoBaseCompraPesos) || 0)
           : null;
-        const descuentoProveedor = costoBaseCompraPesos !== null
+        // La compra directa conserva el costo de remito: no reaplica el
+        // descuento maestro configurado para el proveedor.
+        const aplicarDescuentoProveedor = !compraDirectaActiva;
+        const descuentoProveedor = costoBaseCompraPesos !== null && aplicarDescuentoProveedor
           ? obtenerDescuentoProveedorParaPedidoCompra(item?.proveedor || '')
           : 0;
         const costoPesos = costoBaseCompraPesos !== null
@@ -21173,6 +21923,14 @@ function obtenerCategoriaProducto(producto) {
     ), 0)
   );
 
+  // Si el proveedor informa un IVA distinto al calculado, el valor escrito por el usuario prevalece.
+  const obtenerIvaCompraDirecta = (items = [], tasa = '21') => {
+    const manual = tasa === '21' ? pedidoCompraIva21 : pedidoCompraIva105;
+    return textoSeguroTrim(manual, '') !== ''
+      ? Math.max(0, parseNumeroBasico(manual))
+      : calcularIvaAutomaticoPedidoCompra(items, tasa);
+  };
+
   const aplicarAjustesAFilasPedidoCompra = (filas = [], descuentoPct = 0, ajusteMonto = 0) => {
     const subtotalBase = (filas || []).reduce((acc, item) => acc + Number(item.subtotalBase || item.subtotal || 0), 0);
     const descuentoMonto = subtotalBase * (Math.max(0, Number(descuentoPct || 0)) / 100);
@@ -21191,7 +21949,7 @@ function obtenerCategoriaProducto(producto) {
         ...item,
         productoRelacionado: obtenerProductoRelacionadoRecepcionCompra(item)
       }))
-      .filter((item) => item?.productoRelacionado?.id && Number(item?.cantidad || 0) > 0);
+      .filter((item) => !item?.temporal && item?.productoRelacionado?.id && Number(item?.cantidad || 0) > 0);
     if (!filasConProducto.length) return false;
     for (const item of filasConProducto) {
       const producto = item.productoRelacionado;
@@ -21206,13 +21964,13 @@ function obtenerCategoriaProducto(producto) {
     return true;
   };
 
-  const actualizarCostosProveedorDesdeRecepcion = async (filas = []) => {
+  const actualizarCostosProveedorDesdeRecepcion = async (filas = [], modoPrecio = 'siempre') => {
     const filasConProducto = (filas || [])
       .map((item) => ({
         ...item,
         productoRelacionado: obtenerProductoRelacionadoRecepcionCompra(item)
       }))
-      .filter((item) => item?.productoRelacionado?.id && textoSeguroTrim(item?.proveedor, '') && Number(item?.costoPesos || 0) > 0);
+      .filter((item) => !item?.temporal && item?.productoRelacionado?.id && textoSeguroTrim(item?.proveedor, '') && Number(item?.costoPesos || 0) > 0);
     if (!filasConProducto.length) return false;
     await crearRespaldoPreciosPersistente({
       productosObjetivo: filasConProducto.map((item) => item.productoRelacionado),
@@ -21237,7 +21995,9 @@ function obtenerCategoriaProducto(producto) {
           codigoProveedor: item.codigoProveedor || costo.codigoProveedor || '',
           costo: Number(item.costoPesos || 0).toFixed(2),
           moneda: 'ARS',
+          ivaIncluido: Boolean(item?.costoIvaIncluido),
           descuento: '',
+          origenActualizacion: item?.origenActualizacionCosto || 'compra_directa',
           actualizado: fechaActualizacion
         }, index);
       });
@@ -21247,6 +22007,8 @@ function obtenerCategoriaProducto(producto) {
           codigoProveedor: item.codigoProveedor || '',
           costo: Number(item.costoPesos || 0).toFixed(2),
           moneda: 'ARS',
+          ivaIncluido: Boolean(item?.costoIvaIncluido),
+          origenActualizacion: item?.origenActualizacionCosto || 'compra_directa',
           actualizado: fechaActualizacion
         }, costosActualizados.length));
       }
@@ -21256,19 +22018,27 @@ function obtenerCategoriaProducto(producto) {
         proveedoresCostos: costosActualizados
       }, obtenerCampoPreferidoRecalculoProducto(producto));
 
-      await updateDoc(doc(db, 'productos', producto.id), limpiarDatoFirestore({
+      const costoAnterior = Math.max(0, parseNumeroBasico(producto?.costo ?? producto?.costoOriginal ?? 0));
+      const costoNuevo = Math.max(0, parseNumeroBasico(productoRecalculado?.costo ?? 0));
+      const actualizarPrecioGeneral = modoPrecio === 'siempre' || (modoPrecio === 'solo_si_mayor' && costoNuevo > costoAnterior);
+      const datosProducto = {
         proveedoresCostos: costosActualizados,
-        costo: productoRecalculado.costo,
-        costoOriginal: productoRecalculado.costoOriginal,
-        monedaCosto: productoRecalculado.monedaCosto,
-        proveedor: productoRecalculado.proveedor,
-        codigoProveedor: productoRecalculado.codigoProveedor,
-        precio: productoRecalculado.precio,
-        ganancia: productoRecalculado.ganancia,
         fechaActualizacion: fechaActualizacion,
-        fechaActualizacionCostoProveedor: fechaActualizacion,
-        fechaActualizacionPrecio: fechaActualizacion
-      }));
+        fechaActualizacionCostoProveedor: fechaActualizacion
+      };
+      if (actualizarPrecioGeneral) {
+        Object.assign(datosProducto, {
+          costo: productoRecalculado.costo,
+          costoOriginal: productoRecalculado.costoOriginal,
+          monedaCosto: productoRecalculado.monedaCosto,
+          proveedor: productoRecalculado.proveedor,
+          codigoProveedor: productoRecalculado.codigoProveedor,
+          precio: productoRecalculado.precio,
+          ganancia: productoRecalculado.ganancia,
+          fechaActualizacionPrecio: fechaActualizacion
+        });
+      }
+      await updateDoc(doc(db, 'productos', producto.id), limpiarDatoFirestore(datosProducto));
     }));
     return true;
   };
@@ -21413,7 +22183,7 @@ function obtenerCategoriaProducto(producto) {
     const body = filas.map((item) => (
       columnas.map((columna) => {
         if (columna.key === 'imagen') return '';
-        if (columna.key === 'codigoProveedor') return item.codigoProveedor || '-';
+        if (columna.key === 'codigoProveedor') return obtenerCodigoProveedorParaPedidoPdf(item) || '-';
         if (columna.key === 'detalle') return item.descripcion || '-';
         if (columna.key === 'cantidad') return String(item.cantidad);
         if (columna.key === 'unidad') return item.unidad || 'unid';
@@ -22021,12 +22791,12 @@ function obtenerCategoriaProducto(producto) {
     const azulOscuro = [8, 23, 47];
     const azulOscuroProfundo = [7, 27, 53];
     const gris = [100, 116, 139];
-    const grisClaro = [245, 247, 250];
+    const grisClaro = [255, 255, 255];
     const borde = [226, 232, 240];
     const verde = [16, 185, 129];
     const rojo = [220, 38, 38];
     const verdeSuave = [236, 253, 245];
-    const blancoSuave = [226, 232, 240];
+    const blancoSuave = [17, 24, 39];
 
     const dibujarBadgeCirculo = ({ x, y, radio = 5.4, fill = verdeSuave, texto = '', colorTexto = azulOscuroProfundo, fontSize = 8.5, bordeColor = null, bordeWidth = 0.25 }) => {
       if (bordeColor) {
@@ -22051,11 +22821,16 @@ function obtenerCategoriaProducto(producto) {
 
     docPdf.setFillColor(255, 255, 255);
     docPdf.roundedRect(8, 8, 194, 281, 7, 7, 'F');
-    docPdf.setFillColor(...azulOscuro);
-    docPdf.roundedRect(8, 8, 194, 52, 7, 7, 'F');
-    docPdf.setFillColor(...verde);
+    docPdf.setDrawColor(...borde);
+    docPdf.setLineWidth(0.3);
+    docPdf.roundedRect(8, 8, 194, 52, 7, 7, 'S');
+    docPdf.setFillColor(255, 255, 255);
     docPdf.rect(8, 58.3, 194, 1.8, 'F');
-    if (logoDocumento) {
+    docPdf.setFont('helvetica', 'bold');
+    docPdf.setFontSize(16);
+    docPdf.setTextColor(17, 24, 39);
+    docPdf.text(nombreEmpresaDoc, 14, 22);
+    if (false && logoDocumento) {
       try {
         const propsLogo = docPdf.getImageProperties(logoDocumento);
         const ratioLogo = (propsLogo?.width || 1) / Math.max(propsLogo?.height || 1, 1);
@@ -22098,15 +22873,15 @@ function obtenerCategoriaProducto(producto) {
     });
 
     docPdf.setFont('helvetica', 'bold');
-    docPdf.setTextColor(255, 255, 255);
+    docPdf.setTextColor(17, 24, 39);
     docPdf.setFontSize(9);
     docPdf.text('RECIBO DE PAGO', 188, 18, { align: 'right' });
-    docPdf.setTextColor(...verde);
+    docPdf.setTextColor(17, 24, 39);
     docPdf.setFontSize(17);
     docPdf.text(resumen.numeroRecibo, 188, 28, { align: 'right' });
     docPdf.setFont('helvetica', 'normal');
     docPdf.setFontSize(8.7);
-    docPdf.setTextColor(226, 232, 240);
+    docPdf.setTextColor(17, 24, 39);
     docPdf.text(`${formatearFecha(resumen.fechaPago)} ${formatearHora(resumen.fechaPago)}`, 188, 39, { align: 'right' });
     docPdf.text(`Emitido por: ${emisorRecibo}`, 188, 47, { align: 'right' });
 
@@ -22264,7 +23039,7 @@ function obtenerCategoriaProducto(producto) {
       theme: 'grid',
       margin: { left: 8, right: 8 },
       styles: { fontSize: 8, cellPadding: 3, textColor: [30, 41, 59], lineColor: [226, 232, 240], lineWidth: 0.15 },
-      headStyles: { fillColor: [8, 23, 47], textColor: [255, 255, 255], fontStyle: 'bold', lineColor: [8, 23, 47], lineWidth: 0.15 },
+      headStyles: { fillColor: [255, 255, 255], textColor: [17, 24, 39], fontStyle: 'bold', lineColor: [148, 163, 184], lineWidth: 0.15 },
       alternateRowStyles: { fillColor: [248, 250, 252] },
       columnStyles: {
         0: { cellWidth: 20 },
@@ -22747,7 +23522,7 @@ function obtenerCategoriaProducto(producto) {
     });
   };
 
-  const esImagenDataUrl = (valor = '') => /^data:image\/[a-zA-Z0-9.+-]+;base64,/i.test((valor || '').toString().trim());
+  function esImagenDataUrl(valor = '') { return /^data:image\/[a-zA-Z0-9.+-]+;base64,/i.test((valor || '').toString().trim()); }
 
   const comprimirImagenDataUrl = async (dataUrl = '', { maxAncho = 1600, calidad = 0.88 } = {}) => {
     const origen = (dataUrl || '').toString().trim();
@@ -23870,7 +24645,7 @@ function obtenerCategoriaProducto(producto) {
       body,
       theme: 'grid',
       margin: { left: 14, right: 14 },
-      styles: { fontSize: 8, cellPadding: 1.4, valign: 'top', textColor: [20, 20, 20], lineColor: [230, 230, 230] },
+      styles: { fontSize: 8, cellPadding: 1.4, valign: 'top', overflow: 'linebreak', textColor: [20, 20, 20], lineColor: [230, 230, 230] },
       headStyles: { fillColor: [31, 41, 55], textColor: [255, 255, 255], fontStyle: 'bold', lineColor: [31, 41, 55] },
       columnStyles: estilosColumnas
     });
@@ -24021,6 +24796,64 @@ function obtenerCategoriaProducto(producto) {
     setModalActivo(null);
   };
 
+  const registrarSeguimientoCuenta = async (datos = {}) => {
+    const fecha = datos.fecha || new Date().toISOString();
+    const registro = limpiarDatoFirestore({
+      clienteId: datos.clienteId || '',
+      clienteNombre: datos.clienteNombre || '',
+      whatsapp: datos.whatsapp || '',
+      tipo: datos.tipo || 'respuesta_cliente',
+      canal: datos.canal || 'whatsapp',
+      mensaje: datos.mensaje || '',
+      respuesta: datos.respuesta || '',
+      estado: datos.estado || 'seguimiento',
+      saldoAlMomento: Number(datos.saldoAlMomento || 0),
+      compromisoFecha: datos.compromisoFecha || '',
+      proximoSeguimiento: datos.proximoSeguimiento || '',
+      observaciones: datos.observaciones || '',
+      fecha,
+      usuarioId: usuarioActual?.id || '',
+      usuarioNombre: usuarioActual?.nombre || usuarioActual?.username || usuarioActual?.usuario || 'Sistema'
+    });
+    const referencia = await addDoc(collection(db, 'seguimientos_cuenta_corriente'), registro);
+    setSeguimientosCuentaCorriente((prev) => [{ id: referencia.id, ...registro }, ...prev.filter((item) => item.id !== referencia.id)]);
+    return referencia.id;
+  };
+
+  const guardarRespuestaSeguimientoCuenta = async (event) => {
+    event?.preventDefault?.();
+    if (!clienteSeleccionado) return;
+    const respuesta = textoSeguroTrim(formSeguimientoCuenta.respuesta, '');
+    if (!respuesta) {
+      await notificarSistema('Escribí qué respondió o qué acordaron con el cliente.', { tipo: 'warning', titulo: 'Respuesta requerida' });
+      return;
+    }
+    setGuardandoSeguimientoCuenta(true);
+    try {
+      const estadoCuenta = estadoCuentaClientes[clienteSeleccionado.id] || calcularEstadoCuentaCliente(clienteSeleccionado);
+      await registrarSeguimientoCuenta({
+        clienteId: clienteSeleccionado.id,
+        clienteNombre: clienteSeleccionado.nombre,
+        whatsapp: clienteSeleccionado.whatsapp,
+        tipo: 'respuesta_cliente',
+        canal: formSeguimientoCuenta.canal,
+        respuesta,
+        estado: formSeguimientoCuenta.estado,
+        saldoAlMomento: estadoCuenta?.saldoPendiente || 0,
+        compromisoFecha: formSeguimientoCuenta.compromisoFecha,
+        proximoSeguimiento: formSeguimientoCuenta.proximoSeguimiento,
+        observaciones: formSeguimientoCuenta.observaciones
+      });
+      setFormSeguimientoCuenta({ respuesta: '', canal: 'whatsapp', estado: 'promesa_pago', compromisoFecha: '', proximoSeguimiento: '', observaciones: '' });
+      await notificarSistema('La respuesta y el compromiso quedaron guardados en el seguimiento del cliente.', { tipo: 'success', titulo: 'Seguimiento registrado' });
+    } catch (error) {
+      console.error('No se pudo guardar el seguimiento de cuenta corriente', error);
+      await notificarSistema(`No se pudo guardar el seguimiento. ${textoSeguroTrim(error?.message, 'Revisá la conexión e intentá nuevamente.')}`, { tipo: 'error', titulo: 'Error al guardar' });
+    } finally {
+      setGuardandoSeguimientoCuenta(false);
+    }
+  };
+
   const enviarRecordatorioCliente = async (cliente, estadoInput = null) => {
     if (!cliente) return;
     if (!cliente.whatsapp) {
@@ -24125,6 +24958,23 @@ function obtenerCategoriaProducto(producto) {
         titulo: 'Contador no actualizado'
       });
       return;
+    }
+
+    try {
+      await registrarSeguimientoCuenta({
+        clienteId: cliente.id,
+        clienteNombre: cliente.nombre,
+        whatsapp: cliente.whatsapp,
+        tipo: 'recordatorio_enviado',
+        canal: 'whatsapp',
+        mensaje: texto,
+        estado: 'enviado',
+        saldoAlMomento: saldoPendiente,
+        observaciones: 'WhatsApp se abrió con el mensaje preparado para enviar.'
+      });
+    } catch (error) {
+      console.error('No se pudo registrar el recordatorio en el seguimiento', error);
+      await notificarSistema('WhatsApp se abrió, pero el recordatorio no pudo agregarse al historial de seguimiento.', { tipo: 'warning', titulo: 'Seguimiento no registrado' });
     }
 
     const textoCopiado = await copiarTextoAlPortapapeles(texto);
@@ -25732,6 +26582,13 @@ function obtenerCategoriaProducto(producto) {
         .sf-enterprise-shell .sf-modal-footer { z-index:5; box-shadow:0 -5px 16px rgba(15,35,55,.05); }
         /* Punto de venta: los ítems son el área prioritaria del workspace. */
         .sf-enterprise-shell .sf-pv-workspace { gap:8px; padding:10px 14px; }
+        .sf-enterprise-shell .sf-pv-context { gap:10px !important; }
+        .sf-enterprise-shell .sf-pv-context .card { padding:10px !important; border-color:#e5e7eb !important; background:#fff !important; }
+        .sf-enterprise-shell .sf-pv-payment-methods { display:flex; flex-wrap:wrap; gap:6px; }
+        .sf-enterprise-shell .sf-pv-payment-methods button { min-height:30px; padding:0 10px; border:1px solid #d1d5db; border-radius:6px; background:#f8fafc; color:#334155; font-size:11px; font-weight:700; }
+        .sf-enterprise-shell .sf-pv-payment-methods button.is-active { background:#0067c0; border-color:#0067c0; color:#fff; }
+        .sf-enterprise-shell .sf-pv-document { gap:8px !important; }
+        .sf-enterprise-shell .sf-punto-venta-items { border-color:#e5e7eb !important; background:#fff !important; }
         .sf-enterprise-shell .sf-pv-display-toolbar { min-height:42px; padding:5px 8px; }
         .sf-enterprise-shell .sf-pv-display-toolbar button { min-height:28px; padding:.28rem .55rem; font-size:.64rem; }
         .sf-enterprise-shell .sf-pv-context { gap:8px; }
@@ -25768,7 +26625,7 @@ function obtenerCategoriaProducto(producto) {
         .sf-modal-panel .sf-pv-item-actions .sf-pv-add-service:hover { background:#1d4ed8 !important; }
         .sf-purchase-item-header { display:grid !important; grid-template-columns:minmax(0,1fr) max-content !important; align-items:center !important; gap:12px; width:100%; min-width:0; min-height:48px !important; height:auto !important; overflow:visible !important; }
         .sf-purchase-item-title { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .sf-purchase-actions-grid { display:grid !important; grid-template-columns:112px 112px 100px !important; align-items:center !important; justify-content:end !important; gap:8px !important; width:340px !important; min-width:340px !important; overflow:visible !important; }
+        .sf-purchase-actions-grid { display:grid !important; grid-template-columns:104px 94px 94px 92px !important; align-items:center !important; justify-content:end !important; gap:8px !important; width:408px !important; min-width:408px !important; overflow:visible !important; }
         .sf-purchase-actions-grid > .sf-purchase-action { appearance:none !important; display:inline-flex !important; position:static !important; inset:auto !important; transform:none !important; margin:0 !important; box-sizing:border-box !important; width:100% !important; min-width:0 !important; height:34px !important; min-height:34px !important; padding:0 12px !important; align-items:center !important; justify-content:center !important; gap:6px !important; border-radius:7px !important; font-size:11px !important; line-height:1 !important; font-weight:800 !important; letter-spacing:0 !important; text-transform:none !important; white-space:nowrap !important; overflow:hidden !important; }
         .sf-enterprise-shell .sf-purchase-actions-grid > .sf-purchase-action-add { width:100% !important; min-width:0 !important; height:34px !important; min-height:34px !important; padding:0 12px !important; border:1px solid #16a34a !important; background:#16a34a !important; color:#fff !important; }
         .sf-purchase-actions-grid > .sf-purchase-action-manual { border:1px solid #2563eb !important; background:#2563eb !important; color:#fff !important; }
@@ -25963,6 +26820,16 @@ function obtenerCategoriaProducto(producto) {
         .sf-enterprise-shell .sf-modal-panel.sf-modal-fullscreen > .sf-modal-body { display:flex; flex:1 1 auto; min-width:0; min-height:0; overflow:auto; }
         .sf-enterprise-shell .sf-modal-panel > .sf-modal-body { min-width:0; min-height:0; }
         .sf-enterprise-shell .sf-modal-panel > .sf-modal-footer { flex:0 0 auto; }
+        .sf-enterprise-shell .sf-modal-header h2 { min-width:0; line-height:1.2; overflow-wrap:anywhere; }
+        .sf-enterprise-shell .sf-modal-body button:not([aria-label]),
+        .sf-enterprise-shell .sf-modal-footer button:not([aria-label]) { min-width:0; max-width:100%; height:auto; min-height:2rem; white-space:normal; overflow-wrap:anywhere; text-align:center; line-height:1.2; }
+        .sf-enterprise-shell .sf-modal-body button:not([aria-label]) > span,
+        .sf-enterprise-shell .sf-modal-footer button:not([aria-label]) > span { min-width:0; overflow-wrap:anywhere; }
+        .sf-enterprise-shell .sf-modal-panel.sf-product-duplicate-modal { border:3px solid #f59e0b; box-shadow:0 24px 70px rgba(146,64,14,.34); }
+        .sf-enterprise-shell .sf-modal-panel.sf-product-duplicate-modal > .sf-modal-header { background:#fef3c7 !important; border-bottom-color:#f59e0b !important; }
+        .sf-enterprise-shell .sf-modal-panel.sf-product-duplicate-modal > .sf-modal-header h2 { color:#92400e !important; }
+        .sf-enterprise-shell .sf-modal-panel.sf-product-edit-modal > .sf-modal-header { background:#eff6ff !important; border-bottom-color:#bfdbfe !important; }
+        .sf-enterprise-shell .sf-modal-panel.sf-product-new-modal > .sf-modal-header { background:#ecfdf5 !important; border-bottom-color:#a7f3d0 !important; }
         .sf-enterprise-shell .sf-modal-fullscreen .sf-product-workspace { width:100%; max-width:none; min-height:100%; margin:0; padding:14px clamp(14px,2vw,34px) 76px; }
         .sf-enterprise-shell .sf-modal-fullscreen .sf-product-workspace > div { max-width:none; }
         .sf-enterprise-shell .sf-modal-fullscreen .sf-client-account-layout,
@@ -25982,6 +26849,14 @@ function obtenerCategoriaProducto(producto) {
         .sf-enterprise-shell .sf-client-account-modal .sf-client-account-layout > div:first-child > .sf-client-account-actions > .sf-client-update-price-action { min-width:max-content !important; width:max-content !important; min-height:31px !important; padding:.38rem .75rem !important; border:1px solid #dc2626 !important; border-radius:5px !important; background:#dc2626 !important; color:#fff !important; opacity:1 !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; }
         .sf-enterprise-shell .sf-client-account-modal .sf-client-account-layout > div:first-child > .sf-client-account-actions > .sf-client-update-price-action:hover:not(:disabled) { background:#b91c1c !important; border-color:#b91c1c !important; }
         .sf-enterprise-shell .sf-client-account-modal .sf-client-account-layout > div:first-child > .sf-client-account-actions > .sf-client-update-price-action:disabled { background:#fecaca !important; border-color:#fca5a5 !important; color:#991b1b !important; opacity:1 !important; cursor:not-allowed !important; }
+        .sf-enterprise-shell .sf-client-account-modal .sf-client-account-actions > .sf-client-follow-up-action { border-color:#4338ca !important; background:#4f46e5 !important; color:#fff !important; box-shadow:0 1px 2px rgba(49,46,129,.24) !important; }
+        .sf-enterprise-shell .sf-client-account-modal .sf-client-account-actions > .sf-client-follow-up-action:hover { border-color:#3730a3 !important; background:#3730a3 !important; }
+        .sf-enterprise-shell .sf-client-account-modal .sf-client-account-actions > .sf-client-invoice-action { border-color:#075985 !important; background:#0369a1 !important; color:#fff !important; box-shadow:0 1px 2px rgba(7,89,133,.24) !important; }
+        .sf-enterprise-shell .sf-client-account-modal .sf-client-account-actions > .sf-client-invoice-action:hover:not(:disabled) { border-color:#0c4a6e !important; background:#075985 !important; }
+        .sf-enterprise-shell .sf-client-account-modal .sf-client-account-actions > .sf-client-invoice-action:disabled { border-color:#cbd5e1 !important; background:#e2e8f0 !important; color:#64748b !important; opacity:1 !important; cursor:not-allowed !important; }
+        .sf-enterprise-shell .sf-client-receipt-open-button { display:inline-flex !important; flex:0 0 auto !important; align-items:center !important; justify-content:center !important; min-width:76px !important; width:auto !important; height:30px !important; padding:0 9px !important; white-space:nowrap !important; line-height:1 !important; }
+        .sf-enterprise-shell .sf-receipt-preview-actions { flex:0 0 auto; min-width:max-content; }
+        .sf-enterprise-shell .sf-receipt-preview-pdf-button { display:inline-flex !important; flex:0 0 auto !important; align-items:center !important; justify-content:center !important; min-width:118px !important; width:auto !important; height:40px !important; padding:0 12px !important; white-space:nowrap !important; line-height:1 !important; }
         .sf-enterprise-shell .sf-client-account-history-card { border-radius:8px; border-color:#dfe8ee; }
         .sf-enterprise-shell .sf-client-account-history { overflow-x:hidden !important; overflow-y:auto !important; }
         @media (min-width:1024px) {
@@ -25999,6 +26874,200 @@ function obtenerCategoriaProducto(producto) {
         .sf-enterprise-shell .sf-client-account-row:not(.is-expanded) > .shrink-0 > p:first-child { display:none; }
         .sf-enterprise-shell .sf-client-account-row:not(.is-expanded) > .shrink-0 > p:nth-child(2) { font-variant-numeric:tabular-nums; font-size:.82rem; }
         .sf-enterprise-shell .sf-client-account-row.is-expanded { background:#fbfdfd; padding-top:12px; padding-bottom:12px; }
+        /* Lenguaje visual Windows 11: una jerarquía tranquila, superficies neutras y un solo acento. */
+        .sf-enterprise-shell { --sf-win-accent:#0067c0; --sf-win-accent-hover:#005da6; --sf-win-surface:#ffffff; --sf-win-canvas:#f5f6f8; --sf-win-border:#d1d5db; font-family:Manrope,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; font-weight:500; }
+        .sf-enterprise-shell .font-black { font-weight:600 !important; }
+        .sf-enterprise-shell .font-bold { font-weight:500 !important; }
+        .sf-enterprise-shell h1, .sf-enterprise-shell h2, .sf-enterprise-shell h3, .sf-enterprise-shell .sf-modal-header h2 { font-weight:600 !important; }
+        .sf-enterprise-shell button, .sf-enterprise-shell .btn { font-weight:600; }
+        .sf-enterprise-shell .sf-modal-overlay { background:rgba(29,35,46,.42) !important; backdrop-filter:blur(10px) saturate(1.04); }
+        .sf-enterprise-shell .sf-modal-panel { border:1px solid rgba(255,255,255,.72); border-radius:10px; box-shadow:0 24px 64px rgba(15,23,42,.28),0 2px 8px rgba(15,23,42,.12); }
+        .sf-enterprise-shell .sf-modal-panel > .sf-modal-header { min-height:56px; padding:0 14px 0 18px; border-bottom:1px solid #e5e7eb; background:rgba(255,255,255,.96) !important; }
+        .sf-enterprise-shell .sf-modal-header h2 { font-size:15px; font-weight:600; letter-spacing:0; }
+        .sf-enterprise-shell .sf-modal-header > button { display:grid; width:32px; height:32px; place-items:center; padding:0; border-radius:5px; color:#526070; }
+        .sf-enterprise-shell .sf-modal-header > button:hover { background:#c42b1c; color:#fff; }
+        .sf-enterprise-shell .sf-modal-body { background:var(--sf-win-canvas); }
+        .sf-enterprise-shell .sf-modal-panel input:not([type="checkbox"]):not([type="radio"]),
+        .sf-enterprise-shell .sf-modal-panel select,
+        .sf-enterprise-shell .sf-modal-panel textarea { border-color:#cfd4dc !important; border-radius:5px !important; background:#fff; box-shadow:inset 0 0 0 1px rgba(15,23,42,.015); }
+        .sf-enterprise-shell .sf-modal-panel input:not([type="checkbox"]):not([type="radio"]):focus,
+        .sf-enterprise-shell .sf-modal-panel select:focus,
+        .sf-enterprise-shell .sf-modal-panel textarea:focus { border-color:var(--sf-win-accent) !important; box-shadow:0 0 0 2px rgba(0,103,192,.18) !important; }
+        .sf-enterprise-shell .sf-modal-panel button.bg-blue-600,
+        .sf-enterprise-shell .sf-modal-panel button.bg-indigo-600 { background:var(--sf-win-accent) !important; border-radius:5px !important; box-shadow:none !important; }
+        .sf-enterprise-shell .sf-modal-panel button.bg-blue-600:hover,
+        .sf-enterprise-shell .sf-modal-panel button.bg-indigo-600:hover { background:var(--sf-win-accent-hover) !important; }
+        .sf-enterprise-shell .sf-modal-panel.sf-product-duplicate-modal { border:1px solid #d1d5db; border-left:4px solid #d97706; box-shadow:0 24px 64px rgba(15,23,42,.28),0 2px 8px rgba(15,23,42,.12); }
+        .sf-enterprise-shell .sf-modal-panel.sf-product-duplicate-modal > .sf-modal-header { background:#fff !important; border-bottom-color:#e5e7eb !important; }
+        .sf-enterprise-shell .sf-modal-panel.sf-product-duplicate-modal > .sf-modal-header h2 { color:#1f2937 !important; }
+        .sf-enterprise-shell .sf-product-workspace { gap:0; padding-top:12px; background:#f5f6f8; }
+        .sf-enterprise-shell .sf-product-workspace > div { margin-top:10px; }
+        .sf-enterprise-shell .sf-product-workspace > div:first-child { border-color:#f3c77d !important; background:#fff8e8 !important; border-radius:7px; }
+        .sf-enterprise-shell .sf-product-images > .grid > div > div[class*="min-h"] { min-height:78px; border-color:#d6dbe2; border-radius:7px; background:#fff; }
+        .sf-enterprise-shell .sf-product-stock,
+        .sf-enterprise-shell .sf-product-general,
+        .sf-enterprise-shell .sf-product-pricing,
+        .sf-enterprise-shell .sf-product-providers,
+        .sf-enterprise-shell .sf-product-final-price { border-color:#d8dde5; border-radius:7px; box-shadow:none; }
+        .sf-enterprise-shell .sf-product-providers > div:first-child { background:#f8fafc; border-bottom-color:#d8dde5; }
+        /* Producto: modal compacto. Conserva todos los controles, pero les da una jerarquía de trabajo clara. */
+        .sf-enterprise-shell .sf-modal-panel.sf-product-new-modal,
+        .sf-enterprise-shell .sf-modal-panel.sf-product-edit-modal,
+        .sf-enterprise-shell .sf-modal-panel.sf-product-duplicate-modal { width:min(1240px,calc(100vw - 32px)) !important; max-width:1240px !important; max-height:92dvh !important; border:1px solid #e5e7eb !important; border-radius:12px !important; background:#fff !important; }
+        .sf-enterprise-shell .sf-modal-panel.sf-product-new-modal > .sf-modal-header,
+        .sf-enterprise-shell .sf-modal-panel.sf-product-edit-modal > .sf-modal-header,
+        .sf-enterprise-shell .sf-modal-panel.sf-product-duplicate-modal > .sf-modal-header { min-height:58px !important; padding:0 20px !important; background:#fff !important; border-bottom-color:#e5e7eb !important; }
+        .sf-enterprise-shell .sf-modal-panel.sf-product-new-modal .sf-modal-header h2,
+        .sf-enterprise-shell .sf-modal-panel.sf-product-edit-modal .sf-modal-header h2,
+        .sf-enterprise-shell .sf-modal-panel.sf-product-duplicate-modal .sf-modal-header h2 { color:#1f2937 !important; font-size:21px !important; font-weight:700 !important; }
+        .sf-enterprise-shell .sf-modal-panel.sf-product-new-modal > .sf-modal-body,
+        .sf-enterprise-shell .sf-modal-panel.sf-product-edit-modal > .sf-modal-body,
+        .sf-enterprise-shell .sf-modal-panel.sf-product-duplicate-modal > .sf-modal-body { padding:0 !important; background:#f3f3f3 !important; overflow-y:auto !important; }
+        .sf-enterprise-shell .sf-product-workspace { display:flex !important; flex-direction:column; max-width:none !important; margin:0 !important; padding:14px 16px 12px !important; background:#f3f3f3 !important; }
+        .sf-enterprise-shell .sf-product-workspace > div { margin-top:10px !important; }
+        .sf-enterprise-shell .sf-product-notice { order:0; min-height:38px; padding:8px 11px !important; background:#fff8e8 !important; border-color:#f1c97d !important; }
+        .sf-enterprise-shell .sf-product-notice svg { width:17px; height:17px; }
+        .sf-enterprise-shell .sf-product-notice p:first-child { font-size:10px !important; }
+        .sf-enterprise-shell .sf-product-notice p:last-child { font-size:10px !important; }
+        .sf-enterprise-shell .sf-product-general { order:1; grid-template-columns:minmax(0,1.45fr) minmax(220px,.65fr) minmax(220px,.65fr) !important; gap:9px !important; padding:12px !important; background:#fff !important; border:1px solid #e1e5ea !important; border-radius:8px !important; }
+        .sf-enterprise-shell .sf-product-general > h3 { color:#334155 !important; font-size:11px !important; margin-bottom:0 !important; }
+        .sf-enterprise-shell .sf-product-general textarea { min-height:40px !important; }
+        .sf-enterprise-shell .sf-product-stock { order:2; padding:10px 12px !important; background:#fff !important; border:1px solid #e1e5ea !important; border-radius:8px !important; }
+        .sf-enterprise-shell .sf-product-stock h3 { margin-bottom:8px !important; font-size:11px !important; color:#334155 !important; }
+        .sf-enterprise-shell .sf-product-stock > .grid { grid-template-columns:1.15fr 1.35fr .7fr .7fr !important; gap:9px !important; }
+        .sf-enterprise-shell .sf-product-stock .sm\:col-span-3 { grid-column:1 / -1 !important; }
+        .sf-enterprise-shell .sf-product-stock label.inline-flex { padding:6px 8px !important; background:#f8fafc !important; border-color:#dbe3ec !important; color:#334155 !important; }
+        .sf-enterprise-shell .sf-product-images { order:3; padding:10px 12px 11px !important; background:#fff !important; border:1px solid #e1e5ea !important; border-radius:8px !important; }
+        .sf-enterprise-shell .sf-product-images h3 { margin-bottom:7px !important; font-size:11px !important; color:#334155 !important; }
+        .sf-enterprise-shell .sf-product-images > .grid { grid-template-columns:1.45fr .9fr !important; gap:10px !important; }
+        .sf-enterprise-shell .sf-product-images > .grid > div > div[class*="min-h"] { min-height:82px !important; padding:8px !important; background:#fafafa !important; border-color:#d8dee6 !important; }
+        .sf-enterprise-shell .sf-product-images > .grid > div > div[class*="min-h"] .min-h-\[126px\] { min-height:62px !important; }
+        .sf-enterprise-shell .sf-product-images > .grid > div > .mt-3 { margin-top:6px !important; }
+        .sf-enterprise-shell .sf-product-pricing { order:4; padding:10px 12px !important; background:#fff !important; border:1px solid #e1e5ea !important; border-radius:8px !important; }
+        .sf-enterprise-shell .sf-product-pricing h3 { margin-bottom:8px !important; font-size:11px !important; color:#334155 !important; }
+        .sf-enterprise-shell .sf-product-cost-hint { order:5; min-height:0 !important; padding:0 4px; }
+        .sf-enterprise-shell .sf-product-providers { order:6; background:#fff !important; border-color:#dce3ea !important; }
+        .sf-enterprise-shell .sf-product-providers > div:first-child { min-height:48px; padding:8px 11px !important; background:#f8fafc !important; }
+        .sf-enterprise-shell .sf-product-average-cost { order:7; padding:8px 11px !important; background:#f8fafc !important; border-color:#dbe3ec !important; }
+        .sf-enterprise-shell .sf-product-final-price { order:8; padding:10px 12px !important; background:#fff !important; border-color:#b9d7ee !important; }
+        .sf-enterprise-shell .sf-product-final-price input { min-height:38px !important; font-size:1.2rem !important; background:#f5f9ff !important; border-color:#9fc8ef !important; color:#075aa5 !important; }
+        .sf-enterprise-shell .sf-product-final-price > .mt-2 { margin-top:7px !important; padding:6px 8px !important; }
+        .sf-enterprise-shell .sf-product-actions { order:9; position:sticky; bottom:-12px; z-index:12; margin:10px -16px -12px !important; padding:10px 16px !important; background:rgba(255,255,255,.97) !important; border-top:1px solid #dbe3ec !important; box-shadow:0 -7px 16px rgba(15,23,42,.08); }
+        .sf-enterprise-shell .sf-product-actions .btn { min-height:38px !important; border-radius:6px !important; }
+        /* Ajuste final de densidad y contraste del formulario de producto. */
+        .sf-enterprise-shell .sf-modal-panel.sf-product-new-modal > .sf-modal-body,
+        .sf-enterprise-shell .sf-modal-panel.sf-product-edit-modal > .sf-modal-body,
+        .sf-enterprise-shell .sf-modal-panel.sf-product-duplicate-modal > .sf-modal-body,
+        .sf-enterprise-shell .sf-product-workspace { background:#e9edf1 !important; }
+        .sf-enterprise-shell .sf-product-general,
+        .sf-enterprise-shell .sf-product-stock,
+        .sf-enterprise-shell .sf-product-images,
+        .sf-enterprise-shell .sf-product-pricing,
+        .sf-enterprise-shell .sf-product-providers,
+        .sf-enterprise-shell .sf-product-final-price { background:#f8fafc !important; border-color:#bec8d3 !important; }
+        .sf-enterprise-shell .sf-product-general { grid-template-columns:repeat(3,minmax(0,1fr)) !important; align-items:end; }
+        .sf-enterprise-shell .sf-product-general > h3,
+        .sf-enterprise-shell .sf-product-general > div:first-of-type { grid-column:1 / -1 !important; }
+        .sf-enterprise-shell .sf-product-general .sf-product-details-field { grid-column:1 / 2; min-width:0; }
+        .sf-enterprise-shell .sf-product-general .sf-product-taxonomy { display:contents !important; }
+        .sf-enterprise-shell .sf-product-general .sf-product-taxonomy > div { min-width:0; }
+        .sf-enterprise-shell .sf-product-general .sf-product-details-field,
+        .sf-enterprise-shell .sf-product-general .sf-product-taxonomy > div { display:flex !important; flex-direction:column !important; align-self:stretch !important; min-width:0; }
+        .sf-enterprise-shell .sf-product-general .sf-product-details-field textarea,
+        .sf-enterprise-shell .sf-product-general .sf-product-taxonomy input { height:36px !important; min-height:36px !important; }
+        .sf-enterprise-shell .sf-product-general .sf-product-taxonomy > div > .flex { flex:1 1 auto; align-items:stretch; }
+        .sf-enterprise-shell .sf-product-general .sf-product-details-field textarea { min-height:36px !important; height:36px !important; padding-top:.45rem !important; padding-bottom:.45rem !important; }
+        .sf-enterprise-shell .sf-product-images > .grid > div > div[class*="min-h"] { min-height:68px !important; height:68px; }
+        .sf-enterprise-shell .sf-product-images > .grid > div:nth-child(2) > div:first-child label > span.block { display:none !important; }
+        .sf-enterprise-shell .sf-product-images > .grid > div > div[class*="min-h"] { border-color:#bfcad5 !important; background:#f4f6f8 !important; }
+        .sf-enterprise-shell .sf-product-images > .grid > div > .mt-3 { margin-top:5px !important; }
+        .sf-enterprise-shell .sf-product-images > .grid > div > .mt-3 button,
+        .sf-enterprise-shell .sf-product-images > .grid > div > .mt-3 label { min-height:28px !important; }
+        .sf-enterprise-shell .sf-product-upload-plus { width:36px !important; height:36px !important; min-height:36px !important; margin:5px auto 0 !important; display:inline-flex !important; align-items:center; justify-content:center; border:1px solid #aebbc8; border-radius:7px; background:#fff; color:#52677d; cursor:pointer; transition:background .15s,border-color .15s,color .15s; }
+        .sf-enterprise-shell .sf-product-upload-plus:hover { background:#eaf3fb; border-color:#6e9dcc; color:#075aa5; }
+        .sf-enterprise-shell .sf-product-images > .grid > div > div[class*="min-h"] { min-height:112px !important; height:auto !important; overflow:visible !important; }
+        .sf-enterprise-shell .sf-product-images > .grid > div > div[class*="min-h"] > .text-center { width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+        .sf-enterprise-shell .sf-product-images > .grid > div > div[class*="min-h"] > .text-center > div:first-child,
+        .sf-enterprise-shell .sf-product-images > .grid > div > div[class*="min-h"] > .text-center > p { display:none !important; }
+        .sf-enterprise-shell .sf-product-images .min-h-\[126px\] { min-height:58px !important; height:58px !important; }
+        .sf-enterprise-shell .sf-product-images .min-h-\[126px\] .h-24 { height:36px !important; }
+        .sf-enterprise-shell .sf-product-images .min-h-\[126px\] > span { margin-top:2px !important; }
+        .sf-enterprise-shell .sf-product-general input,
+        .sf-enterprise-shell .sf-product-general textarea,
+        .sf-enterprise-shell .sf-product-stock input,
+        .sf-enterprise-shell .sf-product-stock select { border-color:#b9c4cf !important; }
+        @media (max-width:900px) { .sf-enterprise-shell .sf-product-general .sf-product-details-field, .sf-enterprise-shell .sf-product-general .sf-product-taxonomy { grid-column:1 / -1; display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; } }
+        @media (max-width:900px) {
+          .sf-enterprise-shell .sf-product-general { grid-template-columns:1fr 1fr !important; }
+          .sf-enterprise-shell .sf-product-images > .grid { grid-template-columns:1fr !important; }
+          .sf-enterprise-shell .sf-product-stock > .grid { grid-template-columns:1fr 1fr !important; }
+        }
+        @media (max-width:640px) {
+          .sf-enterprise-shell .sf-modal-panel.sf-product-new-modal,
+          .sf-enterprise-shell .sf-modal-panel.sf-product-edit-modal,
+          .sf-enterprise-shell .sf-modal-panel.sf-product-duplicate-modal { width:100vw !important; max-height:100dvh !important; border-radius:0 !important; }
+          .sf-enterprise-shell .sf-product-workspace { padding:10px !important; }
+          .sf-enterprise-shell .sf-product-general,
+          .sf-enterprise-shell .sf-product-stock > .grid { grid-template-columns:1fr !important; }
+          .sf-enterprise-shell .sf-product-actions { margin-right:-10px !important; margin-left:-10px !important; padding-right:10px !important; padding-left:10px !important; }
+        }
+        .sf-enterprise-shell .sf-purchase-modal .sf-modal-body { padding:12px; background:#f5f6f8; }
+        .sf-enterprise-shell .sf-purchase-workspace { height:min(82dvh,820px); }
+        .sf-enterprise-shell .sf-purchase-workspace:has(.sf-purchase-empty) { height:auto; min-height:0; }
+        .sf-enterprise-shell .sf-purchase-modal .bg-emerald-50,
+        .sf-enterprise-shell .sf-purchase-modal .bg-emerald-50\/70,
+        .sf-enterprise-shell .sf-purchase-modal .bg-emerald-100\/60 { background:#fff !important; }
+        .sf-enterprise-shell .sf-purchase-modal [class*="border-emerald"] { border-color:#d8dde5 !important; }
+        .sf-enterprise-shell .sf-purchase-modal [class*="text-emerald-8"] { color:#334155 !important; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-item-header { min-height:46px !important; background:#f8fafc; border-bottom-color:#d8dde5; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-empty { padding:38px 16px; color:#64748b; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-actions-grid > .sf-purchase-action-add { background:var(--sf-win-accent) !important; border-color:var(--sf-win-accent) !important; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-actions-grid > .sf-purchase-action-manual { background:#fff !important; border-color:#9abfe8 !important; color:#075aa5 !important; }
+        /* Compra directa: variante Fluent Windows 11. Sólo presentación; no modifica flujos ni cálculos. */
+        .sf-enterprise-shell .sf-modal-panel.sf-purchase-modal { width:min(880px,calc(100vw - 32px)) !important; max-width:880px !important; border:1px solid #e6e6e6 !important; border-radius:12px !important; box-shadow:0 8px 32px rgba(0,0,0,.12) !important; font-family:"Segoe UI Variable","Segoe UI",system-ui,sans-serif !important; }
+        .sf-enterprise-shell .sf-purchase-modal > .sf-modal-header { min-height:72px !important; padding:0 22px 0 24px !important; background:#fff !important; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-modal-header h2 { color:#1f1f1f !important; font-size:28px !important; font-weight:700 !important; }
+        .sf-enterprise-shell .sf-purchase-modal > .sf-modal-body { padding:20px 24px 18px !important; background:#f3f3f3 !important; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-workspace { gap:16px !important; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-workspace > .space-y-2 { padding:16px !important; border:1px solid #e6e6e6 !important; border-radius:8px !important; background:#fff !important; }
+        .sf-enterprise-shell .sf-purchase-modal label { color:#605e5c !important; font-size:11px !important; font-weight:600 !important; letter-spacing:.5px !important; }
+        .sf-enterprise-shell .sf-purchase-modal input:not([type="checkbox"]), .sf-enterprise-shell .sf-purchase-modal select { min-height:36px !important; height:36px !important; border-color:#d1d1d1 !important; border-radius:6px !important; color:#1f1f1f !important; font-size:13px !important; box-shadow:none !important; }
+        .sf-enterprise-shell .sf-purchase-modal input:not([type="checkbox"]):hover, .sf-enterprise-shell .sf-purchase-modal select:hover { border-color:#8a8886 !important; }
+        .sf-enterprise-shell .sf-purchase-modal input:not([type="checkbox"]):focus, .sf-enterprise-shell .sf-purchase-modal select:focus { border-color:#0078d4 !important; box-shadow:0 0 0 1px #0078d4 !important; }
+        .sf-enterprise-shell .sf-purchase-modal input[type="checkbox"] { width:18px !important; height:18px !important; accent-color:#0067c0; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-item-header { min-height:48px !important; padding:8px 0 !important; background:#fff !important; border-bottom:1px solid #edebe9 !important; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-item-title { color:#1f1f1f !important; font-size:14px !important; font-weight:700 !important; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-actions-grid > .sf-purchase-action { height:32px !important; min-height:32px !important; border:1px solid #d1d1d1 !important; border-radius:6px !important; background:#f3f3f3 !important; color:#1f1f1f !important; font-size:13px !important; font-weight:600 !important; box-shadow:none !important; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-actions-grid > .sf-purchase-action-add { background:#0067c0 !important; border-color:#0067c0 !important; color:#fff !important; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-actions-grid > .sf-purchase-action-add:hover { background:#005a9e !important; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-empty { display:grid !important; min-height:220px !important; place-items:center !important; border:1.5px dashed #c8c6c4 !important; border-radius:8px !important; background:#fafafa !important; color:#605e5c !important; font-size:13px !important; font-weight:500 !important; }
+        .sf-enterprise-shell .sf-purchase-modal .shrink-0.grid { border:0 !important; border-top:1px solid #edebe9 !important; border-radius:0 !important; background:#fff !important; padding:16px 0 0 !important; }
+        .sf-enterprise-shell .sf-purchase-modal .shrink-0.grid button { min-height:36px !important; border-radius:6px !important; background:#0067c0 !important; box-shadow:none !important; font-size:13px !important; font-weight:600 !important; }
+        .sf-enterprise-shell .sf-purchase-modal .shrink-0.grid button:hover:not(:disabled) { background:#005a9e !important; }
+        /* Ajuste de densidad: la tabla es el área central del modal, nunca una franja comprimida. */
+        .sf-enterprise-shell .sf-modal-panel.sf-purchase-modal { width:min(1160px,calc(100vw - 32px)) !important; max-width:1160px !important; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-modal-header h2 { font-size:32px !important; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-workspace,
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-workspace:has(.sf-purchase-empty) { height:min(88dvh,920px) !important; min-height:720px !important; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-workspace > .space-y-2,
+        .sf-enterprise-shell .sf-purchase-modal .bg-emerald-100\/60,
+        .sf-enterprise-shell .sf-purchase-modal .bg-emerald-100\/70,
+        .sf-enterprise-shell .sf-purchase-modal .bg-emerald-50 { background:#f9fafb !important; border-color:#e5e7eb !important; }
+        .sf-enterprise-shell .sf-purchase-modal .flex-1.min-h-0.overflow-y-auto { min-height:280px !important; overflow-x:auto !important; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-empty { min-height:280px !important; height:280px !important; }
+        .sf-enterprise-shell .sf-purchase-modal .hidden.lg\\:grid,
+        .sf-enterprise-shell .sf-purchase-modal .divide-y > div > .grid { grid-template-columns:80px minmax(220px,1.5fr) 86px 58px 68px 94px 60px 86px 120px 32px 32px !important; min-width:980px !important; }
+        .sf-enterprise-shell .sf-purchase-modal .hidden.lg\\:grid { background:#f3f4f6 !important; color:#374151 !important; font-size:12px !important; }
+        .sf-enterprise-shell .sf-purchase-modal .shrink-0.grid { background:#fff !important; }
+        .sf-enterprise-shell .sf-purchase-modal .shrink-0.grid > div:first-child { min-width:310px; }
+        /* Compra directa: opciones compactas, sin tarjetas menta ni secciones duplicadas. */
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-workspace > .space-y-2 > .bg-emerald-50 { background:#f9fafb !important; border-color:#e5e7eb !important; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-options { display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding:9px 2px 2px; border-top:1px solid #e5e7eb; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-options > label { display:inline-flex; align-items:center; gap:7px; color:#374151 !important; font-size:11px !important; font-weight:600 !important; letter-spacing:0 !important; white-space:nowrap; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-options input[type="checkbox"] { width:16px !important; height:16px !important; margin:0 !important; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-options .sf-purchase-price-mode { display:grid !important; grid-template-columns:auto minmax(180px,1fr); align-items:center; min-width:320px; margin-left:auto; white-space:normal; }
+        .sf-enterprise-shell .sf-purchase-modal .sf-purchase-options .sf-purchase-price-mode span { color:#605e5c; }
+        @media (max-width:900px) { .sf-enterprise-shell .sf-purchase-modal .sf-purchase-options .sf-purchase-price-mode { width:100%; margin-left:0; } }
         @media (max-width:767px) {
           .sf-enterprise-shell .sf-modal-overlay { padding:0; }
           .sf-enterprise-shell .sf-modal-panel.sf-modal-fullscreen { width:100vw; height:100dvh; max-height:100dvh; border-radius:0; }
@@ -26254,12 +27323,13 @@ function obtenerCategoriaProducto(producto) {
             </div>
             <div className="space-y-2">
               {historialCaja.slice(0, 5).map((cierre) => (
-                <div key={cierre.id} className="grid grid-cols-2 sm:grid-cols-5 gap-2 items-center rounded-xl bg-gray-50 border border-gray-100 px-3 py-2 text-xs">
+                <div key={cierre.id} className="grid grid-cols-2 sm:grid-cols-6 gap-2 items-center rounded-xl bg-gray-50 border border-gray-100 px-3 py-2 text-xs">
                   <span className="font-bold text-gray-600">{cierre.cierreFecha ? formatearFecha(cierre.cierreFecha) : 'Sin fecha'}</span>
                   <span><b className="text-gray-500">Apertura:</b> {formatearDinero(cierre.efectivoApertura || 0)}</span>
                   <span><b className="text-gray-500">Esperado:</b> {formatearDinero(cierre.efectivoEsperado || 0)}</span>
                   <span><b className="text-gray-500">Cierre:</b> {formatearDinero(cierre.efectivoCierre || 0)}</span>
                   <span className={`font-black ${Number(cierre.diferencia || 0) === 0 ? 'text-green-600' : 'text-red-600'}`}>Dif.: {formatearDinero(cierre.diferencia || 0)}</span>
+                  <button type="button" onClick={() => descargarPdfHistorialCaja(cierre)} className="inline-flex items-center justify-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2 py-1.5 text-[10px] font-black uppercase text-blue-700 hover:bg-blue-100"><Download size={13} /> PDF detalle</button>
                 </div>
               ))}
             </div>
@@ -26475,7 +27545,7 @@ function obtenerCategoriaProducto(producto) {
                         const esNotaCredito = detalles?.tipoComprobante === 'nota_credito';
                         const esRemitoR = detalles?.origen === 'remito_r' || detalles?.tipoComprobante === 'remito_r';
                         return (
-                          <tr key={`pv-mov-${mov.id}`} className="hover:bg-emerald-50/40 transition-colors">
+                          <tr id={`venta-${mov.id}`} key={`pv-mov-${mov.id}`} className="hover:bg-emerald-50/40 transition-colors">
                             <td className="px-4 py-3 font-bold text-gray-600 whitespace-nowrap">{formatearFecha(mov.fecha)} {formatearHora(mov.fecha)}</td>
                             <td className="px-4 py-3">
                               <p className="font-bold text-gray-900">{tipoComp}</p>
@@ -26715,7 +27785,7 @@ function obtenerCategoriaProducto(producto) {
                                 <details className="sf-client-more">
                                   <summary className="sf-client-icon-action" title="Más acciones" aria-label="Más acciones">⋮</summary>
                                   <div className="sf-client-more-menu">
-                                    <button type="button" disabled={!puedeAbonar} onClick={() => abrirCobroCliente(cliente)}><ArrowRight size={14} /> Registrar cobro</button>
+                                    <button type="button" onClick={() => abrirCobroCliente(cliente)}><ArrowRight size={14} /> Registrar cobro</button>
                                     <button type="button" disabled={!estado.tieneDeuda} onClick={() => enviarRecordatorioCliente(cliente, estado)}><Send size={14} /> Enviar recordatorio</button>
                                     <button type="button" onClick={() => abrirFormularioCliente(cliente)}><Edit2 size={14} /> Editar cliente</button>
                                     {esAdmin && <><button type="button" onClick={() => limpiarCuentaCliente(cliente)}><XCircle size={14} /> Limpiar cuenta</button><button type="button" className="sf-client-more-danger" onClick={() => eliminarClienteDirectorio(cliente)}><Trash2 size={14} /> Eliminar cliente</button></>}
@@ -28671,6 +29741,10 @@ function obtenerCategoriaProducto(producto) {
                             <p className="text-[10px] font-black uppercase text-emerald-700">Pagos</p>
                             <p className="text-sm font-black text-emerald-800">{formatearDinero(estadoProveedor.totalPagos)}</p>
                           </div>
+                          <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2">
+                            <p className="text-[10px] font-black uppercase text-amber-700">Bonificaciones</p>
+                            <p className="text-sm font-black text-amber-800">{formatearDinero(estadoProveedor.totalBonificaciones || 0)}</p>
+                          </div>
                           <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2">
                             <p className="text-[10px] font-black uppercase text-red-700">Saldo</p>
                             <p className="text-sm font-black text-red-800">{formatearDinero(estadoProveedor.saldoPendiente)}</p>
@@ -28781,6 +29855,9 @@ function obtenerCategoriaProducto(producto) {
                                           <td className="px-3 py-2 text-right">
                                             {esPago ? (
                                               <div className="inline-flex items-center gap-1">
+                                                <button type="button" onClick={() => previsualizarPdfPagoProveedor(mov)} className="p-1.5 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100" title="Previsualizar recibo PDF">
+                                                  <Eye size={12} />
+                                                </button>
                                                 <button type="button" onClick={() => construirPdfPagoProveedor(mov)} className="p-1.5 rounded-md border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100" title="Descargar recibo PDF">
                                                   <Download size={12} />
                                                 </button>
@@ -28973,7 +30050,7 @@ function obtenerCategoriaProducto(producto) {
                           <td className="px-5 py-3 text-right">
                             <button
                               type="button"
-                              onClick={() => { setCampoPrecioProductoPreferido('precio'); setBusquedaComponenteCompuesto(''); setProductoAEditar(producto); setFormProducto(crearFormularioProducto({ ...producto, generarCodigoAutomatico: false })); limpiarEdicionTaxonomias(); setModalActivo('nuevo_producto'); }}
+                              onClick={() => { setCampoPrecioProductoPreferido('precio'); setBusquedaComponenteCompuesto(''); setModoFormularioProducto('edicion'); setProductoAEditar(producto); setFormProducto(crearFormularioProducto({ ...producto, generarCodigoAutomatico: false })); limpiarEdicionTaxonomias(); setModalActivo('nuevo_producto'); }}
                               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-black uppercase tracking-wider"
                             >
                               <Edit2 size={14} /> Editar
@@ -29052,8 +30129,8 @@ function obtenerCategoriaProducto(producto) {
                 <button onClick={() => { setArchivoImportacionInventario(null); setFilasImportacionInventario([]); setColumnasArchivoImportacionInventario([]); setConfigImportacionInventario({ ...crearConfigImportacionInventarioVacia(), proveedor: filtroProveedorInventario || '' }); setResumenImportacionInventario(null); setModalActivo('importar_inventario'); }} className="bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-bold py-1.5 px-2.5 rounded-lg shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1 w-full sm:w-auto text-[10px] uppercase tracking-wide"><ArrowDownCircle size={14} /> Importar</button>
                 <button onClick={abrirActualizacionCostosProveedor} className="bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 font-bold py-1.5 px-2.5 rounded-lg shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1 w-full sm:w-auto text-[10px] uppercase tracking-wide"><TrendingUp size={14} /> Costos proveedor</button>
                 <button onClick={abrirRespaldosPrecios} className="bg-white border border-amber-200 text-amber-700 hover:bg-amber-50 font-bold py-1.5 px-2.5 rounded-lg shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1 w-full sm:w-auto text-[10px] uppercase tracking-wide"><History size={14} /> Respaldos</button>
-                <button onClick={() => { setCampoPrecioProductoPreferido('ganancia'); setBusquedaComponenteCompuesto(''); setFormProducto(crearFormularioProducto()); setProductoAEditar(null); limpiarEdicionTaxonomias(); setModalActivo('nuevo_producto'); }} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 px-2.5 rounded-lg shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1 w-full sm:w-auto text-[10px] uppercase tracking-wide"><Plus size={14} /> Nuevo Producto</button>
-                <button onClick={() => { setCampoPrecioProductoPreferido('precio'); setBusquedaComponenteCompuesto(''); setFormProducto(crearFormularioProducto({ esProductoCompuesto: true, unidad: 'unid', cantidad: 0, ganancia: '' })); setProductoAEditar(null); limpiarEdicionTaxonomias(); setModalActivo('nuevo_producto'); }} className="bg-fuchsia-600 hover:bg-fuchsia-700 text-white font-bold py-1.5 px-2.5 rounded-lg shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1 w-full sm:w-auto text-[10px] uppercase tracking-wide"><Layers size={14} /> Producto compuesto</button>
+                <button onClick={() => { setCampoPrecioProductoPreferido('ganancia'); setBusquedaComponenteCompuesto(''); setModoFormularioProducto('nuevo'); setFormProducto(crearFormularioProducto()); setProductoAEditar(null); limpiarEdicionTaxonomias(); setModalActivo('nuevo_producto'); }} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 px-2.5 rounded-lg shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1 w-full sm:w-auto text-[10px] uppercase tracking-wide"><Plus size={14} /> Nuevo Producto</button>
+                <button onClick={() => { setCampoPrecioProductoPreferido('precio'); setBusquedaComponenteCompuesto(''); setModoFormularioProducto('nuevo'); setFormProducto(crearFormularioProducto({ esProductoCompuesto: true, unidad: 'unid', cantidad: 0, ganancia: '' })); setProductoAEditar(null); limpiarEdicionTaxonomias(); setModalActivo('nuevo_producto'); }} className="bg-fuchsia-600 hover:bg-fuchsia-700 text-white font-bold py-1.5 px-2.5 rounded-lg shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1 w-full sm:w-auto text-[10px] uppercase tracking-wide"><Layers size={14} /> Producto compuesto</button>
               </div>
             </div>
 
@@ -29241,8 +30318,8 @@ function obtenerCategoriaProducto(producto) {
                           </td>
                           <td className="py-4 px-4 text-right">
                             <div className="flex gap-1.5 justify-end items-center">
-                              <button type="button" onClick={() => { setComparadorContextoPedidoCompra(false); setProductoComparador(p); }} style={{ width: 36, height: 36, minWidth: 36, minHeight: 36, padding: 0 }} className="inline-flex items-center justify-center bg-white border shadow-sm text-emerald-600 hover:bg-emerald-50 hover:border-emerald-200 rounded-lg transition-all" title="Comparar proveedores" aria-label="Comparar proveedores"><BarChart2 size={16} strokeWidth={2.5} /></button>
-                              <button type="button" onClick={() => { setCampoPrecioProductoPreferido('precio'); setBusquedaComponenteCompuesto(''); setProductoAEditar(p); setFormProducto(crearFormularioProducto({ ...p, generarCodigoAutomatico: false })); limpiarEdicionTaxonomias(); setModalActivo('nuevo_producto'); }} style={{ width: 36, height: 36, minWidth: 36, minHeight: 36, padding: 0 }} className="inline-flex items-center justify-center bg-white border shadow-sm text-blue-600 hover:bg-blue-50 hover:border-blue-200 rounded-lg transition-all" title="Editar" aria-label="Editar"><Edit2 size={16} strokeWidth={2.5} /></button>
+                              <button type="button" onClick={() => abrirHistorialVentasProducto(p)} style={{ width: 36, height: 36, minWidth: 36, minHeight: 36, padding: 0 }} className="inline-flex items-center justify-center bg-white border shadow-sm text-violet-600 hover:bg-violet-50 hover:border-violet-200 rounded-lg transition-all" title="Últimas ventas" aria-label="Últimas ventas"><History size={16} strokeWidth={2.5} /></button>
+                              <button type="button" onClick={() => { setCampoPrecioProductoPreferido('precio'); setBusquedaComponenteCompuesto(''); setModoFormularioProducto('edicion'); setProductoAEditar(p); setFormProducto(crearFormularioProducto({ ...p, generarCodigoAutomatico: false })); limpiarEdicionTaxonomias(); setModalActivo('nuevo_producto'); }} style={{ width: 36, height: 36, minWidth: 36, minHeight: 36, padding: 0 }} className="inline-flex items-center justify-center bg-white border shadow-sm text-blue-600 hover:bg-blue-50 hover:border-blue-200 rounded-lg transition-all" title="Editar" aria-label="Editar"><Edit2 size={16} strokeWidth={2.5} /></button>
                               <button type="button" onClick={() => clonarProducto(p)} style={{ width: 36, height: 36, minWidth: 36, minHeight: 36, padding: 0 }} className="inline-flex items-center justify-center bg-white border shadow-sm text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 rounded-lg transition-all" title="Clonar" aria-label="Clonar"><Copy size={16} strokeWidth={2.5} /></button>
                               <button type="button" onClick={() => eliminarProducto(p.id)} style={{ width: 36, height: 36, minWidth: 36, minHeight: 36, padding: 0 }} className="inline-flex items-center justify-center bg-white border shadow-sm text-red-600 hover:bg-red-50 hover:border-red-200 rounded-lg transition-all" title="Eliminar" aria-label="Eliminar"><Trash2 size={16} strokeWidth={2.5} /></button>
                             </div>
@@ -30487,10 +31564,10 @@ function obtenerCategoriaProducto(producto) {
                     <p className="mt-1 text-xs font-bold text-emerald-700">Ventas asignadas, ganancia por comisión y retiros registrados dentro del período seleccionado.</p>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                    <WidgetCard titulo="Ventas asignadas" monto={datosReporte.vendedores.ventas} icono={TrendingUp} colorClase="text-blue-600" printOculto={false} subtitulo="Importe de comprobantes con vendedor" />
-                    <WidgetCard titulo="Ganancia vendedores" monto={datosReporte.vendedores.comisiones} icono={Users} colorClase="text-emerald-600" printOculto={false} subtitulo="Comisiones generadas en el período" />
-                    <WidgetCard titulo="Pagos a vendedores" monto={datosReporte.vendedores.pagos} icono={ArrowDownCircle} colorClase="text-red-600" printOculto={false} subtitulo="Retiros registrados, impacten o no caja" />
-                    <WidgetCard titulo="Balance del período" monto={datosReporte.vendedores.balancePeriodo} icono={Wallet} colorClase={datosReporte.vendedores.balancePeriodo >= 0 ? 'text-amber-600' : 'text-purple-600'} printOculto={false} subtitulo="Comisiones menos pagos del período" />
+                    <WidgetCard titulo="Ventas asignadas" monto={datosReporte.vendedores.ventas} icono={TrendingUp} colorClase="text-blue-600" printOculto={false} onClick={() => mostrarDetalleIndicadorReporte('ventas')} subtitulo="Importe de comprobantes con vendedor" />
+                    <WidgetCard titulo="Ganancia vendedores" monto={datosReporte.vendedores.comisiones} icono={Users} colorClase="text-emerald-600" printOculto={false} onClick={() => mostrarDetalleIndicadorReporte('vendedoresComisiones')} subtitulo="Comisiones generadas en el período" />
+                    <WidgetCard titulo="Pagos a vendedores" monto={datosReporte.vendedores.pagos} icono={ArrowDownCircle} colorClase="text-red-600" printOculto={false} onClick={() => mostrarDetalleIndicadorReporte('vendedoresPagos')} subtitulo="Retiros registrados, impacten o no caja" />
+                    <WidgetCard titulo="Balance del período" monto={datosReporte.vendedores.balancePeriodo} icono={Wallet} colorClase={datosReporte.vendedores.balancePeriodo >= 0 ? 'text-amber-600' : 'text-purple-600'} printOculto={false} onClick={() => mostrarDetalleIndicadorReporte('vendedoresBalance')} subtitulo="Comisiones menos pagos del período" />
                   </div>
                   <div className="overflow-x-auto rounded-2xl border border-slate-200 print:overflow-visible">
                     <table className="w-full text-left text-sm text-slate-600 print:text-[10.5px]">
@@ -30532,10 +31609,10 @@ function obtenerCategoriaProducto(producto) {
                     <p className="mt-1 text-xs font-bold text-indigo-700">Detalle por tarjeta, tipo y plan. El total POSNET es lo cobrado al cliente; el neto estimado es lo que debería acreditar la tarjeta.</p>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                    <WidgetCard titulo="Cobrado en POSNET" monto={datosReporte.tarjetas.totalPosnet} icono={CreditCard} colorClase="text-indigo-600" printOculto={false} subtitulo={`${datosReporte.tarjetas.operaciones} operación(es)`} />
-                    <WidgetCard titulo="Valor contado" monto={datosReporte.tarjetas.totalContado} icono={Wallet} colorClase="text-slate-700" printOculto={false} subtitulo="Precio base de las ventas" />
-                    <WidgetCard titulo="Financiación trasladada" monto={datosReporte.tarjetas.recargo} icono={TrendingUp} colorClase="text-amber-600" printOculto={false} subtitulo="Diferencia cobrada por los planes" />
-                    <WidgetCard titulo="Neto estimado" monto={datosReporte.tarjetas.netoEstimado} icono={Wallet} colorClase="text-emerald-600" printOculto={false} subtitulo="Importe estimado a acreditar" />
+                    <WidgetCard titulo="Cobrado en POSNET" monto={datosReporte.tarjetas.totalPosnet} icono={CreditCard} colorClase="text-indigo-600" printOculto={false} onClick={() => mostrarDetalleIndicadorReporte('tarjetasPosnet')} subtitulo={`${datosReporte.tarjetas.operaciones} operación(es)`} />
+                    <WidgetCard titulo="Valor contado" monto={datosReporte.tarjetas.totalContado} icono={Wallet} colorClase="text-slate-700" printOculto={false} onClick={() => mostrarDetalleIndicadorReporte('tarjetasContado')} subtitulo="Precio base de las ventas" />
+                    <WidgetCard titulo="Financiación trasladada" monto={datosReporte.tarjetas.recargo} icono={TrendingUp} colorClase="text-amber-600" printOculto={false} onClick={() => mostrarDetalleIndicadorReporte('tarjetasRecargo')} subtitulo="Diferencia cobrada por los planes" />
+                    <WidgetCard titulo="Neto estimado" monto={datosReporte.tarjetas.netoEstimado} icono={Wallet} colorClase="text-emerald-600" printOculto={false} onClick={() => mostrarDetalleIndicadorReporte('tarjetasNeto')} subtitulo="Importe estimado a acreditar" />
                   </div>
                   <div className="overflow-x-auto rounded-2xl border border-slate-200 print:overflow-visible">
                     <table className="w-full text-left text-sm text-slate-600 print:text-[10.5px]">
@@ -30578,10 +31655,10 @@ function obtenerCategoriaProducto(producto) {
                     <p className="text-xs font-bold text-orange-700 mt-1">Facturas A/B de ventas y compras dentro del período seleccionado.</p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                    <WidgetCard titulo="IVA ventas 21%" monto={datosReporte.impuestos.ventas21} icono={TrendingUp} colorClase="text-red-600" />
-                    <WidgetCard titulo="IVA ventas 10,5%" monto={datosReporte.impuestos.ventas105} icono={TrendingUp} colorClase="text-red-600" />
-                    <WidgetCard titulo="IVA compras 21%" monto={datosReporte.impuestos.compras21} icono={Truck} colorClase="text-emerald-600" />
-                    <WidgetCard titulo="IVA compras 10,5%" monto={datosReporte.impuestos.compras105} icono={Truck} colorClase="text-emerald-600" />
+                    <WidgetCard titulo="IVA ventas 21%" monto={datosReporte.impuestos.ventas21} icono={TrendingUp} colorClase="text-red-600" onClick={() => mostrarDetalleIndicadorReporte('ivaVentas21')} />
+                    <WidgetCard titulo="IVA ventas 10,5%" monto={datosReporte.impuestos.ventas105} icono={TrendingUp} colorClase="text-red-600" onClick={() => mostrarDetalleIndicadorReporte('ivaVentas105')} />
+                    <WidgetCard titulo="IVA compras 21%" monto={datosReporte.impuestos.compras21} icono={Truck} colorClase="text-emerald-600" onClick={() => mostrarDetalleIndicadorReporte('ivaCompras21')} />
+                    <WidgetCard titulo="IVA compras 10,5%" monto={datosReporte.impuestos.compras105} icono={Truck} colorClase="text-emerald-600" onClick={() => mostrarDetalleIndicadorReporte('ivaCompras105')} />
                   </div>
                   <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-3">
                     <div className="flex justify-between font-black"><span>IVA débito fiscal (ventas)</span><span className="text-red-700">{formatearDinero(datosReporte.impuestos.totalVentas)}</span></div>
@@ -31184,6 +32261,36 @@ function obtenerCategoriaProducto(producto) {
 
       </main>
 
+      {detalleReporteActivo && (
+        <Modal
+          titulo={detalleReporteActivo.titulo}
+          customWidth="max-w-6xl"
+          onClose={() => setDetalleReporteActivo(null)}
+          footer={(
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-2">
+              <button type="button" onClick={() => setDetalleReporteActivo(null)} className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-700 hover:bg-slate-50">Cerrar</button>
+              <button type="button" onClick={() => descargarPdfDetalleReporte()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-xs font-black uppercase tracking-wider text-white hover:bg-slate-700"><Download size={16} /> Descargar detalle en PDF</button>
+            </div>
+          )}
+        >
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_220px] gap-3 rounded-2xl border border-blue-200 bg-blue-50 p-4">
+              <div><p className="text-[10px] font-black uppercase tracking-wider text-blue-700">Cómo se interpreta</p><p className="mt-1 text-sm font-bold leading-relaxed text-blue-950">{detalleReporteActivo.explicacion}</p><p className="mt-2 text-xs font-black text-blue-700">{detalleReporteActivo.periodo}</p></div>
+              <div className="rounded-xl border border-blue-200 bg-white p-3 text-right"><p className="text-[10px] font-black uppercase tracking-wider text-slate-500">Total del indicador</p><p className={`mt-1 text-2xl font-black ${detalleReporteActivo.total >= 0 ? 'text-slate-900' : 'text-red-700'}`}>{formatearDinero(detalleReporteActivo.total || 0)}</p><p className="text-[10px] font-bold text-slate-500">{detalleReporteActivo.filas.length} registro(s) de detalle</p></div>
+            </div>
+            <div className="overflow-x-auto rounded-2xl border border-slate-200">
+              <table className="w-full min-w-[850px] text-left text-xs text-slate-600">
+                <thead className="bg-slate-900 text-[10px] font-black uppercase tracking-wider text-white"><tr><th className="px-3 py-3">Fecha / hora</th><th className="px-3 py-3">Tipo</th><th className="px-3 py-3">Detalle y explicación</th><th className="px-3 py-3">Medio</th><th className="px-3 py-3">Usuario / referencia</th><th className="px-3 py-3 text-right">Importe</th></tr></thead>
+                <tbody className="divide-y divide-slate-100 font-bold">
+                  {detalleReporteActivo.filas.map((fila, indice) => <tr key={`${detalleReporteActivo.clave}-${fila.fecha || 'fila'}-${indice}`} className="hover:bg-slate-50"><td className="whitespace-nowrap px-3 py-3">{fila.fecha ? `${formatearFecha(fila.fecha)} ${formatearHora(fila.fecha)}` : '-'}</td><td className="px-3 py-3 font-black text-slate-900">{fila.tipo || '-'}</td><td className="max-w-[420px] px-3 py-3 text-slate-700">{fila.descripcion || '-'}</td><td className="px-3 py-3">{fila.medio || '-'}</td><td className="px-3 py-3 text-slate-500">{fila.usuario || '-'}</td><td className={`whitespace-nowrap px-3 py-3 text-right font-black ${fila.signo === '-' ? 'text-red-700' : 'text-emerald-700'}`}>{fila.signo || ''} {formatearDinero(fila.importe || 0)}</td></tr>)}
+                  {!detalleReporteActivo.filas.length && <tr><td colSpan="6" className="px-4 py-12 text-center font-black text-slate-400">No hay movimientos para este indicador en el período seleccionado.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </Modal>
+      )}
+
       {menuContextualCheque && posicionMenuContextualCheque && (
         <div className="fixed z-[130] w-[220px] rounded-xl border border-gray-200 bg-white p-1.5 shadow-xl" style={{ left: `${posicionMenuContextualCheque.left}px`, top: `${posicionMenuContextualCheque.top}px` }} onClick={(e) => e.stopPropagation()}>
           <button type="button" className="w-full rounded-lg px-3 py-2 text-left text-sm font-bold text-emerald-700 hover:bg-emerald-50" onClick={() => cambiarEstadoChequeManual(menuContextualCheque.registro, true)} disabled={menuContextualCheque.registro?.cobradoManualmente}>Marcar como cobrado</button>
@@ -31209,6 +32316,30 @@ function obtenerCategoriaProducto(producto) {
             <Eye size={16} /> Ver detalle
           </button>
         </div>
+      )}
+
+      {modalActivo === 'historial_ventas_producto' && productoHistorialVentas && (
+        <Modal
+          titulo="Últimas ventas del producto"
+          customWidth="max-w-6xl"
+          onClose={() => { setModalActivo(null); setProductoHistorialVentas(null); }}
+        >
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-3 rounded-2xl border border-violet-200 bg-violet-50 p-4 md:grid-cols-[1fr_210px]">
+              <div className="min-w-0"><p className="text-[10px] font-black uppercase tracking-wider text-violet-700">Historial comercial</p><p className="mt-1 truncate text-lg font-black text-violet-950">{productoHistorialVentas.descripcion || 'Producto'}</p><p className="mt-1 text-xs font-bold text-violet-700">Código: {productoHistorialVentas.codigo || productoHistorialVentas.codigoInterno || productoHistorialVentas.codigoBarras || 'sin código'} · Cada fila corresponde a una venta que contiene este artículo.</p></div>
+              <div className="rounded-xl border border-violet-200 bg-white p-3 text-right"><p className="text-[10px] font-black uppercase tracking-wider text-slate-500">Ventas encontradas</p><p className="mt-1 text-2xl font-black text-violet-900">{ventasProductoHistorial.length}</p><p className="text-[10px] font-bold text-slate-500">Última: {ventasProductoHistorial[0]?.fecha ? formatearFecha(ventasProductoHistorial[0].fecha) : 'Sin registros'}</p></div>
+            </div>
+            <div className="overflow-x-auto rounded-2xl border border-slate-200">
+              <table className="w-full min-w-[900px] text-left text-xs text-slate-600">
+                <thead className="bg-slate-900 text-[10px] font-black uppercase tracking-wider text-white"><tr><th className="px-3 py-3">Fecha</th><th className="px-3 py-3">Comprobante / remito</th><th className="px-3 py-3">Quién llevó</th><th className="px-3 py-3">Pago</th><th className="px-3 py-3 text-right">Cantidad</th><th className="px-3 py-3 text-right">Precio</th><th className="px-3 py-3 text-right">Importe</th><th className="px-3 py-3 text-right">Acción</th></tr></thead>
+                <tbody className="divide-y divide-slate-100 font-bold">
+                  {ventasProductoHistorial.map((venta) => <tr key={venta.id} className="hover:bg-violet-50/50"><td className="whitespace-nowrap px-3 py-3">{venta.fecha ? `${formatearFecha(venta.fecha)} ${formatearHora(venta.fecha)}` : '-'}</td><td className="px-3 py-3"><p className="font-black text-slate-900">{venta.tipoComprobante}</p><p className="text-[10px] font-black text-violet-700">{venta.comprobante}</p></td><td className="px-3 py-3 font-black text-slate-800">{venta.cliente}</td><td className="px-3 py-3"><span className={`rounded-md border px-2 py-1 text-[9px] font-black uppercase ${venta.esCuentaCorriente ? 'border-purple-200 bg-purple-50 text-purple-700' : 'border-emerald-200 bg-emerald-50 text-emerald-700'}`}>{venta.metodoPago}</span>{venta.esCuentaCorriente && <p className="mt-1 text-[10px] font-black text-purple-700">{venta.pendiente > 0 ? `Pendiente ${formatearDinero(venta.pendiente)}` : 'Cuenta saldada'}</p>}</td><td className="whitespace-nowrap px-3 py-3 text-right">{formatearCantidad(venta.cantidad)}</td><td className="whitespace-nowrap px-3 py-3 text-right">{formatearDinero(venta.precio)}</td><td className="whitespace-nowrap px-3 py-3 text-right font-black text-emerald-700">{formatearDinero(venta.importe)}</td><td className="px-3 py-3 text-right"><button type="button" onClick={() => irAVentaDesdeHistorialProducto(venta)} className="inline-flex items-center gap-1 rounded-lg border border-violet-200 bg-violet-50 px-2.5 py-2 text-[10px] font-black uppercase tracking-wider text-violet-700 hover:bg-violet-100"><ArrowRight size={13} /> Ver en ventas</button></td></tr>)}
+                  {!ventasProductoHistorial.length && <tr><td colSpan="8" className="px-4 py-12 text-center font-black text-slate-400">No hay ventas registradas para este producto.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </Modal>
       )}
 
       {modalActivo === 'producto_compuesto_detalle' && resumenProductoCompuesto && (
@@ -31521,7 +32652,7 @@ function obtenerCategoriaProducto(producto) {
             <div><label className="block text-[10px] font-black uppercase tracking-wider text-slate-600 mb-1">Vendedor</label><select value={formAsignacionVendedor.vendedorId} onChange={(event) => setFormAsignacionVendedor((prev) => ({ ...prev, vendedorId: event.target.value }))} required className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold outline-none focus:ring-2 focus:ring-teal-500"><option value="">Seleccionar vendedor</option>{vendedores.filter((vendedor) => vendedor.activo !== false || vendedor.id === formAsignacionVendedor.vendedorId).map((vendedor) => <option key={vendedor.id} value={vendedor.id}>{vendedor.nombre}{vendedor.activo === false ? ' (inactivo)' : ''}</option>)}</select></div>
             <div><label className="block text-[10px] font-black uppercase tracking-wider text-slate-600 mb-1">Porcentaje de comisión</label><div className="relative"><input inputMode="decimal" value={formAsignacionVendedor.porcentaje} onChange={(event) => setFormAsignacionVendedor((prev) => ({ ...prev, porcentaje: event.target.value.replace(/[^0-9.,]/g, '') }))} placeholder="Ej.: 5" required className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 pr-10 text-right text-lg font-black outline-none focus:ring-2 focus:ring-teal-500" /><span className="absolute right-3 top-1/2 -translate-y-1/2 font-black text-slate-500">%</span></div></div>
             <label className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 cursor-pointer"><input type="checkbox" checked={formAsignacionVendedor.aplicarAlPrecio === true} onChange={(event) => setFormAsignacionVendedor((prev) => ({ ...prev, aplicarAlPrecio: event.target.checked }))} className="mt-0.5 h-4 w-4 rounded border-amber-300 text-amber-600" /><span className="text-[10px] font-black uppercase tracking-wider text-amber-800">Incrementar el precio con la comisión<span className="block normal-case tracking-normal font-bold text-amber-700">Si no se tilda, la comisión sale de tu ganancia.</span></span></label>
-            <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 space-y-2"><div className="flex items-center justify-between gap-3"><span className="text-xs font-black uppercase text-teal-700">Comisión incorporada a los ítems</span><strong className="text-lg text-teal-800">{formatearDinero(calcularPreciosConComisionVendedor(ventaAsignarVendedor?.detallesPago?.items || [], formAsignacionVendedor.porcentaje).totalComision)}</strong></div><p className="text-[11px] font-bold text-teal-700">Al guardar se recalcula desde el precio original y cambia el total de la venta.</p></div>
+            <div className="rounded-xl border border-teal-200 bg-teal-50 p-3 space-y-2"><div className="flex items-center justify-between gap-3"><span className="text-xs font-black uppercase text-teal-700">{formAsignacionVendedor.aplicarAlPrecio ? 'Incremento distribuido en los ítems' : 'Comisión tomada del total'}</span><strong className="text-lg text-teal-800">{formatearDinero(calcularPreciosConComisionVendedor(ventaAsignarVendedor?.detallesPago?.items || [], formAsignacionVendedor.porcentaje).totalComision)}</strong></div><p className="text-[11px] font-bold text-teal-700">{formAsignacionVendedor.aplicarAlPrecio ? 'Al guardar se recalculan proporcionalmente los precios y aumenta el total de la venta.' : 'El precio y el total que paga el cliente permanecen sin cambios.'}</p></div>
             {vendedores.length === 0 && <button type="button" onClick={() => { setVentaAsignarVendedor(null); setVista('vendedores'); }} className="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2.5 text-xs font-black text-blue-700">Primero cargá un vendedor</button>}
             <div className="flex flex-col sm:flex-row gap-2">{ventaAsignarVendedor?.detallesPago?.vendedorId && <button type="button" disabled={guardandoAsignacionVendedor} onClick={quitarAsignacionVendedorVenta} className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-black text-red-700">Quitar asignación</button>}<button type="button" disabled={guardandoAsignacionVendedor} onClick={() => setVentaAsignarVendedor(null)} className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-black text-slate-700">Cancelar</button><button type="submit" disabled={guardandoAsignacionVendedor || !vendedores.length} className="flex-1 rounded-xl bg-teal-600 px-4 py-3 text-xs font-black text-white disabled:bg-teal-300">{guardandoAsignacionVendedor ? 'Guardando...' : 'Guardar asignación'}</button></div>
           </form>
@@ -31579,15 +32710,15 @@ function obtenerCategoriaProducto(producto) {
                       <p className="mt-1 text-sm font-black text-slate-900">{formatearDinero(resumenAplicacionPagoProveedor.totalPendienteSeleccionado)}</p>
                     </div>
                     <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2">
-                      <p className="text-[9px] font-black uppercase tracking-wider text-amber-700">Descuento proveedor</p>
-                      <p className="mt-1 text-sm font-black text-amber-900">{formatearDinero(resumenAplicacionPagoProveedor.descuentoProveedor)}</p>
+                      <p className="text-[9px] font-black uppercase tracking-wider text-amber-700">Bonificación</p>
+                      <p className="mt-1 text-sm font-black text-amber-900">{formatearCantidad(resumenAplicacionPagoProveedor.descuentoProveedorPorcentaje)}% · {formatearDinero(resumenAplicacionPagoProveedor.descuentoProveedor)}</p>
                     </div>
                     <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2">
                       <p className="text-[9px] font-black uppercase tracking-wider text-emerald-700">Importe aplicado</p>
                       <p className="mt-1 text-sm font-black text-emerald-800">{formatearDinero(resumenAplicacionPagoProveedor.totalAplicado)}</p>
                     </div>
                     <div className={`rounded-xl border px-3 py-2 ${resumenAplicacionPagoProveedor.restanteAplicable > 0.009 ? 'border-amber-300 bg-amber-50' : 'border-emerald-300 bg-emerald-50'}`}>
-                      <p className={`text-[9px] font-black uppercase tracking-wider ${resumenAplicacionPagoProveedor.restanteAplicable > 0.009 ? 'text-amber-700' : 'text-emerald-700'}`}>Resta por aplicar</p>
+                      <p className={`text-[9px] font-black uppercase tracking-wider ${resumenAplicacionPagoProveedor.restanteAplicable > 0.009 ? 'text-amber-700' : 'text-emerald-700'}`}>Resta por aplicar / saldo a favor</p>
                       <p className={`mt-1 text-sm font-black ${resumenAplicacionPagoProveedor.restanteAplicable > 0.009 ? 'text-amber-900' : 'text-emerald-800'}`}>{formatearDinero(resumenAplicacionPagoProveedor.restanteAplicable)}</p>
                     </div>
                   </div>
@@ -31665,17 +32796,17 @@ function obtenerCategoriaProducto(producto) {
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               <div>
-                <label className="block text-[10px] font-black text-amber-700 uppercase tracking-wider mb-1">Descuento / bonificación</label>
+                <label className="block text-[10px] font-black text-amber-700 uppercase tracking-wider mb-1">Descuento / bonificación (%)</label>
                 <input
                   type="text"
                   inputMode="decimal"
                   autoComplete="off"
-                  value={formPagoProveedor.descuentoProveedor || ''}
-                  onChange={(e) => { setSobrantePagoProveedorDetectado(0); setConfirmarSaldoFavorPagoProveedor(false); setFormPagoProveedor((prev) => ({ ...prev, descuentoProveedor: e.target.value.replace(/[^0-9.,]/g, '') })); }}
+                  value={formPagoProveedor.descuentoProveedorPorcentaje || ''}
+                  onChange={(e) => { setSobrantePagoProveedorDetectado(0); setConfirmarSaldoFavorPagoProveedor(false); setFormPagoProveedor((prev) => ({ ...prev, descuentoProveedorPorcentaje: e.target.value.replace(/[^0-9.,]/g, '') })); }}
                   className="w-full px-3 py-2.5 rounded-xl border border-amber-200 bg-amber-50 font-black text-sm text-right outline-none focus:ring-2 focus:ring-amber-500"
-                  placeholder="Descuento del proveedor"
+                  placeholder="Ej.: 10"
                 />
-                <p className="mt-1 text-[9px] font-bold text-amber-700">Reduce la deuda, no sale de caja.</p>
+                <p className="mt-1 text-[9px] font-bold text-amber-700">Se recalcula automáticamente el importe a pagar.</p>
               </div>
               <div>
                 <label className="block text-[10px] font-black text-gray-600 uppercase tracking-wider mb-1">Monto</label>
@@ -32751,7 +33882,7 @@ function obtenerCategoriaProducto(producto) {
 
       {/* Modal Actualizar Costos por Proveedor */}
       {modalActivo === 'actualizar_costos_proveedor' && (
-        <Modal titulo="Actualizar Costos por Proveedor" onClose={() => setModalActivo(null)} customWidth="max-w-3xl">
+        <Modal titulo="Actualizar Costos por Proveedor" onClose={() => setModalActivo(null)} customWidth="max-w-6xl">
           <div className="space-y-5">
             <div className="bg-rose-50 border border-rose-100 rounded-xl p-3 space-y-2">
               <p className="text-[10px] font-bold text-rose-700 uppercase tracking-wider">Lectura por código de proveedor</p>
@@ -32764,7 +33895,7 @@ function obtenerCategoriaProducto(producto) {
                 <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Proveedor</label>
                 <select
                   value={configCostosProveedor.proveedor}
-                  onChange={(e) => setConfigCostosProveedor((prev) => ({ ...prev, proveedor: e.target.value }))}
+                  onChange={(e) => { setConfigCostosProveedor((prev) => ({ ...prev, proveedor: e.target.value })); setVistaPreviaCostosProveedor(null); setResumenCostosProveedor(null); }}
                   className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-bold outline-none focus:ring-2 focus:ring-rose-500"
                 >
                   <option value="">Seleccionar proveedor</option>
@@ -32789,7 +33920,7 @@ function obtenerCategoriaProducto(producto) {
                   <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Columna código de proveedor</label>
                   <select
                     value={configCostosProveedor.columnaCodigo}
-                    onChange={(e) => setConfigCostosProveedor((prev) => ({ ...prev, columnaCodigo: e.target.value }))}
+                    onChange={(e) => { setConfigCostosProveedor((prev) => ({ ...prev, columnaCodigo: e.target.value })); setVistaPreviaCostosProveedor(null); }}
                     className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-bold outline-none focus:ring-2 focus:ring-rose-500"
                   >
                     <option value="">Seleccionar columna</option>
@@ -32800,7 +33931,7 @@ function obtenerCategoriaProducto(producto) {
 	                  <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Columna costo</label>
                   <select
                     value={configCostosProveedor.columnaCosto}
-                    onChange={(e) => setConfigCostosProveedor((prev) => ({ ...prev, columnaCosto: e.target.value }))}
+                    onChange={(e) => { setConfigCostosProveedor((prev) => ({ ...prev, columnaCosto: e.target.value })); setVistaPreviaCostosProveedor(null); }}
                     className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-bold outline-none focus:ring-2 focus:ring-rose-500"
                   >
                     <option value="">Seleccionar columna</option>
@@ -32811,7 +33942,7 @@ function obtenerCategoriaProducto(producto) {
 	                  <input
 	                    type="checkbox"
 	                    checked={Boolean(configCostosProveedor.ivaIncluido)}
-	                    onChange={(e) => setConfigCostosProveedor((prev) => ({ ...prev, ivaIncluido: e.target.checked }))}
+	                    onChange={(e) => { setConfigCostosProveedor((prev) => ({ ...prev, ivaIncluido: e.target.checked })); setVistaPreviaCostosProveedor(null); }}
 	                    className="mt-0.5 w-4 h-4 text-amber-600 border-amber-300 rounded focus:ring-amber-500"
 	                  />
 	                  <span>
@@ -32849,6 +33980,74 @@ function obtenerCategoriaProducto(producto) {
               </div>
             )}
 
+            {vistaPreviaCostosProveedor && (() => {
+              const filasFiltradas = vistaPreviaCostosProveedor.filas.filter((fila) => (
+                filtroVistaPreviaCostosProveedor === 'todos'
+                || (filtroVistaPreviaCostosProveedor === 'coincidencias' && Boolean(fila.productoId))
+                || (filtroVistaPreviaCostosProveedor === 'actualizar' && fila.estado === 'listo')
+                || (filtroVistaPreviaCostosProveedor === 'observaciones' && fila.estado !== 'listo')
+              ));
+              const cantidadSeleccionada = vistaPreviaCostosProveedor.filas.filter((fila) => fila.estado === 'listo' && fila.seleccionado).length;
+              const etiquetaEstado = (fila) => fila.estado === 'listo' ? 'Actualizar' : fila.estado === 'sin_cambios' ? 'Sin cambios' : fila.estado === 'sin_coincidencia' ? 'Sin coincidencia' : fila.estado === 'costo_invalido' ? 'Costo inválido' : fila.estado === 'sin_codigo' ? 'Sin código' : 'Duplicado';
+              return (
+                <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+                  <div className="bg-slate-900 px-4 py-3 text-white flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-wider">Resultado del análisis</p>
+                      <p className="text-[11px] font-bold text-slate-300 mt-0.5">Revisá costos y porcentajes. Todavía no se modificó ningún producto.</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        ['todos', `Todas (${vistaPreviaCostosProveedor.filas.length})`],
+                        ['coincidencias', `Coincidencias (${vistaPreviaCostosProveedor.resumen.coincidencias})`],
+                        ['actualizar', `A actualizar (${vistaPreviaCostosProveedor.resumen.listos})`],
+                        ['observaciones', 'Observaciones']
+                      ].map(([valor, label]) => <button key={valor} type="button" onClick={() => setFiltroVistaPreviaCostosProveedor(valor)} className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide ${filtroVistaPreviaCostosProveedor === valor ? 'bg-white text-slate-900' : 'bg-slate-800 text-slate-200 hover:bg-slate-700'}`}>{label}</button>)}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-px bg-slate-200 border-b border-slate-200">
+                    {[
+                      ['Filas leídas', vistaPreviaCostosProveedor.resumen.total, 'text-slate-900'],
+                      ['Coincidencias', vistaPreviaCostosProveedor.resumen.coincidencias, 'text-indigo-700'],
+                      ['A actualizar', vistaPreviaCostosProveedor.resumen.listos, 'text-emerald-700'],
+                      ['Sin cambios', vistaPreviaCostosProveedor.resumen.sinCambios, 'text-slate-600'],
+                      ['Sin coincidencia', vistaPreviaCostosProveedor.resumen.sinCoincidencia, 'text-orange-700']
+                    ].map(([label, valor, color]) => <div key={label} className="bg-white px-3 py-2.5"><p className="text-[9px] font-black uppercase tracking-wider text-slate-500">{label}</p><p className={`text-xl font-black ${color}`}>{valor}</p></div>)}
+                  </div>
+                  <div className="overflow-auto max-h-[42vh] custom-scrollbar">
+                    <table className="w-full min-w-[920px] text-xs">
+                      <thead className="sticky top-0 z-10 bg-slate-50 text-[9px] uppercase tracking-wider text-slate-500 border-b border-slate-200">
+                        <tr><th className="px-3 py-2 text-center w-10">Usar</th><th className="px-3 py-2 text-left">Cód. proveedor</th><th className="px-3 py-2 text-left">Producto encontrado</th><th className="px-3 py-2 text-right">Costo anterior</th><th className="px-3 py-2 text-right">Costo nuevo</th><th className="px-3 py-2 text-right">Variación</th><th className="px-3 py-2 text-left">Estado</th></tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {filasFiltradas.map((fila) => {
+                          const variacionPositiva = Number(fila.porcentaje) > 0;
+                          return <tr key={fila.id} className={fila.estado === 'listo' ? 'hover:bg-emerald-50/40' : 'bg-slate-50/50'}>
+                            <td className="px-3 py-2 text-center"><input type="checkbox" disabled={fila.estado !== 'listo' || importandoCostosProveedor} checked={Boolean(fila.seleccionado)} onChange={() => alternarFilaVistaPreviaCosto(fila.id)} className="w-4 h-4 rounded border-slate-300 text-emerald-600" /></td>
+                            <td className="px-3 py-2 font-black text-slate-800 whitespace-nowrap">{fila.codigo || '—'}<span className="block text-[9px] text-slate-400">Fila {fila.filaNumero}</span></td>
+                            <td className="px-3 py-2"><p className="font-black text-slate-900">{fila.descripcion || 'No encontrado'}</p><p className="text-[9px] font-bold text-slate-500">{fila.codigoProducto ? `Código interno: ${fila.codigoProducto}` : fila.motivo}</p></td>
+                            <td className="px-3 py-2 text-right font-bold text-slate-600">{fila.productoId ? formatearDinero(fila.costoAnterior) : '—'}</td>
+                            <td className="px-3 py-2 text-right font-black text-slate-900">{fila.costoNuevo === null ? 'Inválido' : formatearDinero(fila.costoNuevo)}</td>
+                            <td className={`px-3 py-2 text-right font-black ${variacionPositiva ? 'text-red-600' : Number(fila.porcentaje) < 0 ? 'text-emerald-600' : 'text-slate-500'}`}>{fila.porcentaje === null || fila.porcentaje === undefined ? (fila.productoId ? 'Costo inicial' : '—') : `${variacionPositiva ? '+' : ''}${formatearPorcentaje(fila.porcentaje)}%`}</td>
+                            <td className="px-3 py-2"><span className={`inline-flex rounded-full px-2 py-1 text-[9px] font-black uppercase ${fila.estado === 'listo' ? 'bg-emerald-100 text-emerald-800' : fila.estado === 'sin_cambios' ? 'bg-slate-200 text-slate-700' : 'bg-orange-100 text-orange-800'}`}>{etiquetaEstado(fila)}</span></td>
+                          </tr>;
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="px-4 py-2.5 border-t border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-600">Seleccionados para actualizar: <b className="text-slate-900">{cantidadSeleccionada}</b></div>
+                </div>
+              );
+            })()}
+
+            {(progresoCostosProveedor.activo || progresoCostosProveedor.completo || progresoCostosProveedor.procesadas > 0) && (
+              <div className={`rounded-xl border p-4 space-y-2 ${progresoCostosProveedor.completo ? 'border-emerald-200 bg-emerald-50' : 'border-indigo-200 bg-indigo-50'}`}>
+                <div className="flex items-center justify-between gap-3"><p className={`text-xs font-black uppercase tracking-wider ${progresoCostosProveedor.completo ? 'text-emerald-800' : 'text-indigo-800'}`}>{progresoCostosProveedor.completo ? 'Actualización terminada' : 'Actualizando costos'}</p><p className="text-xs font-black">{progresoCostosProveedor.procesadas} / {progresoCostosProveedor.total}</p></div>
+                <div className="h-3 overflow-hidden rounded-full bg-white"><div className={`h-full rounded-full transition-all duration-300 ${progresoCostosProveedor.completo ? 'bg-emerald-600' : 'bg-indigo-600'}`} style={{ width: `${progresoCostosProveedor.total ? Math.min(100, (progresoCostosProveedor.procesadas / progresoCostosProveedor.total) * 100) : 0}%` }} /></div>
+                <p className="text-[11px] font-bold text-slate-700">Actualizados: {progresoCostosProveedor.actualizados}{progresoCostosProveedor.errores ? ` · Errores: ${progresoCostosProveedor.errores}` : ''}</p>
+              </div>
+            )}
+
             {resumenCostosProveedor && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 <div className="bg-gray-50 border border-gray-200 rounded-xl p-3"><p className="text-[10px] font-bold text-gray-500 uppercase">Filas</p><p className="text-lg font-black text-gray-900">{resumenCostosProveedor.total}</p></div>
@@ -32862,14 +34061,10 @@ function obtenerCategoriaProducto(producto) {
               </div>
             )}
 
-            <button
-              type="button"
-              onClick={procesarActualizacionCostosProveedor}
-              disabled={importandoCostosProveedor || !configCostosProveedor.proveedor || !filasCostosProveedor.length || !configCostosProveedor.columnaCodigo || !configCostosProveedor.columnaCosto}
-              className="w-full bg-rose-600 hover:bg-rose-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition-colors"
-            >
-              {importandoCostosProveedor ? 'Actualizando...' : 'Actualizar costos coincidentes'}
-            </button>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <button type="button" onClick={analizarActualizacionCostosProveedor} disabled={importandoCostosProveedor || !configCostosProveedor.proveedor || !filasCostosProveedor.length || !configCostosProveedor.columnaCodigo || !configCostosProveedor.columnaCosto} className="sm:w-2/5 border border-rose-200 bg-white hover:bg-rose-50 disabled:bg-gray-100 disabled:text-gray-400 text-rose-700 font-black py-3.5 px-4 rounded-xl text-xs uppercase tracking-wider transition-colors">{importandoCostosProveedor && !vistaPreviaCostosProveedor ? 'Analizando...' : (vistaPreviaCostosProveedor ? 'Volver a analizar' : 'Analizar coincidencias')}</button>
+              <button type="button" onClick={aplicarActualizacionCostosProveedor} disabled={importandoCostosProveedor || !(vistaPreviaCostosProveedor?.filas || []).some((fila) => fila.estado === 'listo' && fila.seleccionado)} className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-black py-3.5 px-4 rounded-xl text-xs uppercase tracking-wider transition-colors">{importandoCostosProveedor && vistaPreviaCostosProveedor ? 'Actualizando...' : `Confirmar y actualizar ${(vistaPreviaCostosProveedor?.filas || []).filter((fila) => fila.estado === 'listo' && fila.seleccionado).length} costo(s)`}</button>
+            </div>
           </div>
         </Modal>
       )}
@@ -33550,14 +34745,15 @@ function obtenerCategoriaProducto(producto) {
           titulo={compraDirectaActiva ? 'Cargar compra directa' : (pedidoCompraEditandoId ? 'Editar pedido' : 'Nuevo pedido de compra')}
           onClose={() => { setCompraDirectaActiva(false); setSelectorInventarioPedidoCompraAbierto(false); setModalActivo(null); }}
           customWidth="max-w-7xl"
+          modalVariant="sf-purchase-modal"
         >
-          <div className="space-y-4 h-[84dvh] max-h-[calc(100dvh-6rem)] overflow-hidden flex flex-col min-w-0">
+          <div className="sf-purchase-workspace space-y-3 min-h-0 overflow-hidden flex flex-col min-w-0">
             <div className="space-y-2">
               <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-2 space-y-2">
-                <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(220px,1.2fr)_auto] gap-2 items-center min-w-0">
-                  <div className="bg-white border border-emerald-200 rounded-lg px-2.5 py-1.5">
-                    <p className="text-[9px] font-black text-emerald-700 uppercase tracking-wider">Compra</p>
-                    <p className="text-sm font-black text-emerald-900">PC-{pedidoCompraEditandoId ? textoSeguroTrim((pedidosCompra || []).find((p) => p.id === pedidoCompraEditandoId)?.numero, '000000') : generarNumeroPedidoCompra()}</p>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 items-center min-w-0">
+                  <div className="h-9 bg-white border border-emerald-200 rounded-lg px-3 flex items-center justify-between gap-3">
+                    <span className="text-[10px] font-black text-emerald-700 uppercase tracking-wider">Compra</span>
+                    <span className="text-sm font-black text-emerald-900">PC-{pedidoCompraEditandoId ? textoSeguroTrim((pedidosCompra || []).find((p) => p.id === pedidoCompraEditandoId)?.numero, '000000') : generarNumeroPedidoCompra()}</span>
                   </div>
                   <select value={proveedorCompraSeleccionado} onChange={(e) => setProveedorCompraSeleccionado(e.target.value)} className="w-full px-2 py-1.5 rounded-lg border border-emerald-200 bg-white text-[11px] font-black text-emerald-800">
                     <option value="">Seleccionar proveedor</option>
@@ -33571,7 +34767,7 @@ function obtenerCategoriaProducto(producto) {
                     </select>
                   )}
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                   <div>
                     <label className="block text-[9px] font-black text-emerald-700 uppercase tracking-wider mb-0.5">{compraDirectaActiva ? 'Fecha compra' : 'Fecha pedido'}</label>
                     <input
@@ -33581,15 +34777,6 @@ function obtenerCategoriaProducto(producto) {
                       className="w-full px-2 py-1.5 rounded-lg border border-emerald-200 bg-white text-[11px] font-bold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500"
                     />
                   </div>
-                  {compraDirectaActiva && <>
-                    {[['IVA 21%', compraEsFacturaA(compraDirectaTipoComprobante) ? calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, '21') : 0, null], ['IVA 10,5%', compraEsFacturaA(compraDirectaTipoComprobante) ? calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, '10.5') : 0, null], ['Ingresos Brutos', pedidoCompraIngresosBrutos, setPedidoCompraIngresosBrutos], ['Flete', pedidoCompraFlete, setPedidoCompraFlete]].map(([label, value, setter]) => {
-                      const esIvaAutomatico = label.startsWith('IVA');
-                      return <div key={label}>
-                        <label className="block text-[9px] font-black text-emerald-700 uppercase tracking-wider mb-0.5">{label}</label>
-                        <input value={esIvaAutomatico ? Number(value || 0).toFixed(2) : value} readOnly={esIvaAutomatico} inputMode="decimal" onChange={setter ? (e) => setter(e.target.value) : undefined} placeholder="0" className={`w-full px-2 py-1.5 rounded-lg border border-emerald-200 text-[11px] font-bold text-right outline-none focus:ring-2 focus:ring-emerald-500 ${esIvaAutomatico ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-white text-slate-700'}`} />
-                      </div>;
-                    })}
-                  </>}
                   <div>
                     <label className="block text-[9px] font-black text-emerald-700 uppercase tracking-wider mb-0.5">Transporte / envio</label>
                     <input
@@ -33607,7 +34794,7 @@ function obtenerCategoriaProducto(producto) {
                   </div>
                 </div>
                 {(compraDirectaActiva || Boolean(pedidoCompraEditandoId)) && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 bg-emerald-100/60 border border-emerald-200 rounded-lg p-1.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 bg-emerald-100/60 border border-emerald-200 rounded-lg p-1.5">
                     {compraDirectaActiva && <div>
                       <label className="block text-[9px] font-black text-emerald-800 uppercase tracking-wider mb-0.5">Forma de pago</label>
                       <select
@@ -33668,20 +34855,21 @@ function obtenerCategoriaProducto(producto) {
                     </div>
                   </div>
                 )}
-                {compraDirectaActiva && <label className={`flex items-center gap-2 cursor-pointer rounded-lg border px-2.5 py-2 ${compraImpactaInventario ? 'border-emerald-300 bg-emerald-100/70' : 'border-amber-200 bg-amber-50'}`}>
-                  <input
-                    type="checkbox"
-                    checked={Boolean(compraImpactaInventario)}
-                    onChange={(e) => setCompraImpactaInventario(e.target.checked)}
-                    className="w-4 h-4 text-emerald-600 rounded border-emerald-300"
-                  />
-                  <span className={`text-[10px] font-black uppercase tracking-wide ${compraImpactaInventario ? 'text-emerald-800' : 'text-amber-800'}`}>
-                    Impactar en inventario y actualizar costo del proveedor
-                  </span>
-                  <span className={`ml-auto text-[9px] font-black uppercase ${compraImpactaInventario ? 'text-emerald-700' : 'text-amber-700'}`}>
-                    {compraImpactaInventario ? 'Sí, actualizar' : 'Compra histórica'}
-                  </span>
-                </label>}
+                {compraDirectaActiva && <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
+                  <div className="sf-purchase-options lg:col-span-3">
+                    <label title="Al marcarlo, las cantidades recibidas se suman al inventario."><input type="checkbox" checked={Boolean(compraImpactaInventario)} onChange={(e) => setCompraImpactaInventario(e.target.checked)} />Actualizar stock</label>
+                    <label title="Guarda el costo cargado en cada producto para el proveedor seleccionado."><input type="checkbox" checked={Boolean(compraActualizaCostoProveedor)} onChange={(e) => setCompraActualizaCostoProveedor(e.target.checked)} />Guardar costo del proveedor</label>
+                    <label title="Al marcarlo, el IVA se suma al total porque los precios cargados no lo incluyen."><input type="checkbox" checked={Boolean(compraDirectaPreciosSinIva)} onChange={(e) => setCompraDirectaPreciosSinIva(e.target.checked)} />Precio sin IVA</label>
+                    <label className="sf-purchase-price-mode"><span>Precio producto</span>
+                    <select value={modoActualizacionPrecioCompra} onChange={(e) => setModoActualizacionPrecioCompra(e.target.value)} disabled={!compraActualizaCostoProveedor} className="w-full rounded-md border border-slate-200 bg-white px-2 py-1 text-[10px] font-bold text-slate-700 disabled:bg-slate-100 disabled:text-slate-400">
+                      <option value="siempre">Actualizar siempre</option>
+                      <option value="solo_si_mayor">Actualizar si el costo es mayor</option>
+                      <option value="no_modificar">No modificar precios</option>
+                    </select>
+                  </label>
+                  </div>
+                  <p className="sm:col-span-2 lg:col-span-3 px-1 text-[9px] font-bold text-slate-500">El descuento se carga por ítem tal como figura en la factura. Flete e ingresos brutos se suman al total, sin alterar el costo del producto.</p>
+                </div>}
                 {!compraDirectaActiva && (
                   <div className="rounded-lg border border-sky-200 bg-sky-50/70 p-2">
                     <div className="flex flex-wrap items-center justify-between gap-2">
@@ -33746,13 +34934,16 @@ function obtenerCategoriaProducto(producto) {
                     <button type="button" onClick={agregarItemManualPedidoCompra} className="sf-purchase-action sf-purchase-action-manual">
                       + Manual
                     </button>
+                    {compraDirectaActiva && <button type="button" onClick={agregarItemTemporalPedidoCompra} className="sf-purchase-action border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100" title="Flete, seguro u otro cargo sin crear stock">
+                      + Gasto
+                    </button>}
                     <button type="button" onClick={() => setItemsPedidoCompra([])} disabled={!itemsPedidoCompra.length} className="sf-purchase-action sf-purchase-action-clear">
                       Limpiar
                     </button>
                   </div>
                 </div>
                 {itemsPedidoCompra.length === 0 ? (
-                  <p className="p-6 text-sm font-bold text-slate-400 text-center">{compraDirectaActiva ? 'Agrega productos para registrar la compra.' : 'Agrega productos para crear el pedido.'}</p>
+                  <p className="sf-purchase-empty p-6 text-sm font-bold text-slate-400 text-center">{compraDirectaActiva ? 'Agregá productos para registrar la compra.' : 'Agregá productos para crear el pedido.'}</p>
                 ) : (
                   <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-slate-50/70">
                     <div className="hidden lg:grid sticky top-0 z-10 grid-cols-[70px_minmax(170px,1.4fr)_86px_58px_68px_88px_60px_86px_108px_32px_32px] gap-1 items-center px-2 py-1.5 bg-slate-900 text-white text-[9px] font-black uppercase tracking-wider">
@@ -33772,7 +34963,9 @@ function obtenerCategoriaProducto(producto) {
                       {itemsPedidoCompra.map((item) => {
                         const productoRelacionado = obtenerProductoParaPedidoCompra(item);
                         const cantidad = parseNumeroPresupuesto(item.cantidad) || 0;
-                        const costo = parseNumeroPresupuesto(item.costoPesos) || 0;
+                        const costoBaseCompra = item?.costoBaseCompraPesos !== undefined && item?.costoBaseCompraPesos !== null && String(item.costoBaseCompraPesos).trim() !== '' ? Math.max(0, parseNumeroPresupuesto(item.costoBaseCompraPesos) || 0) : null;
+                        const descuentoProveedor = costoBaseCompra !== null && !compraDirectaActiva ? obtenerDescuentoProveedorParaPedidoCompra(item?.proveedor || '') : 0;
+                        const costo = costoBaseCompra !== null ? costoBaseCompra * (1 - descuentoProveedor / 100) : (parseNumeroPresupuesto(item.costoPesos) || 0);
                         const descuento = Math.min(100, Math.max(0, parseNumeroPresupuesto(item.descuento) || 0));
                         const subtotal = cantidad * costo * (1 - (descuento / 100));
                         return (
@@ -33828,7 +35021,7 @@ function obtenerCategoriaProducto(producto) {
                                 </select>
                               </div>
                               <div>
-                                <label className="lg:hidden block text-[8px] font-black text-slate-500 uppercase tracking-wider mb-0.5">Costo</label>
+                                <label className="lg:hidden block text-[8px] font-black text-slate-500 uppercase tracking-wider mb-0.5">Costo remito</label>
                                 <input
                                   value={item.costoPesos ?? ''}
                                   inputMode="decimal"
@@ -33858,9 +35051,6 @@ function obtenerCategoriaProducto(producto) {
                               <div className="h-8 bg-white border border-emerald-100 rounded-lg px-2 flex items-center justify-end">
                                 <span className="text-xs font-black text-emerald-800 whitespace-nowrap">{formatearDinero(subtotal)}</span>
                               </div>
-                              <button type="button" onClick={() => aplicarProveedorRecomendadoEnItemPedidoCompra(item.id)} className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 shadow-sm" title="Aplicar proveedor recomendado" aria-label="Aplicar proveedor recomendado">
-                                <BarChart2 size={15} />
-                              </button>
                               <button type="button" onClick={() => eliminarItemPedidoCompra(item.id)} className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-red-200 bg-white text-red-600 hover:bg-red-50 shadow-sm" title="Quitar item" aria-label="Quitar item">
                                 <Trash2 size={15} />
                               </button>
@@ -33876,10 +35066,16 @@ function obtenerCategoriaProducto(producto) {
                 <div className="shrink-0 grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_260px_auto] gap-2 items-end rounded-xl border border-emerald-200 bg-emerald-50 p-2.5">
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-wider text-emerald-800">Monto total de la compra</p>
-                    <p className="text-[10px] font-bold text-emerald-700">Se calcula automáticamente con los ítems cargados.</p>
+                    <p className="text-[10px] font-bold text-emerald-700">IVA: {compraDirectaPreciosSinIva && compraEsFacturaA(compraDirectaTipoComprobante) ? 'sumado al total' : 'incluido en los valores'} · Descuentos: por ítem · Flete e IIBB: incluidos en el total.</p>
+                    <div className="mt-2 grid grid-cols-2 lg:grid-cols-4 gap-2">
+                      <label className="text-[9px] font-black uppercase tracking-wide text-emerald-800">IVA 21%<input value={pedidoCompraIva21 === '' ? Number(calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, '21')).toFixed(2) : pedidoCompraIva21} inputMode="decimal" onChange={(e) => setPedidoCompraIva21(e.target.value)} title="Se calcula automáticamente; podés corregirlo para que coincida con el comprobante." className="mt-0.5 w-full rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-bold text-right text-slate-700" /></label>
+                      <label className="text-[9px] font-black uppercase tracking-wide text-emerald-800">IVA 10,5%<input value={pedidoCompraIva105 === '' ? Number(calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, '10.5')).toFixed(2) : pedidoCompraIva105} inputMode="decimal" onChange={(e) => setPedidoCompraIva105(e.target.value)} title="Se calcula automáticamente; podés corregirlo para que coincida con el comprobante." className="mt-0.5 w-full rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-bold text-right text-slate-700" /></label>
+                      <label className="text-[9px] font-black uppercase tracking-wide text-emerald-800">Ingresos Brutos<input value={pedidoCompraIngresosBrutos} inputMode="decimal" onChange={(e) => setPedidoCompraIngresosBrutos(e.target.value)} placeholder="0,00" className="mt-0.5 w-full rounded-md border border-emerald-200 bg-white px-2 py-1 text-[11px] font-bold text-right text-slate-700" /></label>
+                      <label className="text-[9px] font-black uppercase tracking-wide text-emerald-800">Flete<input value={pedidoCompraFlete} inputMode="decimal" onChange={(e) => setPedidoCompraFlete(e.target.value)} placeholder="0,00" className="mt-0.5 w-full rounded-md border border-emerald-200 bg-white px-2 py-1 text-[11px] font-bold text-right text-slate-700" /></label>
+                    </div>
                   </div>
                   <input
-                    value={formatearDinero(construirFilasPedidoCompra(itemsPedidoCompra || []).reduce((acc, item) => acc + Number(item.subtotal || 0), 0) + (compraEsFacturaA(compraDirectaTipoComprobante) ? calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, '21') + calcularIvaAutomaticoPedidoCompra(itemsPedidoCompra, '10.5') : 0) + parseNumeroConSigno(pedidoCompraIngresosBrutos) + parseNumeroConSigno(pedidoCompraAjusteMonto))}
+                    value={formatearDinero(construirFilasPedidoCompra(itemsPedidoCompra || []).reduce((acc, item) => acc + Number(item.subtotal || 0), 0) + (compraDirectaPreciosSinIva ? obtenerIvaCompraDirecta(itemsPedidoCompra, '21') + obtenerIvaCompraDirecta(itemsPedidoCompra, '10.5') : 0) + parseNumeroConSigno(pedidoCompraIngresosBrutos) + parseNumeroConSigno(pedidoCompraAjusteMonto) + Math.max(0, parseNumeroConSigno(pedidoCompraFlete)))}
                     readOnly
                     className="w-full h-10 min-h-10 px-3 py-0 rounded-lg border border-emerald-300 bg-white text-sm font-black text-right text-emerald-900 outline-none focus:ring-2 focus:ring-emerald-500"
                   />
@@ -33992,12 +35188,19 @@ function obtenerCategoriaProducto(producto) {
       {/* Modal Nuevo Producto de Inventario */}
       {modalActivo === 'nuevo_producto' && (
         <Modal
-          titulo={productoAEditar ? 'Editar Producto' : 'Nuevo Producto'}
-          onClose={() => { setModalActivo(null); setProductoAEditar(null); setSelectorTaxonomiaProducto(null); setBusquedaSelectorTaxonomiaProducto(''); limpiarEdicionTaxonomias(); }}
-          customWidth="max-w-[1480px]"
-          fullScreen
+          titulo={modoFormularioProducto === 'duplicado' ? 'Nuevo producto duplicado' : (productoAEditar ? 'Editar producto existente' : 'Nuevo producto')}
+          onClose={() => { setModalActivo(null); setProductoAEditar(null); setModoFormularioProducto('nuevo'); setSelectorTaxonomiaProducto(null); setBusquedaSelectorTaxonomiaProducto(''); limpiarEdicionTaxonomias(); }}
+          customWidth="max-w-[1240px]"
+          modalVariant={modoFormularioProducto === 'duplicado' ? 'sf-product-duplicate-modal' : (productoAEditar ? 'sf-product-edit-modal' : 'sf-product-new-modal')}
         >
           <form onSubmit={guardarProducto} noValidate className="sf-product-workspace w-full max-w-none space-y-6">
+            <div className={`sf-product-notice rounded-xl border px-4 py-3 flex items-center gap-3 ${modoFormularioProducto === 'duplicado' ? 'border-amber-300 bg-amber-100 text-amber-950' : (productoAEditar ? 'border-blue-200 bg-blue-50 text-blue-900' : 'border-emerald-200 bg-emerald-50 text-emerald-900')}`}>
+              {modoFormularioProducto === 'duplicado' ? <Copy size={20} className="shrink-0" /> : (productoAEditar ? <Edit2 size={20} className="shrink-0" /> : <PlusCircle size={20} className="shrink-0" />)}
+              <div className="min-w-0">
+                <p className="text-xs font-black uppercase tracking-wider">{modoFormularioProducto === 'duplicado' ? 'Estás creando un producto nuevo desde una copia' : (productoAEditar ? 'Estás modificando un producto existente' : 'Estás creando un producto nuevo')}</p>
+                <p className="mt-0.5 text-[11px] font-bold">{modoFormularioProducto === 'duplicado' ? 'Los códigos se generan nuevamente y el producto original no se modifica.' : (productoAEditar ? 'Los cambios reemplazarán los datos actuales al guardar.' : 'Se agregará un registro nuevo al inventario.')}</p>
+              </div>
+            </div>
             <div className="sf-product-images">
               <h3 className="text-xs font-bold text-gray-500 tracking-wider mb-2">IMÁGENES</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -34023,11 +35226,11 @@ function obtenerCategoriaProducto(producto) {
                     }`}
                   >
                     {obtenerImagenesProducto(formProducto).length > 0 ? (() => {
-                      const imagenesProductoForm = obtenerImagenesProducto(formProducto).slice(0, 2);
+                      const imagenesProductoForm = obtenerImagenesProducto(formProducto).slice(0, 1);
                       return (
                         <div className="w-full">
-                          <div className="grid grid-cols-2 gap-3">
-                            {[0, 1].map((slot) => {
+                          <div className="grid grid-cols-1 gap-3">
+                            {[0].map((slot) => {
                               const imagenSlot = imagenesProductoForm[slot] || '';
                               const esPrincipal = imagenSlot && (imagenSlot === formProducto.imagen || (!formProducto.imagen && slot === 0));
                               return (
@@ -34040,14 +35243,14 @@ function obtenerCategoriaProducto(producto) {
                                       <button type="button" onClick={() => quitarImagenProductoGaleria(imagenSlot)} className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-red-500 text-white inline-flex items-center justify-center shadow" title="Quitar imagen" aria-label="Quitar imagen">
                                         <X size={13} />
                                       </button>
-                                      <span className={`mt-1 text-[9px] font-black uppercase tracking-wider ${esPrincipal ? 'text-indigo-700' : 'text-slate-400'}`}>
-                                        {esPrincipal ? 'Principal' : 'Opcional'}
+                                      <span className="mt-1 text-[9px] font-black uppercase tracking-wider text-indigo-700">
+                                        Principal
                                       </span>
                                     </>
                                   ) : (
                                     <label className="w-full h-full min-h-[108px] flex flex-col items-center justify-center cursor-pointer text-slate-400 hover:text-indigo-600">
                                       <ImageIcon size={20} />
-                                      <span className="mt-1 text-[10px] font-black uppercase tracking-wider">{slot === 0 ? 'Imagen 1' : 'Imagen 2 opcional'}</span>
+                                      <span className="mt-1 text-[10px] font-black uppercase tracking-wider">Imagen del producto</span>
                                       <input type="file" accept="image/*" capture="environment" className="hidden" onChange={procesarImagenProducto} />
                                     </label>
                                   )}
@@ -34056,13 +35259,10 @@ function obtenerCategoriaProducto(producto) {
                             })}
                           </div>
                           <div className="mt-3 flex flex-wrap gap-2 justify-center">
-                            <label className="bg-white hover:bg-gray-100 text-gray-700 px-2.5 py-1.5 rounded-lg shadow border text-xs font-bold flex items-center gap-1.5 cursor-pointer">
-                              Agregar / cambiar
+                            <label className="sf-product-upload-plus" title="Cambiar imagen">
+                              <Plus size={20} strokeWidth={2.4} />
                               <input type="file" accept="image/*" capture="environment" className="hidden" onChange={procesarImagenProducto} />
                             </label>
-                            <button type="button" onClick={() => setFormProducto((prev) => ({ ...prev, imagen: '', imagenes: [] }))} className="bg-red-500 hover:bg-red-600 text-white px-2.5 py-1.5 rounded-lg shadow text-xs font-bold">
-                              Quitar todas
-                            </button>
                           </div>
                         </div>
                       );
@@ -34074,15 +35274,10 @@ function obtenerCategoriaProducto(producto) {
                         <p className="text-sm font-medium text-gray-700 mb-2">
                           {productoImagenArrastrando ? 'Soltá la imagen aquí' : 'Arrastrá o subí una imagen'}
                         </p>
-                        <div className="flex gap-2 justify-center">
-                          <label className="btn btn-secondary btn-sm cursor-pointer">
-                            Subir
-                            <input type="file" accept="image/*" capture="environment" className="hidden" onChange={procesarImagenProducto} />
-                          </label>
-                          <button type="button" onClick={capturarImagenDesdePantallaProducto} className="btn btn-ghost btn-sm">
-                            Capturar
-                          </button>
-                        </div>
+                        <label className="sf-product-upload-plus" title="Cargar imagen">
+                          <Plus size={20} strokeWidth={2.4} />
+                          <input type="file" accept="image/*" capture="environment" className="hidden" onChange={procesarImagenProducto} />
+                        </label>
                       </div>
                     )}
                   </div>
@@ -34143,8 +35338,8 @@ function obtenerCategoriaProducto(producto) {
                           <ImageIcon size={20} className="text-gray-400" />
                         </div>
                         <p className="text-sm font-bold text-gray-600 mb-2">{logoMarcaArrastrando ? 'Soltá el logo aquí' : 'Logo de la marca'}</p>
-                        <label className="btn btn-secondary btn-sm cursor-pointer">
-                          Subir logo
+                        <label className="sf-product-upload-plus" title="Cargar logo">
+                          <Plus size={20} strokeWidth={2.4} />
                           <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={procesarLogoMarcaProducto} />
                         </label>
                       </div>
@@ -34263,9 +35458,8 @@ function obtenerCategoriaProducto(producto) {
                       type="text"
                       value={formProducto.codigoInterno || ''}
                       onChange={(e) => actualizarFormProducto({ codigoInterno: e.target.value })}
-                      disabled={Boolean(formProducto.generarCodigoAutomatico)}
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-600 outline-none text-sm font-bold disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
-                      placeholder={formProducto.generarCodigoAutomatico ? 'Automático (numérico)' : 'Ej: 000123'}
+                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-600 outline-none text-sm font-bold"
+                      placeholder="Automático si lo dejás vacío"
                     />
                   </div>
                   <div>
@@ -34274,7 +35468,16 @@ function obtenerCategoriaProducto(producto) {
                       <input
                         type="text"
                         value={formProducto.codigoBarras || ''}
-                        onChange={(e) => actualizarFormProducto({ codigoBarras: e.target.value })}
+                        // Los lectores USB escriben varios caracteres en milisegundos.
+                        // Esta captura debe ser inmediata para no perder dígitos por la transición de React.
+                        onChange={(e) => setFormProducto((prev) => ({ ...prev, codigoBarras: e.target.value }))}
+                        onKeyDown={(e) => {
+                          if (e.key !== 'Enter') return;
+                          // Los lectores suelen enviar Enter al terminar. No debe
+                          // enviar el formulario ni cerrar la edición del producto.
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
                         className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-600 outline-none text-sm font-bold"
                         placeholder="Escribe o escanea..."
                       />
@@ -34294,36 +35497,14 @@ function obtenerCategoriaProducto(producto) {
                 <input type="text" inputMode="decimal" value={formProducto.stockMinimo ?? ''} onChange={(e) => actualizarFormProducto({ stockMinimo: e.target.value.replace(',', '.') })} className="w-full px-3 py-2 bg-white border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-sm font-bold text-center" placeholder="Sin alerta"/>
                 <p className="mt-1 text-[10px] font-semibold text-amber-700">Avisa cuando el stock sea igual o menor.</p>
               </div>
-              <div className="sm:col-span-3">
-                <label className="inline-flex items-start gap-2 text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-2">
-                  <input
-                    type="checkbox"
-                    checked={Boolean(formProducto.generarCodigoAutomatico)}
-                    onChange={(e) => setFormProducto((prev) => ({ ...prev, generarCodigoAutomatico: e.target.checked, codigoTipoPrincipal: 'interno' }))}
-                    className="w-4 h-4 text-indigo-600 border-indigo-300 rounded focus:ring-indigo-500 mt-0.5"
-                  />
-                  <span className="leading-tight">
-                    Generar código interno automático
-                    <span className="block text-[10px] text-indigo-500 font-semibold mt-0.5">
-                      El código de barras queda separado para el lector y no reemplaza el código interno.
-                    </span>
-                  </span>
-                </label>
-              </div>
               </div>
             </div>
             
             <div className="sf-product-general">
               <h3 className="text-sm font-bold text-gray-600 mb-4 tracking-wider">INFORMACIÓN GENERAL</h3>
               <div><label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Descripción del Producto</label><input type="text" required value={formProducto.descripcion} onChange={(e) => actualizarFormProducto({ descripcion: e.target.value })} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-600 outline-none text-sm font-bold" /></div>
-              <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Detalles (solo para ofertas)</label>
-              <textarea
-                rows={2}
-                value={formProducto.detalles || ''}
-                onChange={(e) => actualizarFormProducto({ detalles: e.target.value })}
-                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-600 outline-none text-xs font-semibold text-gray-600 resize-none"
-              />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="sf-product-details-field"><label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Detalles (solo para ofertas)</label><textarea rows={1} value={formProducto.detalles || ''} onChange={(e) => actualizarFormProducto({ detalles: e.target.value })} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-600 outline-none text-xs font-semibold text-gray-600 resize-none" /></div>
+              <div className="sf-product-taxonomy grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <div>
                 <label className="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Categoría</label>
                 <div className="flex gap-2">
@@ -34515,7 +35696,7 @@ function obtenerCategoriaProducto(producto) {
               </div>
             </div>
             
-            <div className={`text-[9px] text-indigo-600 font-bold mt-0.5 uppercase tracking-wider min-h-3 ${formProducto.esProductoCompuesto ? 'hidden' : ''}`}>
+            <div className={`sf-product-cost-hint text-[9px] text-indigo-600 font-bold mt-0.5 uppercase tracking-wider min-h-3 ${formProducto.esProductoCompuesto ? 'hidden' : ''}`}>
               {usaPromedioCostosFormulario ? (
                 <span>Costo calculado usando el promedio de los proveedores.</span>
               ) : formProducto.monedaCosto === 'USD_BNA' ? (
@@ -34549,7 +35730,7 @@ function obtenerCategoriaProducto(producto) {
                 </div>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[1000px] text-xs">
+                <table className="w-full min-w-[1080px] text-xs">
                   <thead className="bg-white/70 text-[10px] uppercase text-emerald-900 font-black">
                     <tr>
                       <th className="px-2 py-2 text-left min-w-[230px]">Proveedor</th>
@@ -34560,7 +35741,7 @@ function obtenerCategoriaProducto(producto) {
 	                      <th className="px-2 py-2 text-center w-20">IVA incl.</th>
 	                      <th className="px-2 py-2 text-left w-28">Moneda</th>
                       <th className="px-2 py-2 text-right w-24">Costo final</th>
-                      <th className="px-2 py-2 text-center w-20">Elegido</th>
+                      <th className="px-2 py-2 text-center w-28">Proveedor principal</th>
                       <th className="px-2 py-2 w-10"></th>
                     </tr>
                   </thead>
@@ -34570,10 +35751,10 @@ function obtenerCategoriaProducto(producto) {
                       const proveedorMaestroFila = obtenerProveedorMaestroPorNombre(costo?.proveedor || '');
                       const condicionesProveedorFila = obtenerCondicionesMaestrasProveedor(proveedorMaestroFila);
                       return (
-                        <tr key={costo.id || index} className="bg-white/50">
+                        <tr key={costo.id || index} className={costo.recomendado ? 'bg-emerald-200 ring-2 ring-inset ring-emerald-500' : 'bg-white/50'}>
                           <td className="px-2 py-1.5">
                             <div className="relative">
-                            <select value={costo.proveedor || ''} onChange={(e) => seleccionarProveedorEnCostoProducto(index, e.target.value)} className="w-full pr-28 px-2 py-1.5 rounded-md border border-emerald-100 bg-white font-bold outline-none focus:ring-2 focus:ring-emerald-500">
+                            <select value={costo.proveedor || ''} onChange={(e) => seleccionarProveedorEnCostoProducto(index, e.target.value)} className={`w-full pr-28 px-2 py-1.5 rounded-md border font-bold outline-none focus:ring-2 focus:ring-emerald-500 ${costo.recomendado ? 'border-emerald-600 bg-emerald-50 text-emerald-950' : 'border-emerald-100 bg-white'}`}>
                               <option value="">Seleccionar proveedor</option>
                               {proveedoresInventario.map((provNombre) => (
                                 <option key={`producto-prov-opt-${index}-${provNombre}`} value={provNombre}>{provNombre}</option>
@@ -34631,8 +35812,8 @@ function obtenerCategoriaProducto(producto) {
                             {costoPesos > 0 ? formatearDinero(costoPesos) : '-'}
                           </td>
                           <td className="px-2 py-1.5 text-center">
-                            <button type="button" onClick={() => marcarProveedorRecomendadoProducto(index)} className={`w-8 h-8 rounded-lg border flex items-center justify-center mx-auto ${costo.recomendado ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-gray-400 border-gray-200 hover:text-emerald-700'}`} title="Usar como proveedor elegido">
-                              <CheckCircle size={15} />
+                            <button type="button" onClick={() => marcarProveedorRecomendadoProducto(index)} aria-pressed={Boolean(costo.recomendado)} aria-label={costo.recomendado ? 'Proveedor principal seleccionado' : 'Seleccionar como proveedor principal'} className={`w-9 h-9 rounded-full border flex items-center justify-center mx-auto transition-all ${costo.recomendado ? 'bg-emerald-700 text-white border-emerald-700 shadow-md ring-2 ring-emerald-200' : 'bg-white text-gray-300 border-gray-300 hover:text-emerald-600 hover:border-emerald-400'}`} title={costo.recomendado ? 'Proveedor principal seleccionado' : 'Seleccionar como proveedor principal'}>
+                              {costo.recomendado ? <CheckCircle size={22} strokeWidth={3} /> : <span className="w-5 h-5 rounded-full border-2 border-current" aria-hidden="true" />}
                             </button>
                           </td>
                           <td className="px-2 py-1.5">
@@ -34656,7 +35837,7 @@ function obtenerCategoriaProducto(producto) {
               const proveedoresUnicos = new Set(proveedoresValidos).size;
               const mostrarPromedio = proveedoresUnicos > 1;
               return (
-                <div className={`border border-indigo-100 bg-indigo-50/40 rounded-xl p-3 space-y-2 ${formProducto.esProductoCompuesto ? 'hidden' : ''}`}>
+                <div className={`sf-product-average-cost border border-indigo-100 bg-indigo-50/40 rounded-xl p-3 space-y-2 ${formProducto.esProductoCompuesto ? 'hidden' : ''}`}>
                   {mostrarPromedio ? (
                     <div className="flex flex-wrap items-center gap-3">
                       <label className="inline-flex items-center gap-2 cursor-pointer">
@@ -34697,13 +35878,13 @@ function obtenerCategoriaProducto(producto) {
             <div className="sf-product-actions flex flex-col sm:flex-row sm:justify-end gap-3 pt-6 border-t border-gray-200">
               <button
                 type="button"
-                onClick={() => { setModalActivo(null); setProductoAEditar(null); limpiarEdicionTaxonomias(); }}
+                onClick={() => { setModalActivo(null); setProductoAEditar(null); setModoFormularioProducto('nuevo'); limpiarEdicionTaxonomias(); }}
                 className="btn btn-secondary sm:min-w-36"
               >
                 Cancelar
               </button>
               <button type="submit" disabled={guardandoProducto} className="btn btn-primary sm:min-w-52 disabled:cursor-wait">
-                {guardandoProducto ? 'Guardando...' : (productoAEditar ? 'Guardar Cambios' : 'Guardar Producto')}
+                {guardandoProducto ? 'Guardando...' : (modoFormularioProducto === 'duplicado' ? 'Crear producto duplicado' : (productoAEditar ? 'Guardar cambios' : 'Guardar producto'))}
               </button>
             </div>
           </form>
@@ -35000,6 +36181,7 @@ function obtenerCategoriaProducto(producto) {
                       <th className="px-3 py-2 text-left font-black">Cód.</th>
                       <th className="px-3 py-2 text-left font-black">Detalle</th>
                       <th className="px-3 py-2 text-center font-black">Cantidad</th>
+                      <th className="px-3 py-2 text-left font-black">Tomar costo de</th>
                       <th className="px-3 py-2 text-right font-black">Costo unit.</th>
                       <th className="px-3 py-2 text-right font-black">Costo total</th>
                     </tr>
@@ -35024,6 +36206,18 @@ function obtenerCategoriaProducto(producto) {
                               onChange={(e) => actualizarCantidadAnalizadorCosto(item.key, e.target.value)}
                               className="w-24 px-2 py-1.5 border border-indigo-200 rounded-lg text-center font-black text-indigo-700 bg-white outline-none focus:ring-2 focus:ring-indigo-500"
                             />
+                          </td>
+                          <td className="px-3 py-2">
+                            <select
+                              value={item.fuenteCosto === 'proveedor' ? (item.proveedorSeleccionado || '') : 'producto'}
+                              onChange={(e) => actualizarFuenteCostoAnalizador(item.key, e.target.value)}
+                              className="w-full min-w-44 px-2 py-1.5 border border-slate-200 rounded-lg text-xs font-bold bg-white outline-none focus:ring-2 focus:ring-indigo-500"
+                            >
+                              <option value="producto">Costo del producto</option>
+                              {(item.proveedoresCostos || []).map((costo, costoIndex) => (
+                                <option key={`${item.key}-costo-${costoIndex}`} value={costo.proveedor}>{costo.proveedor || 'Proveedor sin nombre'}</option>
+                              ))}
+                            </select>
                           </td>
                           <td className={`px-3 py-2 text-right font-black whitespace-nowrap ${costoUnitario <= 0.009 ? 'text-red-600' : 'text-slate-700'}`}>
                             {formatearDinero(costoUnitario)}
@@ -35300,7 +36494,7 @@ function obtenerCategoriaProducto(producto) {
           <div className="fixed top-4 right-4 flex gap-2 print:hidden z-50">
             <button onClick={imprimirReporte} className="bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-3 rounded-full shadow-lg flex items-center gap-2"><Printer size={20}/> Imprimir</button>
             <button onClick={descargarPdfVistaImpresion} disabled={descargandoPdfVistaImpresion} className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white font-bold px-6 py-3 rounded-full shadow-lg flex items-center gap-2"><Download size={20}/>{descargandoPdfVistaImpresion ? 'Generando...' : 'Descargar PDF'}</button>
-            <button onClick={() => { setModalActivo(null); setPresupuestoAImprimir(null); setIncluirImagenesPdf(false); setIncluirLogoMarcaPresupuestoPdf(true); setSoloPreciosPorItemPresupuestoPdf(false); }} className="bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 p-3 rounded-full shadow-lg"><X size={24}/></button>
+            <button onClick={() => { const retorno = retornoPrevisualizadorPresupuesto; setModalActivo(retorno || null); setRetornoPrevisualizadorPresupuesto(''); setPresupuestoAImprimir(null); setIncluirImagenesPdf(false); setIncluirLogoMarcaPresupuestoPdf(true); setSoloPreciosPorItemPresupuestoPdf(false); }} className="bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 p-3 rounded-full shadow-lg" title={retornoPrevisualizadorPresupuesto ? 'Volver al punto de venta' : 'Cerrar'}><X size={24}/></button>
           </div>
 
           <div className="print-modal-pages w-full max-w-[210mm] space-y-6 print:space-y-0">
@@ -35345,13 +36539,14 @@ function obtenerCategoriaProducto(producto) {
                   <thead className="bg-gray-800 text-white font-bold uppercase text-[10px] tracking-wider">
                     <tr>
                       <th className="py-1.5 px-1.5 text-left w-[9%]">Cód.</th>
-                      {incluirImagenesPdf && <th className="py-1.5 px-1.5 text-center w-[12%]">Imagen</th>}
-                      <th className="py-1.5 px-1.5 text-left">Descripción del Producto/Servicio</th>
-                      {!soloPreciosPorItemPresupuestoImpresion && <th className="py-1.5 px-1.5 text-center w-[8%]">Cant.</th>}
-                      {!soloPreciosPorItemPresupuestoImpresion && <th className="py-1.5 px-1.5 text-center w-[8%]">Unid.</th>}
+                      {incluirImagenesPdf && <th className="py-1.5 px-1.5 text-center w-[11%]">Imagen</th>}
+                      <th className={`py-1.5 px-1.5 text-left ${incluirImagenesPdf && incluirLogoMarcaPresupuestoPdf ? 'w-[29%]' : ''}`}>Descripción del Producto/Servicio</th>
+                      {incluirImagenesPdf && incluirLogoMarcaPresupuestoPdf && <th className="py-1.5 px-1.5 text-center w-[9%]">Marca</th>}
+                      {!soloPreciosPorItemPresupuestoImpresion && <th className="py-1.5 px-1.5 text-center w-[7%]">Cant.</th>}
+                      {!soloPreciosPorItemPresupuestoImpresion && <th className="py-1.5 px-1.5 text-center w-[7%]">Unid.</th>}
                       <th className="py-1.5 px-1.5 text-right w-[11%]">Precio U.</th>
-                      {mostrarDescuentoItemEnPdf && <th className="py-1.5 px-1.5 text-center w-[7%]">Desc.%</th>}
-                      {!soloPreciosPorItemPresupuestoImpresion && <th className="py-1.5 px-1.5 text-right w-[13%]">Subtotal</th>}
+                      {mostrarDescuentoItemEnPdf && <th className="py-1.5 px-1.5 text-center w-[6%]">Desc.%</th>}
+                      {!soloPreciosPorItemPresupuestoImpresion && <th className="py-1.5 px-1.5 text-right w-[12%]">Subtotal</th>}
                     </tr>
                   </thead>
                   <tbody className="border-b-2 border-gray-800">
@@ -35369,17 +36564,23 @@ function obtenerCategoriaProducto(producto) {
                                 ) : (
                                   <span className="text-[9px] font-bold text-gray-400 uppercase">Sin foto</span>
                                 )}
-                                {logoMarcaItem && (
-                                  <div className="absolute top-1 left-1 w-9 h-9 pointer-events-none">
-                                    <img src={logoMarcaItem} alt="Logo marca" className="w-full h-full object-contain" />
-                                  </div>
-                                )}
                               </div>
                             </td>
                           )}
                           <td className="py-1.5 px-1.5 font-bold text-[10px] whitespace-normal break-words align-top leading-tight">
                             {item.descripcion}
                           </td>
+                          {incluirImagenesPdf && incluirLogoMarcaPresupuestoPdf && (
+                            <td className="py-1 px-1.5 align-top text-center">
+                              <div className="w-8 h-8 mx-auto border border-gray-200 rounded bg-white overflow-hidden flex items-center justify-center">
+                                {logoMarcaItem ? (
+                                  <img src={logoMarcaItem} alt="Logo marca" className="w-full h-full object-contain p-0.5" />
+                                ) : (
+                                  <span className="text-[8px] text-gray-400">—</span>
+                                )}
+                              </div>
+                            </td>
+                          )}
                           {!soloPreciosPorItemPresupuestoImpresion && <td className="py-1.5 px-1.5 text-center font-bold text-[10px] align-top">{item.cantidad}</td>}
                           {!soloPreciosPorItemPresupuestoImpresion && <td className="py-1.5 px-1.5 text-center text-[10px] uppercase align-top">{item.unidad}</td>}
                           <td className="py-1.5 px-1.5 text-right text-[10px] align-top">{formatearDinero(item.precio)}</td>
@@ -35434,7 +36635,7 @@ function obtenerCategoriaProducto(producto) {
 
       {(modalActivo === 'venta' || modalActivo === 'gasto' || modalActivo === 'ingreso_extra' || modalActivo === 'retiro_caja') && (
         <Modal titulo={modalActivo === 'venta' ? 'Registrar Venta (Ingreso)' : (modalActivo === 'gasto' ? 'Registrar Gasto (Egreso)' : (modalActivo === 'retiro_caja' ? 'Retiro de Efectivo (Solo afecta caja física)' : 'Otro Ingreso'))} onClose={() => setModalActivo(null)}>
-          <form onSubmit={(e) => registrarMovimiento(e, modalActivo)} className="space-y-4">
+          <form onSubmit={(e) => registrarMovimiento(e, modalActivo)} noValidate className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">Monto de la Operación</label>
               <div className="relative">
@@ -35641,7 +36842,7 @@ function obtenerCategoriaProducto(producto) {
                 })()}
               </div>
             )}
-            <button type="submit" className={`w-full font-bold text-base py-3 px-4 rounded-xl mt-6 text-white shadow-sm transition-transform active:scale-95 uppercase tracking-wide ${modalActivo === 'venta' ? 'bg-green-600 hover:bg-green-700' : (modalActivo === 'ingreso_extra' ? 'bg-teal-600 hover:bg-teal-700' : (modalActivo === 'retiro_caja' ? 'bg-orange-600 hover:bg-orange-700' : 'bg-red-600 hover:bg-red-700'))}`}>GUARDAR OPERACIÓN</button>
+            <button type="button" onClick={() => registrarMovimiento(null, modalActivo)} className={`w-full font-bold text-base py-3 px-4 rounded-xl mt-6 text-white shadow-sm transition-transform active:scale-95 uppercase tracking-wide ${modalActivo === 'venta' ? 'bg-green-600 hover:bg-green-700' : (modalActivo === 'ingreso_extra' ? 'bg-teal-600 hover:bg-teal-700' : (modalActivo === 'retiro_caja' ? 'bg-orange-600 hover:bg-orange-700' : 'bg-red-600 hover:bg-red-700'))}`}>GUARDAR OPERACIÓN</button>
           </form>
         </Modal>
       )}
@@ -36005,7 +37206,7 @@ function obtenerCategoriaProducto(producto) {
       {modalActivo === 'cliente_detalle' && clienteSeleccionado && puedeVerClienteEnCuentas(clienteSeleccionado) && (
         <Modal
           titulo="Cuenta Corriente del Cliente"
-          onClose={() => { setReciboCobroSeleccionado(null); setFacturacionCuentaCorriente(null); setFormFacturaCuentaCorriente(crearFormularioFacturaCuentaCorrienteVacio()); setModalActivo(null); setClienteSeleccionado(null); }}
+          onClose={() => { setReciboCobroSeleccionado(null); setFacturacionCuentaCorriente(null); setFormFacturaCuentaCorriente(crearFormularioFacturaCuentaCorrienteVacio()); setMostrarSeguimientoCuenta(false); setModalActivo(null); setClienteSeleccionado(null); }}
           fullScreen
           extraClases="sf-client-account-modal"
         >
@@ -36016,7 +37217,7 @@ function obtenerCategoriaProducto(producto) {
               const saldoClass = semaforo.saldoClass;
               const estadoTexto = semaforo.estadoTexto;
               const estadoBadgeClass = semaforo.badgeClass;
-              const puedeAbonar = Boolean(estado.tieneDeuda || Number(estado.saldoPendiente ?? 0) > 0.009);
+              const puedeAbonar = Boolean(estado.tieneDeuda || Number(estado.saldoPendiente ?? 0) > 0.009 || Number(estado.saldoFavor ?? 0) > 0.009);
               const saldoPendiente = Math.max(0, Number(estado.saldoPendiente ?? saldoPendienteClienteSeleccionado ?? 0));
               const recordatorios = Number(clienteSeleccionado.recordatoriosWhatsappEnviados || 0);
               return (
@@ -36030,9 +37231,11 @@ function obtenerCategoriaProducto(producto) {
                   <p className="text-[11px] font-bold text-gray-500 mt-1">Condición fiscal: {textoCondicionFiscalCliente(clienteSeleccionado)}</p>
                 </div>
                 <div className="text-left sm:text-right bg-white border border-purple-200 rounded-xl px-3 py-2">
-                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{estado.tieneDeuda ? 'Saldo actual' : 'Estado de cuenta'}</p>
-                  {!estado.tieneDeuda ? (
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{estado.tieneDeuda ? 'Saldo actual' : (Number(estado.saldoFavor || 0) > 0.009 ? 'Saldo a favor' : 'Estado de cuenta')}</p>
+                  {!estado.tieneDeuda && Number(estado.saldoFavor || 0) <= 0.009 ? (
                     <p className="text-base font-black tracking-tight text-green-700">Al día sin saldo</p>
+                  ) : !estado.tieneDeuda ? (
+                    <p className="text-2xl font-black tracking-tight text-emerald-700">{formatearDinero(estado.saldoFavor)}</p>
                   ) : (
                     <>
                       <p className={`text-2xl font-black tracking-tight ${saldoClass}`}>{formatearDinero(saldoPendiente)}</p>
@@ -36076,6 +37279,13 @@ function obtenerCategoriaProducto(producto) {
                   <Send size={14} /> Recordatorio ({recordatorios})
                 </button>
                 <button
+                  type="button"
+                  onClick={() => setMostrarSeguimientoCuenta((actual) => !actual)}
+                  className={`sf-client-follow-up-action ${mostrarSeguimientoCuenta ? 'bg-indigo-700' : 'bg-indigo-600 hover:bg-indigo-700'} text-white px-3 py-2 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all`}
+                >
+                  <Bell size={14} /> Seguimiento ({seguimientosCuentaCorriente.filter((item) => item.clienteId === clienteSeleccionado.id).length})
+                </button>
+                <button
                   onClick={() => abrirWidgetCuentaCorrienteDisplay(clienteSeleccionado, estado)}
                   disabled={!puedeAbonar}
                   className="bg-cyan-600 hover:bg-cyan-700 text-white disabled:opacity-50 disabled:bg-gray-200 disabled:text-gray-500 px-3 py-2 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all"
@@ -36083,7 +37293,6 @@ function obtenerCategoriaProducto(producto) {
                   <Monitor size={14} /> Display deuda
                 </button>
                 <button
-                  disabled={!puedeAbonar}
                   onClick={() => abrirCobroCliente(clienteSeleccionado)}
                   className="bg-purple-600 hover:bg-purple-700 text-white disabled:opacity-50 disabled:bg-gray-200 disabled:text-gray-400 px-3 py-2 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all"
                 >
@@ -36092,7 +37301,7 @@ function obtenerCategoriaProducto(producto) {
                 <button
                   disabled={remitosFacturablesClienteSeleccionado.length === 0}
                   onClick={() => abrirFacturacionVariosCliente(clienteSeleccionado)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:bg-gray-200 disabled:text-gray-400 px-3 py-2 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0"
+                  className="sf-client-invoice-action bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:bg-gray-200 disabled:text-gray-400 px-3 py-2 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0"
                 >
                   <FilePlus2 size={14} /> Facturar Varios
                 </button>
@@ -36103,11 +37312,11 @@ function obtenerCategoriaProducto(producto) {
                     <button
                       type="button"
                       disabled={!puedeActualizarPrecios || actualizacionesPrecio.length === 0}
-                      onClick={aplicarActualizacionPreciosCuentaCliente}
+                      onClick={() => aplicarActualizacionPreciosCuentaCliente()}
                       aria-label={actualizacionesPrecio.length ? 'Aplicar los aumentos pendientes de los productos vinculados por código' : 'No hay productos pendientes con aumento de precio'}
                       className="sf-client-update-price-action bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 disabled:bg-gray-200 disabled:text-gray-400 px-3 py-2 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all order-last whitespace-nowrap shrink-0"
                     >
-                      <RefreshCw size={14} /> Actualizar
+                      <RefreshCw size={14} /> Actualizar todos ({actualizacionesPrecio.length})
                     </button>
                   );
                 })()}
@@ -36125,9 +37334,51 @@ function obtenerCategoriaProducto(producto) {
               );
             })()}
 
-            {(() => {
+            {mostrarSeguimientoCuenta && (() => {
+              const seguimientosCliente = seguimientosCuentaCorriente.filter((item) => item.clienteId === clienteSeleccionado.id);
+              const estadoLabel = (valor = '') => ({ promesa_pago: 'Prometió pagar', requiere_seguimiento: 'Volver a contactar', sin_respuesta: 'Sin respuesta', desacuerdo: 'Reclamo o desacuerdo', pago_informado: 'Informó un pago', enviado: 'Recordatorio enviado' }[valor] || 'Seguimiento');
+              return (
+                <div className="rounded-2xl border border-indigo-200 bg-indigo-50/40 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-indigo-200 bg-indigo-100/70 flex flex-col md:flex-row md:items-center justify-between gap-2">
+                    <div><h4 className="text-sm font-black uppercase tracking-wider text-indigo-950">Notificaciones y seguimiento</h4><p className="text-[11px] font-bold text-indigo-700">Registro de recordatorios, respuestas, promesas de pago y próximos contactos.</p></div>
+                    <span className="self-start md:self-auto rounded-full bg-white border border-indigo-200 px-2.5 py-1 text-[10px] font-black uppercase text-indigo-700">{seguimientosCliente.length} registro(s)</span>
+                  </div>
+                  <div className="grid grid-cols-1 xl:grid-cols-[minmax(320px,0.8fr)_minmax(0,1.2fr)] gap-0">
+                    <form onSubmit={guardarRespuestaSeguimientoCuenta} className="p-4 space-y-3 bg-white border-b xl:border-b-0 xl:border-r border-indigo-100">
+                      <div><p className="text-xs font-black uppercase tracking-wider text-slate-800">Registrar respuesta del cliente</p><p className="text-[10px] font-bold text-slate-500 mt-0.5">También sirve para llamadas, visitas o acuerdos presenciales.</p></div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div><label className="block text-[9px] font-black uppercase tracking-wider text-slate-500 mb-1">Canal</label><select value={formSeguimientoCuenta.canal} onChange={(e) => setFormSeguimientoCuenta((prev) => ({ ...prev, canal: e.target.value }))} className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500"><option value="whatsapp">WhatsApp</option><option value="telefono">Teléfono</option><option value="presencial">Presencial</option><option value="email">Correo electrónico</option></select></div>
+                        <div><label className="block text-[9px] font-black uppercase tracking-wider text-slate-500 mb-1">Resultado</label><select value={formSeguimientoCuenta.estado} onChange={(e) => setFormSeguimientoCuenta((prev) => ({ ...prev, estado: e.target.value }))} className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500"><option value="promesa_pago">Prometió pagar</option><option value="requiere_seguimiento">Volver a contactar</option><option value="sin_respuesta">Sin respuesta</option><option value="pago_informado">Informó un pago</option><option value="desacuerdo">Reclamo o desacuerdo</option><option value="otro">Otro</option></select></div>
+                      </div>
+                      <div><label className="block text-[9px] font-black uppercase tracking-wider text-slate-500 mb-1">¿Qué respondió o qué acordaron?</label><textarea value={formSeguimientoCuenta.respuesta} onChange={(e) => setFormSeguimientoCuenta((prev) => ({ ...prev, respuesta: e.target.value }))} rows={3} placeholder="Ej.: La semana que viene paso a cancelar el saldo." className="w-full resize-y rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500" /></div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div><label className="block text-[9px] font-black uppercase tracking-wider text-slate-500 mb-1">Compromiso de pago</label><input type="date" value={formSeguimientoCuenta.compromisoFecha} onChange={(e) => setFormSeguimientoCuenta((prev) => ({ ...prev, compromisoFecha: e.target.value }))} className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500" /></div>
+                        <div><label className="block text-[9px] font-black uppercase tracking-wider text-slate-500 mb-1">Próximo seguimiento</label><input type="date" value={formSeguimientoCuenta.proximoSeguimiento} onChange={(e) => setFormSeguimientoCuenta((prev) => ({ ...prev, proximoSeguimiento: e.target.value }))} className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500" /></div>
+                      </div>
+                      <div><label className="block text-[9px] font-black uppercase tracking-wider text-slate-500 mb-1">Observaciones internas</label><input value={formSeguimientoCuenta.observaciones} onChange={(e) => setFormSeguimientoCuenta((prev) => ({ ...prev, observaciones: e.target.value }))} placeholder="Dato interno opcional" className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500" /></div>
+                      <button type="submit" disabled={guardandoSeguimientoCuenta || !textoSeguroTrim(formSeguimientoCuenta.respuesta, '')} className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 px-4 py-3 text-xs font-black uppercase tracking-wider text-white">{guardandoSeguimientoCuenta ? 'Guardando...' : 'Guardar respuesta y compromiso'}</button>
+                    </form>
+                    <div className="max-h-[430px] overflow-y-auto custom-scrollbar divide-y divide-indigo-100">
+                      {seguimientosCliente.length ? seguimientosCliente.map((item) => {
+                        const esEnvio = item.tipo === 'recordatorio_enviado';
+                        const fechaSeguimiento = item.fecha ? new Date(item.fecha) : null;
+                        const fechaValida = fechaSeguimiento && !Number.isNaN(fechaSeguimiento.getTime());
+                        return <div key={item.id} className="p-4 bg-white hover:bg-indigo-50/30">
+                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2"><div className="flex items-center gap-2 flex-wrap"><span className={`rounded-full px-2 py-1 text-[9px] font-black uppercase ${esEnvio ? 'bg-emerald-100 text-emerald-800' : 'bg-indigo-100 text-indigo-800'}`}>{esEnvio ? 'Mensaje enviado' : 'Respuesta registrada'}</span><span className="text-[10px] font-black uppercase text-slate-500">{estadoLabel(item.estado)} · {item.canal || 'WhatsApp'}</span></div><span className="text-[10px] font-bold text-slate-500 whitespace-nowrap">{fechaValida ? `${fechaSeguimiento.toLocaleDateString('es-AR')} ${fechaSeguimiento.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}` : '-'}</span></div>
+                          {esEnvio ? <p className="mt-2 whitespace-pre-line rounded-xl bg-slate-50 border border-slate-100 p-3 text-[11px] font-medium text-slate-700 max-h-32 overflow-y-auto">{item.mensaje || 'Recordatorio de saldo enviado.'}</p> : <p className="mt-2 text-sm font-bold text-slate-900">“{item.respuesta}”</p>}
+                          <div className="mt-2 flex flex-wrap gap-2 text-[10px] font-bold"><span className="rounded-lg bg-slate-100 px-2 py-1 text-slate-600">Saldo: {formatearDinero(item.saldoAlMomento || 0)}</span>{item.compromisoFecha && <span className="rounded-lg bg-emerald-100 px-2 py-1 text-emerald-800">Pagaría: {formatearFecha(`${item.compromisoFecha}T12:00:00`)}</span>}{item.proximoSeguimiento && <span className="rounded-lg bg-amber-100 px-2 py-1 text-amber-800">Contactar: {formatearFecha(`${item.proximoSeguimiento}T12:00:00`)}</span>}</div>
+                          {(item.observaciones || item.usuarioNombre) && <p className="mt-2 text-[10px] font-bold text-slate-500">{item.observaciones ? `${item.observaciones} · ` : ''}Registrado por {item.usuarioNombre || 'Sistema'}</p>}
+                        </div>;
+                      }) : <div className="p-10 text-center text-slate-400"><Bell size={30} className="mx-auto mb-2 opacity-40"/><p className="text-sm font-black text-slate-600">Todavía no hay seguimientos.</p><p className="mt-1 text-[11px] font-bold">Al enviar el próximo recordatorio quedará guardado acá.</p></div>}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {false && (() => {
               const estado = estadoCuentaClientes[clienteSeleccionado.id] || {};
-              const remitosCuenta = (estado.cargosProcesados || []).filter((cargo) => !esRecargoMoraMovimiento(cargo));
+              const remitosCuenta = (estado.cargosProcesados || []).filter((cargo) => cargo?.tipo !== 'actualizacion_precio_cc' && !esRecargoMoraMovimiento(cargo));
               const pagosCuenta = (movimientosClienteSeleccionadoVisibles || []).filter((mov) => mov.tipo === 'cobro');
               return (
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
@@ -36221,6 +37472,7 @@ function obtenerCategoriaProducto(producto) {
                     const esNotaCredito = esMovimientoDescuentoCuentaCorriente(mov);
                     const esCargaHistorica = mov.tipo === 'saldo_inicial_cc';
                     const esRecargo = esRecargoMoraMovimiento(mov);
+                    const esActualizacionPrecio = mov.tipo === 'actualizacion_precio_cc';
                     const itemsComprobanteCuenta = obtenerItemsDocumentoVenta(mov)
                       .filter((item) => textoSeguroTrim(item?.descripcion, '') || textoSeguroTrim(item?.codigo, ''));
                     const tipoComprobanteLegacy = textoSeguroTrim(
@@ -36229,7 +37481,7 @@ function obtenerCategoriaProducto(producto) {
                     ).toLowerCase();
                     const descripcionMovimientoLegacy = textoSeguroTrim(mov?.descripcion || mov?.detalle || '', '').toLowerCase();
                     const esRemitoLegacy = /remito\s*[xr]/.test(`${tipoComprobanteLegacy} ${descripcionMovimientoLegacy}`);
-                    const esComprobanteVentaCuenta = esCargo && !esRecargo && (
+                    const esComprobanteVentaCuenta = esCargo && !esRecargo && !esActualizacionPrecio && (
                       ['punto_venta', 'remito_r'].includes(mov?.detallesPago?.origen)
                       || itemsComprobanteCuenta.length > 0
                       || esRemitoLegacy
@@ -36289,11 +37541,11 @@ function obtenerCategoriaProducto(producto) {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                               <button type="button" onClick={() => toggleDetalleCuentaCorriente(mov.id)} className="sf-account-expand" title={detallesCuentaAbiertos ? 'Contraer movimiento' : 'Expandir movimiento'} aria-label={detallesCuentaAbiertos ? 'Contraer movimiento' : 'Expandir movimiento'}>{detallesCuentaAbiertos ? <ChevronDown size={15} /> : <ChevronRight size={15} />}</button>
-                              <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border ${esCobro ? 'bg-purple-50 text-purple-700 border-purple-200' : (esNotaCredito ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : (esRecargo ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-amber-50 text-amber-700 border-amber-200'))}`}>
-                                {esCobro ? 'Pago recibido' : (esNotaCredito ? 'Nota de crédito' : (esRecargo ? 'Recargo de mora' : (esCargaHistorica ? 'Carga histórica' : (esComprobanteVentaCuenta ? tipoComprobanteCuenta : (esCargo ? 'Cargo en cuenta corriente' : mov.tipo)))))}
+                              <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border ${esCobro ? 'bg-purple-50 text-purple-700 border-purple-200' : (esNotaCredito ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : (esActualizacionPrecio ? 'bg-blue-50 text-blue-700 border-blue-200' : (esRecargo ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-amber-50 text-amber-700 border-amber-200')))}`}>
+                                {esCobro ? 'Pago recibido' : (esNotaCredito ? 'Nota de crédito' : (esActualizacionPrecio ? 'Ajuste de precios' : (esRecargo ? 'Recargo de mora' : (esCargaHistorica ? 'Carga histórica' : (esComprobanteVentaCuenta ? tipoComprobanteCuenta : (esCargo ? 'Cargo en cuenta corriente' : mov.tipo))))))}
                               </span>
-                              <span className="text-[10px] font-bold text-gray-500">{esCobro ? 'Fecha de cobro registrado:' : (esCargaHistorica || esNotaCredito ? 'Fecha del comprobante:' : 'Fecha de la venta:')} {formatearFecha(mov.fecha)} {formatearHora(mov.fecha)}</span>
-                              {esCargo && pendienteTicket > 0.009 && diasDesdeMovimiento !== null && (
+                              <span className="text-[10px] font-bold text-gray-500">{esCobro ? 'Fecha de cobro registrado:' : (esActualizacionPrecio ? 'Fecha de la actualización:' : (esCargaHistorica || esNotaCredito ? 'Fecha del comprobante:' : 'Fecha de la venta:'))} {formatearFecha(mov.fecha)} {formatearHora(mov.fecha)}</span>
+                              {esCargo && !esActualizacionPrecio && pendienteTicket > 0.009 && diasDesdeMovimiento !== null && (
                                 <span className={`text-[10px] font-bold border px-2 py-0.5 rounded-md ${semaforoTicket.badgeClass}`}>
                                   {semaforoTicket.texto}
                                 </span>
@@ -36310,6 +37562,12 @@ function obtenerCategoriaProducto(producto) {
                               ? `${tipoComprobanteCuenta}${numeroComprobanteCuenta ? ` N° ${numeroComprobanteCuenta}` : ''} - ${textoSeguroTrim(mov?.detallesPago?.cliente, clienteSeleccionado?.nombre || '')}`
                               : (mov.descripcion || 'Movimiento de cuenta corriente')}
                           </p>
+                          {esActualizacionPrecio && (
+                            <div className="mt-2 rounded-xl border border-blue-200 bg-blue-50 p-3">
+                              <p className="text-[10px] font-black uppercase tracking-wider text-blue-800">Ajuste vinculado al remito original</p>
+                              <p className="mt-1 text-[11px] font-bold text-blue-700">{textoSeguroTrim(mov?.detallesPago?.cargoOrigenDescripcion, 'Remito original')} · {(mov?.detallesPago?.items || []).length} producto(s). Esta línea no es un remito nuevo.</p>
+                            </div>
+                          )}
                           {esComprobanteVentaCuenta && yaFacturadoMovimiento && (
                             <p className="text-[10px] font-black uppercase tracking-wider text-blue-700 mt-0.5">
                               Facturado{facturaRelacionadaMovimiento?.numeroFactura ? ` · ${obtenerEtiquetaFactura(textoSeguroTrim(facturaRelacionadaMovimiento?.tipoComprobante, 'factura_b'))} N° ${facturaRelacionadaMovimiento.numeroFactura}` : ''}
@@ -36399,12 +37657,12 @@ function obtenerCategoriaProducto(producto) {
                               {mov.detallesPago?.numeroComprobante ? ` Nº ${mov.detallesPago.numeroComprobante}` : ''} • Origen histórico
                             </p>
                           )}
-	                          {esCargo && !esRecargo && recargoTicket > 0 && (
+	                          {esCargo && !esActualizacionPrecio && !esRecargo && recargoTicket > 0 && (
 	                            <p className="text-[11px] font-bold text-orange-700 mt-0.5">
 	                              Recargo por mora aplicado: +{formatearDinero(recargoTicket)}
 	                            </p>
 	                          )}
-	                          {esCargo && !esRecargo && (
+	                          {esCargo && !esActualizacionPrecio && !esRecargo && (
 	                            <div className={`mt-2 rounded-xl border ${remitoSaldado ? 'border-emerald-100 bg-emerald-50/50' : 'border-amber-100 bg-amber-50/40'} p-3`}>
 	                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
 	                                <div>
@@ -36412,9 +37670,14 @@ function obtenerCategoriaProducto(producto) {
 	                                    Estado del remito: {remitoSaldado ? 'Saldado' : 'Con saldo pendiente'}
 	                                  </p>
                                   <p className="text-[11px] font-bold text-slate-600 mt-0.5">
-                                    Importe original: <span className={remitoSaldado ? 'line-through text-slate-400' : 'text-slate-800'}>{formatearDinero(Number(cargoProcesado?.montoOriginal ?? mov?.monto ?? 0))}</span>
+                                    Importe original: <span className={remitoSaldado ? 'line-through text-slate-400' : 'text-slate-800'}>{formatearDinero(Number(cargoProcesado?.montoOriginalSinActualizaciones ?? cargoProcesado?.montoOriginal ?? mov?.monto ?? 0))}</span>
                                     {remitoSaldado ? <span className="ml-2 text-emerald-700 font-black">Saldado</span> : <span className="ml-2 text-amber-700 font-black">Resta {formatearDinero(Math.max(0, pendienteTicket))}</span>}
                                   </p>
+                                  {Number(cargoProcesado?.actualizacionesPrecioMonto || 0) > 0.009 && (
+                                    <p className="mt-1 text-[10px] font-black uppercase tracking-wider text-blue-700">
+                                      {cargoProcesado.actualizacionesPrecioAplicadas?.length || 1} actualización(es) por +{formatearDinero(cargoProcesado.actualizacionesPrecioMonto)} · Total actualizado {formatearDinero(cargoProcesado.montoOriginal)}
+                                    </p>
+                                  )}
                                   {cargoProcesado?.fechaVencimiento && (
                                     <p className={`text-[10px] font-black uppercase tracking-wider mt-1 ${cargoProcesado.fechaVencimiento < obtenerFechaInputLocal() && pendienteTicket > 0.009 ? 'text-red-700' : 'text-slate-500'}`}>
                                       Vencimiento: {formatearFechaInputLocal(cargoProcesado.fechaVencimiento)}
@@ -36499,20 +37762,20 @@ function obtenerCategoriaProducto(producto) {
                           )}
                         </div>
 	                        <div className="text-left lg:text-right shrink-0">
-	                          <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500">{esCobro ? 'Monto cobrado' : (esNotaCredito ? 'Crédito aplicado' : 'Pendiente de este ticket')}</p>
-	                          <p className={`text-base font-black ${esCobro || esNotaCredito ? 'text-green-600' : pendienteClase}`}>
-	                            {esCobro || esNotaCredito ? `-${formatearDinero(Math.abs(mov.monto || 0))}` : (
+	                          <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500">{esCobro ? 'Monto cobrado' : (esNotaCredito ? 'Crédito aplicado' : (esActualizacionPrecio ? 'Aumento aplicado' : 'Pendiente de este ticket'))}</p>
+	                          <p className={`text-base font-black ${esActualizacionPrecio ? 'text-blue-700' : (esCobro || esNotaCredito ? 'text-green-600' : pendienteClase)}`}>
+	                            {esActualizacionPrecio ? `+${formatearDinero(Math.abs(mov.monto || 0))}` : (esCobro || esNotaCredito ? `-${formatearDinero(Math.abs(mov.monto || 0))}` : (
 	                              remitoSaldado
 	                                ? <><span className="line-through text-slate-400">{formatearDinero(Number(cargoProcesado?.montoOriginal ?? mov?.monto ?? 0))}</span><span className="ml-2 text-emerald-700">{formatearDinero(0)}</span></>
 	                                : formatearDinero(Math.max(0, pendienteTicket))
-	                            )}
+                            ))}
 	                          </p>
                           {esCobro && resumenReciboCobro?.facturaExternaLabel && (
                             <p className="mt-1 max-w-[220px] text-[10px] font-black uppercase tracking-wide text-purple-700 lg:ml-auto">
                               Corresponde a {resumenReciboCobro.facturaExternaLabel}
                             </p>
                           )}
-                          {esCargo && (
+                          {esCargo && !esActualizacionPrecio && (
                             <p className={`text-[10px] font-black uppercase tracking-wider ${pendienteTicket > 0 ? pendienteClase : 'text-green-600'}`}>
                               {pendienteTicket > 0 ? `Impago (${semaforoTicket.texto})` : 'Saldado'}
                             </p>
@@ -36522,7 +37785,7 @@ function obtenerCategoriaProducto(producto) {
                               <button
                                 type="button"
                                 onClick={() => abrirReciboCobro(mov)}
-                                className="px-2 py-1 rounded-md border border-purple-200 text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors text-[10px] font-black uppercase tracking-wider flex items-center gap-1"
+                                className="sf-client-receipt-open-button px-2 py-1 rounded-md border border-purple-200 text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors text-[10px] font-black uppercase tracking-wider flex items-center gap-1"
                                 title="Ver recibo"
                               >
                                 <FileText size={11} /> Recibo
@@ -36565,7 +37828,7 @@ function obtenerCategoriaProducto(producto) {
                               )}
                             </div>
                           )}
-                          {esCargo && !esCobro && !esCargaHistorica && (
+                          {esCargo && !esCobro && !esCargaHistorica && !esActualizacionPrecio && (
                             <div className="sf-account-action-icons mt-2 flex items-center justify-start sm:justify-end gap-1.5 flex-wrap">
                               {esComprobanteVentaCuenta && (
                                 <>
@@ -36651,8 +37914,26 @@ function obtenerCategoriaProducto(producto) {
                               )}
                             </div>
                           )}
-                          {esCargo && !esCobro && !esCargaHistorica && !esRecargo && (
+                          {esActualizacionPrecio && esAdminHistorial && (
+                            <button
+                              type="button"
+                              onClick={() => deshacerActualizacionPrecioCuentaCliente(mov)}
+                              className="mt-2 inline-flex items-center justify-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-red-700 hover:bg-red-100"
+                            >
+                              <Undo2 size={13} /> Deshacer actualización
+                            </button>
+                          )}
+                          {esCargo && !esCobro && !esCargaHistorica && !esRecargo && !esActualizacionPrecio && (
                             <div className="mt-2 flex items-center justify-start sm:justify-end gap-1.5 flex-wrap">
+                              {esAdminHistorial && actualizacionPrecioPendiente && (
+                                <button
+                                  type="button"
+                                  onClick={() => aplicarActualizacionPreciosCuentaCliente(mov.id)}
+                                  className="px-2 py-1 rounded-md border border-red-200 text-red-700 bg-red-50 hover:bg-red-100 transition-colors text-[10px] font-black uppercase tracking-wider"
+                                >
+                                  Actualizar este remito
+                                </button>
+                              )}
                               <button
                                 type="button"
                                 disabled={pendienteTicket <= 0.009 || yaFacturadoMovimiento}
@@ -37302,12 +38583,13 @@ function obtenerCategoriaProducto(producto) {
                           className="recibo-a4-sheet bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200 flex flex-col text-slate-900"
                           style={dimensionesHojaRecibo}
                         >
-                          <div className={`bg-gradient-to-br from-[#163368] via-[#1d4b8f] to-[#2a63b3] text-white relative ${esPrimeraPagina ? 'px-5 py-4' : 'px-5 py-3'}`}>
+                          <div className={`bg-white text-slate-900 relative border-b border-slate-300 ${esPrimeraPagina ? 'px-5 py-4' : 'px-5 py-3'}`}>
                             {esPrimeraPagina ? (
                               <div className="grid grid-cols-[minmax(0,1fr)_270px] gap-4 items-start">
                                 <div className="space-y-3 min-w-0">
-                                  <div className="w-[230px] h-[58px] flex items-center justify-start">
-                                    <img src={logoRecibo} alt="Logo" className="max-w-full max-h-full object-contain" />
+                                  <div className="w-[230px] h-[58px] flex flex-col justify-center">
+                                    <p className="text-[22px] leading-tight font-black tracking-tight text-black">{textoSeguroTrim(configuracion?.nombre, NOMBRE_EMPRESA_FALLBACK)}</p>
+                                    <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-600">Comprobante de pago</p>
                                   </div>
                                   <div className="grid grid-cols-[minmax(150px,0.85fr)_minmax(240px,1.15fr)] gap-x-3 gap-y-1.5 max-w-full">
                                     {[
@@ -37316,9 +38598,9 @@ function obtenerCategoriaProducto(producto) {
                                       { icono: Phone, valor: contactoNegocioRecibo.whatsapp },
                                       { icono: Mail, valor: contactoNegocioRecibo.correo }
                                     ].filter((item) => item.valor).map(({ icono: Icono, valor }, index) => (
-                                      <div key={`header-contacto-${index}`} className="flex items-center gap-2 text-[10.5px] text-slate-100 min-w-0">
-                                        <div className="w-5 h-5 rounded-md bg-white/10 border border-white/15 flex items-center justify-center shrink-0">
-                                          <Icono size={11} className="text-white" />
+                                      <div key={`header-contacto-${index}`} className="flex items-center gap-2 text-[10.5px] text-black min-w-0">
+                                        <div className="w-5 h-5 rounded-md bg-white border border-slate-400 flex items-center justify-center shrink-0">
+                                          <Icono size={11} className="text-black" />
                                         </div>
                                         <span className="font-semibold leading-snug whitespace-normal break-normal overflow-visible" title={valor}>{valor}</span>
                                       </div>
@@ -37327,15 +38609,15 @@ function obtenerCategoriaProducto(producto) {
                                 </div>
 
                                 <div className="flex flex-col items-end text-right pl-8 min-w-0">
-                                  <p className="text-[10px] font-black uppercase text-slate-200 whitespace-nowrap">Recibo de pago</p>
-                                  <p className="mt-1 text-[21px] leading-none font-black text-emerald-300 whitespace-nowrap max-w-full">{resumen.numeroRecibo}</p>
-                                  <div className="mt-3 w-full max-w-[260px] space-y-1.5 text-[11px] text-slate-100">
+                                  <p className="text-[10px] font-black uppercase text-black whitespace-nowrap">Recibo de pago</p>
+                                  <p className="mt-1 text-[21px] leading-none font-black text-black whitespace-nowrap max-w-full">{resumen.numeroRecibo}</p>
+                                  <div className="mt-3 w-full max-w-[260px] space-y-1.5 text-[11px] text-black">
                                     <div className="flex items-center justify-end gap-2">
-                                      <Calendar size={12} className="text-white shrink-0" />
+                                      <Calendar size={12} className="text-black shrink-0" />
                                       <span className="leading-tight whitespace-nowrap">{formatearFecha(resumen.fechaPago)} {formatearHora(resumen.fechaPago)}</span>
                                     </div>
                                     <div className="flex items-center justify-end gap-2">
-                                      <User size={12} className="text-white shrink-0" />
+                                      <User size={12} className="text-black shrink-0" />
                                       <span className="leading-tight whitespace-nowrap">Emitido por: {usuarioEmisorRecibo}</span>
                                     </div>
                                   </div>
@@ -37344,15 +38626,15 @@ function obtenerCategoriaProducto(producto) {
                             ) : (
                               <div className="flex items-center justify-between gap-4">
                                 <div className="w-[150px] h-[38px] flex items-center justify-start shrink-0">
-                                  <img src={logoRecibo} alt="Logo" className="max-w-full max-h-full object-contain" />
+                                  <p className="text-[14px] font-black text-black truncate">{textoSeguroTrim(configuracion?.nombre, NOMBRE_EMPRESA_FALLBACK)}</p>
                                 </div>
                                 <div className="min-w-0 text-center">
-                                  <p className="text-[10px] font-black uppercase text-slate-200">Continuación de detalle</p>
-                                  <p className="text-[13px] font-black truncate">{resumen.clienteNombre}</p>
+                                  <p className="text-[10px] font-black uppercase text-slate-600">Continuación de detalle</p>
+                                  <p className="text-[13px] font-black text-black truncate">{resumen.clienteNombre}</p>
                                 </div>
                                 <div className="text-right shrink-0">
-                                  <p className="text-[9px] font-black uppercase text-slate-200">Recibo de pago</p>
-                                  <p className="text-[15px] font-black text-emerald-300">{resumen.numeroRecibo}</p>
+                                  <p className="text-[9px] font-black uppercase text-slate-600">Recibo de pago</p>
+                                  <p className="text-[15px] font-black text-black">{resumen.numeroRecibo}</p>
                                 </div>
                               </div>
                             )}
@@ -37422,7 +38704,7 @@ function obtenerCategoriaProducto(producto) {
                                   <col style={{ width: '15%' }} />
                                   <col style={{ width: '15%' }} />
                                 </colgroup>
-                                <thead className="bg-slate-900 text-white">
+                                <thead className="bg-white text-slate-900 border-b border-slate-300">
                                   <tr>
                                     <th className="px-2.5 py-2 text-left font-black whitespace-nowrap">Fecha</th>
                                     <th className="px-2.5 py-2 text-left font-black whitespace-nowrap">Remito</th>
@@ -37449,13 +38731,14 @@ function obtenerCategoriaProducto(producto) {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap justify-end gap-2">
+                <div className="sf-receipt-preview-actions flex flex-wrap justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => descargarReciboCobro(movimientoRecibo)}
                     disabled={descargandoPdfVistaImpresion}
-                    className="h-10 px-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all hover:-translate-y-0.5 text-[11px] font-black uppercase tracking-wide"
+                    className="sf-receipt-preview-pdf-button h-10 px-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all hover:-translate-y-0.5 text-[11px] font-black uppercase tracking-wide"
                     title={descargandoPdfVistaImpresion ? 'Generando PDF' : 'Descargar PDF'}
+                    aria-label={descargandoPdfVistaImpresion ? 'Generando PDF' : 'Descargar PDF'}
                   >
                     {descargandoPdfVistaImpresion ? <Loader2 size={15} className="animate-spin" /> : <FileText size={15} />}
                     PDF
@@ -37830,7 +39113,7 @@ function obtenerCategoriaProducto(producto) {
           customWidth="max-w-7xl"
           fullScreen
         >
-          <form onSubmit={guardarPuntoVenta} className="sf-pv-workspace h-full min-h-0 flex flex-col gap-3 max-w-7xl mx-auto w-full p-2 sm:p-3">
+          <form onSubmit={guardarPuntoVenta} noValidate className="sf-pv-workspace h-full min-h-0 flex flex-col gap-3 max-w-7xl mx-auto w-full p-2 sm:p-3">
             <div className="shrink-0">
               <div>
                 <h1 className="sr-only">Punto de Venta</h1>
@@ -38070,28 +39353,13 @@ function obtenerCategoriaProducto(producto) {
                 </div>
                 <div>
                   <label className="block text-[10px] font-black text-emerald-800 uppercase tracking-wider mb-1">Forma de pago</label>
-                  <select
-                    value={formPuntoVenta.metodoPago}
-                    onChange={(e) => {
-                      const metodoPagoSeleccionado = normalizarMetodoPago(e.target.value);
-                      setCierrePantallaClientePuntoVenta(null);
-                      setPagoPendientePuntoVenta(null);
-                      setFormPuntoVenta((prev) => ({
-                        ...prev,
-                        metodoPago: metodoPagoSeleccionado,
-                        tarjetaPlanId: ''
-                      }));
-                      refrescarPantallaClientePuntoVentaPronto();
-                    }}
-                    className="w-full px-3 py-1.5 bg-white border border-emerald-200 rounded-lg text-sm font-bold outline-none focus:ring-2 focus:ring-emerald-500"
-                  >
-                    <option value="efectivo">Efectivo</option>
-                    <option value="transferencia">Transferencia</option>
-                    <option value="tarjeta_credito">Tarjeta de crédito</option>
-                    <option value="tarjeta_debito">Tarjeta de débito</option>
-                    <option value="cheque">Cheque</option>
-                    <option value="cuenta_corriente">Cuenta Corriente</option>
-                  </select>
+                  <div className="sf-pv-payment-methods">
+                    {[
+                      ['efectivo', 'Efectivo'], ['transferencia', 'Transferencia'], ['tarjeta_credito', 'Tarjeta'], ['cuenta_corriente', 'Cuenta corriente'], ['cheque', 'Cheque']
+                    ].map(([metodo, etiqueta]) => (
+                      <button key={`pv-pago-${metodo}`} type="button" onClick={() => seleccionarMetodoPagoPuntoVenta(metodo)} className={normalizarMetodoPago(formPuntoVenta.metodoPago) === metodo ? 'is-active' : ''}>{etiqueta}</button>
+                    ))}
+                  </div>
                 </div>
                 {normalizarMetodoPago(formPuntoVenta.metodoPago) === 'cuenta_corriente' && clienteSeleccionadoPuntoVenta && (
                   <div className={`rounded-xl border p-2.5 text-[10px] font-bold ${remitosVencidosPuntoVenta.length > 0 ? 'bg-red-50 border-red-200 text-red-800' : 'bg-purple-50 border-purple-200 text-purple-800'}`}>
@@ -38101,7 +39369,7 @@ function obtenerCategoriaProducto(producto) {
                         <p className="mt-0.5">Tiene {remitosVencidosPuntoVenta.length} remito(s) vencido(s) por {formatearDinero(remitosVencidosPuntoVenta.reduce((total, ticket) => total + Number(ticket.pendiente || 0), 0))}.</p>
                       </>
                     ) : (
-                      <p>Sin remitos vencidos. Saldo actual: {formatearDinero(saldoCuentaPuntoVenta)}.</p>
+                      <p>Sin remitos vencidos. {saldoFavorPuntoVenta > 0.009 ? `Saldo a favor: ${formatearDinero(saldoFavorPuntoVenta)}.` : `Saldo actual: ${formatearDinero(saldoCuentaPuntoVenta)}.`}</p>
                     )}
                     {limiteCuentaPuntoVenta > 0 && <p className="mt-0.5">Límite: {formatearDinero(limiteCuentaPuntoVenta)} · Disponible: {formatearDinero(Math.max(0, limiteCuentaPuntoVenta - saldoCuentaPuntoVenta))}</p>}
                   </div>
@@ -38140,27 +39408,13 @@ function obtenerCategoriaProducto(producto) {
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1 uppercase">Número de comprobante</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={formPuntoVenta.numeroComprobante}
-                    onChange={(e) => setFormPuntoVenta((prev) => ({ ...prev, numeroComprobante: e.target.value, numeroComprobanteManual: true }))}
-                    className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-emerald-500"
-                    placeholder="Auto"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setFormPuntoVenta((prev) => ({
-                      ...prev,
-                      numeroComprobanteManual: false,
-                      numeroComprobante: obtenerSiguienteNumeroComprobanteVenta(prev.tipoComprobante, prev.idMovimiento || '')
-                    }))}
-                    className="h-[34px] px-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider hover:bg-emerald-100"
-                    title="Regenerar número automático"
-                  >
-                    Auto
-                  </button>
-                </div>
+                <input
+                  type="text"
+                  value={formPuntoVenta.numeroComprobante}
+                  readOnly
+                  className="w-full px-3 py-1.5 bg-slate-50 border border-gray-200 rounded-xl text-sm font-bold text-slate-600 outline-none cursor-default"
+                  title="El número se asigna automáticamente al guardar la venta"
+                />
               </div>
             </div>
 
@@ -38198,11 +39452,10 @@ function obtenerCategoriaProducto(producto) {
                     {(formPuntoVenta.items || []).map((item) => {
                       const esItemDevolucionVinculada = Boolean(formPuntoVenta.devolucionOrigenId && item?.claveDevolucion);
                       const cantidad = Math.max(0, parseNumeroBasico(item?.cantidad) || 0);
-                      const precioBase = Math.max(0, parseNumeroBasico(item?.precio) || 0);
-                      const precio = redondeoVentasHaciaArribaActivo ? redondearImporteVentaHaciaArriba(precioBase) : precioBase;
+                      const precio = Math.max(0, parseNumeroBasico(item?.precio) || 0);
                       const descuento = Math.min(100, Math.max(0, parseNumeroBasico(item?.descuento) || 0));
                       const subtotalBase = Math.max(0, (cantidad * precio) - ((cantidad * precio) * descuento / 100));
-                      const subtotal = redondeoVentasHaciaArribaActivo ? redondearImporteVentaHaciaArriba(subtotalBase) : subtotalBase;
+                      const subtotal = subtotalBase;
                       return (
                         <tr key={item.id} className="group hover:bg-gray-50/80">
                           <td className="px-2 py-[2px]">
@@ -38376,10 +39629,19 @@ function obtenerCategoriaProducto(producto) {
                 Cancelar
               </button>
               <button
-                type="submit"
+                type="button"
+                onClick={() => guardarPuntoVenta(null)}
                 className="btn btn-primary sm:min-w-52"
               >
                 Guardar venta
+              </button>
+              <button
+                type="button"
+                onClick={generarPresupuestoDesdePuntoVenta}
+                className="btn btn-secondary sm:min-w-36"
+                title="Guarda el presupuesto y abre la previsualización con imágenes"
+              >
+                Presupuesto
               </button>
             </div>
           </form>
@@ -38497,7 +39759,7 @@ function obtenerCategoriaProducto(producto) {
             <div><label className="block text-[10px] font-black uppercase tracking-wider text-slate-600 mb-1">Porcentaje sobre la venta</label><div className="relative"><input inputMode="decimal" value={formAsignacionVendedorPuntoVenta.porcentaje} onChange={(event) => setFormAsignacionVendedorPuntoVenta((prev) => ({ ...prev, porcentaje: event.target.value.replace(/[^0-9.,]/g, '') }))} placeholder="Ej.: 10" required className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 pr-10 text-right text-lg font-black outline-none focus:ring-2 focus:ring-teal-500" /><span className="absolute right-3 top-1/2 -translate-y-1/2 font-black text-slate-500">%</span></div></div>
             <label className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 cursor-pointer sm:col-span-2"><input type="checkbox" checked={formAsignacionVendedorPuntoVenta.aplicarAlPrecio === true} onChange={(event) => setFormAsignacionVendedorPuntoVenta((prev) => ({ ...prev, aplicarAlPrecio: event.target.checked }))} className="mt-0.5 h-4 w-4 rounded border-amber-300 text-amber-600" /><span className="text-[10px] font-black uppercase tracking-wider text-amber-800">Incrementar el precio con la comisión<span className="block normal-case tracking-normal font-bold text-amber-700">Si no se tilda, la comisión sale de tu ganancia.</span></span></label>
             </div>
-            <div className="rounded-2xl border border-teal-200 bg-teal-50 p-4 grid grid-cols-1 sm:grid-cols-2 gap-3"><div><p className="text-[10px] font-black uppercase tracking-wider text-teal-700">Comisión incorporada a los ítems</p><p className="mt-1 text-2xl font-black text-teal-900">{formatearDinero(comisionPuntoVentaVista)}</p></div><div className="sm:text-right"><p className="text-[10px] font-black uppercase tracking-wider text-teal-700">Nuevo total de venta</p><p className="mt-1 text-2xl font-black text-teal-900">{formatearDinero(totalConComisionPuntoVentaVista)}</p></div><p className="sm:col-span-2 text-xs font-bold text-teal-700">El porcentaje se suma proporcionalmente al precio original de cada ítem.</p></div>
+            <div className="rounded-2xl border border-teal-200 bg-teal-50 p-4 grid grid-cols-1 sm:grid-cols-2 gap-3"><div><p className="text-[10px] font-black uppercase tracking-wider text-teal-700">{formAsignacionVendedorPuntoVenta.aplicarAlPrecio ? 'Incremento en los ítems' : 'Comisión sobre la venta'}</p><p className="mt-1 text-2xl font-black text-teal-900">{formatearDinero(comisionPuntoVentaVista)}</p></div><div className="sm:text-right"><p className="text-[10px] font-black uppercase tracking-wider text-teal-700">{formAsignacionVendedorPuntoVenta.aplicarAlPrecio ? 'Nuevo total de venta' : 'Total sin modificar'}</p><p className="mt-1 text-2xl font-black text-teal-900">{formatearDinero(totalConComisionPuntoVentaVista)}</p></div><p className="sm:col-span-2 text-xs font-bold text-teal-700">{formAsignacionVendedorPuntoVenta.aplicarAlPrecio ? 'El porcentaje se suma proporcionalmente al precio original de cada ítem.' : 'La comisión se calcula sobre el total y no cambia los precios que paga el cliente.'}</p></div>
             <div className="flex flex-col sm:flex-row gap-2 pt-1">{formPuntoVenta.vendedorId && <button type="button" onClick={quitarAsignacionVendedorPuntoVenta} className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-black text-red-700">Quitar vendedor</button>}<button type="button" onClick={() => setAsignacionVendedorPuntoVentaAbierta(false)} className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-black text-slate-700">Cancelar</button><button type="submit" className="flex-1 rounded-xl bg-teal-600 px-4 py-3 text-xs font-black text-white">Aplicar vendedor y comisión</button></div>
           </form>
         </Modal>
@@ -39046,12 +40308,12 @@ function obtenerCategoriaProducto(producto) {
 
       {/* COMPONENTES DE USUARIOS Y CONFIRMACIONES MANTENIDOS */}
       {modalActivo === 'cobro' && clienteSeleccionado && puedeVerClienteEnCuentas(clienteSeleccionado) && (
-        <Modal titulo="Registrar Pago de Cliente" onClose={() => { setModalActivo(null); setClienteSeleccionado(null); }} customWidth="max-w-3xl">
+        <Modal titulo="Registrar Pago de Cliente" onClose={volverACuentaClienteSeleccionado} customWidth="max-w-3xl">
           <form onSubmit={registrarCobro} className="space-y-4">
             <div className="bg-purple-600 p-4 rounded-2xl text-center text-white">
               <p className="text-purple-200 font-bold uppercase text-[10px] mb-0.5">Cobranza a:</p>
               <p className="text-xl font-black tracking-tight">{clienteSeleccionado.nombre}</p>
-              <div className="inline-block bg-white/20 px-3 py-1 rounded-lg border border-white/30 mt-1.5"><p className="text-[10px] font-black uppercase tracking-wider">Deuda: {formatearDinero(saldoPendienteClienteSeleccionado)}</p></div>
+              <div className="inline-block bg-white/20 px-3 py-1 rounded-lg border border-white/30 mt-1.5"><p className="text-[10px] font-black uppercase tracking-wider">Deuda pendiente: {formatearDinero(saldoPendienteClienteSeleccionado)}{Number(estadoCuentaClienteSeleccionado?.saldoFavor || 0) > 0.009 ? ` · A favor: ${formatearDinero(estadoCuentaClienteSeleccionado.saldoFavor)}` : ''}</p></div>
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-800 mb-1 uppercase">Tipo de Abono</label>
@@ -39427,6 +40689,14 @@ function obtenerCategoriaProducto(producto) {
         </Modal>
       )}
 
+      {modalActivo === 'preview_pago_proveedor' && pdfPagoProveedorPreviewUrl && (
+        <Modal titulo="Previsualización del comprobante de pago" onClose={() => setModalActivo(null)} customWidth="max-w-5xl">
+          <div className="h-[75vh] overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
+            <iframe src={pdfPagoProveedorPreviewUrl} title="Previsualización del comprobante de pago" className="h-full w-full border-0" />
+          </div>
+        </Modal>
+      )}
+
       {operacionPreciosEnCurso.activo && (
         <Modal titulo={operacionPreciosEnCurso.titulo || 'Procesando precios'} onClose={() => {}} customWidth="max-w-lg" extraClases="z-[120]">
           <div className="space-y-4">
@@ -39452,12 +40722,12 @@ function obtenerCategoriaProducto(producto) {
       )}
 
       {modalActivo === 'confirmar_eliminacion' && movimientoAEliminar && (
-        <Modal titulo="Eliminar Registro" onClose={() => { setModalActivo(null); setMovimientoAEliminar(null); }}>
+        <Modal titulo="Eliminar Registro" onClose={() => { volverACuentaClienteSeleccionado(); setMovimientoAEliminar(null); }}>
           <div className="space-y-4">
             <div className="bg-red-50 p-4 rounded-2xl border border-red-200 text-center"><Trash2 size={32} className="text-red-500 mx-auto mb-2" /><p className="text-red-800 font-bold text-sm">¿Borrar este movimiento permanentemente?</p></div>
             <div className="bg-white border border-gray-200 rounded-xl p-4 text-center"><p className="font-bold text-gray-600 text-sm">{movimientoAEliminar.descripcion}</p><p className="text-xl font-black mt-1 text-red-600">{formatearDinero(movimientoAEliminar.monto)}</p></div>
             <div className="flex gap-2">
-              <button onClick={() => { setModalActivo(null); setMovimientoAEliminar(null); }} className="flex-1 bg-gray-100 font-bold py-3 rounded-xl text-sm uppercase">CANCELAR</button>
+              <button onClick={() => { volverACuentaClienteSeleccionado(); setMovimientoAEliminar(null); }} className="flex-1 bg-gray-100 font-bold py-3 rounded-xl text-sm uppercase">CANCELAR</button>
               <button onClick={ejecutarEliminacion} className="flex-1 bg-red-600 text-white font-bold py-3 rounded-xl text-sm uppercase">SÍ, BORRAR</button>
             </div>
           </div>
