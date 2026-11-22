@@ -1,10 +1,10 @@
-const CACHE_NAME = 'seniorflow-flyer-gestion-20261101-04';
+const CACHE_NAME = 'seniorflow-flyer-gestion-20261121-47';
 const ASSETS = [
   './',
   './index.html',
   './stock-app.html',
   './stock-app.js?v=seniorflow-stock-mobile-20260807-08',
-  './app.js?v=seniorflow-flyer-gestion-20261101-04',
+  './app.js?v=seniorflow-flyer-gestion-20261121-47',
   './firebase-config.js?v=seniorflow-online-firestore-20260825-36',
   './manifest.json',
   './manifest-stock-app.json?v=seniorflow-stock-mobile-20260807-08',
@@ -16,7 +16,8 @@ const ASSETS = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './assets/sf-mark.png',
-  './assets/seniorflow-white.png'
+  './assets/seniorflow-white.png',
+  './sf-fluent.css?v=sf-fluent-20261121-49'
 ];
 
 self.addEventListener('install', (event) => {
@@ -97,7 +98,7 @@ self.addEventListener('fetch', (event) => {
             ? './stock-app.js?v=seniorflow-stock-mobile-20260807-08'
             : url.pathname.endsWith('/ofertas.html')
             ? './ofertas.html?v=seniorflow-flyer-gestion-20260903-51'
-            : './app.js?v=seniorflow-flyer-gestion-20261101-04'));
+            : './app.js?v=seniorflow-flyer-gestion-20261121-47'));
       }
     })());
     return;
