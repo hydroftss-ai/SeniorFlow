@@ -1,153 +1,631 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0f172a" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="SeniorFlow" />
-    <meta
-      name="description"
-      content="SeniorFlow - Sistema de gestión comercial"
-    />
-    <title>SeniorFlow</title>
-    <link rel="manifest" href="./manifest.json?v=seniorflow-icon-20260808-02" />
-    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png?v=seniorflow-icon-20260808-02" />
-    <link rel="apple-touch-icon" href="./icons/icon-192.png?v=seniorflow-icon-20260808-02" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Manrope', 'system-ui', 'sans-serif']
-            }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="description" content="SeniorFlow - control diario de ventas, gastos, caja y cuentas corrientes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="SeniorFlow" />
+  <title>SeniorFlow</title>
+  <link rel="manifest" href="./manifest.json?v=seniorflow-icon-20260808-02" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png?v=seniorflow-icon-20260808-02" />
+  <link rel="icon" type="image/png" href="./icons/icon-192.png?v=seniorflow-icon-20260808-02" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- LIBRERIAS AGREGADAS PARA EL GENERADOR DE OFERTAS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Manrope', 'system-ui', 'sans-serif']
           }
         }
+      }
+    };
+  </script>
+  <style>
+    :root {
+      --sf-vw: 100vw;
+      --sf-vh: 100dvh;
+      --sf-modal-gutter: clamp(0.5rem, 2vw, 1.5rem);
+      --sf-page-gutter: clamp(0.75rem, 2vw, 2rem);
+    }
+    * { box-sizing: border-box; }
+    html {
+      width: 100%;
+      min-width: 0;
+      overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+    body {
+      width: 100%;
+      min-width: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      margin: 0;
+      overflow-x: hidden;
+      font-family: Manrope, system-ui, sans-serif;
+      background: #f8fafc;
+    }
+    #root {
+      width: 100%;
+      min-width: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+    img, video, canvas, svg { max-width: 100%; }
+    input, select, textarea, button { max-width: 100%; }
+    button, a, label { touch-action: manipulation; }
+    .sf-app-shell {
+      min-height: 100vh;
+      min-height: 100dvh;
+      width: 100%;
+      overflow-x: clip;
+    }
+    .sf-main {
+      padding-left: max(var(--sf-page-gutter), env(safe-area-inset-left));
+      padding-right: max(var(--sf-page-gutter), env(safe-area-inset-right));
+    }
+    .sf-modal-overlay {
+      padding: max(var(--sf-modal-gutter), env(safe-area-inset-top)) max(var(--sf-modal-gutter), env(safe-area-inset-right)) max(var(--sf-modal-gutter), env(safe-area-inset-bottom)) max(var(--sf-modal-gutter), env(safe-area-inset-left));
+    }
+    .sf-modal-panel {
+      max-width: min(var(--sf-modal-max-width, 28rem), calc(100vw - (var(--sf-modal-gutter) * 2)));
+      max-height: min(95vh, calc(100dvh - (var(--sf-modal-gutter) * 2)));
+    }
+    .sf-modal-panel.max-w-sm { --sf-modal-max-width: 24rem; }
+    .sf-modal-panel.max-w-md { --sf-modal-max-width: 28rem; }
+    .sf-modal-panel.max-w-lg { --sf-modal-max-width: 32rem; }
+    .sf-modal-panel.max-w-xl { --sf-modal-max-width: 36rem; }
+    .sf-modal-panel.max-w-2xl { --sf-modal-max-width: 42rem; }
+    .sf-modal-panel.max-w-3xl { --sf-modal-max-width: 48rem; }
+    .sf-modal-panel.max-w-4xl { --sf-modal-max-width: 56rem; }
+    .sf-modal-panel.max-w-5xl { --sf-modal-max-width: 64rem; }
+    .sf-modal-panel.max-w-6xl { --sf-modal-max-width: 72rem; }
+    .sf-modal-panel.max-w-7xl { --sf-modal-max-width: 80rem; }
+    .sf-modal-panel.sf-modal-fullscreen {
+      width: 100%;
+      max-width: none;
+      height: calc(100dvh - (var(--sf-modal-gutter) * 2));
+      max-height: calc(100dvh - (var(--sf-modal-gutter) * 2));
+    }
+    .sf-modal-body {
+      min-width: 0;
+      overscroll-behavior: contain;
+    }
+    .sf-app-shell table {
+      border-collapse: collapse;
+    }
+    .sf-app-shell .overflow-x-auto,
+    .sf-app-shell .custom-scrollbar {
+      -webkit-overflow-scrolling: touch;
+    }
+    .sf-app-shell :where(h1, h2, h3, h4, p, span, button, a, th, td, label) {
+      min-width: 0;
+    }
+    @media (max-width: 640px), (max-height: 620px) {
+      :root {
+        --sf-modal-gutter: 0.5rem;
+        --sf-page-gutter: 0.75rem;
+      }
+      .sf-app-shell {
+        font-size: 15px;
+      }
+      .sf-main {
+        padding-top: 1rem;
+        padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+      }
+      .sf-modal-overlay {
+        align-items: stretch !important;
+      }
+      .sf-modal-panel {
+        border-radius: 1rem !important;
+        width: 100%;
+        max-width: calc(100vw - 1rem);
+        max-height: calc(100dvh - 1rem);
+      }
+      .sf-modal-body {
+        padding: 1rem !important;
+      }
+      .sf-app-shell :where(h1, h2, h3) {
+        overflow-wrap: anywhere;
+      }
+      .sf-app-shell :where(button, input, select, textarea) {
+        font-size: 16px;
+      }
+      .sf-app-shell table {
+        font-size: 0.78rem;
+      }
+    }
+    @media (min-width: 1536px) {
+      :root { --sf-page-gutter: clamp(2rem, 3vw, 4rem); }
+      .sf-app-shell main { max-width: 1920px; margin-left: auto; margin-right: auto; }
+    }
+    @media (pointer: coarse) {
+      .sf-app-shell button,
+      .sf-app-shell a,
+      .sf-app-shell input,
+      .sf-app-shell select {
+        min-height: 40px;
+      }
+    }
+    html[data-sf-height="short"] .sf-modal-panel {
+      max-height: calc(100dvh - 0.75rem);
+    }
+    html[data-sf-density="compact"] .sf-app-shell {
+      --sf-page-gutter: 0.75rem;
+    }
+    .sf-app-shell .btn {
+      min-height: 2.5rem;
+      border-radius: 0.75rem;
+      padding: 0.625rem 1rem;
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+      border: 1px solid transparent;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+      white-space: nowrap;
+    }
+    .sf-app-shell .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.62;
+      transform: none;
+    }
+    .sf-app-shell .btn-sm {
+      min-height: 2rem;
+      padding: 0.375rem 0.75rem;
+      font-size: 0.75rem;
+      line-height: 1rem;
+      border-radius: 0.625rem;
+    }
+    .sf-app-shell .btn-lg {
+      min-height: 3rem;
+      padding: 0.75rem 1.25rem;
+      font-size: 1rem;
+      line-height: 1.5rem;
+      border-radius: 0.875rem;
+    }
+    .sf-app-shell .btn-primary {
+      background: #4f46e5;
+      color: #fff;
+    }
+    .sf-app-shell .btn-primary:hover:not(:disabled) { background: #4338ca; }
+    .sf-app-shell .btn-secondary {
+      background: #fff;
+      color: #334155;
+      border-color: #e2e8f0;
+    }
+    .sf-app-shell .btn-secondary:hover:not(:disabled) { background: #f8fafc; }
+    .sf-app-shell .btn-ghost {
+      background: transparent;
+      color: #475569;
+      border-color: transparent;
+      box-shadow: none;
+    }
+    .sf-app-shell .btn-ghost:hover:not(:disabled) { background: #f1f5f9; }
+    .sf-app-shell .btn-danger {
+      background: #dc2626;
+      color: #fff;
+    }
+    .sf-app-shell .btn-danger:hover:not(:disabled) { background: #b91c1c; }
+    .sf-app-shell .btn-soft {
+      background: #eef2ff;
+      color: #4338ca;
+      border-color: #c7d2fe;
+    }
+    .sf-app-shell .btn-soft:hover:not(:disabled) { background: #e0e7ff; }
+    .sf-app-shell .card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    }
+    .sf-app-shell .hover-lift {
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+    .sf-app-shell .hover-lift:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+      border-color: #cbd5e1;
+    }
+    .sf-app-shell .table-container {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+    .sf-app-shell .table-container table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .sf-app-shell .table-container th {
+      background: #f8fafc;
+      color: #475569;
+      font-size: 0.6875rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-align: left;
+      text-transform: uppercase;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #e2e8f0;
+      white-space: nowrap;
+    }
+    .sf-app-shell .table-container td {
+      color: #334155;
+      font-size: 0.875rem;
+      font-weight: 700;
+      padding: 0.875rem 1rem;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+    .sf-app-shell .table-container tbody tr:last-child td {
+      border-bottom: 0;
+    }
+    .sf-app-shell .field {
+      display: grid;
+      gap: 0.375rem;
+    }
+    .sf-app-shell .label {
+      color: #334155;
+      font-size: 0.75rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .sf-app-shell .input {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.75rem;
+      background: #fff;
+      color: #0f172a;
+      font-weight: 700;
+      outline: none;
+      padding: 0.75rem 0.875rem;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+    .sf-app-shell .input:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.16);
+    }
+    .sf-app-shell .hint {
+      color: #64748b;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .sf-app-shell .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 1.5rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      padding: 0.25rem 0.625rem;
+      font-size: 0.6875rem;
+      font-weight: 900;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .sf-app-shell .badge-success {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+      color: #047857;
+    }
+    .sf-app-shell .badge-warning {
+      background: #fffbeb;
+      border-color: #fde68a;
+      color: #b45309;
+    }
+    .sf-app-shell .badge-danger {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #b91c1c;
+    }
+    .sf-app-shell .badge-info {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+      color: #1d4ed8;
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .pb-safe { padding-bottom: calc(0.5rem + env(safe-area-inset-bottom)); }
+
+    /* ESTILO AGREGADO PARA EL GENERADOR */
+    .pattern-dots {
+      background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .line-clamp-1,
+    .line-clamp-2,
+    .line-clamp-3,
+    .line-clamp-7 {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .line-clamp-1 { -webkit-line-clamp: 1; }
+    .line-clamp-2 { -webkit-line-clamp: 2; }
+    .line-clamp-3 { -webkit-line-clamp: 3; }
+    .line-clamp-7 { -webkit-line-clamp: 7; }
+
+    @media print {
+      @page {
+        size: A4;
+        margin: 5mm;
+      }
+
+      html, body {
+        background: #fff !important;
+        overflow: visible !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      #root {
+        overflow: visible !important;
+      }
+
+      .print-modal-root {
+        position: static !important;
+        inset: auto !important;
+        height: auto !important;
+        min-height: auto !important;
+        overflow: visible !important;
+        display: block !important;
+        padding: 0 !important;
+        background: #fff !important;
+      }
+
+      .print-modal-pages {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+      }
+
+      .print-a4-sheet {
+        width: calc(210mm - 10mm) !important;
+        max-width: calc(210mm - 10mm) !important;
+        min-height: calc(297mm - 10mm) !important;
+        margin: 0 auto 5mm !important;
+        box-shadow: none !important;
+        page-break-after: always !important;
+        break-after: page !important;
+      }
+
+      .print-a4-sheet:last-child {
+        page-break-after: auto !important;
+        break-after: auto !important;
+      }
+
+      .print-no-break {
+        page-break-inside: avoid !important;
+        break-inside: avoid-page !important;
+      }
+    }
+  .sf-auth-screen { position: relative; isolation: isolate; overflow: hidden; background: #132723; }
+  .sf-auth-backdrop { position: absolute; inset: 0; z-index: -1; background: linear-gradient(rgba(9,26,25,.40), rgba(9,26,25,.40)), url('./assets/login-warehouse.png') center/cover no-repeat; filter: blur(2px); transform: scale(1.02); }
+  .sf-auth-card { width:min(420px, calc(100vw - 32px)) !important; padding:32px 30px 28px; border:1px solid rgba(255,255,255,.72); border-radius:16px; background:rgba(255,255,255,.96); box-shadow:0 22px 55px rgba(0,0,0,.28); }
+  .sf-auth-mark { display: grid; place-items: center; margin: auto; color: #078d86; font-size: 2.35rem; font-weight: 900; font-style: italic; letter-spacing: -.18em; line-height: 1; }
+  .sf-auth-spinner { width: 82px; height: 82px; border: 4px solid #e3e8eb; border-top-color: #078d86; border-right-color: #078d86; border-radius: 50%; animation: sf-auth-spin 1s linear infinite; }
+  .sf-auth-input { min-height:44px; border:1px solid #d8e0e6; border-radius:8px; background:#fff; color:#26384e; }
+  .sf-auth-input:focus { border-color: #078d86; box-shadow: 0 0 0 3px rgba(7,141,134,.13); }
+  .sf-auth-submit { min-height: 49px; background: #078d86; color: #fff; box-shadow: 0 8px 18px rgba(7,141,134,.22); }
+  .sf-auth-submit:hover { background: #06766f; }
+  @keyframes sf-auth-spin { to { transform: rotate(360deg); } }
+  @media (max-width:640px) { .sf-auth-screen { padding:16px; } .sf-auth-card { padding:30px 24px 26px; border-radius:14px; } }
+
+  </style>
+  <script>
+    (function () {
+      const aplicarPerfilPantalla = () => {
+        const viewport = window.visualViewport || {};
+        const ancho = Math.round(viewport.width || window.innerWidth || document.documentElement.clientWidth || 1024);
+        const alto = Math.round(viewport.height || window.innerHeight || document.documentElement.clientHeight || 768);
+        const tipo = ancho < 640 ? 'phone' : (ancho < 1024 ? 'tablet' : (ancho >= 1536 ? 'wide' : 'desktop'));
+        const orientacion = ancho >= alto ? 'landscape' : 'portrait';
+        const altura = alto < 620 ? 'short' : 'normal';
+        const densidad = ancho < 390 || alto < 560 ? 'compact' : 'normal';
+        const root = document.documentElement;
+        root.dataset.sfScreen = tipo;
+        root.dataset.sfOrientation = orientacion;
+        root.dataset.sfHeight = altura;
+        root.dataset.sfDensity = densidad;
+        root.style.setProperty('--sf-vw', ancho + 'px');
+        root.style.setProperty('--sf-vh', alto + 'px');
       };
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
-    <style>
-      html, body, button, input, select, textarea {
-        font-family: Manrope, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      }
-      .sf-auth-screen { position: relative; isolation: isolate; overflow: hidden; background: #132723; }
-      .sf-auth-backdrop { position: absolute; inset: 0; z-index: -1; background: linear-gradient(rgba(9,26,25,.40), rgba(9,26,25,.40)), url('./assets/login-warehouse.png') center/cover no-repeat; filter: blur(2px); transform: scale(1.02); }
-      .sf-auth-card { width:min(420px, calc(100vw - 32px)) !important; padding:32px 30px 28px; border:1px solid rgba(255,255,255,.72); border-radius:16px; background:rgba(255,255,255,.96); box-shadow:0 22px 55px rgba(0,0,0,.28); }
-      .sf-auth-mark { display: grid; place-items: center; margin: auto; color: #078d86; font-size: 2.35rem; font-weight: 900; font-style: italic; letter-spacing: -.18em; line-height: 1; }
-      .sf-auth-spinner { width: 82px; height: 82px; border: 4px solid #e3e8eb; border-top-color: #078d86; border-right-color: #078d86; border-radius: 50%; animation: sf-auth-spin 1s linear infinite; }
-      .sf-auth-input { min-height:44px; border:1px solid #d8e0e6; border-radius:8px; background:#fff; color:#26384e; }
-      .sf-auth-input:focus { border-color: #078d86; box-shadow: 0 0 0 3px rgba(7,141,134,.13); }
-      .sf-auth-submit { min-height: 49px; background: #078d86; color: #fff; box-shadow: 0 8px 18px rgba(7,141,134,.22); }
-      .sf-auth-submit:hover { background: #06766f; }
-      @keyframes sf-auth-spin { to { transform: rotate(360deg); } }
-      @media (max-width:640px) { .sf-auth-screen { padding:16px; } .sf-auth-card { padding:30px 24px 26px; border-radius:14px; } }
-
-    </style>
-    <link rel="stylesheet" href="./sf-fluent.css?v=sf-fluent-20261121-63" />
+      aplicarPerfilPantalla();
+      window.addEventListener('resize', aplicarPerfilPantalla);
+      window.addEventListener('orientationchange', aplicarPerfilPantalla);
+      window.visualViewport?.addEventListener('resize', aplicarPerfilPantalla);
+      window.visualViewport?.addEventListener('scroll', aplicarPerfilPantalla);
+    })();
+  </script>
+  <!-- SeniorFlow fixes 22: recordatorios, logos izquierda, carga historica sin doble impacto -->
+  <link rel="stylesheet" href="./sf-fluent.css?v=sf-fluent-20261123-80" />
 </head>
-  <body>
-    <div id="root"></div>
-    <script>
-      (() => {
-        const CURRENT_BUILD = 'seniorflow-flyer-gestion-20261121-47';
-        window.__SENIORFLOW_BUILD__ = CURRENT_BUILD;
-        const BUILD_KEY = 'seniorflow-current-build';
-        if (window.location.protocol === 'file:' || localStorage.getItem(BUILD_KEY) === CURRENT_BUILD) return;
-        const actualizarSistema = async () => {
-          try {
-            if ('serviceWorker' in navigator) {
-              const registrations = await navigator.serviceWorker.getRegistrations();
-              await Promise.all(registrations.map((registration) => registration.unregister()));
-            }
-            if ('caches' in window) {
-              const keys = await caches.keys();
-              await Promise.all(keys.map((key) => caches.delete(key)));
-            }
-          } catch (error) {
-            console.warn('No se pudo limpiar la versión anterior de SeniorFlow.', error);
-          } finally {
-            localStorage.setItem(BUILD_KEY, CURRENT_BUILD);
-            window.location.reload();
-          }
-        };
-        actualizarSistema();
-      })();
-    </script>
-        <script type="module" src="./app.js?v=seniorflow-flyer-gestion-20261121-47"></script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker
-              .register('./sw.js?v=seniorflow-flyer-gestion-20261121-47')
-            .catch((error) => console.error('No se pudo registrar la webapp:', error));
-        });
+<body>
+  <div id="root"></div>
+
+  <!-- SCRIPTS ORIGINALES DE TU APLICACION -->
+  <script>
+    (function () {
+      const CURRENT_BUILD = 'seniorflow-flyer-gestion-20261123-60';
+      window.__SENIORFLOW_BUILD__ = CURRENT_BUILD;
+      const BUILD_KEY = 'seniorflow-current-build';
+      const isFileProtocol = window.location.protocol === 'file:';
+      if (isFileProtocol) return;
+
+      const urlActual = new URL(window.location.href);
+      if (urlActual.searchParams.has('build')) {
+        urlActual.searchParams.delete('build');
+        window.location.replace(urlActual.toString());
+        return;
       }
-    </script>
-    <script>
-      (() => {
-        if (window.location.protocol === 'file:') return;
-          const BUILD_ACTUAL = window.__SENIORFLOW_BUILD__ || 'seniorflow-flyer-gestion-20261121-47';
-        const POSPONER_KEY = 'seniorflow-actualizacion-pospuesta-hasta';
-        const INTERVALO_CONTROL_MS = 3 * 60 * 1000;
-        let buildDisponible = '';
-        let aviso = null;
 
-        const versionVisible = (build = '') => {
-          const partes = String(build).split('-');
-          return partes.length ? partes[partes.length - 1] : build;
-        };
+      const storedBuild = localStorage.getItem(BUILD_KEY);
+      if (storedBuild === CURRENT_BUILD) return;
 
-        const ocultarAviso = () => {
-          aviso?.remove();
-          aviso = null;
-        };
-
-        const actualizarAhora = async (boton) => {
-          boton.disabled = true;
-          boton.textContent = 'Preparando actualización...';
-          try {
-            if ('serviceWorker' in navigator) {
-              const registros = await navigator.serviceWorker.getRegistrations();
-              await Promise.allSettled(registros.map(async (registro) => {
-                await registro.update();
-                registro.waiting?.postMessage({ type: 'SKIP_WAITING' });
-              }));
-              await Promise.allSettled(registros.map((registro) => registro.unregister()));
-            }
-            if ('caches' in window) {
-              const claves = await caches.keys();
-              await Promise.allSettled(claves.map((clave) => caches.delete(clave)));
-            }
-            localStorage.removeItem('seniorflow-current-build');
-            sessionStorage.removeItem(POSPONER_KEY);
-          } catch (error) {
-            console.warn('No se pudo completar la limpieza previa a la actualización.', error);
-          } finally {
-            const url = new URL(window.location.href);
-            url.searchParams.set('actualizacion', Date.now().toString());
-            window.location.replace(url.toString());
+      const limpiarCacheViejo = async () => {
+        try {
+          if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(registrations.map((registration) => registration.unregister()));
           }
-        };
+          if ('caches' in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map((key) => caches.delete(key)));
+          }
+        } catch (error) {
+          console.warn('No se pudo limpiar cache anterior de SeniorFlow', error);
+        } finally {
+          localStorage.setItem(BUILD_KEY, CURRENT_BUILD);
+          window.location.reload();
+        }
+      };
 
-        const mostrarAviso = (nuevoBuild) => {
-          if (!nuevoBuild || nuevoBuild === BUILD_ACTUAL) return;
-          buildDisponible = nuevoBuild;
-          const pospuestaHasta = Number(sessionStorage.getItem(POSPONER_KEY) || 0);
-          if (Date.now() < pospuestaHasta || aviso) return;
-          aviso = document.createElement('aside');
-          aviso.setAttribute('role', 'alertdialog');
-          aviso.setAttribute('aria-label', 'Actualización disponible');
-          aviso.style.cssText = 'position:fixed;right:20px;bottom:20px;z-index:2147483647;width:min(400px,calc(100vw - 24px));font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;background:#fff;border:1px solid #d1d1d1;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.24);overflow:hidden;color:#1a1a1a;';
-          aviso.innerHTML = `
+      limpiarCacheViejo();
+    })();
+  </script>
+  <script>
+    (function () {
+          const APP_BUNDLE = './app.js?v=seniorflow-flyer-gestion-20261123-60';
+      const isFileProtocol = window.location.protocol === 'file:';
+
+      if (!isFileProtocol) {
+        const root = document.getElementById('root');
+        const mostrarFallbackCarga = (detalle) => {
+          if (!root) return;
+          root.innerHTML = `
+            <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:#f1f5f9;font-family:Inter,system-ui,-apple-system,sans-serif;">
+              <div style="max-width:680px;width:100%;background:#fff;border:1px solid #fecaca;border-radius:16px;padding:24px;box-shadow:0 10px 30px rgba(2,6,23,.08);">
+                <h1 style="margin:0 0 10px;font-size:24px;line-height:1.2;color:#991b1b;font-weight:800;">No se pudo cargar el sistema</h1>
+                <p style="margin:0 0 14px;color:#7f1d1d;font-size:14px;line-height:1.55;">
+                  Esto suele pasar cuando GitHub Pages o el navegador tiene una version vieja cacheada, o cuando falta publicar <strong>app.js</strong>.
+                </p>
+                <div style="background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:12px;padding:14px 16px;font-size:13px;line-height:1.5;white-space:pre-wrap;word-break:break-word;">${String(detalle || 'Error desconocido')}</div>
+                <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;">
+                  <a href="http://localhost:8000/" style="display:inline-flex;align-items:center;justify-content:center;background:#2563eb;color:#fff;text-decoration:none;font-size:13px;font-weight:800;padding:10px 14px;border-radius:10px;">Abrir local</a>
+                  <button onclick="window.location.reload()" style="display:inline-flex;align-items:center;justify-content:center;background:#e2e8f0;color:#0f172a;border:0;cursor:pointer;font-size:13px;font-weight:800;padding:10px 14px;border-radius:10px;">Reintentar</button>
+                </div>
+              </div>
+            </div>
+          `;
+        };
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.src = APP_BUNDLE;
+        script.addEventListener('error', () => mostrarFallbackCarga('El archivo app.js no se pudo cargar.'));
+        window.addEventListener('error', (event) => {
+          const mensaje = event?.error?.message || event?.message || 'Error de carga inesperado.';
+          if (String(mensaje).toLowerCase().includes('chunk') || String(mensaje).toLowerCase().includes('module') || String(mensaje).toLowerCase().includes('script')) {
+            mostrarFallbackCarga(mensaje);
+          }
+        }, { once: true });
+        document.body.appendChild(script);
+        return;
+      }
+
+      const root = document.getElementById('root');
+      if (!root) return;
+
+      root.innerHTML = `
+        <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:#f1f5f9;font-family:Inter,system-ui,-apple-system,sans-serif;">
+          <div style="max-width:620px;width:100%;background:#fff;border:1px solid #dbeafe;border-radius:16px;padding:24px;box-shadow:0 10px 30px rgba(2,6,23,.08);">
+            <h1 style="margin:0 0 10px;font-size:24px;line-height:1.2;color:#0f172a;font-weight:800;">Abri SeniorFlow desde servidor local</h1>
+            <p style="margin:0 0 14px;color:#334155;font-size:14px;line-height:1.55;">
+              El navegador bloquea modulos cuando abris con <strong>file://</strong>, por eso la pantalla queda en blanco.
+            </p>
+            <p style="margin:0 0 18px;color:#475569;font-size:13px;line-height:1.55;">
+              Usa esta URL:
+              <a href="http://localhost:8000/" style="color:#2563eb;font-weight:700;text-decoration:none;">http://localhost:8000/</a>
+            </p>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;">
+              <a href="http://localhost:8000/" style="display:inline-flex;align-items:center;justify-content:center;background:#2563eb;color:#fff;text-decoration:none;font-size:13px;font-weight:800;padding:10px 14px;border-radius:10px;">
+                Abrir en localhost
+              </a>
+              <a href="http://127.0.0.1:8000/" style="display:inline-flex;align-items:center;justify-content:center;background:#e2e8f0;color:#0f172a;text-decoration:none;font-size:13px;font-weight:800;padding:10px 14px;border-radius:10px;">
+                Abrir en 127.0.0.1
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+    })();
+  </script>
+  <script>
+    if (window.location.protocol !== 'file:' && 'serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+              navigator.serviceWorker.register('./sw.js?v=seniorflow-flyer-gestion-20261123-60').catch((error) => {
+          console.error('SW register error', error);
+        });
+      });
+    }
+  </script>
+  <script>
+    (() => {
+      if (window.location.protocol === 'file:') return;
+      const BUILD_ACTUAL = window.__SENIORFLOW_BUILD__ || 'seniorflow-flyer-gestion-20261123-60';
+      const POSPONER_KEY = 'seniorflow-actualizacion-pospuesta-hasta';
+      const INTERVALO_CONTROL_MS = 3 * 60 * 1000;
+      let aviso = null;
+
+      const versionVisible = (build = '') => {
+        const partes = String(build).split('-');
+        return partes.length ? partes[partes.length - 1] : build;
+      };
+      const ocultarAviso = () => {
+        aviso?.remove();
+        aviso = null;
+      };
+      const actualizarAhora = async (boton) => {
+        boton.disabled = true;
+        boton.textContent = 'Preparando actualización...';
+        try {
+          if ('serviceWorker' in navigator) {
+            const registros = await navigator.serviceWorker.getRegistrations();
+            await Promise.allSettled(registros.map(async (registro) => {
+              await registro.update();
+              registro.waiting?.postMessage({ type: 'SKIP_WAITING' });
+            }));
+            await Promise.allSettled(registros.map((registro) => registro.unregister()));
+          }
+          if ('caches' in window) {
+            const claves = await caches.keys();
+            await Promise.allSettled(claves.map((clave) => caches.delete(clave)));
+          }
+          localStorage.removeItem('seniorflow-current-build');
+          sessionStorage.removeItem(POSPONER_KEY);
+        } catch (error) {
+          console.warn('No se pudo completar la limpieza previa a la actualización.', error);
+        } finally {
+          const url = new URL(window.location.href);
+          url.searchParams.set('actualizacion', Date.now().toString());
+          window.location.replace(url.toString());
+        }
+      };
+      const mostrarAviso = (nuevoBuild) => {
+        if (!nuevoBuild || nuevoBuild === BUILD_ACTUAL) return;
+        const pospuestaHasta = Number(sessionStorage.getItem(POSPONER_KEY) || 0);
+        if (Date.now() < pospuestaHasta || aviso) return;
+        aviso = document.createElement('aside');
+        aviso.setAttribute('role', 'alertdialog');
+        aviso.setAttribute('aria-label', 'Actualización disponible');
+        aviso.style.cssText = 'position:fixed;right:20px;bottom:20px;z-index:2147483647;width:min(400px,calc(100vw - 24px));font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;background:#fff;border:1px solid #d1d1d1;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.24);overflow:hidden;color:#1a1a1a;';
+        aviso.innerHTML = `
             <div style="padding:16px 16px 14px;">
               <div style="display:flex;align-items:flex-start;gap:12px;">
                 <div style="width:32px;height:32px;flex:0 0 32px;border-radius:50%;background:#e6f0f9;color:#0067c0;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;">&#8635;</div>
@@ -161,40 +639,38 @@
                 <button type="button" data-accion="actualizar" style="height:32px;padding:0 16px;border:1px solid #0067c0;border-radius:4px;background:#0067c0;color:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer;">Actualizar ahora</button>
               </div>
             </div>`;
-          aviso.querySelector('[data-accion="despues"]').addEventListener('click', () => {
-            sessionStorage.setItem(POSPONER_KEY, String(Date.now() + (30 * 60 * 1000)));
-            ocultarAviso();
-          });
-          const botonActualizar = aviso.querySelector('[data-accion="actualizar"]');
-          botonActualizar.addEventListener('click', () => actualizarAhora(botonActualizar));
-          document.body.appendChild(aviso);
-        };
-
-        const controlarActualizacion = async () => {
-          if (!navigator.onLine) return;
-          try {
-            const respuesta = await fetch(`./sw.js?control-version=${Date.now()}`, { cache: 'no-store', headers: { 'cache-control': 'no-cache' } });
-            if (!respuesta.ok) return;
-            const contenido = await respuesta.text();
-            const encontrado = contenido.match(/seniorflow-flyer-gestion-\d{8}-\d+/)?.[0] || '';
-            if (encontrado && encontrado !== BUILD_ACTUAL) mostrarAviso(encontrado);
-          } catch (error) {
-            // Sin conexión: se vuelve a intentar automáticamente.
-          }
-        };
-
-        navigator.serviceWorker?.addEventListener('message', (event) => {
-          const version = event?.data?.type === 'SENIORFLOW_UPDATE_READY' ? event.data.version : '';
-          if (version && version !== BUILD_ACTUAL) mostrarAviso(version);
+        aviso.querySelector('[data-accion="despues"]').addEventListener('click', () => {
+          sessionStorage.setItem(POSPONER_KEY, String(Date.now() + (30 * 60 * 1000)));
+          ocultarAviso();
         });
-        window.addEventListener('focus', controlarActualizacion);
-        window.addEventListener('online', controlarActualizacion);
-        document.addEventListener('visibilitychange', () => {
-          if (document.visibilityState === 'visible') controlarActualizacion();
-        });
-        window.setTimeout(controlarActualizacion, 15000);
-        window.setInterval(controlarActualizacion, INTERVALO_CONTROL_MS);
-      })();
-    </script>
-  </body>
+        const botonActualizar = aviso.querySelector('[data-accion="actualizar"]');
+        botonActualizar.addEventListener('click', () => actualizarAhora(botonActualizar));
+        document.body.appendChild(aviso);
+      };
+      const controlarActualizacion = async () => {
+        if (!navigator.onLine) return;
+        try {
+          const respuesta = await fetch(`./sw.js?control-version=${Date.now()}`, { cache: 'no-store', headers: { 'cache-control': 'no-cache' } });
+          if (!respuesta.ok) return;
+          const contenido = await respuesta.text();
+          const encontrado = contenido.match(/seniorflow-flyer-gestion-\d{8}-\d+/)?.[0] || '';
+          if (encontrado && encontrado !== BUILD_ACTUAL) mostrarAviso(encontrado);
+        } catch (error) {
+          // Sin conexión: se vuelve a intentar automáticamente.
+        }
+      };
+      navigator.serviceWorker?.addEventListener('message', (event) => {
+        const version = event?.data?.type === 'SENIORFLOW_UPDATE_READY' ? event.data.version : '';
+        if (version && version !== BUILD_ACTUAL) mostrarAviso(version);
+      });
+      window.addEventListener('focus', controlarActualizacion);
+      window.addEventListener('online', controlarActualizacion);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') controlarActualizacion();
+      });
+      window.setTimeout(controlarActualizacion, 15000);
+      window.setInterval(controlarActualizacion, INTERVALO_CONTROL_MS);
+    })();
+  </script>
+</body>
 </html>
