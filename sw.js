@@ -1,15 +1,18 @@
-const CACHE_NAME = 'seniorflow-flyer-gestion-20261125-79';
+const CACHE_NAME = 'seniorflow-flyer-gestion-20261125-83';
 const ASSETS = [
   './',
   './index.html',
   './stock-app.html',
   './stock-app.js?v=seniorflow-stock-mobile-20260807-08',
-  './app.js?v=seniorflow-flyer-gestion-20261125-79',
+  './app.js?v=seniorflow-flyer-gestion-20261125-83',
   './firebase-config.js?v=seniorflow-online-firestore-20260825-36',
   './manifest.json',
   './manifest-stock-app.json?v=seniorflow-stock-mobile-20260807-08',
   './sw-stock-app.js?v=seniorflow-stock-mobile-20260807-08',
   './ofertas.html?v=seniorflow-flyer-gestion-20260903-51',
+  './oferta-template-base.jpg',
+  './logo-empresa-mundoled.png',
+  './logo-ofertas-mundoled-white.png',
   './icons/stock-app.svg',
   './icons/stock-app-192.png',
   './icons/stock-app-512.png',
@@ -98,7 +101,7 @@ self.addEventListener('fetch', (event) => {
             ? './stock-app.js?v=seniorflow-stock-mobile-20260807-08'
             : url.pathname.endsWith('/ofertas.html')
             ? './ofertas.html?v=seniorflow-flyer-gestion-20260903-51'
-            : './app.js?v=seniorflow-flyer-gestion-20261125-79'));
+            : './app.js?v=seniorflow-flyer-gestion-20261125-83'));
       }
     })());
     return;
